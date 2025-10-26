@@ -29,21 +29,21 @@ stages :
 build:
   stage: build
   script: 
-    - cd projet-worms
+    - cd worms
     - mvn $MAVEN_CLI_OPTS clean compile
 #  cache:
 #    key: "$CI_COMMIT_REF_NAME"
 #    policy: push
   artifacts:
     paths:
-      - projet-worms/target
+      - worms/target
 
 # ETAPE 1 : TEST 
 
 test:
   stage: test
   script: 
-    - cd projet-worms
+    - cd worms
     - mvn $MAVEN_CLI_OPTS test
   
   dependencies :
