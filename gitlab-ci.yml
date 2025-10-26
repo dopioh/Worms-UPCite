@@ -2,6 +2,7 @@ image: maven:3.9-eclipse-temurin-17
 
 variables:
   MAVEN_OPTS: "-Dhttps.proxyHost=194.254.199.96 -Dhttps.proxyPort=3128"
+  MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version"
 
 before_script:
   - MAVEN_CONFIG="$(pwd)/.m2"
@@ -18,7 +19,7 @@ build:
   stage: build
   script: 
     - cd projet-worms
-    - mvn -B -U -DskipTests -Dmaven.repo.local="$MAVEN_CONFIG/repository" package
+    - mvn $MAVEN_CLI_OPTS clean compile
 #  cache:
 #    key: "$CI_COMMIT_REF_NAME"
 #    policy: push
@@ -32,7 +33,7 @@ test:
   stage: test
   script: 
     - cd projet-worms
-    - mvn -B -Dmaven.repo.local="$MAVEN_CONFIG/repository" test
+    - mvn $MAVEN_CLI_OPTS test
   
   dependencies :
     - build
