@@ -1,0 +1,46 @@
+image: maven:3.9-eclipse-temurin-17
+
+variables:
+  MAVEN_OPTS: "-Dhttps.proxyHost=194.254.199.96 -Dhttps.proxyPort=3128"
+
+before_script:
+  - MAVEN_CONFIG="$(pwd)/.m2"
+  - export MAVEN_CONFIG
+
+build:
+  stage: build
+  script: mvn -B -U -DskipTests -Dmaven.repo.local="$MAVEN_CONFIG/repository" package
+  cache:
+    key: "$CI_COMMIT_REF_NAME"
+    policy: push
+    paths:
+      - target
+      - .m2/repository
+
+test:
+  stage: test
+  script: mvn -B -Dmaven.repo.local="$MAVEN_CONFIG/repository" test
+  cache:
+    key: "$CI_COMMIT_REF_NAME"
+    policy: pull
+    paths:
+      - target
+      - .m2/repository
+
+# jacoco:
+#   stage: test
+#   script:
+#     - mvn -B -Dmaven.repo.local="$MAVEN_CONFIG/repository" \
+#         org.jacoco:jacoco-maven-plugin:prepare-agent \
+#         test \
+#         org.jacoco:jacoco-maven-plugin:report
+#   artifacts:
+#     reports:
+#       coverage_report:
+#         coverage_format: jacoco
+#         path: target/site/jacoco/jacoco.xml
+
+# deploy:
+#   stage: deploy
+#   script: echo "Define your deployment script!"
+#   environment: production
