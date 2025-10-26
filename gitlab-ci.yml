@@ -10,10 +10,13 @@ before_script:
 stages :
   - build
   - test
-  
+  - deploy
+
 build:
   stage: build
-  script: mvn -B -U -DskipTests -Dmaven.repo.local="$MAVEN_CONFIG/repository" package
+  script: 
+    - cd projet-worms
+    - mvn -B -U -DskipTests -Dmaven.repo.local="$MAVEN_CONFIG/repository" package
   cache:
     key: "$CI_COMMIT_REF_NAME"
     policy: push
@@ -23,7 +26,9 @@ build:
 
 test:
   stage: test
-  script: mvn -B -Dmaven.repo.local="$MAVEN_CONFIG/repository" test
+  script: 
+    - cd projet-worms
+    - mvn -B -Dmaven.repo.local="$MAVEN_CONFIG/repository" test
   cache:
     key: "$CI_COMMIT_REF_NAME"
     policy: pull
