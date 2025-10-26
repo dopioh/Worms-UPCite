@@ -12,29 +12,37 @@ stages :
   - test
   - deploy
 
+# ETAPE 1 : BUILD
+
 build:
   stage: build
   script: 
     - cd projet-worms
     - mvn -B -U -DskipTests -Dmaven.repo.local="$MAVEN_CONFIG/repository" package
-  cache:
-    key: "$CI_COMMIT_REF_NAME"
-    policy: push
+#  cache:
+#    key: "$CI_COMMIT_REF_NAME"
+#    policy: push
+  artifacts:
     paths:
-      - target
-      - .m2/repository
+      - projet-worms/target
+
+# ETAPE 1 : TEST 
 
 test:
   stage: test
   script: 
     - cd projet-worms
     - mvn -B -Dmaven.repo.local="$MAVEN_CONFIG/repository" test
-  cache:
-    key: "$CI_COMMIT_REF_NAME"
-    policy: pull
-    paths:
-      - target
-      - .m2/repository
+  
+  dependencies :
+    - build
+    
+#  cache:
+#    key: "$CI_COMMIT_REF_NAME"
+#    policy: pull
+#    paths:
+#      - target
+#      - .m2/repository
 
 # jacoco:
 #   stage: test
