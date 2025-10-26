@@ -7,6 +7,10 @@ before_script:
   - MAVEN_CONFIG="$(pwd)/.m2"
   - export MAVEN_CONFIG
 
+stages :
+  - build
+  - test
+  
 build:
   stage: build
   script: mvn -B -U -DskipTests -Dmaven.repo.local="$MAVEN_CONFIG/repository" package
