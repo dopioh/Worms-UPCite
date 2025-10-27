@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.0 (unreleased)
+## v.01 Configuration : (Avant le premier sprint)
 
 - Création de la base (Maven)
 
@@ -9,3 +9,4 @@
 - .gitignore
 - LICENSE (MIT)
 - gitlab-ci.yml
+- DESIGN.md
