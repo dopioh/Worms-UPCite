@@ -36,7 +36,7 @@ Plusieurs fichiers seront **obligatoires** à integrer à ce git, parmi eux :
 
 ```
 CHANGELOG.md    // Une sorte d'historique du projet où chaque gros changement devra y etre inscrit avec la date et la version du projet.
-LICENCE.md      // Un fichier Copyright qui indique les droits et les restrictions d’utilisation du code. (Ce qui devra etre *null* pour nous puisque notre code - et nos idees - doivent rester strictement entre nous.)
+LICENSE      // Un fichier Copyright qui indique les droits et les restrictions d’utilisation du code. (Ce qui devra etre *null* pour nous puisque notre code - et nos idees - doivent rester strictement entre nous.)
 ```
 
 Si quelqu'un a le temps de les intégrer, qu'il n'hésite pas !

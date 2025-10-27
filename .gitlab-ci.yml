@@ -1,0 +1,75 @@
+image: maven:3.9-eclipse-temurin-17
+
+variables:
+  MAVEN_OPTS: "-Dhttps.proxyHost=194.254.199.96 -Dhttps.proxyPort=3128"
+  MAVEN_CONFIG: "/root/.m2"
+  MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version"
+
+before_script:
+  - mkdir -p /root/.m2
+  - echo '<settings>
+      <proxies>
+        <proxy>
+          <id>proxy</id>
+          <active>true</active>
+          <protocol>https</protocol>
+          <host>194.254.199.96</host>
+          <port>3128</port>
+        </proxy>
+      </proxies>
+    </settings>' > /root/.m2/settings.xml
+
+stages :
+  - build
+  - test
+  - deploy
+
+# ETAPE 1 : BUILD
+
+build:
+  stage: build
+  script: 
+    - cd worms
+    - mvn $MAVEN_CLI_OPTS clean compile
+#  cache:
+#    key: "$CI_COMMIT_REF_NAME"
+#    policy: push
+  artifacts:
+    paths:
+      - worms/target
+
+# ETAPE 1 : TEST 
+
+test:
+  stage: test
+  script: 
+    - cd worms
+    - mvn $MAVEN_CLI_OPTS test
+  
+  dependencies :
+    - build
+    
+#  cache:
+#    key: "$CI_COMMIT_REF_NAME"
+#    policy: pull
+#    paths:
+#      - target
+#      - .m2/repository
+
+# jacoco:
+#   stage: test
+#   script:
+#     - mvn -B -Dmaven.repo.local="$MAVEN_CONFIG/repository" \
+#         org.jacoco:jacoco-maven-plugin:prepare-agent \
+#         test \
+#         org.jacoco:jacoco-maven-plugin:report
+#   artifacts:
+#     reports:
+#       coverage_report:
+#         coverage_format: jacoco
+#         path: target/site/jacoco/jacoco.xml
+
+# deploy:
+#   stage: deploy
+#   script: echo "Define your deployment script!"
+#   environment: production
