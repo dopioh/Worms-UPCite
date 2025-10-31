@@ -1,7 +1,7 @@
-package fr.upc.g5e4.personnage.view;
+package fr.upc.g5e4.view;
 
 import java.awt.*;
-import fr.upc.g5e4.personnage.model.PersonnageModel;
+import fr.upc.g5e4.model.PersonnageModel;
 
 /**
  * Vue pour l'affichage du NameTag

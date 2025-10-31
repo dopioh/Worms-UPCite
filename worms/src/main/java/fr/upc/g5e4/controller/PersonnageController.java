@@ -1,6 +1,6 @@
-package fr.upc.g5e4.personnage.controller;
+package fr.upc.g5e4.controller;
 
-import fr.upc.g5e4.personnage.model.PersonnageModel;
+import fr.upc.g5e4.model.PersonnageModel;
 
 /**
  * Contrôleur pour le worm

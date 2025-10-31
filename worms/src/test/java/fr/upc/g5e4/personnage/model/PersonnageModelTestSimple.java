@@ -2,6 +2,8 @@ package fr.upc.g5e4.personnage.model;
 
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
+import fr.upc.g5e4.model.PersonnageModel;
+
 /**
  * Tests unitaires pour PersonnageModel (avec Junit)
  * 

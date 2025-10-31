@@ -1,10 +1,10 @@
-package fr.upc.g5e4.personnage;
+package fr.upc.g5e4;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import fr.upc.g5e4.personnage.model.PersonnageModel;
-import fr.upc.g5e4.personnage.view.PersonnageView;
-import fr.upc.g5e4.personnage.controller.PersonnageController;
+import fr.upc.g5e4.model.PersonnageModel;
+import fr.upc.g5e4.view.PersonnageView;
+import fr.upc.g5e4.controller.PersonnageController;
 
 /**
  * Platforme principale du jeu
@@ -17,9 +17,9 @@ public class PlateformeMVC extends JPanel {
     private PersonnageView personnageView;
     
     private PersonnageController personnageController;
-    
-    private int hauteurSol;
-    
+
+    private int groundHeight;
+
     /**
      * Constructeur par défaut
      */
@@ -27,19 +27,17 @@ public class PlateformeMVC extends JPanel {
         setPreferredSize(new Dimension(800, 600));
         setBackground(new Color(30, 60, 110));
         
-        hauteurSol = 500;
+        groundHeight = 500;
         
         // Initialisation MVC
-        personnageModel = new PersonnageModel(400, hauteurSol - 20);
+        personnageModel = new PersonnageModel(400, groundHeight - 20);
         personnageView = new PersonnageView();
         personnageController = new PersonnageController(personnageModel);
 
-        // Initialisation de l'interface
         setFocusable(true);
         requestFocusInWindow();
         
-        // Ajouter les contrôles
-        ajouterControles();
+        addControls();
         
         // Timer pour mettre à jour le jeu
         Timer timer = new Timer(16, e -> gameUpdate());
@@ -63,9 +61,6 @@ public class PlateformeMVC extends JPanel {
         }
     }
     
-    /**
-     * Dessine la grille blueprint
-     */
     private void drawGrid(Graphics2D g2d) {
         int width = getWidth();
         int height = getHeight();
@@ -91,9 +86,6 @@ public class PlateformeMVC extends JPanel {
         }
     }
     
-    /**
-     * Dessine le sol
-     */
     private void drawGround(Graphics2D g2d) {
         int width = getWidth();
         int height = getHeight();
@@ -105,11 +97,8 @@ public class PlateformeMVC extends JPanel {
         g2d.setStroke(new BasicStroke(3.0f));
         g2d.drawLine(0, height - 100, width, height - 100);
     }
-    
-    /**
-     * Ajoute les events clavier
-     */
-    private void ajouterControles() {
+
+    private void addControls() {
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -144,17 +133,14 @@ public class PlateformeMVC extends JPanel {
     }
     
     /**
-     * Met à jour le jeu
+     * met a jour l'affichage de la fenetre
      */
     private void gameUpdate() {
         if (personnageController.update()) {
             repaint();
         }
     }
-    
-    /**
-     * Point d'entrée du programme
-     */
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Terrain Blueprint - Worms (MVC)");

@@ -3,6 +3,8 @@ package fr.upc.g5e4.personnage.view;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 import java.awt.Color;
+import fr.upc.g5e4.view.PersonnageView;
+import fr.upc.g5e4.view.NameTagView;
 
 /**
  * Tests unitaires pour PersonnageView (avec Junit)
