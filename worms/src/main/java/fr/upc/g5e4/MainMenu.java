@@ -1,6 +1,6 @@
 package fr.upc.g5e4;
 
-public class Accueil {
+public class MainMenu {
 
     public static void main(String[] args) {
         
