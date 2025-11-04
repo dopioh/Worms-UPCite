@@ -1,5 +1,8 @@
 package fr.upc.g5e4.controller;
 
+import org.jbox2d.common.Vec2;
+import org.jbox2d.dynamics.Body;
+
 import fr.upc.g5e4.model.PersonnageModel;
 
 /**
@@ -12,6 +15,8 @@ public class PersonnageController {
     // Variables pour gérer les touches maintenues
     private boolean LeftKeyPressed = false;
     private boolean RightKeyPressed = false;
+
+    private static final float MOVE_FORCE = 15f;  // Force/Vitesse de deplacement
 
     /**
      * Constructeur de la classe PersonnageController
@@ -39,30 +44,31 @@ public class PersonnageController {
     }
     
     /**
-     * Met à jour la position du worm en fonction des touches enfoncées
      * @return true si le worm a bougé, false sinon
+     * Met à jour la position du worm en fonction des touches enfoncées
+     * Contrairement à avant, on se base sur la position du body pour le faire bouger
+     * On le syncro ensuite avec son model
      */
     public boolean update() {
-        double dx = 0;
-
-        if (LeftKeyPressed) dx -= model.getSpeed();
-        if (RightKeyPressed) dx += model.getSpeed();
-
-        if (dx != 0) {
-            model.setXcord(model.getXcord() + dx);
-            return true;
+        Body body = model.getBody();
+        
+        // Appliquer une force horizontale
+        if (LeftKeyPressed) {
+            body.applyForceToCenter(new Vec2(-MOVE_FORCE, 0));
+        }
+        if (RightKeyPressed) {
+            body.applyForceToCenter(new Vec2(MOVE_FORCE, 0));
         }
         
-        return false;
+        // Synchroniser les coordonnées du modèle avec le corps physique
+        Vec2 position = body.getPosition();
+        model.setXcord(position.x * 30f);  // Conversion mètres → pixels
+        model.setYcord((20 - position.y) * 30f);  // Inversion Y + conversion
+        
+        return LeftKeyPressed || RightKeyPressed;
     }
 
-    public void moveLeft() {
-        model.setXcord(model.getXcord() - model.getSpeed());
-    }
 
-    public void moveRight() {
-        model.setXcord(model.getXcord() + model.getSpeed());
-    }
     
     /**
      * Téléporte le personnage à une position

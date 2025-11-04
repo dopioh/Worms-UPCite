@@ -1,4 +1,4 @@
-package fr.upc.g5e4;
+package fr.upc.g5e4.model;
 
 import org.jbox2d.collision.Manifold;
 import org.jbox2d.collision.shapes.ChainShape;
@@ -13,19 +13,47 @@ import java.util.ArrayList;
 import org.jbox2d.callbacks.*;
 import org.jbox2d.dynamics.contacts.Contact;
 
+    /**
+     * <p>
+     * Classe qui gerera la physique du terrain (sol et eau pour le moment) seulement. 
+     * Les Body des Entity ne sont pas a definir ici
+     * Mais dans leur propre classe
+     * <p>
+     * 
+     * @see Entity#createBody
+     */
 public class PhysicsWorld {
-    /*
-     * On va definir dans cette classe les Boddies du sol et de l'eau (collision, effet lors de la collision etc)
-     * On definira egalement un Dummy pour tester que le perso ne traverse pas le sol et depop si il est dans l'eau depuis quelques secondes
-     * Pour ca on rajoutera dans la classe Dummy un controller simple qui peut aller a droite et a gauche et qui peut sauter 
-     * Separer la classe en deux (implicitement), une partie qui gere la physique du Worm, et l'autre qui gere la physique des projectiles 
-     * Chaque projectile est different selon l'arme : Creer un constructeur modulable qui detaille les specificiter de chaque arme et qui vont changer l'impact de la physique des projectiles
-     *      -> A definir plus tard quand on implementera serieusement les armes, mtn on se limite que au poids et a la vitesse (dans une autre classe ?)
+
+    /**
+     * <p>
+     * {@code PPM} = pixel par mettre
+     * Swing/AWT fonctionne avec des pixels
+     * JBox2D fonctionne avec des metres 
+     * Donc il faut convertir (grace a {@code PPM} et a des formules) pour passer de l'un a l'autre
+     * 
+     * Formules : 
+     * m_worldX = screenHeight_px /PPM 
+     * m_worldY = screenHeight_px - screenY_px /PPM 
+     * screenX_px = m_worldX * PPM
+     * screenY_px = screenHeight - (m_worldY * PPM)
+     * 
+     * L'axe Y est inversé entre Swing/AWT et JBox2D
+     * (0x,0y) = en haut a gauche dans Swing
+     * (0x,0y) = en bas a gauche dans Jbox2D (comme en maths)
+     * 
+     * Les formules au dessus convertissent deja Y
+     * <p>
      */
     private static final float PPM = 30f;
-    private final World world;
 
+    /**
+     * {@code world} est "l'initialisitation" du monde d'une partie
+     * Il defini la gravité du monde
+     * Chaque Body que vous ferez devra etre ajouté à monde
+     */
+    private final World world;                     
 
+    
 
     public PhysicsWorld(){
         Vec2 gravity = new Vec2(0f, -9.8f);     // pour definir la force de la gravite en m/s^2
@@ -38,18 +66,13 @@ public class PhysicsWorld {
         return this.world;
     }
 
-    /*
-     * Methode pour creer un body STATIC (pour le moment, on changera surement en Kinematic lorsque on integrera les degradations de terrains)
-     * Il faut recup les points de hauteur de groundY, et retracer un "capteur/body" dessus qui sera impacter par la physique kinetic
-     * JBox fonctionne avec des metres alors que swing et awt fonctionne avec des pixels donc on convertie 
-     * (aussi psq on doit garder des faibles unites de mesures - entre 0.1 et 10m - pour que JBox fonctionne bien)
-     * Y est inverser entre Jbox et Swing/Awt donc faudra faire un reverse
-     * Mais comment faire ca ?
+    /**
+     * Methode pour creer un body STATIC du Sol
+     * On changera surement en KINEMATIC lorsque on integrera les degradations de terrains
      */
-
     public void createGroundFromModel(GroundModel model){ 
         int[] groundY = model.getGroundY();
-        int stepPx = model.getWidth()/(groundY.length-1);                      // on recupere l'espace entre chaque valeur de groundY (on peut mtn determiner leur positions)                      
+        int stepPx = model.getWidth()/(groundY.length-1);                                      
         float[] m_groundY = new float[groundY.length];
 
         Vec2[] pos = new Vec2[m_groundY.length];                                  // on a transformer les positions des sommets du sol en vecteur 2D
@@ -64,8 +87,8 @@ public class PhysicsWorld {
             //System.out.println("position Y i ground : " + pos[i].y);
         }
 
-        ChainShape chain = new ChainShape();                                        // on relie les points avec une chaine (on utilisera pas ca pour l'eau puisque ce type de chaine peut pas etre rempli)
-        chain.createChain(pos, pos.length);                                      // "vortex" c'est sommet aussi puree (a retenir)
+        ChainShape chain = new ChainShape();                                        // on relie les points avec une chaine (on utilisera pas ca pour l'eau puisque ce type de chaine peut pas etre rempli
+        chain.createChain(pos, pos.length);                                      
 
         BodyDef bdGround = new BodyDef();
         bdGround.type = BodyType.STATIC;
@@ -81,8 +104,12 @@ public class PhysicsWorld {
     }
 
 
+    /**
+     * Methode pour initialiser le Body de l'eau 
+     * Body traversable mais qui emet un signal
+     */
     public Body createBodyWater(GroundModel model){
-        int waterLevelPx = model.getWaterLevel();   // 500 en swing
+        int waterLevelPx = model.getWaterLevel();   
         float m_waterLevel = (model.getHeight() - waterLevelPx)/ GamePanel.getPPM();
 
         BodyDef bdWater = new BodyDef();
@@ -103,7 +130,11 @@ public class PhysicsWorld {
     }
 
 
-    public void limitPanel(GroundModel model){    // je mets tout ensemble (wall et ceiling) puisque on les retravaillera pas ailleurs individuellement (pas de couleur ou d'autre appel je ne sais ou)
+    /**
+     * Creer les limites de terrain que ni le joueur ni la cam peut depassé
+     * Seulement murs droit et gauche pour le moment
+     */
+    public void limitPanel(GroundModel model){ 
         
         BodyDef leftWall = new BodyDef();        // mur gauche
         leftWall.type = BodyType.STATIC;
@@ -114,7 +145,7 @@ public class PhysicsWorld {
 
         FixtureDef fDefLeftW = new FixtureDef();
         fDefLeftW.shape = eShapeLeftW;
-        fDefLeftW.restitution = 0.5f;
+        fDefLeftW.restitution = 0.3f;
 
         Body bLeftWall = world.createBody(leftWall);
         bLeftWall.createFixture(fDefLeftW);
@@ -123,7 +154,7 @@ public class PhysicsWorld {
 
         BodyDef rightWall = new BodyDef();        // mur droit  
         rightWall.type = BodyType.STATIC;
-        rightWall.position.set(model.getWidth() /PPM, 0);   // en bas a gauche (puisque JBox2D), pas besoin d'inverse psq on veut tout y, y - y = 0
+        rightWall.position.set(model.getWidth() /PPM, 0);   // en bas a gauche (puisque JBox2D), on inverse pas psq on veut tout y, y - y = 0
 
         EdgeShape eShapeRightW = new EdgeShape();                   
         eShapeRightW.set(new Vec2(0, 0), new Vec2(0, model.getHeight()/30));
@@ -132,35 +163,52 @@ public class PhysicsWorld {
 
         FixtureDef fDefRightW = new FixtureDef();
         fDefRightW.shape = eShapeRightW;
-        fDefRightW.restitution = 0.5f;
+        fDefRightW.restitution = 0.3f;
 
         Body bRightWall = world.createBody(rightWall);     
         bRightWall.createFixture(fDefRightW);               
     }
 
 
+    /**
+     * Classe Interne pour creer la reaction a la collision
+     * On creera surement une autre classe externe comme ca mais globale
+     * Qui focntionnera pas seulement que pour le contact entre l'eau et le Worms
+     * 
+     * @param water : body deja defini qui designe l'eau 
+     * @param personnageModel : Instance d'un Worms qui possede une methode qui cree un body
+     * @param destroy : liste vide où on rajoutera les Worms qui sont completement dans l'eau
+     * 
+     * @see PersonnageModel#createBody
+     */
     public class WaterSensorListener implements ContactListener{
-        private ArrayList<Dummy> destroy;
-        private final Body water;                     // capteur pour savoir si un body touche l'eau (defini avec setControlListener dans une classe interne plus tard)
-        private final Dummy dummy;
+        private ArrayList<PersonnageModel> destroy;
+        private final Body water;                     
+        private final PersonnageModel personnageModel;
 
-        public WaterSensorListener(Body water, Dummy dummy, ArrayList<Dummy> destroy){
+        public WaterSensorListener(Body water, PersonnageModel personnageModel, ArrayList<PersonnageModel> destroy){
             this.water = water;
-            this.dummy = dummy;
+            this.personnageModel = personnageModel;
             this.destroy = destroy;
         }
 
-        public ArrayList<Dummy> getDestroyList(){
+        /**
+         * @return une liste qui contient tous les Worms dans l'eau
+         * Permettra de supprimer leur Body
+         * 
+         * @see GameManager
+         */
+        public ArrayList<PersonnageModel> getDestroyList(){
             return destroy;
         }
 
         @Override
-        public void beginContact(Contact contact){          // Contact est une classe abtraite qui "instancier" automatiquement des que deux body (ou seulement leru fixtures ?) se touche
+        public void beginContact(Contact contact){          // contact est une classe abtraite qui "s'instancie" automatiquement des que deux body (ou seulement leur fixtures ?) se touche
             Fixture a = contact.getFixtureA();              
             Fixture b = contact.getFixtureB();
 
             if (fullInWater(a, b)){
-                destroy.add(this.dummy);
+                destroy.add(this.personnageModel);
                 System.out.println("DEPOP");
             }
         }
@@ -169,20 +217,27 @@ public class PhysicsWorld {
         public void endContact(Contact contact){
             
         }
-
+        /**
+         * Toutes les variables de fullInWater sont en metres
+         * Car Jbox2D
+        */
         public boolean fullInWater(Fixture a, Fixture b){
             float waterY = water.getPosition().y;
             //System.out.println("waterY : " + waterY);
-            float dummyY = dummy.getBody().getPosition().y;
+            float PersoY = personnageModel.getBody().getPosition().y;
             //System.out.println("dummyY : " + dummyY);
-            float radius = dummy.getRadiusM();
+            float demiHauteurY = personnageModel.getMWidthPerso() / 2; // On veut que la moitié
             //System.out.println("radius : " + radius);
-            if (dummyY + radius > waterY){
+            if (PersoY + demiHauteurY > waterY){
                 return false;
             }
             return true;
         }
 
+        /**
+         * Pas besoin de definir ca, ca en sert a rien pour le moment
+         * On est obliger de les {@code @Override} car classe abstraire 
+         */
         @Override
         public void preSolve(Contact contact, Manifold oldManifold){};              // on n'en a pas besoin pour le moment
         @Override
