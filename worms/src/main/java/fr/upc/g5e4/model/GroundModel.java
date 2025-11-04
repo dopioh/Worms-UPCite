@@ -1,7 +1,13 @@
-package fr.upc.g5e4;
+package fr.upc.g5e4.model;
 
-//import org.jbox2d.dynamics.*;
-
+/**
+ * Initialise un terrain (Ground)
+ * Seulement ses coordonnées
+ * Utiliser pour creer son Body et son image
+ * 
+ * @see PhysicsWorld#createGroundFromModel 
+ * @see GamePanel#paintComponent
+ */
 public class GroundModel{
     private final int[] groundY;
     private final int width;
@@ -23,19 +29,20 @@ public class GroundModel{
     public int[] getGroundY() { return groundY; }
 
 
-public int getGroundHeightAt(double pixel) {
+    /**
+     * @param pixel : X donné 
+     * 
+     * Pour recuperer Y a un X donné
+     */
+    public int getGroundHeightAt(double pixel) {
     
-    // nombre de points du terrain
-    int n = groundY.length;
+        int n = groundY.length;
+        int i = (int) (pixel * (n - 1) / width);
     
-    // calcul de l'indice le plus proche
-    int i = (int) (pixel * (n - 1) / width);
+        if (i < 0){i = 0;} 
+        if (i >= n) {i = n - 1;}
     
-    // limite pour ne pas dépasser le tableau
-    if (i < 0) i = 0;
-    if (i >= n) i = n - 1;
-    
-    return groundY[i];
-}
+        return groundY[i];
+    }
 
 }

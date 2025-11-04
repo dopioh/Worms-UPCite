@@ -1,6 +1,10 @@
 package fr.upc.g5e4.view;
 
 import java.awt.*;
+
+import org.jbox2d.common.Vec2;
+import org.jbox2d.dynamics.Body;
+
 import fr.upc.g5e4.model.PersonnageModel;
 
 /**
@@ -43,14 +47,19 @@ public class PersonnageView {
     
     /**
      * Dessine le corps du worm (carré)
+     * On se base sur son body
      * @param g2d Le contexte graphique
      * @param model Le model du worm
      */
     private void drawBody(Graphics2D g2d, PersonnageModel model) {
-        int x = (int) Math.round(model.getXcord());
-        int y = (int) Math.round(model.getYcord());
-
-        g2d.setColor(color);
+        Body body = model.getBody();
+        Vec2 m_position = body.getPosition();
+    
+        // Conversion mètres -> pixels
+        int x = (int)(m_position.x * PersonnageModel.getPPM());
+        int y = (int)((20 - m_position.y) * PersonnageModel.getPPM());  // Conversion et Inversion Y
+    
+        g2d.setColor(Color.RED);
         g2d.fillRect(x - size/2, y - size/2, size, size);
     }
     

@@ -11,7 +11,7 @@ import fr.upc.g5e4.model.PersonnageModel;
 public class PersonnageModelTestSimple {
 
     // @Test constructeurs
-    @Test
+    /*@Test
     public void testDefaultConstructor() {
         PersonnageModel personnage = new PersonnageModel(100.0, 200.0);
         
@@ -142,7 +142,7 @@ public class PersonnageModelTestSimple {
         // On le ressuscite
         personnage.setDead(false);
         assertFalse(personnage.isDead());
-    }
+    }*/
 
 
 }

@@ -1,6 +1,8 @@
 import org.junit.jupiter.api.Test;
 
-import fr.upc.g5e4.GroundModel;
+import fr.upc.g5e4.controller.*;
+import fr.upc.g5e4.model.*;
+import fr.upc.g5e4.view.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 

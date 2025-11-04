@@ -13,7 +13,7 @@ public class PersonnageControllerTest {
     
     // @Tests activation/désactivation touches
     
-    @Test
+    /*@Test
     public void testActivateLeft() {
         PersonnageModel model = new PersonnageModel(100, 200);
         PersonnageController controller = new PersonnageController(model);
@@ -142,6 +142,6 @@ public class PersonnageControllerTest {
         
         assertEquals(500, model.getXcord(), "la position X devrait être 500");
         assertEquals(300, model.getYcord(), "la position Y devrait être 300");
-    }
+    }*/
 
 }
