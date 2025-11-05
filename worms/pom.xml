@@ -40,7 +40,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>fr.upc.g5e4.GameLuncher</mainClass>
+                            <mainClass>fr.upc.g5e4.GameLauncher</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
