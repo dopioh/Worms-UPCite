@@ -231,6 +231,7 @@ public class PhysicsWorld {
             if (PersoY + demiHauteurY > waterY){
                 return false;
             }
+            personnageModel.setDead(true);
             return true;
         }
 

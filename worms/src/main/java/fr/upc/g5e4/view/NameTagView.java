@@ -12,6 +12,7 @@ public class NameTagView {
     private Color borderColor;
     private int padding;
     private Font font;
+    private boolean visible;
     
     /**
      * Constructeur de la classe NameTagView
@@ -21,7 +22,8 @@ public class NameTagView {
         this.textColor = Color.WHITE;
         this.borderColor = new Color(100, 180, 255);
         this.padding = 5;
-        this.font = new Font("Arial", Font.BOLD, 20);
+        this.font = new Font("Arial", Font.BOLD, 14);
+        this.visible = true;
     }
     
     /**
@@ -31,7 +33,7 @@ public class NameTagView {
      * @param text Le texte à afficher
      */
     public void draw(Graphics2D g2d, PersonnageModel model, String text) {
-        if (text == null || text.isEmpty()) {
+        if (!visible || text == null || text.isEmpty()) {
             return;
         }
         
@@ -69,7 +71,7 @@ public class NameTagView {
      * @param lignes Les lignes de texte
      */
     public void drawMultiLine(Graphics2D g2d, PersonnageModel model, String[] lignes) {
-        if (lignes == null || lignes.length == 0) {
+        if (!visible || lignes == null || lignes.length == 0) {
             return;
         }
         
@@ -107,5 +109,23 @@ public class NameTagView {
             int textY = boxY + padding + fm.getAscent() + (i * textHeight);
             g2d.drawString(lignes[i], textX, textY);
         }
+    }
+
+    // Getters & Setters
+
+    /**
+     * Permet de savoir si le NameTag est visible
+     * @return true si visible et false sinon
+     */
+    public boolean isVisible() {
+        return visible;
+    }
+    
+    /**
+     * Active ou désactive l'affichage du NameTag
+     * @param visible true pour afficher et false pour masquer
+     */
+    public void setVisible(boolean visible) {
+        this.visible = visible;
     }
 }

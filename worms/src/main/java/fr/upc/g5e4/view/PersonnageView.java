@@ -52,6 +52,10 @@ public class PersonnageView {
      * @param model Le model du worm
      */
     private void drawBody(Graphics2D g2d, PersonnageModel model) {
+        if (model.isDead()) {
+            return;
+        }
+        
         Body body = model.getBody();
         Vec2 m_position = body.getPosition();
     
@@ -69,6 +73,14 @@ public class PersonnageView {
      * @param model Le modèle du worm
      */
     private void drawStats(Graphics2D g2d, PersonnageModel model) {
+        if (model.isDead()) {
+            nameTagView.setVisible(false);
+            return;
+        }
+        
+        // Afficher le NameTag si le personnage est vivant
+        nameTagView.setVisible(true);
+        
         String[] stats = {
             model.getName(),
             "HP: " + (int)model.getHealth() + "/100",
