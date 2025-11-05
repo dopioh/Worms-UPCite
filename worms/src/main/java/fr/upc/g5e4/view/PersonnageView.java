@@ -19,7 +19,7 @@ public class PersonnageView {
      * Constructeur de la classe PersonnageView
      */
     public PersonnageView() {
-        this.size = 40;
+        this.size = 25;
         this.color = new Color(255, 150, 0); // Orange
         this.nameTagView = new NameTagView();
     }

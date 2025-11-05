@@ -22,7 +22,7 @@ public class NameTagView {
         this.textColor = Color.WHITE;
         this.borderColor = new Color(100, 180, 255);
         this.padding = 5;
-        this.font = new Font("Arial", Font.BOLD, 14);
+        this.font = new Font("Arial", Font.BOLD, 12);
         this.visible = true;
     }
     
@@ -94,7 +94,7 @@ public class NameTagView {
         int boxHeight = (textHeight * lignes.length) + padding * 2;
         
         int boxX = x - boxWidth / 2;
-        int boxY = y - 35 - boxHeight;
+        int boxY = y - 15 - boxHeight;
         
         g2d.setColor(backgroundColor);
         g2d.fillRoundRect(boxX, boxY, boxWidth, boxHeight, 5, 5);
