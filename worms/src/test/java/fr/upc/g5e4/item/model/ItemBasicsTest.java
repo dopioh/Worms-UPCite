@@ -7,6 +7,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
+import fr.upc.g5e4.model.ItemType;
+import fr.upc.g5e4.model.Weapon;
+
 class ItemBasicsTest {
 
     /** Sous-classe de test : onUse() renvoie toujours true */

@@ -1,8 +1,10 @@
 package fr.upc.g5e4.item.controller;
 
-import fr.upc.g5e4.item.model.Item;
-import fr.upc.g5e4.item.model.weapons.Ak47;
-import fr.upc.g5e4.item.view.ItemView;
+import fr.upc.g5e4.controller.ItemController;
+import fr.upc.g5e4.model.Item;
+import fr.upc.g5e4.model.weapons.Ak47;
+import fr.upc.g5e4.view.ItemView;
+
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

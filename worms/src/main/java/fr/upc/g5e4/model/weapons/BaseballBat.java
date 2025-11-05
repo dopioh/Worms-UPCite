@@ -1,10 +1,10 @@
-package fr.upc.g5e4.item.model.weapons;
+package fr.upc.g5e4.model.weapons;
 
-import fr.upc.g5e4.item.model.Weapon;
+import fr.upc.g5e4.model.Weapon;
 
 public class BaseballBat extends Weapon {
 
-    protected BaseballBat() {
+    public BaseballBat() {
         super("Baseball Bat", 8, false, 30, 0, 1);
     }
 

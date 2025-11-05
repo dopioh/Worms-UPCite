@@ -1,7 +1,7 @@
-package fr.upc.g5e4.item.controller;
+package fr.upc.g5e4.controller;
 
-import fr.upc.g5e4.item.model.Item;
-import fr.upc.g5e4.item.view.ItemView;
+import fr.upc.g5e4.model.Item;
+import fr.upc.g5e4.view.ItemView;
 
 public class ItemController {
     private final ItemView view;

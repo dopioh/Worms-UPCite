@@ -1,10 +1,10 @@
-package fr.upc.g5e4.item.model.weapons;
+package fr.upc.g5e4.model.weapons;
 
-import fr.upc.g5e4.item.model.Weapon;
+import fr.upc.g5e4.model.Weapon;
 
 public class Grenade extends Weapon{
 
-    protected Grenade() {
+    public Grenade() {
         super("Grenade", 3, false, 50, 3, 5);
     }
 

@@ -1,8 +1,10 @@
 package fr.upc.g5e4.item.model.weapons;
 
-import fr.upc.g5e4.item.model.ItemType;
-
 import org.junit.jupiter.api.Test;
+
+import fr.upc.g5e4.model.ItemType;
+import fr.upc.g5e4.model.weapons.Ak47;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class Ak47Test {

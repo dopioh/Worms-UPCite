@@ -1,6 +1,6 @@
-package fr.upc.g5e4.item.model.gadgets;
+package fr.upc.g5e4.model.gadgets;
 
-import fr.upc.g5e4.item.model.Gadget;
+import fr.upc.g5e4.model.Gadget;
 
 public class Bumper extends Gadget {
 

@@ -1,4 +1,4 @@
-package fr.upc.g5e4.item.model;
+package fr.upc.g5e4.model;
 
 /**
  * Armes : ajout de damage, blastRadius et speed.

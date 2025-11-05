@@ -1,6 +1,6 @@
-package fr.upc.g5e4.item.view;
+package fr.upc.g5e4.view;
 
-import fr.upc.g5e4.item.model.Item;
+import fr.upc.g5e4.model.Item;
 
 public class ItemView {
     

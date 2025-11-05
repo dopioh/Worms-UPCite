@@ -1,6 +1,6 @@
-package fr.upc.g5e4.item.model.weapons;
+package fr.upc.g5e4.model.weapons;
 
-import fr.upc.g5e4.item.model.Weapon;
+import fr.upc.g5e4.model.Weapon;
 
 public class Ak47 extends Weapon{
 
