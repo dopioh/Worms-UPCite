@@ -6,13 +6,13 @@ import fr.upc.g5e4.model.GamePanel;
 
 
 /** Class qui lance le jeu, elle set la taille de l'ecran (grace a son heritage de JFrame) */
-public class GameLuncher extends JFrame{
+public class GameLauncher extends JFrame{
     // classe pour lancer le jeu -> elle va instancier le GamePanel
     private final GameManager gameManager;
     private final GamePanel gamePanel;
     private final GameLoop gameLoop;
 
-    public GameLuncher(){
+    public GameLauncher(){
         int sizeX = 800;
         int sizeY = 600;
         JFrame jeu = new JFrame();
@@ -37,7 +37,7 @@ public class GameLuncher extends JFrame{
     }
 
     public static void main(String[] args){
-        new GameLuncher();
+        new GameLauncher();
         
     }
 }
