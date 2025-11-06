@@ -15,16 +15,16 @@ public class PersonnageViewTest {
     // @Test Constructeur
     
     @Test
-    public void testConstructeurParDefaut() {
+    public void testDefaultConstructor() {
         PersonnageView v = new PersonnageView();
     
-        assertEquals(40, v.getSize());
+        assertEquals(25, v.getSize());
         assertEquals(new Color(255, 150, 0), v.getColor());
         assertNotNull(v.getNameTagView());
     }
     
     @Test
-    public void testConstructeurAvecParametres() {
+    public void testConstructorWithParameters() {
         Color customColor = new Color(0, 255, 0); // Vert
         PersonnageView v = new PersonnageView(50, customColor);
 
@@ -38,7 +38,7 @@ public class PersonnageViewTest {
     @Test
     public void testGetSize() {
         PersonnageView view = new PersonnageView();
-        assertEquals(40, view.getSize());
+        assertEquals(25, view.getSize());
     }
     
     @Test
