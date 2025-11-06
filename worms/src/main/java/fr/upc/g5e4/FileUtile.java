@@ -6,16 +6,30 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
+/**
+ * Classe utilitaire pour la gestion des fichiers
+ */
+
 public class FileUtile {
 
-    public static void createFile(File file) throws IOException { // Crée le fichier s'il n'existe pas
+    /**
+     * méthode qui crée le fichier s'il n'existe pas
+     * @param file le fichier à créer
+     * @throws IOException en cas d'erreur lors de la création du fichier
+     */
+    public static void createFile(File file) throws IOException { 
         if (!file.exists()) { 
             file.getParentFile().mkdirs();
             file.createNewFile();
         }
     }
 
-    public static void save(File file, String text){ //Permet de sauvegarder du texte dans le fichier
+    /**
+     * méthode qui sauvegarde du texte dans un fichier
+     * @param file le fichier où sauvegarder le texte
+     * @param text le texte à sauvegarder
+     */
+    public static void save(File file, String text){ 
         final FileWriter fw;
         try {
             createFile(file);
@@ -29,7 +43,12 @@ public class FileUtile {
 
     }
 
-    public static String load(File file){ //Permet de charger le texte dans le fichier
+    /**
+     * méthode qui charge du texte depuis un fichier
+     * @param file le fichier à lire
+     * @return le texte charger depuis le fichier
+     */
+    public static String load(File file){
         if (file.exists()){
             try {
                 final BufferedReader reader = new BufferedReader(new FileReader(file));
