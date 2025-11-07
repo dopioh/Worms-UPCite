@@ -1,6 +1,10 @@
 package fr.upc.g5e4;
 
 import com.google.gson.Gson;
+
+import fr.upc.g5e4.FileUtile;
+import fr.upc.g5e4.model.DoneesJoueur;
+
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import java.io.File;

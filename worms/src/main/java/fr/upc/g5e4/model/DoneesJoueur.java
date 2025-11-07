@@ -1,54 +1,49 @@
-package fr.upc.g5e4;
+package fr.upc.g5e4.model;
 
 /**
- * Classe pour les Données du joueur
+ * Classe pour les Données du joueur (Model)
  */
-
 public class DoneesJoueur {
     
     private String name;
     private int xp;
     private int money;
 
-    
     /**
      * Constructeur de la classe DoneesJoueur
      * @param name nom du joueur
      * @param xp points d'expérience du joueur
      * @param money argent du joueur
      */
-
-    public DoneesJoueur(String name, int xp, int money){
+    public DoneesJoueur(String name, int xp, int money) {
         this.name = name;
         this.xp = xp;
         this.money = money;
     }
 
-    //Getters 
-
-    public String getName(){
+    // Getters 
+    public String getName() {
         return name;
     }
 
-    public int getXp(){
+    public int getXp() {
         return xp;
     }
 
-    public int getMoney(){
+    public int getMoney() {
         return money;
     }
 
-    //Setters
-
-    public void setName(){
+    // Setters
+    public void setName(String name) {
         this.name = name;
     }
     
-    public void setXp(){
+    public void setXp(int xp) {
         this.xp = xp;
     }
     
-    public void setMoney(){
+    public void setMoney(int money) {
         this.money = money;
     }
 
@@ -58,6 +53,6 @@ public class DoneesJoueur {
      */
     @Override
     public String toString() {
-        return "Nom"+ name +", Argent: " + money + ", XP: " + xp;
+        return "Nom " + name + ", Argent: " + money + ", XP: " + xp;
     }
 }
