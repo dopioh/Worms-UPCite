@@ -3,7 +3,7 @@ package fr.upc.g5e4.model;
 /**
  * Classe pour les Données du joueur (Model)
  */
-public class DoneesJoueur {
+public class DonneesJoueur {
     
     private String name;
     private int xp;
@@ -15,7 +15,7 @@ public class DoneesJoueur {
      * @param xp points d'expérience du joueur
      * @param money argent du joueur
      */
-    public DoneesJoueur(String name, int xp, int money) {
+    public DonneesJoueur(String name, int xp, int money) {
         this.name = name;
         this.xp = xp;
         this.money = money;

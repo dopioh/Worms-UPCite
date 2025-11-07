@@ -2,14 +2,14 @@ package fr.upc.g5e4.controller;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import fr.upc.g5e4.model.DoneesJoueur;
+import fr.upc.g5e4.model.DonneesJoueur;
 import fr.upc.g5e4.FileUtile;
 import java.io.File;
 
 /**
  * Contrôleur pour la gestion des données du joueur (Controller)
  */
-public class DoneesJoueurController {
+public class DonneesJoueurController {
     private final Gson gson;
     private final File saveFile;
 
@@ -17,7 +17,7 @@ public class DoneesJoueurController {
      * Constructeur du contrôleur
      * @param saveFilePath chemin du fichier de sauvegarde
      */
-    public DoneesJoueurController(String saveFilePath) {
+    public DonneesJoueurController(String saveFilePath) {
         this.gson = new GsonBuilder()
             .setPrettyPrinting()
             .serializeNulls()
@@ -32,7 +32,7 @@ public class DoneesJoueurController {
      * @return true si la sauvegarde a réussi
      * @return false en cas d'erreur
      */
-    public boolean sauvegarderJoueur(DoneesJoueur joueur) {
+    public boolean sauvegarderJoueur(DonneesJoueur joueur) {
         try {
             String jsonData = gson.toJson(joueur);
             FileUtile.save(saveFile, jsonData);
@@ -47,11 +47,11 @@ public class DoneesJoueurController {
      * Charge les données du joueur
      * @return les données chargées ou null en cas d'erreur
      */
-    public DoneesJoueur chargerJoueur() {
+    public DonneesJoueur chargerJoueur() {
         try {
             String jsonData = FileUtile.load(saveFile);
             if (jsonData != null && !jsonData.isEmpty()) {
-                return gson.fromJson(jsonData, DoneesJoueur.class);
+                return gson.fromJson(jsonData, DonneesJoueur.class);
             }
         } catch (Exception e) {
             e.printStackTrace();
