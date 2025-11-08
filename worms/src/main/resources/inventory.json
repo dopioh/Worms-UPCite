@@ -1,0 +1,28 @@
+{
+  "objects": [
+    {
+      "id": "AK47",
+      "name": "AK47",
+      "type": "WEAPON",
+      "damage": 10
+    },
+    {
+      "id": "rope",
+      "name": "Rope",
+      "type": "TOOL",
+      "damage": 0
+    }
+  ],
+  "inventory": [
+    {
+      "itemId": "AK47",
+      "quantity": 23,
+      "unlimited": false
+    },
+    {
+      "itemId": "rope",
+      "quantity": 0,
+      "unlimited": true
+    }
+  ]
+}
