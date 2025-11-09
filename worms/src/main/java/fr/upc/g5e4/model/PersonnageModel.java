@@ -1,6 +1,7 @@
 package fr.upc.g5e4.model;
 
 import org.jbox2d.collision.shapes.PolygonShape;
+import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.BodyDef;
 import org.jbox2d.dynamics.BodyType;
@@ -185,6 +186,32 @@ public class PersonnageModel extends Entity{
         return PPM;
     }
 
+    /**
+     * Vérifie si le personnage est en contact avec le sol
+     * @return true si le personnage touche le sol, false sinon
+     */
+    public boolean isOnGround() {
+        float tolerance = 0.1f; // Une petite marge pour la détection
+        final boolean[] groundDetected = {false};
+        world.raycast((fixture, point, normal, fraction) -> {
+            groundDetected[0] = true;
+            return 0; // Arrêter le raycast dès qu'on touche quelque chose
+        }, persoBody.getPosition(), 
+           new Vec2(persoBody.getPosition().x, persoBody.getPosition().y - (m_HeightPerso/2 + tolerance)));
+        return groundDetected[0];
+    }
+
+    /**
+     * Fait sauter le personnage si il est au sol
+     */
+    public void jump() {
+        if (isOnGround()) {
+            float jumpForce = (float)(jump);
+            Vec2 impulse = new Vec2(0, jumpForce);
+            Vec2 point = persoBody.getWorldCenter();
+            persoBody.applyLinearImpulse(impulse, point);
+        }
+    }
 
     /**
      * Methode pour creer son Body qui servira ensuite pour creer son image graphique
@@ -216,4 +243,6 @@ public class PersonnageModel extends Entity{
 
         return bWorm;
     }
+
+    
 }

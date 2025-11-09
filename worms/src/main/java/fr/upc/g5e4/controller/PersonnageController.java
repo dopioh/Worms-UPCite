@@ -15,6 +15,7 @@ public class PersonnageController {
     // Variables pour gérer les touches maintenues
     private boolean LeftKeyPressed = false;
     private boolean RightKeyPressed = false;
+    private boolean SpaceKeyPressed = false;
 
     private static final float MOVE_FORCE = 15f;  // Force/Vitesse de deplacement
 
@@ -42,6 +43,18 @@ public class PersonnageController {
     public void deactivateRight() {
         RightKeyPressed = false;
     }
+
+    public void activateJump() {
+        if (!SpaceKeyPressed) {
+            SpaceKeyPressed = true;
+            model.jump();
+        }
+    }
+
+    public void deactivateJump() {
+        SpaceKeyPressed = false;
+    }
+    
     
     /**
      * @return true si le worm a bougé, false sinon
