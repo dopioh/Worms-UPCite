@@ -59,7 +59,7 @@ deploy:
   artifacts:
     paths:
       - worms/target/worms-1.0-SNAPSHOT.jar
-  expire_in: 1 week
+    expire_in: 1 week
   only:
    - main 
    - deploiement
