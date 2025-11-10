@@ -187,18 +187,28 @@ public class PersonnageModel extends Entity{
     }
 
     /**
-     * Vérifie si le personnage est en contact avec le sol
-     * @return true si le personnage touche le sol, false sinon
+     * Vérifie si le personnage touche le sol
+     * @return true si le personnage touche le sol, false s'il est en l'air
      */
     public boolean isOnGround() {
-        float tolerance = 0.1f; // Une petite marge pour la détection
-        final boolean[] groundDetected = {false};
+        float distanceDetection = 0.2f; // Une distance en plus pour être sûr de detecter le sol
+        Vec2 positionActuelle = persoBody.getPosition();
+
+        // Position du point en dessous du personnage afin de voir si on est au sol
+        Vec2 positionSol = new Vec2(
+            positionActuelle.x,                                    // même position x
+            positionActuelle.y - (m_HeightPerso + distanceDetection )  // position y, une peu en dessous du personnage
+        );
+
+        final boolean[] toucheLeSol = {false};  // Variable pour stocker si on a trouvé le sol
+
+        //rayon invisible vers le bas et on regarde s'il touche quelque chose
         world.raycast((fixture, point, normal, fraction) -> {
-            groundDetected[0] = true;
-            return 0; // Arrêter le raycast dès qu'on touche quelque chose
-        }, persoBody.getPosition(), 
-           new Vec2(persoBody.getPosition().x, persoBody.getPosition().y - (m_HeightPerso/2 + tolerance)));
-        return groundDetected[0];
+            toucheLeSol[0] = true;  // Si le rayon touche quelque chose, c'est qu'on est au sol
+            return 0;               // 0 pour arrêter la recherche dès qu'on trouve quelque chose
+        }, positionActuelle, positionSol);
+        
+        return toucheLeSol[0];
     }
 
     /**
