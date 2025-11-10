@@ -26,14 +26,16 @@ public class ImputController extends JPanel{
             public void keyPressed(KeyEvent e) {
                 //System.out.println("key pressed");
                 switch(e.getKeyCode()) {
-                    case KeyEvent.VK_LEFT:
                     case KeyEvent.VK_Q:
                         personnageController.activateLeft();
                         break;
                         
-                    case KeyEvent.VK_RIGHT:
                     case KeyEvent.VK_D:
                         personnageController.activateRight();
+                        break;
+                        
+                    case KeyEvent.VK_SPACE:
+                        personnageController.activateJump();
                         break;
                 }
             }
@@ -42,14 +44,16 @@ public class ImputController extends JPanel{
             public void keyReleased(KeyEvent e) {
                 //System.out.println("key released");
                 switch(e.getKeyCode()) {
-                    case KeyEvent.VK_LEFT:
                     case KeyEvent.VK_Q:
                         personnageController.deactivateLeft();
                         break;
                         
-                    case KeyEvent.VK_RIGHT:
                     case KeyEvent.VK_D:
                         personnageController.deactivateRight();
+                        break;
+                        
+                    case KeyEvent.VK_SPACE:
+                        personnageController.deactivateJump();
                         break;
                 }
             }
