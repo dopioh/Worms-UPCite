@@ -58,7 +58,7 @@ deploy:
     - mvn $MAVEN_CLI_OPTS clean package
   artifacts:
     paths:
-      - worms/target/worms-1.0-SNAPSHOT.jar
+      - worms/target/*.jar
     expire_in: 1 week
   only:
    - main 
