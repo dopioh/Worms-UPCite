@@ -58,7 +58,7 @@ class CameraTest {
     @Test
     // Test du centrage de la caméra sur un personnage.
     void testCameraCenterOnCharacter() {
-        CameraModel camera = new CameraModel(800, 600, 2000, 1200);
+        CameraModel camera = new CameraModel(800, 600, 2000, 1200,1);
         TestPersonnageModel personnage = new TestPersonnageModel(1000, 600);
 
         camera.centerOn(personnage);
@@ -70,7 +70,7 @@ class CameraTest {
     @Test
     // Test que la caméra ne sort jamais des limites du monde.
     void testCameraClampLimits() {
-        CameraModel camera = new CameraModel(800, 600, 1000, 800);
+        CameraModel camera = new CameraModel(800, 600, 1000, 800,1);
 
         // Bord supérieur gauche
         TestPersonnageModel p1 = new TestPersonnageModel(-100, -50);
@@ -92,7 +92,7 @@ class CameraTest {
 
     @Test
     void testCameraRandomPositions() {
-        CameraModel camera = new CameraModel(800, 600, 2000, 1200);
+        CameraModel camera = new CameraModel(800, 600, 2000, 1200,1);
 
         for (int i = 0; i < 1000; i++) {
             // Propose des positions aléatoires avec certaines étant hors limite
@@ -106,5 +106,27 @@ class CameraTest {
             assertTrue(camera.getX() >= 0 && camera.getX() <= 2000 - 800);
             assertTrue(camera.getY() >= 0 && camera.getY() <= 1200 - 600);
         }
+    }
+
+        @Test
+    void testZoomIn() {
+        CameraModel camera = new CameraModel(800, 600, 2000, 1200,1);
+        TestPersonnageModel personnage = new TestPersonnageModel(1000, 600);
+
+        camera.centerOn(personnage);
+
+        double oldViewWidth = camera.getViewWidth();
+        double oldViewHeight = camera.getViewHeight();
+        double oldX = camera.getX();
+        double oldY = camera.getY();
+
+        camera.zoom(2.0); // zoom avant x2
+
+        assertEquals(oldViewWidth / 2.0, camera.getViewWidth(), 0.001);
+        assertEquals(oldViewHeight / 2.0, camera.getViewHeight(), 0.001);
+
+        // La caméra doit rester centrée sur le personnage
+        assertEquals(personnage.getXcord() - camera.getViewWidth() / 2.0, camera.getX(), 0.001);
+        assertEquals(personnage.getYcord() - camera.getViewHeight() / 2.0, camera.getY(), 0.001);
     }
 }

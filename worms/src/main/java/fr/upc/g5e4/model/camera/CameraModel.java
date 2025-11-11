@@ -13,20 +13,23 @@ public class CameraModel {
     private final int viewHeight;
     private final int worldWidth;
     private final int worldHeight;
+    private double zoomFactor = 1.0; // J'ai defini 1 comme le zoom par défaut
 
     /**
-     * @param viewWidth largeur visible (fenêtre)
-     * @param viewHeight hauteur visible (fenêtre)
-     * @param worldWidth largeur totale du monde (terrain)
+     * @param viewWidth   largeur visible (fenêtre)
+     * @param viewHeight  hauteur visible (fenêtre)
+     * @param worldWidth  largeur totale du monde (terrain)
      * @param worldHeight hauteur totale du monde
+     * @param zoomFactor  facteur du zoom
      */
-    public CameraModel(int viewWidth, int viewHeight, int worldWidth, int worldHeight) {
+    public CameraModel(int viewWidth, int viewHeight, int worldWidth, int worldHeight, double initialZoom) {
         this.viewWidth = viewWidth;
         this.viewHeight = viewHeight;
         this.worldWidth = worldWidth;
         this.worldHeight = worldHeight;
         this.x = 0;
         this.y = 0;
+        this.zoomFactor = initialZoom > 0 ? initialZoom : 1.0;
     }
 
     /**
@@ -34,29 +37,78 @@ public class CameraModel {
      * @param personnage le modèle du personnage à suivre
      */
     public void centerOn(PersonnageModel personnage) {
-        if (personnage == null) return;
+    if (personnage == null)
+        return;
 
-        double targetX = personnage.getXcord();
-        double targetY = personnage.getYcord();
+    double targetX = personnage.getXcord();
+    double targetY = personnage.getYcord();
 
-        this.x = targetX - viewWidth / 2;
-        this.y = targetY - viewHeight / 2;
-        clamp();
-    }
+    // Utiliser les tailles pour le zoom
+    this.x = targetX - getViewWidth() / 2.0;
+    this.y = targetY - getViewHeight() / 2.0;
+
+    clamp();
+}
+
 
     /**
      * Empêche la caméra de sortir des limites du monde.
      */
     private void clamp() {
-        if (x < 0) x = 0;
-        if (y < 0) y = 0;
-        if (x > worldWidth - viewWidth) x = worldWidth - viewWidth;
-        if (y > worldHeight - viewHeight) y = worldHeight - viewHeight;
-    }
+    int vw = getViewWidth(); // taille après zoom
+    int vh = getViewHeight();
+
+    if (x < 0)
+        x = 0;
+    if (y < 0)
+        y = 0;
+    if (x > worldWidth - vw)
+        x = worldWidth - vw;
+    if (y > worldHeight - vh)
+        y = worldHeight - vh;
+}
+
+
+    /**
+     * Zoom de la caméra.
+     * facteur > 1 = zoom avant, facteur < 1 = zoom arrière
+     * Contrainte sur la methode : le centrage doit rester sur le personnage
+     */
+    public void zoom(double factor) {
+    if (factor <= 0) return;
+    
+    double centerX = x + getViewWidth() / 2.0;
+    double centerY = y + getViewHeight() / 2.0;
+
+    zoomFactor = factor;
+    
+    x = centerX - getViewWidth() / 2.0;
+    y = centerY - getViewHeight() / 2.0;
+
+    clamp();
+}
+
+
 
     // --- Getters ---
-    public double getX() { return x; }
-    public double getY() { return y; }
-    public int getViewWidth() { return viewWidth; }
-    public int getViewHeight() { return viewHeight; }
+    public double getX() {
+        return x;
+    }
+
+    public double getY() {
+        return y;
+    }
+
+    public double getZoomFactor() {
+        return zoomFactor;
+    }
+
+    public int getViewWidth() {
+        return (int) (viewWidth / zoomFactor);
+    }
+
+    public int getViewHeight() {
+        return (int) (viewHeight / zoomFactor);
+    }
+
 }
