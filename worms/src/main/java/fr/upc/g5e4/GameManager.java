@@ -74,7 +74,7 @@ public class GameManager {
         this.personnageView = new PersonnageView();
         this.personnageController = new PersonnageController(personnageModel);
         this.imputController = new ImputController(personnageController);
-        this.camera = new CameraModel(800, 600, model.getWidth(), model.getHeight());
+        this.camera = new CameraModel(800, 600, model.getWidth(), model.getHeight(),1);
 
 
         physic.limitPanel(model);
