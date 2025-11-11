@@ -6,22 +6,18 @@ import org.junit.jupiter.api.Test;
 import fr.upc.g5e4.model.PersonnageModel;
 import fr.upc.g5e4.model.camera.CameraModel;
 
-/**
- * Tests unitaires pour CameraModel.
- * 
- * On teste ici :
- * 1. Le centrage de la caméra sur un personnage.
- * 2. Le respect des limites du monde (clamp).
- * 3. Des positions aléatoires pour vérifier la robustesse.
- * 
- * Pour éviter les dépendances, j'ai crée une classe TestPersonnageModel
- * qui ne nécessite pas d'autres classes.
- */
-
 class CameraTest {
 
     /**
-     * Classe pour tester CameraModel
+     * Classe de tests unitaires pour CameraModel.
+     * 
+     * Ici on teste tout ce qui concerne la caméra :
+     * - le centrage sur le personnage
+     * - le respect des limites de la map (clamp)
+     * - le déplacement manuel
+     * - le zoom avant et arrière
+     * - le comportement sur des positions aléatoires
+     *
      * J'ai choisi d'éviter d'utiliser les dépendances,
      * pour qu'en cas de modification, les tests ne soient pas tourner en erreur.
      */
@@ -51,7 +47,8 @@ class CameraTest {
 
         @Override
         public org.jbox2d.dynamics.Body createBody() {
-            return null; // On ne crée aucun body pour le test
+            return null; // On ne crée aucun body pour le test. Cette fonction est un semblant de mock
+                         // pour satisfaire JBox2D.
         }
     }
 
@@ -68,7 +65,7 @@ class CameraTest {
     }
 
     @Test
-    // Test que la caméra ne sort jamais des limites du monde.
+    // Test que la caméra ne sort jamais des limites de la map.
     void testCameraClampLimits() {
         CameraModel camera = new CameraModel(800, 600, 1000, 800, 1);
 
@@ -85,12 +82,11 @@ class CameraTest {
         assertEquals(800 - 600, camera.getY(), 0.001); // worldHeight - viewHeight
     }
 
-    /**
+    @Test
+    /*
      * Test la caméra sur des positions aléatoires, y compris hors limites,
      * pour vérifier que le clamp fonctionne correctement.
      */
-
-    @Test
     void testCameraRandomPositions() {
         CameraModel camera = new CameraModel(800, 600, 2000, 1200, 1);
 
@@ -108,6 +104,9 @@ class CameraTest {
         }
     }
 
+    /*
+     * Test le zoom avant
+     */
     @Test
     void testZoomIn() {
         CameraModel camera = new CameraModel(800, 600, 2000, 1200, 1);
@@ -115,19 +114,45 @@ class CameraTest {
 
         camera.centerOn(personnage);
 
-        double oldViewWidth = camera.getViewWidth();
-        double oldViewHeight = camera.getViewHeight();
+        int oldZoomedWidth = camera.getZoomedViewWidth();
+        int oldZoomedHeight = camera.getZoomedViewHeight();
 
-        camera.zoom(2.0); // zoom avant x2
+        camera.zoom(2.0, personnage); // zoom avant x2
 
-        assertEquals(oldViewWidth / 2.0, camera.getViewWidth(), 0.001);
-        assertEquals(oldViewHeight / 2.0, camera.getViewHeight(), 0.001);
+        assertEquals(oldZoomedWidth / 2.0, camera.getZoomedViewWidth(), 0.001);
+        assertEquals(oldZoomedHeight / 2.0, camera.getZoomedViewHeight(), 0.001);
 
         // La caméra doit rester centrée sur le personnage
-        assertEquals(personnage.getXcord() - camera.getViewWidth() / 2.0, camera.getX(), 0.001);
-        assertEquals(personnage.getYcord() - camera.getViewHeight() / 2.0, camera.getY(), 0.001);
+        assertEquals(personnage.getXcord() - camera.getZoomedViewWidth() / 2.0, camera.getX(), 0.001);
+        assertEquals(personnage.getYcord() - camera.getZoomedViewHeight() / 2.0, camera.getY(), 0.001);
     }
 
+    /*
+     * Test le zoom arrière
+     */
+    @Test
+    void testZoomOut() {
+        CameraModel camera = new CameraModel(800, 600, 2000, 1200, 2.0); // départ zoom x2
+        TestPersonnageModel personnage = new TestPersonnageModel(1000, 600);
+
+        camera.centerOn(personnage);
+
+        int oldZoomedWidth = camera.getZoomedViewWidth();
+        int oldZoomedHeight = camera.getZoomedViewHeight();
+
+        camera.zoom(1.0, personnage); // zoom arrière x0.5
+
+        assertEquals(oldZoomedWidth * 2.0, camera.getZoomedViewWidth(), 0.001);
+        assertEquals(oldZoomedHeight * 2.0, camera.getZoomedViewHeight(), 0.001);
+
+        // La caméra doit rester centrée sur le personnage
+        assertEquals(personnage.getXcord() - camera.getZoomedViewWidth() / 2.0, camera.getX(), 0.001);
+        assertEquals(personnage.getYcord() - camera.getZoomedViewHeight() / 2.0, camera.getY(), 0.001);
+    }
+
+    /*
+     * Test le déplacement caméra
+     */
     @Test
     void testMoveCamera() {
         CameraModel camera = new CameraModel(800, 600, 2000, 1200, 1);
@@ -140,6 +165,7 @@ class CameraTest {
 
         camera.move(100, 50);
 
+        // La caméra doit se décaler du delta
         assertEquals(originalX + 100, camera.getX(), 0.001);
         assertEquals(originalY + 50, camera.getY(), 0.001);
     }
