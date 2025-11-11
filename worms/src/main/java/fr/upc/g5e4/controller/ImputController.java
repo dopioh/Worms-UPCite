@@ -46,19 +46,6 @@ public class ImputController extends JPanel{
             public void keyPressed(KeyEvent e) {
                 //System.out.println("key pressed");
                 switch(e.getKeyCode()) {
-<<<<<<< HEAD
-                    case KeyEvent.VK_Q:
-                        personnageController.activateLeft();
-                        break;
-                        
-                    case KeyEvent.VK_D:
-                        personnageController.activateRight();
-                        break;
-                        
-                    case KeyEvent.VK_SPACE:
-                        personnageController.activateJump();
-                        break;
-=======
                     // Personnage
                     case KeyEvent.VK_Q:
                         personnageController.activateLeft();
@@ -94,7 +81,6 @@ public class ImputController extends JPanel{
                     case KeyEvent.VK_SPACE:
                         if(cameraController != null) cameraController.centerOnCharacter();
                         break;
->>>>>>> f42cf29 (Ajout des commandes de la caméra + modif des anciennes)
                 }
             }
             
@@ -102,19 +88,6 @@ public class ImputController extends JPanel{
             public void keyReleased(KeyEvent e) {
                 //System.out.println("key released");
                 switch(e.getKeyCode()) {
-<<<<<<< HEAD
-                    case KeyEvent.VK_Q:
-                        personnageController.deactivateLeft();
-                        break;
-                        
-                    case KeyEvent.VK_D:
-                        personnageController.deactivateRight();
-                        break;
-                        
-                    case KeyEvent.VK_SPACE:
-                        personnageController.deactivateJump();
-                        break;
-=======
                     // Personnage
                     case KeyEvent.VK_Q:
                         personnageController.deactivateLeft();
@@ -139,7 +112,6 @@ public class ImputController extends JPanel{
                     case KeyEvent.VK_RIGHT:
                         if(cameraController != null) cameraController.deactivateRight();
                         break;
->>>>>>> f42cf29 (Ajout des commandes de la caméra + modif des anciennes)
                 }
             }
         });
