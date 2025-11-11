@@ -34,40 +34,46 @@ public class CameraModel {
 
     /**
      * Centre la caméra sur le personnage donné.
+     * 
      * @param personnage le modèle du personnage à suivre
      */
     public void centerOn(PersonnageModel personnage) {
-    if (personnage == null)
-        return;
+        if (personnage == null)
+            return;
 
-    double targetX = personnage.getXcord();
-    double targetY = personnage.getYcord();
+        double targetX = personnage.getXcord();
+        double targetY = personnage.getYcord();
 
-    // Utiliser les tailles pour le zoom
-    this.x = targetX - getViewWidth() / 2.0;
-    this.y = targetY - getViewHeight() / 2.0;
+        // Utiliser les tailles pour le zoom
+        this.x = targetX - getViewWidth() / 2.0;
+        this.y = targetY - getViewHeight() / 2.0;
 
-    clamp();
-}
-
+        clamp();
+    }
 
     /**
      * Empêche la caméra de sortir des limites du monde.
      */
     private void clamp() {
-    int vw = getViewWidth(); // taille après zoom
-    int vh = getViewHeight();
+        int vw = getViewWidth(); // taille après zoom
+        int vh = getViewHeight();
 
-    if (x < 0)
-        x = 0;
-    if (y < 0)
-        y = 0;
-    if (x > worldWidth - vw)
-        x = worldWidth - vw;
-    if (y > worldHeight - vh)
-        y = worldHeight - vh;
-}
+        if (x < 0)
+            x = 0;
+        if (y < 0)
+            y = 0;
+        if (x > worldWidth - vw)
+            x = worldWidth - vw;
+        if (y > worldHeight - vh)
+            y = worldHeight - vh;
+    }
 
+    // Déplace la caméra d'un certain ecqrt delta
+    public void move(double deltaX, double deltaY) {
+        this.x += deltaX;
+        this.y += deltaY;
+        clamp();
+    }
 
     /**
      * Zoom de la caméra.
@@ -75,20 +81,19 @@ public class CameraModel {
      * Contrainte sur la methode : le centrage doit rester sur le personnage
      */
     public void zoom(double factor) {
-    if (factor <= 0) return;
-    
-    double centerX = x + getViewWidth() / 2.0;
-    double centerY = y + getViewHeight() / 2.0;
+        if (factor <= 0)
+            return;
 
-    zoomFactor = factor;
-    
-    x = centerX - getViewWidth() / 2.0;
-    y = centerY - getViewHeight() / 2.0;
+        double centerX = x + getViewWidth() / 2.0;
+        double centerY = y + getViewHeight() / 2.0;
 
-    clamp();
-}
+        zoomFactor = factor;
 
+        x = centerX - getViewWidth() / 2.0;
+        y = centerY - getViewHeight() / 2.0;
 
+        clamp();
+    }
 
     // --- Getters ---
     public double getX() {
