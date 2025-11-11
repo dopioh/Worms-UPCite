@@ -1,7 +1,7 @@
 package fr.upc.g5e4.model;
 
-
 import fr.upc.g5e4.controller.ImputController;
+import fr.upc.g5e4.model.camera.CameraModel;
 import fr.upc.g5e4.view.*;
 
 import javax.swing.*;
@@ -17,36 +17,40 @@ public class GamePanel extends JPanel {
     private final PersonnageModel personnageModel;
     private final PersonnageView personnageView;
     private final ImputController imputController;
-    
+    private final CameraModel camera;
+
     private static final float PPM = 30f;
 
     /**
-     * {@code setPreferredSize()} est essentiel sinon rien ne s'affiche 
+     * {@code setPreferredSize()} est essentiel sinon rien ne s'affiche
      * La fenetre casse
      */
-    public GamePanel(GroundModel model,PersonnageModel personnageModel, PersonnageView personnageView, ImputController imputController) {
+    public GamePanel(GroundModel model, PersonnageModel personnageModel, PersonnageView personnageView,
+            ImputController imputController, CameraModel camera) {
         this.model = model;
         this.personnageModel = personnageModel;
         this.personnageView = personnageView;
         this.imputController = imputController;
+        this.camera = camera;
 
         setPreferredSize(new Dimension(model.getWidth(), model.getHeight()));
-        setLayout(null); 
+        setLayout(null);
 
-        imputController.setBounds(0,0,0,0);
+        imputController.setBounds(0, 0, 0, 0);
         add(imputController);
 
         imputController.setFocusable(true);
         imputController.requestFocusInWindow();
     }
 
-    public static float getPPM(){
+    public static float getPPM() {
         return PPM;
     }
 
     /**
-     * L'odre d'ajout pour les elements graphique impacte la superposition des dessins
-     * Exemple : 
+     * L'odre d'ajout pour les elements graphique impacte la superposition des
+     * dessins
+     * Exemple :
      * Ciel doit etre placé avant Ground psq il doit pas cacher Ground
      * Il apparait donc derriere et Ground est au premier plan par rapport a Ciel
      */
@@ -55,10 +59,13 @@ public class GamePanel extends JPanel {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
 
+        camera.centerOn(personnageModel);
+        g2.translate(-camera.getX(), -camera.getY());
+
         // Ciel
         g2.setColor(new Color(135, 206, 235));
         g2.fillRect(0, 0, model.getWidth(), model.getHeight());
-        
+
         // Ground
         g2.setColor(new Color(34, 139, 34));
         Path2D path = new Path2D.Double();
@@ -79,8 +86,6 @@ public class GamePanel extends JPanel {
         g2.setColor(new Color(75, 147, 240));
         g2.fillRect(0, model.getWaterLevel(), model.getWidth(), model.getHeight() - model.getWaterLevel());
 
-
     }
-
 
 }
