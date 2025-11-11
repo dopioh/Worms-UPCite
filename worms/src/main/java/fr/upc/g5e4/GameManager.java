@@ -9,6 +9,7 @@ import fr.upc.g5e4.controller.*;
 import fr.upc.g5e4.model.*;
 import fr.upc.g5e4.view.*;
 import fr.upc.g5e4.model.PhysicsWorld.WaterSensorListener;
+import fr.upc.g5e4.model.camera.CameraModel;
 
 
 //import java.awt.*;
@@ -30,6 +31,8 @@ public class GameManager {
     private final Body water; 
     private final WaterSensorListener wSL; 
     private final ImputController imputController;
+    private final CameraModel camera;
+
 
     /**
     * Initialise le terrain du jeu.
@@ -71,13 +74,16 @@ public class GameManager {
         this.personnageView = new PersonnageView();
         this.personnageController = new PersonnageController(personnageModel);
         this.imputController = new ImputController(personnageController);
+        this.camera = new CameraModel(800, 600, model.getWidth(), model.getHeight());
+
 
         physic.limitPanel(model);
 
         this.wSL = physic.new WaterSensorListener(water,personnageModel, new ArrayList<PersonnageModel>());
         world.setContactListener(wSL);
 
-        this.gamePanel = new GamePanel(model, personnageModel, personnageView, imputController);
+        this.gamePanel = new GamePanel(model, personnageModel, personnageView, imputController, camera);
+
 
         // rjt step pour lancer le timer (une sorte d'update)
 
