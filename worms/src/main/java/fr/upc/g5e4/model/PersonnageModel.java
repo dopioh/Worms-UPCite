@@ -1,6 +1,7 @@
 package fr.upc.g5e4.model;
 
 import org.jbox2d.collision.shapes.PolygonShape;
+import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.BodyDef;
 import org.jbox2d.dynamics.BodyType;
@@ -185,6 +186,42 @@ public class PersonnageModel extends Entity{
         return PPM;
     }
 
+    /**
+     * Vérifie si le personnage touche le sol
+     * @return true si le personnage touche le sol, false s'il est en l'air
+     */
+    public boolean isOnGround() {
+        float distanceDetection = 0.2f; // Une distance en plus pour être sûr de detecter le sol
+        Vec2 positionActuelle = persoBody.getPosition();
+
+        // Position du point en dessous du personnage afin de voir si on est au sol
+        Vec2 positionSol = new Vec2(
+            positionActuelle.x,                                    // même position x
+            positionActuelle.y - (m_HeightPerso + distanceDetection )  // position y, une peu en dessous du personnage
+        );
+
+        final boolean[] toucheLeSol = {false};  // Variable pour stocker si on a trouvé le sol
+
+        //rayon invisible vers le bas et on regarde s'il touche quelque chose
+        world.raycast((fixture, point, normal, fraction) -> {
+            toucheLeSol[0] = true;  // Si le rayon touche quelque chose, c'est qu'on est au sol
+            return 0;               // 0 pour arrêter la recherche dès qu'on trouve quelque chose
+        }, positionActuelle, positionSol);
+        
+        return toucheLeSol[0];
+    }
+
+    /**
+     * Fait sauter le personnage si il est au sol
+     */
+    public void jump() {
+        if (isOnGround()) {
+            float jumpForce = (float)(jump);
+            Vec2 impulse = new Vec2(0, jumpForce);
+            Vec2 point = persoBody.getWorldCenter();
+            persoBody.applyLinearImpulse(impulse, point);
+        }
+    }
 
     /**
      * Methode pour creer son Body qui servira ensuite pour creer son image graphique
@@ -216,4 +253,6 @@ public class PersonnageModel extends Entity{
 
         return bWorm;
     }
+
+    
 }
