@@ -1,4 +1,4 @@
-package fr.upc.g5e4.item.controller;
+package fr.upc.g5e4;
 
 import fr.upc.g5e4.controller.ItemController;
 import fr.upc.g5e4.model.Item;

@@ -1,4 +1,4 @@
-package fr.upc.g5e4.item.model.gadgets;
+package fr.upc.g5e4;
 
 import org.junit.jupiter.api.Test;
 

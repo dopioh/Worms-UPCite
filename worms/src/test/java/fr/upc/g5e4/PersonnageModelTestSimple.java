@@ -1,4 +1,4 @@
-package fr.upc.g5e4.personnage.model;
+package fr.upc.g5e4;
 
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;

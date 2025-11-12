@@ -1,4 +1,4 @@
-package fr.upc.g5e4.item.model;
+package fr.upc.g5e4;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
