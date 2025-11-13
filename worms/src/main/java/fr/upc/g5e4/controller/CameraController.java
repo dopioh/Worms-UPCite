@@ -1,6 +1,6 @@
 package fr.upc.g5e4.controller;
 
-import fr.upc.g5e4.model.PersonnageModel;
+import fr.upc.g5e4.model.CharacterModel;
 import fr.upc.g5e4.model.camera.CameraModel;
 
 /*
@@ -17,7 +17,7 @@ import fr.upc.g5e4.model.camera.CameraModel;
 public class CameraController {
 
     private final CameraModel camera;
-    private final PersonnageModel personnage;
+    private final CharacterModel personnage;
 
     private boolean leftPressed = false;
     private boolean rightPressed = false;
@@ -29,7 +29,7 @@ public class CameraController {
     // Nouveau : suivi du personnage
     private boolean followPlayer = false;
 
-    public CameraController(CameraModel camera, PersonnageModel personnage) {
+    public CameraController(CameraModel camera, CharacterModel personnage) {
         this.camera = camera;
         this.personnage = personnage;
     }

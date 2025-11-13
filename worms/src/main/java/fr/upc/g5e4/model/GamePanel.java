@@ -2,7 +2,7 @@ package fr.upc.g5e4.model;
 
 import fr.upc.g5e4.controller.CameraController;
 import fr.upc.g5e4.model.camera.CameraModel;
-import fr.upc.g5e4.view.PersonnageView;
+import fr.upc.g5e4.view.CharacterView;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,8 +14,8 @@ import java.awt.geom.Path2D;
  */
 public class GamePanel extends JPanel {
     private final GroundModel model;
-    private final PersonnageModel personnageModel;
-    private final PersonnageView personnageView;
+    private final CharacterModel personnageModel;
+    private final CharacterView personnageView;
     private final CameraModel camera;
     private final CameraController cameraController;
 
@@ -24,7 +24,7 @@ public class GamePanel extends JPanel {
     /**
      * {@code setPreferredSize()} est essentiel sinon rien ne s'affiche
      */
-    public GamePanel(GroundModel model, PersonnageModel personnageModel, PersonnageView personnageView,
+    public GamePanel(GroundModel model, CharacterModel personnageModel, CharacterView personnageView,
             CameraModel camera, CameraController cameraController) {
         this.model = model;
         this.personnageModel = personnageModel;

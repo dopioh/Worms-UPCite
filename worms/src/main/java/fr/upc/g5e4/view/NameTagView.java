@@ -1,7 +1,7 @@
 package fr.upc.g5e4.view;
 
 import java.awt.*;
-import fr.upc.g5e4.model.PersonnageModel;
+import fr.upc.g5e4.model.CharacterModel;
 
 /**
  * Vue pour l'affichage du NameTag
@@ -32,7 +32,7 @@ public class NameTagView {
      * @param model Le modèle du personnage
      * @param text Le texte à afficher
      */
-    public void draw(Graphics2D g2d, PersonnageModel model, String text) {
+    public void draw(Graphics2D g2d, CharacterModel model, String text) {
         if (!visible || text == null || text.isEmpty()) {
             return;
         }
@@ -70,7 +70,7 @@ public class NameTagView {
      * @param model Le modèle du personnage
      * @param lignes Les lignes de texte
      */
-    public void drawMultiLine(Graphics2D g2d, PersonnageModel model, String[] lignes) {
+    public void drawMultiLine(Graphics2D g2d, CharacterModel model, String[] lignes) {
         if (!visible || lignes == null || lignes.length == 0) {
             return;
         }

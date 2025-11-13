@@ -1,6 +1,6 @@
 package fr.upc.g5e4.model.camera;
 
-import fr.upc.g5e4.model.PersonnageModel;
+import fr.upc.g5e4.model.CharacterModel;
 
 /*
  * CameraModel représente la caméra du jeu.
@@ -43,7 +43,7 @@ public class CameraModel {
         this.y = 0;
     }
 
-    public void centerOn(PersonnageModel personnage) {
+    public void centerOn(CharacterModel personnage) {
         if (personnage == null)
             return;
 
@@ -63,7 +63,7 @@ public class CameraModel {
         clamp();
     }
 
-    public void zoom(double factor, PersonnageModel personnage) {
+    public void zoom(double factor, CharacterModel personnage) {
         if (factor <= 0 || personnage == null)
             return;
 

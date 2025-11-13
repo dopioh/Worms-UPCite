@@ -5,12 +5,12 @@ import java.awt.*;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
 
-import fr.upc.g5e4.model.PersonnageModel;
+import fr.upc.g5e4.model.CharacterModel;
 
 /**
  * Vue pour l'affichage graphique
  */
-public class PersonnageView {
+public class CharacterView {
     private int size;
     private Color color;
     private NameTagView nameTagView;
@@ -18,7 +18,7 @@ public class PersonnageView {
     /**
      * Constructeur de la classe PersonnageView
      */
-    public PersonnageView() {
+    public CharacterView() {
         this.size = 25;
         this.color = new Color(255, 150, 0); // Orange
         this.nameTagView = new NameTagView();
@@ -29,7 +29,7 @@ public class PersonnageView {
      * @param taille La taille du worm
      * @param couleur La couleur du worm
      */
-    public PersonnageView(int size, Color color) {
+    public CharacterView(int size, Color color) {
         this.size = size;
         this.color = color;
         this.nameTagView = new NameTagView();
@@ -40,7 +40,7 @@ public class PersonnageView {
      * @param g2d Le contexte graphique
      * @param model Le modèle du worm à dessiner
      */
-    public void draw(Graphics2D g2d, PersonnageModel model) {
+    public void draw(Graphics2D g2d, CharacterModel model) {
         drawBody(g2d, model);
         drawStats(g2d, model);
     }
@@ -51,7 +51,7 @@ public class PersonnageView {
      * @param g2d Le contexte graphique
      * @param model Le model du worm
      */
-    private void drawBody(Graphics2D g2d, PersonnageModel model) {
+    private void drawBody(Graphics2D g2d, CharacterModel model) {
         if (model.isDead()) {
             return;
         }
@@ -60,8 +60,8 @@ public class PersonnageView {
         Vec2 m_position = body.getPosition();
     
         // Conversion mètres -> pixels
-        int x = (int)(m_position.x * PersonnageModel.getPPM());
-        int y = (int)((20 - m_position.y) * PersonnageModel.getPPM());  // Conversion et Inversion Y
+        int x = (int)(m_position.x * CharacterModel.getPPM());
+        int y = (int)((20 - m_position.y) * CharacterModel.getPPM());  // Conversion et Inversion Y
     
         g2d.setColor(Color.RED);
         g2d.fillRect(x - size/2, y - size/2, size, size);
@@ -72,7 +72,7 @@ public class PersonnageView {
      * @param g2d Le contexte graphique
      * @param model Le modèle du worm
      */
-    private void drawStats(Graphics2D g2d, PersonnageModel model) {
+    private void drawStats(Graphics2D g2d, CharacterModel model) {
         if (model.isDead()) {
             nameTagView.setVisible(false);
             return;
