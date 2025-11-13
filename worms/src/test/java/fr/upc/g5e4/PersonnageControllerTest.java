@@ -35,7 +35,7 @@ public class PersonnageControllerTest {
     @BeforeEach
     public void setUp() {
 
-        gL = new GameLauncher();
+        gL = new GameLauncher(false);
         gm = gL.getGameManager();
         world = gm.getWorld();
 
