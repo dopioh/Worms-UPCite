@@ -18,7 +18,7 @@ public class PersonnageModel extends Entity{
     private int ID;
     private String name;
 
-    private double xcord;
+    private double xcord;   // En pixel
     private double ycord;
 
 
@@ -54,7 +54,7 @@ public class PersonnageModel extends Entity{
         this.ycord = ycord;
         this.health = 100.0;
         this.shield = 50.0;
-        this.speed = 3.0;
+        this.speed = 15.0;  // defini à 3 à la base
         this.jump = 5.0;
         this.isDead = false;
         
@@ -110,6 +110,7 @@ public class PersonnageModel extends Entity{
     }
 
     public double getXcord() {
+        //System.out.println(xcord);
         return xcord;
     }
 

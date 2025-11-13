@@ -96,7 +96,7 @@ public class GameManager {
     }
 
     public GroundModel getGroundModel(){
-        return this.getGroundModel();
+        return this.model;
     }
 
     public GamePanel getGamePanel(){
@@ -109,5 +109,9 @@ public class GameManager {
 
     public PersonnageController getPersonnageController(){
         return this.personnageController;
+    }
+
+    public PersonnageModel getPersonnageModel(){
+        return this.personnageModel;
     }
 }

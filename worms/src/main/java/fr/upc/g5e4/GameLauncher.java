@@ -36,6 +36,10 @@ public class GameLauncher extends JFrame{
         this.gameLoop = new GameLoop(gameManager);
     }
 
+    public GameManager getGameManager(){
+        return this.gameManager;
+    }
+
     public static void main(String[] args){
         new GameLauncher();
         
