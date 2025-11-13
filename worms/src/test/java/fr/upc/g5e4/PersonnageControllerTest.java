@@ -67,7 +67,7 @@ public class PersonnageControllerTest {
         assertTrue(model.getXcord() < positionInitiale, "le worm devrait se déplacer vers la gauche");
     }
     
-    /*  -> partie des test qui plante la pipeline sur mon windows mais pas mon mac
+
     @Test
     public void testActivateRight() {
         double positionInitiale = model.getXcord();
@@ -83,7 +83,7 @@ public class PersonnageControllerTest {
 
         assertTrue(model.getXcord() > positionInitiale, "le worm devrait se déplacer vers la droite");
     }
-    */
+
     
 
     @Test
