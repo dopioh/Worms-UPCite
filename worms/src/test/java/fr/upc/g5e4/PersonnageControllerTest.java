@@ -3,7 +3,8 @@ package fr.upc.g5e4;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.jbox2d.dynamics.World;
-import org.junit.jupiter.api.BeforeAll;
+//import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 //import fr.upc.g5e4.model.GroundModel;
@@ -15,29 +16,40 @@ import fr.upc.g5e4.controller.PersonnageController;
  * 
  */
 public class PersonnageControllerTest {
-    private static GameLauncher gL;
-    private static GameManager gm;
-    private static World world;
+    private GameLauncher gL;
+    private GameManager gm;
+    private World world;
 
-    private final static int FIXHZ = 60; // J'aurais pu le recup avec un getter mais on part du principe qu'il sera toujours à 60 dans ce projet
+    private PersonnageModel model;
+    private PersonnageController controller;
+
+    private final static float FIXHZ = 1f/60f; // J'aurais pu le recup avec un getter mais on part du principe qu'il sera toujours à 60 dans ce projet
     
     /**
-     * Initalise pour toute les instances de Tests un meme GameLuncher
-     * @BeforeAll est exécuté une seule fois avant tous les tests
+     * Chaque fonction recrée un monde
+     * Car je n'arrivais pas à réinitialiser les positions en initialisant gl une seule fois
+     * avec @BeforeAll
+     * Du coup le test prend plus de temps et consomme plus de ressources
+     * Ca pourra etre optimisé plus tard
      */
-    @BeforeAll
-    public static void setupClass(){
+    @BeforeEach
+    public void setUp() {
+
         gL = new GameLauncher();
         gm = gL.getGameManager();
         world = gm.getWorld();
-        System.out.println("GameLauncher et GameManager initialisés");
-    }
 
+        model = gm.getPersonnageModel();
+        controller = gm.getPersonnageController();
+        
+        // Désactiver toutes les touches au cas où un test précédent les aurait laissées actives
+        controller.deactivateLeft();
+        controller.deactivateRight();
+        controller.deactivateJump();
+    }
     // @Tests activation/désactivation touches
     @Test
     public void testActivateLeft() {
-        PersonnageModel model = gm.getPersonnageModel();
-        PersonnageController controller = gm.getPersonnageController();
         double positionInitiale = model.getXcord();
 
         controller.activateLeft();
@@ -58,8 +70,6 @@ public class PersonnageControllerTest {
     
     @Test
     public void testActivateRight() {
-        PersonnageModel model = gm.getPersonnageModel();
-        PersonnageController controller = gm.getPersonnageController();
         double positionInitiale = model.getXcord();
 
         controller.activateRight();
@@ -79,8 +89,6 @@ public class PersonnageControllerTest {
 
     @Test
     public void testDeactivateRight() {
-        PersonnageModel model = gm.getPersonnageModel();
-        PersonnageController controller = gm.getPersonnageController();
 
         controller.activateRight();
 
@@ -103,8 +111,6 @@ public class PersonnageControllerTest {
 
     @Test
     public void testDeactivateLeft() {
-        PersonnageModel model = gm.getPersonnageModel();
-        PersonnageController controller = gm.getPersonnageController();
 
         controller.activateLeft();
 
@@ -130,8 +136,6 @@ public class PersonnageControllerTest {
     
     @Test
     public void testUpdateWithoutKeyPress() {
-        PersonnageModel model = gm.getPersonnageModel();
-        PersonnageController controller = gm.getPersonnageController();
         double positionInitiale = model.getXcord();
         
         boolean hasMoved = true;
@@ -156,8 +160,6 @@ public class PersonnageControllerTest {
     
     @Test
     public void testUpdateWithLeftAndRightKeyPress() {
-        PersonnageModel model = gm.getPersonnageModel();
-        PersonnageController controller = gm.getPersonnageController();
         double positionInitiale = model.getXcord();
         
         controller.activateLeft();
@@ -180,8 +182,6 @@ public class PersonnageControllerTest {
      */
     @Test
     public void testTeleport() {
-        PersonnageModel model = gm.getPersonnageModel();
-        PersonnageController controller = gm.getPersonnageController();
         
         controller.teleport(500, 300);
         
