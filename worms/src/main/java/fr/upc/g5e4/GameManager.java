@@ -9,7 +9,7 @@ import fr.upc.g5e4.controller.*;
 import fr.upc.g5e4.model.*;
 import fr.upc.g5e4.model.PhysicsWorld.WaterSensorListener;
 import fr.upc.g5e4.model.camera.CameraModel;
-import fr.upc.g5e4.view.PersonnageView;
+import fr.upc.g5e4.view.CharacterView;
 
 /**
  * Cette classe servira pour instancier tout ce dont le jeu (une partie de jeu)
@@ -19,14 +19,14 @@ public class GameManager {
     private final GamePanel gamePanel;
     private final GroundModel model;
 
-    private final PersonnageModel personnageModel;
-    private final PersonnageView personnageView;
-    private final PersonnageController personnageController;
+    private final CharacterModel personnageModel;
+    private final CharacterView personnageView;
+    private final CharacterController personnageController;
     private final PhysicsWorld physic;
     private final World world;
     private final Body water;
     private final WaterSensorListener wSL;
-    private final ImputController imputController;
+    private final InputController imputController;
     private final CameraModel camera; // AJOUT RAPHAËL
     private final CameraController cameraController; // AJOUT RAPHAËL
 
@@ -67,23 +67,23 @@ public class GameManager {
         physic.createGroundFromModel(model);
         this.water = physic.createBodyWater(model);
 
-        this.personnageModel = new PersonnageModel(model, world, 700, model.getHeight() - 500); // Si le x est à 800
+        this.personnageModel = new CharacterModel(model, world, 700, model.getHeight() - 500); // Si le x est à 800
                                                                                                 // pile i ça marche pas
         // System.out.println("\nGame Manager xcord : " +
         // this.personnageModel.getXcord());
-        this.personnageView = new PersonnageView();
-        this.personnageController = new PersonnageController(personnageModel);
+        this.personnageView = new CharacterView();
+        this.personnageController = new CharacterController(personnageModel);
 
         // Initialisation caméra et contrôleur
         this.camera = new CameraModel(800, 600, model.getWidth(), model.getHeight(), 1);
         this.cameraController = new CameraController(camera, personnageModel);
 
         // Contrôleur fusionné personnage + caméra
-        this.imputController = new ImputController(personnageController, cameraController); 
+        this.imputController = new InputController(personnageController, cameraController); 
 
         physic.limitPanel(model);
 
-        this.wSL = physic.new WaterSensorListener(water, personnageModel, new ArrayList<PersonnageModel>());
+        this.wSL = physic.new WaterSensorListener(water, personnageModel, new ArrayList<CharacterModel>());
         world.setContactListener(wSL);
 
         // GamePanel avec tout ce qui est nécessaire
@@ -123,11 +123,11 @@ public class GameManager {
         return this.gamePanel;
     }
 
-    public ImputController getImputController() {
+    public InputController getImputController() {
         return this.imputController;
     }
 
-    public PersonnageController getPersonnageController() {
+    public CharacterController getPersonnageController() {
         return this.personnageController;
     }
 

@@ -3,7 +3,7 @@ package fr.upc.g5e4.camera;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
-import fr.upc.g5e4.model.PersonnageModel;
+import fr.upc.g5e4.model.CharacterModel;
 import fr.upc.g5e4.model.camera.CameraModel;
 
 class CameraTest {
@@ -21,7 +21,7 @@ class CameraTest {
      * J'ai choisi d'éviter d'utiliser les dépendances,
      * pour qu'en cas de modification, les tests ne soient pas tourner en erreur.
      */
-    static class TestPersonnageModel extends PersonnageModel {
+    static class TestPersonnageModel extends CharacterModel {
         private double x, y;
 
         public TestPersonnageModel(double x, double y) {

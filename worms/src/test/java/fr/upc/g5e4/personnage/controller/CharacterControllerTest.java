@@ -2,14 +2,14 @@ package fr.upc.g5e4.personnage.controller;
 
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
-import fr.upc.g5e4.model.PersonnageModel;
-import fr.upc.g5e4.controller.PersonnageController;
+import fr.upc.g5e4.model.CharacterModel;
+import fr.upc.g5e4.controller.CharacterController;
 
 /**
  * Tests unitaires pour PersonnageController (avec Junit)
  * 
  */
-public class PersonnageControllerTest {
+public class CharacterControllerTest {
     
     // @Tests activation/désactivation touches
     

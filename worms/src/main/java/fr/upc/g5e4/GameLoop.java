@@ -18,7 +18,7 @@ public class GameLoop{
     private final Timer timer;
     private final GameManager gameManager;
     private final GamePanel gamePanel;
-    private final PersonnageController personnageController;
+    private final CharacterController personnageController;
 
     /** Toute les update de Timer se font dans le Constructeur de GameLoop, pas besoin de creer de methode ici*/
     public GameLoop(GameManager gameManager){
@@ -40,9 +40,9 @@ public class GameLoop{
                  * Et detruit leur body associés (on ne peut plus les controller)
                  * Leur draw et nametag ne depop pas, ca sera a ajouter 
                  */
-                ArrayList<PersonnageModel> destroy = gameManager.getWSL().getDestroyList();
+                ArrayList<CharacterModel> destroy = gameManager.getWSL().getDestroyList();
                 if ( destroy != null){
-                    for (PersonnageModel d : destroy){
+                    for (CharacterModel d : destroy){
                         gameManager.getWorld().destroyBody(d.getBody());
                     }
                     destroy.clear();

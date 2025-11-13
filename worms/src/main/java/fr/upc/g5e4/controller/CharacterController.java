@@ -3,14 +3,14 @@ package fr.upc.g5e4.controller;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
 
-import fr.upc.g5e4.model.PersonnageModel;
+import fr.upc.g5e4.model.CharacterModel;
 
 /**
  * Contrôleur pour le worm
  * Gère la logique de contrôle
  */
-public class PersonnageController {
-    private PersonnageModel model;
+public class CharacterController {
+    private CharacterModel model;
     
     // Variables pour gérer les touches maintenues
     private boolean LeftKeyPressed = false;
@@ -23,7 +23,7 @@ public class PersonnageController {
      * Constructeur de la classe PersonnageController
      * @param model Le modèle du worm à contrôler
      */
-    public PersonnageController(PersonnageModel model) {
+    public CharacterController(CharacterModel model) {
         this.model = model;
     }
 

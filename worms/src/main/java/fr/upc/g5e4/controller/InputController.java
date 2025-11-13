@@ -11,15 +11,15 @@ import javax.swing.JPanel;
  * 
  * @author Nassim et Raphaël pour plus d'info sur son fonctionnement
  */
-public class ImputController extends JPanel{
-    private PersonnageController personnageController;
+public class InputController extends JPanel{
+    private CharacterController personnageController;
     private CameraController cameraController; 
 
     /**
      * Constructeur pour gérer uniquement le personnage
      * @param personnageController le controller du personnage
      */
-    public ImputController(PersonnageController personnageController){
+    public InputController(CharacterController personnageController){
         this.personnageController = personnageController;
         addControls();
     }
@@ -29,7 +29,7 @@ public class ImputController extends JPanel{
      * @param personnageController le controller du personnage
      * @param cameraController le controller de la caméra
      */
-    public ImputController(PersonnageController personnageController, CameraController cameraController){ 
+    public InputController(CharacterController personnageController, CameraController cameraController){ 
         this.personnageController = personnageController;
         this.cameraController = cameraController;
 
