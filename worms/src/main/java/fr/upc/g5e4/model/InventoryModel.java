@@ -16,9 +16,42 @@ public class InventoryModel {
         public boolean isInfinite;
         public Integer remainingUses;     //null si isinfinite
 
+        public int useThisTurn = 0;
+
         @Override
         public String toString(){
             return name +"("+ objectType +")";
+        }
+
+        public boolean hasRemainingUses(){          //Auxiliaire de register use
+            if(isInfinite) return true;
+            if (remainingUses == null) return false;
+            return remainingUses > 0;
+        }
+
+    
+        public boolean canUseThisTurn(){
+            if(useThisTurn>= maxUsages) return false;
+            return hasRemainingUses();
+        }
+
+        public boolean registerUseThisTurn(){   
+            if(!canUseThisTurn())return false;
+            useThisTurn++;
+            if(!isInfinite && remainingUses !=null) remainingUses--;
+            return true;
+        }
+
+        public void resetTurn(){    //Nouveau tour
+            useThisTurn = 0;
+        }
+
+        public int getRemainingUseThisTurn(){       
+            return maxUsages - useThisTurn;
+        }
+
+        public int getMaxUsages(){
+            return maxUsages;
         }
     }
 

@@ -9,7 +9,7 @@
         {
             "objectType" : "WEAPON",
             "name" : "Grenade",
-            "maxUsages" : 1,
+            "maxUsages" : 2,
             "isInfinite" : false,
             "remainingUses" : 3
         },
