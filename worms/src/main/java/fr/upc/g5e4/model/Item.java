@@ -46,4 +46,10 @@ public abstract class Item {
     public int getMaxUsages() { return maxUsages; }
     public boolean isInfinite() { return isInfinite; }
     public int getRemainingUses() { return isInfinite ? Integer.MAX_VALUE : remainingUses; }
+
+    @Override
+    public String toString(){
+        String rep = "L'objet " + getName() + " est un " + getObjectType() + " et lui reste " + getRemainingUses() + " munitions."; 
+        return rep;
+    }
 }
