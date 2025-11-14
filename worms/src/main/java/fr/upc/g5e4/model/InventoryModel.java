@@ -9,7 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class InventoryModel {
-    
+
     public static class InventoryJson{        //DTO pour le fichier Json
         public String objectType, name;   
         public int maxUsages;             //Nombre d'utilisation max pendant le tour
@@ -22,7 +22,7 @@ public class InventoryModel {
     }
 
     //Lecture du Json depuis jsonPath
-    public static InventoryRoot load(String jsonPath) throws IOException{               
+    public static InventoryRoot load(String jsonPath) throws IOException{      //IOException pour mieux gérer l'erreur                
         Gson gson = new Gson();
         String json = Files.readString(Path.of(jsonPath), StandardCharsets.UTF_8);    
         InventoryRoot root = gson.fromJson(json, InventoryRoot.class);
