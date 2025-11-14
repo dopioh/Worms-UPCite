@@ -19,7 +19,7 @@ before_script:
       </proxies>
     </settings>' > /root/.m2/settings.xml
 
-stages :
+stages:
   - build
   - test
   - deploy
@@ -38,7 +38,7 @@ build:
     paths:
       - worms/target
 
-# ETAPE 1 : TEST 
+# ETAPE 2 : TEST 
 
 test:
   stage: test
@@ -48,6 +48,21 @@ test:
   
   dependencies :
     - build
+
+# ETAPE 3 : DEPLOIEMENT
+
+deploy:
+  stage: deploy
+  script:
+    - cd worms
+    - mvn $MAVEN_CLI_OPTS clean package
+  artifacts:
+    paths:
+      - worms/target/worms-1.0-SNAPSHOT-jar-with-dependencies.jar
+    expire_in: 1 week
+  only:
+   - main 
+   - deploiement
     
 #  cache:
 #    key: "$CI_COMMIT_REF_NAME"
@@ -68,8 +83,3 @@ test:
 #       coverage_report:
 #         coverage_format: jacoco
 #         path: target/site/jacoco/jacoco.xml
-
-# deploy:
-#   stage: deploy
-#   script: echo "Define your deployment script!"
-#   environment: production

@@ -1,0 +1,23 @@
+{
+    "inventory":[   
+        {
+            "objectType" : "WEAPON",
+            "name" : "BaseballBat",
+            "maxUsages" : 1,
+            "isInfinite" : true
+        },
+        {
+            "objectType" : "WEAPON",
+            "name" : "Grenade",
+            "maxUsages" : 2,
+            "isInfinite" : false,
+            "remainingUses" : 3
+        },
+        {
+            "objectType" : "GADGET",
+            "name" : "Bumper",
+            "maxUsages" : 1,
+            "isInfinite" : true    
+        }
+    ]
+}
