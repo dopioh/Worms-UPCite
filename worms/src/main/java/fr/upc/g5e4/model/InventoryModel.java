@@ -15,6 +15,11 @@ public class InventoryModel {
         public int maxUsages;             //Nombre d'utilisation max pendant le tour
         public boolean isInfinite;
         public Integer remainingUses;     //null si isinfinite
+
+        @Override
+        public String toString(){
+            return name +"("+ objectType +")";
+        }
     }
 
     public static class InventoryRoot{        //DTO cela représente la racine du fichier Json
