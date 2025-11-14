@@ -39,7 +39,7 @@ public class GameLauncher extends JFrame{
         this.gameLoop = new GameLoop(gameManager);
     }
 
-    void testInventaire() throws IOException{
+    void testInventaire() throws IOException{        //il faut rajouter throws IOException pour le main aussi pour utiliser
         InventoryRoot root = InventoryModel.load("worms/src/main/resources/inventory.json");
         InventoryUI ui = new InventoryUI(null, root.inventory);
 
