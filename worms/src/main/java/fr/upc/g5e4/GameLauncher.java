@@ -1,9 +1,9 @@
 package fr.upc.g5e4;
 
 import javax.swing.*;
-
 import fr.upc.g5e4.model.GamePanel;
 
+import fr.upc.g5e4.model.*; //J'ai ajouté pour tester (Hugo)
 
 /** Class qui lance le jeu, elle set la taille de l'ecran (grace a son heritage de JFrame) */
 public class GameLauncher extends JFrame{
@@ -37,7 +37,7 @@ public class GameLauncher extends JFrame{
     }
 
     public static void main(String[] args){
-        new GameLauncher();
-        
+        //new GameLauncher();
+
     }
 }
