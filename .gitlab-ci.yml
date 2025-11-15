@@ -62,6 +62,7 @@ deploy:
     expire_in: 1 week
   only:
    - main 
+   - dev
    - deploy
     
 #  cache:

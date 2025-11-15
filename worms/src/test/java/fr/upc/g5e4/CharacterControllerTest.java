@@ -3,6 +3,7 @@ package fr.upc.g5e4;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.jbox2d.dynamics.World;
+import org.junit.jupiter.api.BeforeAll;
 //import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,10 +34,13 @@ public class CharacterControllerTest {
      * Du coup le test prend plus de temps et consomme plus de ressources
      * Ca pourra etre optimisé plus tard
      */
+
+
     @BeforeEach
     public void setUp() {
 
         gL = new GameLauncher(false);
+        gL.getGameLoop().timerStop();
         gm = gL.getGameManager();
         world = gm.getWorld();
 
