@@ -1,3 +1,4 @@
+package fr.upc.g5e4;
 import org.junit.jupiter.api.Test;
 
 import fr.upc.g5e4.controller.*;

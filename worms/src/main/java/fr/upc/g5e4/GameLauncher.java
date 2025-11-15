@@ -9,34 +9,50 @@ import fr.upc.g5e4.view.InventoryUI;
 import fr.upc.g5e4.model.*; //J'ai ajouté pour tester (Hugo)
 
 /** Class qui lance le jeu, elle set la taille de l'ecran (grace a son heritage de JFrame) */
-public class GameLauncher extends JFrame{
+public class GameLauncher{
     // classe pour lancer le jeu -> elle va instancier le GamePanel
     private final GameManager gameManager;
     private final GamePanel gamePanel;
     private final GameLoop gameLoop;
 
-    public GameLauncher(){
-        int sizeX = 800;
-        int sizeY = 600;
-        JFrame jeu = new JFrame();
+    private boolean screen;
 
-        jeu.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        jeu.setTitle("Prototype");
-        jeu.setSize(sizeX,sizeY);         
+    public GameLauncher(boolean screen){
+        this.screen = screen;
+        if (screen){
+            int sizeX = 800;
+            int sizeY = 600;
+            JFrame jeu = new JFrame();
 
-        this.gameManager = new GameManager();
-        this.gamePanel = gameManager.getGamePanel();
-        jeu.add(gamePanel);
-        jeu.pack();
-        jeu.setLocationRelativeTo(null);
-        jeu.setResizable(false);
+            jeu.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            jeu.setTitle("Prototype");
+            jeu.setSize(sizeX,sizeY);         
 
-        jeu.setVisible(true);
+            this.gameManager = new GameManager();
+            this.gamePanel = gameManager.getGamePanel();
+            jeu.add(gamePanel);
+            jeu.pack();
+            jeu.setLocationRelativeTo(null);
+            jeu.setResizable(false);
 
-        // le clavier focus sur l'imput controller de this.gameManager
-        this.gameManager.getImputController().requestFocusInWindow();
+            jeu.setVisible(true);
 
-        this.gameLoop = new GameLoop(gameManager);
+            // le clavier focus sur l'imput controller de this.gameManager
+            this.gameManager.getImputController().requestFocusInWindow();
+
+            this.gameLoop = new GameLoop(gameManager);
+            this.gameLoop.timerStart();
+        }
+        else{
+            this.gameManager = new GameManager();
+            this.gamePanel = gameManager.getGamePanel();
+            this.gameLoop = new GameLoop(gameManager);
+            this.gameLoop.timerStart();
+        }
+    }
+
+    public GameManager getGameManager(){
+        return this.gameManager;
     }
 
     void testInventaire() throws IOException{        //il faut rajouter throws IOException pour le main aussi pour utiliser
@@ -61,6 +77,7 @@ public class GameLauncher extends JFrame{
     }
 
     public static void main(String[] args){
-        new GameLauncher();
+        new GameLauncher(true);
+        
     }
 }
