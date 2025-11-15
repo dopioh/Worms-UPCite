@@ -49,7 +49,14 @@ public class GameLoop{
                 }
             }
         });
-        timer.start();
+    }
+
+    public void timerStart(){
+        this.timer.start();
+    }
+
+    public void timerStop(){
+        this.timer.stop();
     }
 
 

@@ -131,6 +131,10 @@ public class GameManager {
         return this.personnageController;
     }
 
+    public CharacterModel getPersonnageModel(){
+        return this.personnageModel;
+    }
+    
     public CameraController getCameraController() { 
         return this.cameraController;
     }

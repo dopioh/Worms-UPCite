@@ -17,7 +17,7 @@ public class CharacterController {
     private boolean RightKeyPressed = false;
     private boolean SpaceKeyPressed = false;
 
-    private static final float MOVE_FORCE = 15f;  // Force/Vitesse de deplacement
+    private final double MOVE_FORCE;  // Vitesse de deplacement
 
     /**
      * Constructeur de la classe PersonnageController
@@ -25,6 +25,7 @@ public class CharacterController {
      */
     public CharacterController(CharacterModel model) {
         this.model = model;
+        MOVE_FORCE = model.getSpeed();
     }
 
     // Activation & Desactivation des touches
@@ -67,10 +68,10 @@ public class CharacterController {
         
         // Appliquer une force horizontale
         if (LeftKeyPressed) {
-            body.applyForceToCenter(new Vec2(-MOVE_FORCE, 0));
+            body.applyForceToCenter(new Vec2((float)-MOVE_FORCE, 0));
         }
         if (RightKeyPressed) {
-            body.applyForceToCenter(new Vec2(MOVE_FORCE, 0));
+            body.applyForceToCenter(new Vec2((float)MOVE_FORCE, 0));
         }
         
         // Synchroniser les coordonnées du modèle avec le corps physique
@@ -78,7 +79,7 @@ public class CharacterController {
         model.setXcord(position.x * 30f);  // Conversion mètres → pixels
         model.setYcord((20 - position.y) * 30f);  // Inversion Y + conversion
         
-        return LeftKeyPressed || RightKeyPressed;
+        return LeftKeyPressed ^ RightKeyPressed;
     }
 
 
