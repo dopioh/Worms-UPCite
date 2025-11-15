@@ -3,6 +3,7 @@ package fr.upc.g5e4;
 import fr.upc.g5e4.model.CharacterModel;
 import fr.upc.g5e4.model.GroundModel;
 import org.jbox2d.dynamics.World;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
