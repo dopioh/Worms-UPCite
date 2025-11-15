@@ -58,11 +58,11 @@ deploy:
     - mvn $MAVEN_CLI_OPTS clean package
   artifacts:
     paths:
-      - worms/target/worms-SNAPSHOT-jar-with-dependencies.jar
+      - worms/target/worms-0.2-SNAPSHOT-jar-with-dependencies.jar
     expire_in: 1 week
   only:
    - main 
-   - deploiement
+   - deploy
     
 #  cache:
 #    key: "$CI_COMMIT_REF_NAME"
