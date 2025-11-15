@@ -41,11 +41,13 @@ public class GameLauncher{
             this.gameManager.getImputController().requestFocusInWindow();
 
             this.gameLoop = new GameLoop(gameManager);
+            this.gameLoop.timerStart();
         }
         else{
             this.gameManager = new GameManager();
             this.gamePanel = gameManager.getGamePanel();
             this.gameLoop = new GameLoop(gameManager);
+            this.gameLoop.timerStart();
         }
     }
 
