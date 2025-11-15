@@ -12,7 +12,7 @@ import org.jbox2d.dynamics.World;
  * Modèle du Personnage
  * Initialise ses stats et position
  */
-public class PersonnageModel extends Entity{
+public class CharacterModel extends Entity{
     private static int wormsCounter = 0;
 
     private int ID;
@@ -44,7 +44,7 @@ public class PersonnageModel extends Entity{
      * @param xcord La coordonnée x du worm
      * @param ycord La coordonnée y du worm
      */
-    public PersonnageModel(GroundModel model, World world,double xcord, double ycord) {
+    public CharacterModel(GroundModel model, World world,double xcord, double ycord) {
         super(model,world);
         this.ID = wormsCounter++;
         this.name = "Worm-" + this.ID;
@@ -72,7 +72,7 @@ public class PersonnageModel extends Entity{
      * @param speed La vitesse du worm
      * @param jump Le saut du worm
      */
-    public PersonnageModel(GroundModel model, World world,String name, double xcord, double ycord, double health, double shield, double speed, double jump) {
+    public CharacterModel(GroundModel model, World world,String name, double xcord, double ycord, double health, double shield, double speed, double jump) {
         super(model,world);
         this.ID = wormsCounter++;
         this.name = name + "-" + this.ID;

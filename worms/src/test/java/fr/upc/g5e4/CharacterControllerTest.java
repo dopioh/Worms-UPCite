@@ -7,21 +7,22 @@ import org.jbox2d.dynamics.World;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import fr.upc.g5e4.model.CharacterModel;
 //import fr.upc.g5e4.model.GroundModel;
-import fr.upc.g5e4.model.PersonnageModel;
-import fr.upc.g5e4.controller.PersonnageController;
+import fr.upc.g5e4.controller.CharacterController;
+
 
 /**
  * Tests unitaires pour PersonnageController (avec Junit)
  * 
  */
-public class PersonnageControllerTest {
+public class CharacterControllerTest {
     private GameLauncher gL;
     private GameManager gm;
     private World world;
 
-    private PersonnageModel model;
-    private PersonnageController controller;
+    private CharacterModel model;
+    private CharacterController controller;
 
     private final static float FIXHZ = 1f/60f; // J'aurais pu le recup avec un getter mais on part du principe qu'il sera toujours à 60 dans ce projet
     

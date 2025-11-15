@@ -1,9 +1,12 @@
 package fr.upc.g5e4;
 
+import java.io.IOException;
+
 import javax.swing.*;
-
 import fr.upc.g5e4.model.GamePanel;
-
+import fr.upc.g5e4.model.InventoryModel.InventoryRoot;
+import fr.upc.g5e4.view.InventoryUI;
+import fr.upc.g5e4.model.*; //J'ai ajouté pour tester (Hugo)
 
 /** Class qui lance le jeu, elle set la taille de l'ecran (grace a son heritage de JFrame) */
 public class GameLauncher{
@@ -48,6 +51,27 @@ public class GameLauncher{
 
     public GameManager getGameManager(){
         return this.gameManager;
+    }
+
+    void testInventaire() throws IOException{        //il faut rajouter throws IOException pour le main aussi pour utiliser
+        InventoryRoot root = InventoryModel.load("worms/src/main/resources/inventory.json");
+        InventoryUI ui = new InventoryUI(null, root.inventory);
+
+        //Tue le programme après fermeture de la fenetre
+        ui.addWindowListener(new java.awt.event.WindowAdapter(){
+            @Override
+            public void windowClosed(java.awt.event.WindowEvent e){
+                System.exit(0);
+            }
+        });
+
+        ui.setVisible(true);
+
+        /* Plus tard 
+         * for(InventoryJson item : inventoryRoot.inventory){
+         *     item.resetTurn();
+         * }
+         */
     }
 
     public static void main(String[] args){

@@ -25,7 +25,7 @@ public abstract class Entity {
      *      {@code Body b = new Body(BodyDef bd)}
      *      {@code b.createFixture(Fixturedef fd)}
      * 
-     * @see PersonnageModel#createBody 
+     * @see CharacterModel#createBody 
      */
     public abstract Body createBody();
 }

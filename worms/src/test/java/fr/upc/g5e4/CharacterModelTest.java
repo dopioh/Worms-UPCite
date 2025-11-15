@@ -1,6 +1,6 @@
 package fr.upc.g5e4;
 
-import fr.upc.g5e4.model.PersonnageModel;
+import fr.upc.g5e4.model.CharacterModel;
 import fr.upc.g5e4.model.GroundModel;
 import org.jbox2d.dynamics.World;
 import org.junit.jupiter.api.BeforeEach;
@@ -8,9 +8,9 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class PersonnageModelTest {
+public class CharacterModelTest {
 
-    private PersonnageModel personnage;
+    private CharacterModel personnage;
     private GroundModel ground;
     private World world;
 
@@ -27,7 +27,7 @@ class PersonnageModelTest {
         world = new World(new org.jbox2d.common.Vec2(0, -10f)); // gravité vers le bas
 
         // Création d'un personnage
-        personnage = new PersonnageModel(ground, world, 100.0, 200.0);
+        personnage = new CharacterModel(ground, world, 100.0, 200.0);
     }
 
     @Test

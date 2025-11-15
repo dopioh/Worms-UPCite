@@ -179,14 +179,14 @@ public class PhysicsWorld {
      * @param personnageModel : Instance d'un Worms qui possede une methode qui cree un body
      * @param destroy : liste vide où on rajoutera les Worms qui sont completement dans l'eau
      * 
-     * @see PersonnageModel#createBody
+     * @see CharacterModel#createBody
      */
     public class WaterSensorListener implements ContactListener{
-        private ArrayList<PersonnageModel> destroy;
+        private ArrayList<CharacterModel> destroy;
         private final Body water;                     
-        private final PersonnageModel personnageModel;
+        private final CharacterModel personnageModel;
 
-        public WaterSensorListener(Body water, PersonnageModel personnageModel, ArrayList<PersonnageModel> destroy){
+        public WaterSensorListener(Body water, CharacterModel personnageModel, ArrayList<CharacterModel> destroy){
             this.water = water;
             this.personnageModel = personnageModel;
             this.destroy = destroy;
@@ -198,7 +198,7 @@ public class PhysicsWorld {
          * 
          * @see GameManager
          */
-        public ArrayList<PersonnageModel> getDestroyList(){
+        public ArrayList<CharacterModel> getDestroyList(){
             return destroy;
         }
 

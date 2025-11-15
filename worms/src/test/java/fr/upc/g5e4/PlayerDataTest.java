@@ -3,7 +3,7 @@ package fr.upc.g5e4;
 import com.google.gson.Gson;
 
 import fr.upc.g5e4.FileUtile;
-import fr.upc.g5e4.model.DonneesJoueur;
+import fr.upc.g5e4.model.PlayerData;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -12,7 +12,7 @@ import java.io.File;
 /**
  * Classe de test pour DoneesJoueur
  */
-public class DonneesJoueurTest {
+public class PlayerDataTest {
     
     private static final File SAVE_FILE = new File("target/test-classes/joueur.json");
     private final Gson gson = new Gson();
@@ -20,7 +20,7 @@ public class DonneesJoueurTest {
     @Test
     public void testSerializationToJson() {
         // Création d'un joueur test
-        DonneesJoueur joueur = new DonneesJoueur("MEi", 100, -10);
+        PlayerData joueur = new PlayerData("MEi", 100, -10);
         
         // Conversion en JSON
         String json = gson.toJson(joueur);
@@ -32,7 +32,7 @@ public class DonneesJoueurTest {
         String loadedJson = FileUtile.load(SAVE_FILE);
         
         // Conversion du JSON en objet
-        DonneesJoueur loadedJoueur = gson.fromJson(loadedJson, DonneesJoueur.class);
+        PlayerData loadedJoueur = gson.fromJson(loadedJson, PlayerData.class);
         
         // Vérification des données
         assertEquals("MEi", loadedJoueur.getName());
@@ -53,7 +53,7 @@ public class DonneesJoueurTest {
         
         // Lecture et désérialisation
         String loadedJson = FileUtile.load(SAVE_FILE);
-        DonneesJoueur joueur = gson.fromJson(loadedJson, DonneesJoueur.class);
+        PlayerData joueur = gson.fromJson(loadedJson, PlayerData.class);
         
         // Vérification des données
         assertEquals("MEi", joueur.getName());
