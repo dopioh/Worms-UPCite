@@ -55,6 +55,10 @@ public class GameLauncher{
         return this.gameManager;
     }
 
+    public GameLoop getGameLoop(){
+        return this.gameLoop;
+    }
+
     void testInventaire() throws IOException{        //il faut rajouter throws IOException pour le main aussi pour utiliser
         InventoryRoot root = InventoryModel.load("worms/src/main/resources/inventory.json");
         InventoryUI ui = new InventoryUI(null, root.inventory);
