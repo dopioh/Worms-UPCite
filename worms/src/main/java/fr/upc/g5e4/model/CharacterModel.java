@@ -44,7 +44,7 @@ public class CharacterModel extends Entity{
      * @param xcord La coordonnée x du worm
      * @param ycord La coordonnée y du worm
      */
-    public CharacterModel(GroundModel model, World world,double xcord, double ycord) {
+    public CharacterModel(GroundModel model, World world, double xcord, double ycord) {
         super(model,world);
         this.ID = wormsCounter++;
         this.name = "Worm-" + this.ID;

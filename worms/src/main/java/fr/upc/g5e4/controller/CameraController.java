@@ -17,7 +17,7 @@ import fr.upc.g5e4.model.camera.CameraModel;
 public class CameraController {
 
     private final CameraModel camera;
-    private final CharacterModel personnage;
+    private CharacterModel personnage;
 
     private boolean leftPressed = false;
     private boolean rightPressed = false;
@@ -109,5 +109,13 @@ public class CameraController {
         if (followPlayer) {
             camera.centerOn(personnage);
         }
+    }
+    
+    /**
+     * Change le worm cible de la caméra
+     * @param newTarget le nouveau worm à suivre
+     */
+    public void setTargetCharacter(CharacterModel newTarget) {
+        this.personnage = newTarget;
     }
 }
