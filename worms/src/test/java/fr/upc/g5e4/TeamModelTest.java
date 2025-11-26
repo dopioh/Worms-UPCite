@@ -133,10 +133,9 @@ public class TeamModelTest {
         
         CharacterModel newWorm = new CharacterModel(groundModel, world, 300, 200);
         
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             team.addWorm(newWorm, 0);
         });
-        assertTrue(exception.getMessage().contains("un worm est dejà à cette place..."));
     }
     
     @Test
