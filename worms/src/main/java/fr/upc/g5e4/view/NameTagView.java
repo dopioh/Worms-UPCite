@@ -17,10 +17,10 @@ public class NameTagView {
     /**
      * Constructeur de la classe NameTagView
      */
-    public NameTagView() {
+    public NameTagView(Color borderColor) {
         this.backgroundColor = new Color(0, 0, 0, 180);
         this.textColor = Color.WHITE;
-        this.borderColor = new Color(100, 180, 255);
+        this.borderColor = borderColor;
         this.padding = 5;
         this.font = new Font("Arial", Font.BOLD, 12);
         this.visible = true;
@@ -37,8 +37,10 @@ public class NameTagView {
             return;
         }
         
-        int x = (int) Math.round(model.getXcord());
-        int y = (int) Math.round(model.getYcord());
+        // Utiliser les coordonnées du Body pour suivre le worm
+        org.jbox2d.common.Vec2 position = model.getBody().getPosition();
+        int x = (int)(position.x * CharacterModel.getPPM());
+        int y = (int)((20 - position.y) * CharacterModel.getPPM());
         
         g2d.setFont(font);
         FontMetrics fm = g2d.getFontMetrics();
@@ -75,8 +77,10 @@ public class NameTagView {
             return;
         }
         
-        int x = (int) Math.round(model.getXcord());
-        int y = (int) Math.round(model.getYcord());
+        // Utiliser les coordonnées du Body pour suivre le worm
+        org.jbox2d.common.Vec2 position = model.getBody().getPosition();
+        int x = (int)(position.x * CharacterModel.getPPM());
+        int y = (int)((20 - position.y) * CharacterModel.getPPM());
         
         g2d.setFont(font);
         FontMetrics fm = g2d.getFontMetrics();

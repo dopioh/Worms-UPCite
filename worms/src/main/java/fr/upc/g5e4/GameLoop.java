@@ -1,6 +1,5 @@
 package fr.upc.g5e4;
 
-import fr.upc.g5e4.controller.*;
 import fr.upc.g5e4.model.*;
 //import fr.upc.g5e4.view.*;
 
@@ -18,19 +17,20 @@ public class GameLoop{
     private final Timer timer;
     private final GameManager gameManager;
     private final GamePanel gamePanel;
-    private final CharacterController personnageController;
 
     /** Toute les update de Timer se font dans le Constructeur de GameLoop, pas besoin de creer de methode ici*/
     public GameLoop(GameManager gameManager){
         this.gameManager = gameManager;
         this.gamePanel = this.gameManager.getGamePanel();
-        this.personnageController = this.gameManager.getPersonnageController();
 
         //on multiplie FIXHZ 1000 psq Timer fonctionne en ms
         this.timer = new Timer((int)(FIXHZ*1000),new ActionListener() {         
             @Override
             public void actionPerformed(ActionEvent e){
-                personnageController.update();
+                // met a jour le worm actif
+                if (gameManager.getActiveWormController() != null) {
+                    gameManager.getActiveWormController().update();
+                }
                 gameManager.getWorld().step(FIXHZ,8,3);
                 gamePanel.repaint();
 

@@ -21,7 +21,7 @@ public class CharacterView {
     public CharacterView() {
         this.size = 25;
         this.color = new Color(255, 150, 0); // Orange
-        this.nameTagView = new NameTagView();
+        this.nameTagView = new NameTagView(color);
     }
     
     /**
@@ -32,7 +32,7 @@ public class CharacterView {
     public CharacterView(int size, Color color) {
         this.size = size;
         this.color = color;
-        this.nameTagView = new NameTagView();
+        this.nameTagView = new NameTagView(color);
     }
     
     /**
@@ -63,7 +63,7 @@ public class CharacterView {
         int x = (int)(m_position.x * CharacterModel.getPPM());
         int y = (int)((20 - m_position.y) * CharacterModel.getPPM());  // Conversion et Inversion Y
     
-        g2d.setColor(Color.RED);
+        g2d.setColor(color);
         g2d.fillRect(x - size/2, y - size/2, size, size);
     }
     
