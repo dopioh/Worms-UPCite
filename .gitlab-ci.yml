@@ -69,7 +69,7 @@ deploy:
    - fixRelease
 
 release_job:
-  stage: release
+  stage: release_job
   image: registry.gitlab.com/gitlab-org/release-cli:latest
   needs:
     - job: deploy
