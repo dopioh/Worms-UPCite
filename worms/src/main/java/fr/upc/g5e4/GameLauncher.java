@@ -2,8 +2,8 @@ package fr.upc.g5e4;
 import java.io.IOException;
 
 import javax.swing.*;
+import java.awt.event.ActionEvent;
 
-import fr.upc.g5e4.model.InventoryModel;
 import fr.upc.g5e4.model.InventoryModel.InventoryRoot;
 import fr.upc.g5e4.view.InventoryOverlay;
 import fr.upc.g5e4.view.MainMenuView;
@@ -54,6 +54,9 @@ public class GameLauncher{
             game.setContentPane(layered);
             /* Fin de partie */
 
+            //Touches raccourcies
+            setupKeyBindings(layered, game);
+            
             //game.add(gamePanel);
             game.pack();
             game.setLocationRelativeTo(null);
@@ -75,6 +78,34 @@ public class GameLauncher{
         }
     }
 
+    private void setupKeyBindings(JComponent root, JFrame game) {
+        InputMap im = root.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ActionMap am = root.getActionMap();
+
+        // Touche ESC -> quitter le jeu
+        im.put(KeyStroke.getKeyStroke("ESCAPE"), "exitGame");
+        am.put("exitGame", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                game.dispose();
+                System.exit(0);
+            }
+        });
+
+        // Touche I -> ouvrir / fermer l'inventaire
+        im.put(KeyStroke.getKeyStroke('i'), "toggleInventory");
+        am.put("toggleInventory", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (inventoryOverlay != null) {
+                    boolean visible = inventoryOverlay.isInventoryVisible();
+                    inventoryOverlay.setInventoryVisible(!visible);
+                }
+            }
+        });
+    }
+
+    
     public GameManager getGameManager(){
         return this.gameManager;
     }
@@ -83,6 +114,7 @@ public class GameLauncher{
         return this.gameLoop;
     }
     
+    /*  */
     /**  Affiche l'écran d'accueil au démarrage  */
     private static void showAccueil() {
 
@@ -97,9 +129,9 @@ public class GameLauncher{
 
     public static void main(String[] args) throws IOException{
         //// Lance l'écran d'accueil au lieu du jeu directement
-        //showAccueil();
+        showAccueil();
 
         //// Pour lancer le jeu directement (pour les testes)
-        new GameLauncher(true);
+        //new GameLauncher(true);
     }
 }

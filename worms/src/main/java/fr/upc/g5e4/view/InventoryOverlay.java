@@ -109,7 +109,7 @@ public class InventoryOverlay extends JComponent{       //S'integre dans une int
 
         /* Overlay */
         int panelW = 300;
-        int panelH = 200;
+        int panelH = 250;
         int panelX = (w - panelW) /2;
         int panelY = (h - panelH) /2;
 
@@ -151,7 +151,7 @@ public class InventoryOverlay extends JComponent{       //S'integre dans une int
         }
 
         /* Bouton Utiliser*/
-        int btnW = 100;
+        int btnW = 80;
         int btnH = 30;
         int btnY = panelY + panelH - btnH - 10;
 
