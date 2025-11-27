@@ -55,7 +55,7 @@ public class GameManager {
     public GameManager() {
         int sizeX = 800;
         int sizeY = 600;
-        int[] groundY = {470,450,430,420,410,400,390,370,340,300,280,250,230,200};
+        int[] groundY = {400,420,450,450,400,700,930,450,350,300,250,230,200,200};
         /*
          * Plusieurs autres valeurs de groundY si vous voulez tester plusieurs terrains
          * :
@@ -85,20 +85,28 @@ public class GameManager {
 
         physic.limitPanel(model);
 
-        this.wSL = physic.new WaterSensorListener(water, personnageModel, new ArrayList<CharacterModel>());
-        world.setContactListener(wSL);
-
         // création premiere equipe
         int wormNumber = 3; 
-        this.teamModel1 = new TeamModel(model, world, "Team1", 100, 8, wormNumber);
+        this.teamModel1 = new TeamModel(model, world, "Team1", 100, 98, wormNumber);
         this.teamView1 = new TeamView(wormNumber, Color.BLUE);
 
         // création seconde equipe
-        this.teamModel2 = new TeamModel(model, world, "Team2", 400, 8, wormNumber);  
+        this.teamModel2 = new TeamModel(model, world, "Team2", 400, 98, wormNumber);  
         this.teamView2 = new TeamView(wormNumber, Color.RED);
         
+        // Créer une liste de tous les worms pour le WaterSensorListener
+        ArrayList<CharacterModel> allWorms = new ArrayList<>();
+        allWorms.add(personnageModel);  // Worm de test jaune
+        for (int i = 0; i < wormNumber; i++) {
+            allWorms.add(teamModel1.getWorm(i));
+            allWorms.add(teamModel2.getWorm(i));
+        }
+        
+        this.wSL = physic.new WaterSensorListener(water, allWorms, new ArrayList<CharacterModel>());
+        world.setContactListener(wSL);
+        
         // ON JOUE LES BLEUS PAR DEFAUT
-        // Le premier worm du tableau est actif au départ
+        // Le premier worm du tableau est le worm qu'on controle au debut
         this.activeWormIndex = 0;
         this.activeWormController = new CharacterController(teamModel1.getWorm(activeWormIndex));
         
