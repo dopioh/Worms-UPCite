@@ -1,11 +1,11 @@
 package fr.upc.g5e4;
-
 import java.io.IOException;
 
 import javax.swing.*;
 
+import fr.upc.g5e4.model.InventoryModel;
 import fr.upc.g5e4.model.InventoryModel.InventoryRoot;
-import fr.upc.g5e4.view.InventoryUI;
+import fr.upc.g5e4.view.InventoryOverlay;
 import fr.upc.g5e4.view.MainMenuView;
 import fr.upc.g5e4.controller.MainMenuController;
 import fr.upc.g5e4.model.*; //J'ai ajouté pour tester (Hugo)
@@ -18,9 +18,11 @@ public class GameLauncher{
     private final GamePanel gamePanel;
     private final GameLoop gameLoop;
 
+    private InventoryOverlay inventoryOverlay; 
+
     private boolean screen;
 
-    public GameLauncher(boolean screen){
+    public GameLauncher(boolean screen) throws IOException{
         this.screen = screen;
 
         if (screen){
@@ -34,7 +36,25 @@ public class GameLauncher{
 
             this.gameManager = new GameManager();
             this.gamePanel = gameManager.getGamePanel();
-            game.add(gamePanel);
+
+            /* ------------------------ Partie Overlay Inventaire --------------------------------- */
+            //Charge l'inventaire 
+            InventoryRoot root = InventoryModel.load("worms/src/main/resources/inventory.json");
+            //Créer l'overlay
+            this.inventoryOverlay = new InventoryOverlay((root.inventory));
+            //Créer un layeredPane
+            JLayeredPane layered = new JLayeredPane();
+            layered.setPreferredSize(new java.awt.Dimension(sizeX,sizeY));
+            //placer dedans
+            gamePanel.setBounds(0,0,sizeX,sizeY);
+            inventoryOverlay.setBounds(0,0,sizeX,sizeY);
+
+            layered.add(gamePanel, JLayeredPane.DEFAULT_LAYER);
+            layered.add(inventoryOverlay, JLayeredPane.PALETTE_LAYER);
+            game.setContentPane(layered);
+            /* Fin de partie */
+
+            //game.add(gamePanel);
             game.pack();
             game.setLocationRelativeTo(null);
             game.setResizable(false);
@@ -62,28 +82,6 @@ public class GameLauncher{
     public GameLoop getGameLoop(){
         return this.gameLoop;
     }
-
-    void testInventaire() throws IOException{        //il faut rajouter throws IOException pour le main aussi pour utiliser
-        InventoryRoot root = InventoryModel.load("worms/src/main/resources/inventory.json");
-        InventoryUI ui = new InventoryUI(null, root.inventory);
-
-        //Tue le programme après fermeture de la fenetre
-        ui.addWindowListener(new java.awt.event.WindowAdapter(){
-            @Override
-            public void windowClosed(java.awt.event.WindowEvent e){
-                System.exit(0);
-            }
-        });
-
-        ui.setVisible(true);
-
-        /* Plus tard 
-         * for(InventoryJson item : inventoryRoot.inventory){
-         *     item.resetTurn();
-         * }
-         */
-    }
-
     
     /**  Affiche l'écran d'accueil au démarrage  */
     private static void showAccueil() {
@@ -97,11 +95,11 @@ public class GameLauncher{
         });
     }
 
-    public static void main(String[] args){
+    public static void main(String[] args) throws IOException{
         //// Lance l'écran d'accueil au lieu du jeu directement
-        showAccueil();
+        //showAccueil();
 
         //// Pour lancer le jeu directement (pour les testes)
-        //new GameLauncher(true);
+        new GameLauncher(true);
     }
 }
