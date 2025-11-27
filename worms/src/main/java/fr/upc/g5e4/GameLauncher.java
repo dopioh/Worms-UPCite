@@ -3,8 +3,10 @@ package fr.upc.g5e4;
 import java.io.IOException;
 
 import javax.swing.*;
-import fr.upc.g5e4.model.GamePanel;
+
 import fr.upc.g5e4.model.InventoryModel.InventoryRoot;
+import fr.upc.g5e4.view.ConsoleView;
+import fr.upc.g5e4.view.GamePanel;
 import fr.upc.g5e4.view.InventoryUI;
 import fr.upc.g5e4.model.*; //J'ai ajouté pour tester (Hugo)
 
@@ -81,7 +83,8 @@ public class GameLauncher{
     }
 
     public static void main(String[] args){
-        new GameLauncher(true);
+        //new GameLauncher(true);
+        //new ConsoleView();
         
     }
 }

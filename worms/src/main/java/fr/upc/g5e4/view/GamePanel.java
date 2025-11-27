@@ -1,8 +1,9 @@
-package fr.upc.g5e4.model;
+package fr.upc.g5e4.view;
 
 import fr.upc.g5e4.controller.CameraController;
+import fr.upc.g5e4.model.CharacterModel;
+import fr.upc.g5e4.model.GroundModel;
 import fr.upc.g5e4.model.camera.CameraModel;
-import fr.upc.g5e4.view.CharacterView;
 
 import javax.swing.*;
 import java.awt.*;

@@ -3,6 +3,7 @@ package fr.upc.g5e4;
 import fr.upc.g5e4.controller.*;
 import fr.upc.g5e4.model.*;
 //import fr.upc.g5e4.view.*;
+import fr.upc.g5e4.view.GamePanel;
 
 import java.awt.event.ActionListener;
 import java.util.ArrayList;

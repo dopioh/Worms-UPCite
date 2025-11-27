@@ -11,7 +11,7 @@ import javax.swing.JPanel;
  * 
  * @author Nassim et Raphaël pour plus d'info sur son fonctionnement
  */
-public class InputController extends JPanel{
+public class SwingInputController extends JPanel{
     private CharacterController personnageController;
     private CameraController cameraController; 
 
@@ -19,7 +19,7 @@ public class InputController extends JPanel{
      * Constructeur pour gérer uniquement le personnage
      * @param personnageController le controller du personnage
      */
-    public InputController(CharacterController personnageController){
+    public SwingInputController(CharacterController personnageController){
         this.personnageController = personnageController;
         addControls();
     }
@@ -29,7 +29,7 @@ public class InputController extends JPanel{
      * @param personnageController le controller du personnage
      * @param cameraController le controller de la caméra
      */
-    public InputController(CharacterController personnageController, CameraController cameraController){ 
+    public SwingInputController(CharacterController personnageController, CameraController cameraController){ 
         this.personnageController = personnageController;
         this.cameraController = cameraController;
 
@@ -39,7 +39,8 @@ public class InputController extends JPanel{
         addControls();
     }
 
-    private void addControls() {    
+    //@Override
+    public void addControls() {    
         //System.out.println("addControls() called");
         addKeyListener(new KeyAdapter() {
             @Override

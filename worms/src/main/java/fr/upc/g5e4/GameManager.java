@@ -10,6 +10,7 @@ import fr.upc.g5e4.model.*;
 import fr.upc.g5e4.model.PhysicsWorld.WaterSensorListener;
 import fr.upc.g5e4.model.camera.CameraModel;
 import fr.upc.g5e4.view.CharacterView;
+import fr.upc.g5e4.view.GamePanel;
 
 /**
  * Cette classe servira pour instancier tout ce dont le jeu (une partie de jeu)
@@ -26,7 +27,7 @@ public class GameManager {
     private final World world;
     private final Body water;
     private final WaterSensorListener wSL;
-    private final InputController imputController;
+    private final SwingInputController imputController;
     private final CameraModel camera; // AJOUT RAPHAËL
     private final CameraController cameraController; // AJOUT RAPHAËL
 
@@ -79,7 +80,7 @@ public class GameManager {
         this.cameraController = new CameraController(camera, personnageModel);
 
         // Contrôleur fusionné personnage + caméra
-        this.imputController = new InputController(personnageController, cameraController); 
+        this.imputController = new SwingInputController(personnageController, cameraController); 
 
         physic.limitPanel(model);
 
@@ -123,7 +124,7 @@ public class GameManager {
         return this.gamePanel;
     }
 
-    public InputController getImputController() {
+    public SwingInputController getImputController() {
         return this.imputController;
     }
 
