@@ -176,7 +176,7 @@ public class PhysicsWorld {
      * Qui focntionnera pas seulement que pour le contact entre l'eau et le Worms
      * 
      * @param water : body deja defini qui designe l'eau 
-     * @param personnageModel : Instance d'un Worms qui possede une methode qui cree un body
+     * @param allWorms : liste de tous les worms du jeu pour vérifier qui tombe dans l'eau
      * @param destroy : liste vide où on rajoutera les Worms qui sont completement dans l'eau
      * 
      * @see CharacterModel#createBody
@@ -184,11 +184,11 @@ public class PhysicsWorld {
     public class WaterSensorListener implements ContactListener{
         private ArrayList<CharacterModel> destroy;
         private final Body water;                     
-        private final CharacterModel personnageModel;
+        private final ArrayList<CharacterModel> allWorms;
 
-        public WaterSensorListener(Body water, CharacterModel personnageModel, ArrayList<CharacterModel> destroy){
+        public WaterSensorListener(Body water, ArrayList<CharacterModel> allWorms, ArrayList<CharacterModel> destroy){
             this.water = water;
-            this.personnageModel = personnageModel;
+            this.allWorms = allWorms;
             this.destroy = destroy;
         }
 
@@ -207,9 +207,23 @@ public class PhysicsWorld {
             Fixture a = contact.getFixtureA();              
             Fixture b = contact.getFixtureB();
 
-            if (fullInWater(a, b)){
-                destroy.add(this.personnageModel);
-                System.out.println("DEPOP");
+            // il y'a un body water et un body worm
+            Body bodyA = a.getBody();
+            Body bodyB = b.getBody();
+            
+            // Identifier le worm qui touche l'eau
+            for (CharacterModel worm : allWorms) {
+                if (worm == null || worm.isDead()) continue;
+                
+                Body wormBody = worm.getBody();
+                if (wormBody == bodyA || wormBody == bodyB) {
+                    if (fullInWater(worm)) {
+                        worm.setDead(true);
+                        destroy.add(worm);
+                        System.out.println("DEPOP: " + worm.getName() + " est mort dans l'eau!");
+                    }
+                    break;
+                }
             }
         }
 
@@ -220,18 +234,19 @@ public class PhysicsWorld {
         /**
          * Toutes les variables de fullInWater sont en metres
          * Car Jbox2D
+         * @param worm Le worm à vérifier
+         * @return true si le worm est complètement immergé dans l'eau
         */
-        public boolean fullInWater(Fixture a, Fixture b){
+        public boolean fullInWater(CharacterModel worm){
             float waterY = water.getPosition().y;
             //System.out.println("waterY : " + waterY);
-            float PersoY = personnageModel.getBody().getPosition().y;
-            //System.out.println("dummyY : " + dummyY);
-            float demiHauteurY = personnageModel.getMWidthPerso() / 2; // On veut que la moitié
+            float wormY = worm.getBody().getPosition().y;
+            //System.out.println("wormY : " + wormY);
+            float demiHauteurY = worm.getMWidthPerso() / 2; // On veut que la moitié
             //System.out.println("radius : " + radius);
-            if (PersoY + demiHauteurY > waterY){
+            if (wormY + demiHauteurY > waterY){
                 return false;
             }
-            personnageModel.setDead(true);
             return true;
         }
 
