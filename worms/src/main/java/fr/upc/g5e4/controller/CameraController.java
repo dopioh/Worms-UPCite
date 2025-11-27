@@ -5,12 +5,11 @@ import fr.upc.g5e4.model.camera.CameraModel;
 
 /*
  * CameraController gère la caméra dans le jeu.
- * 
- * Elle permet de :
- *  - Déplacer la caméra avec les flèches
- *  - Zoomer et dézoomer sur le personnage
- *  - Centrer la caméra sur le personnage
- *  - Suivre automatiquement le personnage si souhaité
+ * * Elle permet de :
+ * - Déplacer la caméra avec les flèches
+ * - Zoomer et dézoomer sur le personnage
+ * - Centrer la caméra sur le personnage
+ * - Suivre automatiquement le personnage si souhaité
  *
  */
 
@@ -73,16 +72,18 @@ public class CameraController {
 
     // Zoom avant et arrière
     public void zoomIn() {
-        camera.zoom(camera.getZoomFactor() * 1.2, personnage);
+        camera.zoomTarget(camera.getZoomFactor() * 1.2);
+        camera.centerTargetOn(personnage);
     }
 
     public void zoomOut() {
-        camera.zoom(camera.getZoomFactor() / 1.2, personnage);
+        camera.zoomTarget(camera.getZoomFactor() / 1.2);
+        camera.centerTargetOn(personnage);
     }
 
     // Centre sur le personnage et active le suivi
     public void centerOnCharacter() {
-        camera.centerOn(personnage);
+        camera.centerTargetOn(personnage);
         followPlayer = true;
     }
 
@@ -101,13 +102,19 @@ public class CameraController {
         if (downPressed)
             deltaY += MOVE_STEP;
 
-        camera.move(deltaX, deltaY);
-
-        /*  Suivi automatique si activé.
-        On pourra laisser le choix a l'utilisateur d'activer cette fonction dans les options.
-        */
-        if (followPlayer) {
-            camera.centerOn(personnage);
+        // On déplace la CIBLE, pas la caméra directement
+        if (deltaX != 0 || deltaY != 0) {
+            camera.moveTarget(deltaX, deltaY);
         }
+
+        /*
+         * Suivi automatique si activé.
+         * A l'avenir, on pourrais laisser le choix a l'utilisateur d'activer cette
+         * fonction dans les options.
+         */
+        if (followPlayer) {
+            camera.centerTargetOn(personnage);
+        }
+        camera.updateSmoothPosition();
     }
 }
