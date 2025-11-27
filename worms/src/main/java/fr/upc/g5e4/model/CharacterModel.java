@@ -28,11 +28,14 @@ public class CharacterModel extends Entity{
     private double jump;
     
     private boolean isDead;
+    
+    private long lastJumpTime = 0;  // Temps du dernier saut pour le cooldown
+    private static final double JUMP_COOLDOWN = 1;  // Cooldown du saut en secondes
 
     private static float PPM = 30;
 
-    private final float m_HeightPerso = 1;   // tous les worms font la meme taille en metre
-    private final float m_WidthPerso = 1;
+    private final float m_HeightPerso = 0.6f;   // tous les worms font la meme taille en metre
+    private final float m_WidthPerso = 0.6f;
 
     private final Body persoBody;
 
@@ -54,7 +57,7 @@ public class CharacterModel extends Entity{
         this.ycord = ycord;
         this.health = 100.0;
         this.shield = 50.0;
-        this.speed = 15.0;  // defini à 3 à la base
+        this.speed = 5.0;  // defini à 3 à la base
         this.jump = 5.0;
         this.isDead = false;
         
@@ -192,7 +195,7 @@ public class CharacterModel extends Entity{
      * @return true si le personnage touche le sol, false s'il est en l'air
      */
     public boolean isOnGround() {
-        float distanceDetection = 0.2f; // Une distance en plus pour être sûr de detecter le sol
+        float distanceDetection = 0; // Une distance en plus pour être sûr de detecter le sol
         Vec2 positionActuelle = persoBody.getPosition();
 
         // Position du point en dessous du personnage afin de voir si on est au sol
@@ -216,11 +219,15 @@ public class CharacterModel extends Entity{
      * Fait sauter le personnage si il est au sol
      */
     public void jump() {
-        if (isOnGround()) {
+        long currentTime = System.currentTimeMillis(); 
+        double timeSinceLastJump = (currentTime - lastJumpTime) / 1000.0; //Chronometre le dernier saut
+        
+        if (isOnGround() && timeSinceLastJump >= JUMP_COOLDOWN) {
             float jumpForce = (float)(jump);
             Vec2 impulse = new Vec2(0, jumpForce);
             Vec2 point = persoBody.getWorldCenter();
             persoBody.applyLinearImpulse(impulse, point);
+            lastJumpTime = currentTime;  // Met à jour le timestamp du dernier saut
         }
     }
 
@@ -245,9 +252,9 @@ public class CharacterModel extends Entity{
         square.setAsBox(m_WidthPerso/2, m_HeightPerso/2);   
 
         fixtureWorm.shape = square;
-        fixtureWorm.restitution = 0.1f;
-        fixtureWorm.density = 1.0f;
-        fixtureWorm.friction = 0.8f;
+        fixtureWorm.restitution = 0.01f;
+        fixtureWorm.density = 5.0f;
+        fixtureWorm.friction = 18f;
 
         Body bWorm = world.createBody(bdWorm);
         bWorm.createFixture(fixtureWorm);

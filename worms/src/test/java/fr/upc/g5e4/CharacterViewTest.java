@@ -18,7 +18,7 @@ public class CharacterViewTest {
     public void testDefaultConstructor() {
         CharacterView v = new CharacterView();
     
-        assertEquals(25, v.getSize());
+        assertEquals(15, v.getSize());
         assertEquals(new Color(255, 150, 0), v.getColor());
         assertNotNull(v.getNameTagView());
     }
@@ -38,7 +38,7 @@ public class CharacterViewTest {
     @Test
     public void testGetSize() {
         CharacterView view = new CharacterView();
-        assertEquals(25, view.getSize());
+        assertEquals(15, view.getSize());
     }
     
     @Test
