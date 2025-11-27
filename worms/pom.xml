@@ -6,7 +6,7 @@
 
     <groupId>fr.upc.g5e4</groupId>
     <artifactId>worms</artifactId>
-    <version>0.2-SNAPSHOT</version>
+    <version>SNAPSHOT</version>
 
     <properties>
         <maven.compiler.source>23</maven.compiler.source>
