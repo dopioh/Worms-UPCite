@@ -1,17 +1,12 @@
 package fr.upc.g5e4.model;
 
-import fr.upc.g5e4.GameLoop;
-import fr.upc.g5e4.controller.CharacterController;
-import fr.upc.g5e4.view.ConsolePanel;
-
 /**
  * Adaptation de la classe GameLoop pour la vue terminal avec Lanterna
  * Fonctionne avec des thread et pas un Timer deja defini dans la librairie
- * @see GameLoop
+ * @see GameLoop pour la version avec Swing/AWT
  */
 public class ConsoleGameLoop{
     private ConsoleGameManager consoleGameManager;
-    //private ConsolePanel consolePanel;
 
     private Thread gameThread;
     private boolean running;
@@ -20,14 +15,19 @@ public class ConsoleGameLoop{
 
     public ConsoleGameLoop(ConsoleGameManager consoleGameManager){
         this.consoleGameManager = consoleGameManager;
-        //this.consolePanel = consoleGameManager.getConsolePanel();
         this.running = false;
-        //System.out.println("Constructeur ConsoleGameLoop");
     }
 
+    /**
+     * Boucle du jeu (60 fps)
+     * {@see sleepTime} gere la framerate
+     * Sans ca, les fps vont bien au dessus de 60
+     *  - Gachis de perf
+     *  - le {@code screen} s'intille 
+     */
     public void gameLoop(){
         while (running) {
-            long startTime = System. currentTimeMillis();
+            long startTime = System.currentTimeMillis();
             //System.out.println("Run");
             consoleGameManager.getConsoleInputController().addControlsGame(consoleGameManager.getConsoleView().getScreen());
 
@@ -37,7 +37,7 @@ public class ConsoleGameLoop{
             consoleGameManager.draw();
             consoleGameManager.getConsoleView().refresh();
 
-            long elapsedTime = System.currentTimeMillis() - startTime;
+            long elapsedTime = System.currentTimeMillis() - startTime;  // duree de temps en ms entre le debut de la loop et la
             long sleepTime = (long)(FIXHZ*1000) - elapsedTime;
             
             if (sleepTime > 0) {
@@ -50,6 +50,10 @@ public class ConsoleGameLoop{
         }
     }
 
+    /**
+     * Utilse un thread pour faire tourner la loop en continue 
+     * On peut pas utiliser de Listener deja dans la lirairie comme Swing
+     */
     public void start(){
         System.out.println("start");
         if (running){

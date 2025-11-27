@@ -82,9 +82,13 @@ public class GameLauncher{
          */
     }
 
+    /**
+     * Il faut decommenter pour lancer la version terminal
+     * lancer les deux en meme temps marchent mais je vous conseille pas de le faire
+     */
     public static void main(String[] args){
-        //new GameLauncher(true);
-        //new ConsoleView();
+        new GameLauncher(true);
+        //new ConsoleLauncher();
         
     }
 }

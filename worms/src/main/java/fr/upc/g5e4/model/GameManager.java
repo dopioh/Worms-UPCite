@@ -1,12 +1,12 @@
-package fr.upc.g5e4;
+package fr.upc.g5e4.model;
 
 import java.util.ArrayList;
 import javax.swing.Timer;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.World;
 
+import fr.upc.g5e4.GameLauncher;
 import fr.upc.g5e4.controller.*;
-import fr.upc.g5e4.model.*;
 import fr.upc.g5e4.model.PhysicsWorld.WaterSensorListener;
 import fr.upc.g5e4.model.camera.CameraModel;
 import fr.upc.g5e4.view.CharacterView;

@@ -7,6 +7,11 @@ import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.screen.Screen;
 //import com.googlecode.lanterna.terminal.Terminal;
 
+/**
+ * Gere les input clavier 
+ * Version lanterna de InputController qui etait avec Swing
+ * @see SwingInputController pour voir la version original
+ */
 public class ConsoleInputController{
         private CharacterController personnageController;
 
@@ -45,7 +50,7 @@ public class ConsoleInputController{
             switch (key.getKeyType()) {
                 case Character: charPressed(key);
                     break;            
-                default:    // on le met ou pas
+                default: 
                     break;
             }
         }
@@ -64,15 +69,21 @@ public class ConsoleInputController{
                     personnageController.activateLeft();
                     personnageController.deactivateLeft();
                     break;
-                default:    // il se passe rien, dcp est ce qu'il faut vrmt le mettre ?
+                default:
                     break;
             }
         }
 
 
-        public Character addLetters(Screen screen){   // il faudrait faire en sorte ici que le joueur puisse ecrire "lunch" et dcp lancer une game -> se fait pas ici ? Model ?
+        /**
+         * Recupere chaque char pour former une ligne de caracteres plus tard
+         * @param screen
+         * @return chaque lettre entrer pour la concatener en String et voir si ca fait "launch game"
+         * @see ConsoleLogics
+         */
+        public Character addLetters(Screen screen){   
             try {
-                KeyStroke key = screen.readInput(); // en continuiter ou une seule key a la fois ?
+                KeyStroke key = screen.readInput();
                 if (key.getKeyType().equals(KeyType.Character)){
                     return key.getCharacter();
                 } else if (key.getKeyType().equals(KeyType.Enter)){
@@ -85,14 +96,6 @@ public class ConsoleInputController{
             }
             return null;
         }
-
-        /*private String writeUntillEnter(KeyStroke key){
-            if (!(key.getKeyType().equals(KeyType.Character))){
-                return "";  // si je retuirn un char je peux pas return rien ici
-            }
-            return key.getCharacter().toString();
-        }*/
-
         // on doit ajouter des methodes pour enlever les addControls avec les key relier,
         // pour quand on switch entre menu et jeu
     

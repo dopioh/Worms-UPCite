@@ -7,12 +7,19 @@ import org.jbox2d.dynamics.World;
 
 import fr.upc.g5e4.controller.*;
 import fr.upc.g5e4.view.*;
-import fr.upc.g5e4.model.*;
+//import fr.upc.g5e4.model.*;
 import fr.upc.g5e4.model.PhysicsWorld.WaterSensorListener;
 
-import com.googlecode.lanterna.screen.Screen;
-import com.googlecode.lanterna.terminal.Terminal;
+//import com.googlecode.lanterna.screen.Screen;
+//import com.googlecode.lanterna.terminal.Terminal;
 
+/**
+ * Gere la logique d'une partie dans le terminal 
+ * Ils manquent des fonctionnalites pour le moment 
+ * Seront ajouter au SPRINT 3
+ * @see ConsoleGameLoop class qui est appeler la bas
+ * @see GameManager pour voir la version avec Swing (Interface graphique)
+ */
 public class ConsoleGameManager {
     // private final GamePanel gamePanel; Swing donc on peut pas le mettre ici, il faut reecrire les mathodes
     private final GroundModel model;
@@ -31,6 +38,12 @@ public class ConsoleGameManager {
     // Conversion de Pixel en Case :
     public static final int echelleConsole = 10; // on divise toute valeur en pixel par 10
 
+    /**
+     * Initialise le jeu de la meme maniere que GameManager
+     * Mais en l'adaptant pour Lanterna
+     * Les XCase et YCase seront supprimer d'ici au SPRINT 3 
+     * @param consoleView recupere le terminal graphique
+     */
     public ConsoleGameManager(ConsoleView consoleView){   // equivalent au game manager
 
         this.consoleView = consoleView;
@@ -48,7 +61,7 @@ public class ConsoleGameManager {
         this.water = physic.createBodyWater(model);
 
         this.personnageModel = new CharacterModel(model, world, XCase/2, YCase/3);
-        this.personnageView = new CharacterView();  // soit on reecrit cette classe en l'adaptant pour lanterna soit on adapte directement ses fonctions en ajoutant un boolean terminal ou screen comme GameLuncher
+        this.personnageView = new CharacterView();
         this.personnageController = new CharacterController(personnageModel);
 
         physic.limitPanel(model);
@@ -86,12 +99,5 @@ public class ConsoleGameManager {
 
     public World getWorld(){
         return this.world;
-    }
-
-
-    public static void main(String[] args){
-        //new ConsoleGameLauncher();
-        
-        
     }
 }

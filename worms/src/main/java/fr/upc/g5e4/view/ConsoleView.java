@@ -9,19 +9,20 @@ import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.screen.TerminalScreen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.Terminal;
-// import com.googlecode.lanterna.terminal.virtual.DefaultVirtualTerminal;
 import com.googlecode.lanterna.terminal.swing.SwingTerminalFontConfiguration;
 import com.googlecode.lanterna.terminal.swing.SwingTerminalFrame;
 
-import fr.upc.g5e4.controller.CharacterController;
-import fr.upc.g5e4.model.CharacterModel;
-import fr.upc.g5e4.model.ConsoleLogics;
-
 import java.awt.Font;
 
-import com.googlecode.lanterna.terminal.swing.SwingTerminalFrame;
 import javax.swing.JFrame;
 
+/**
+ * Gere l'ecran du terminal externe
+ * Pas possible d'avoir ca dans le terminal machine 
+ * A cause de windows qui veut qu'on utilise javaw
+ * Possibiliter de le regler au SPRINT 3 si necessaire
+ * @see https://github.com/mabe02/lanterna/issues/335
+ */
 public class ConsoleView {
     private Terminal terminal;
     private Screen screen;
@@ -29,7 +30,9 @@ public class ConsoleView {
     private int XCase;
     private int YCase;
 
-
+    /**
+     * Initialise la fenetre
+     */
     public ConsoleView(){
         try {
             this.XCase = 100;
@@ -102,6 +105,10 @@ public class ConsoleView {
         
     }
 
+    /**
+     * affiche les lettres taper par l'utilisateur pour lancer une partie
+     * Pour simuler un terminal
+     */
     public static int positionLettre = 0;
     public void printLetterMenu(char r) throws IOException{
         text.setCharacter(positionLettre, screen.getTerminalSize().getRows() -1, r);

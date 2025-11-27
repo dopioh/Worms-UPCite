@@ -2,19 +2,12 @@ package fr.upc.g5e4.view;
 
 import fr.upc.g5e4.model.*;
 
-import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
-import com.googlecode.lanterna.terminal.Terminal;
-
-import org.jbox2d.common.Vec2;
-import org.jbox2d.dynamics.Body;
-
-import fr.upc.g5e4.controller.*;
 
 /**
  * Classe pour initialiser les graphismes de la partie Jeu dans la vue Terminal
- * Remplace @see GamePanel.java 
+ * @see GamePanel pour la version avec Swing
  * Swing -> Lanterna
  */
 public class ConsolePanel {
@@ -39,7 +32,6 @@ public class ConsolePanel {
         tx.setForegroundColor(TextColor.ANSI.GREEN);
 
         for (int i = 0; i < gmYGround.length -1; i++){
-            // a finir plus tard
             int x1 = (int) (i * step);
             int x2;
 
@@ -49,7 +41,7 @@ public class ConsolePanel {
                 x2 = (int) ((i + 1) * step);
             }
 
-            int y1 = gmYGround[i];
+            int y1 = gmYGround[i];  // pour des soucis de conversion, il faudrait convertir ici et plus dans ConsoleGameManager
             int y2 = gmYGround[i+1];
 
             for (int x = x1; x <= x2 && x < XCase; x++ ){
@@ -74,6 +66,7 @@ public class ConsolePanel {
     -> Mauvaise Conversion de pixel en case 
     -> ET la physique que j'ai config attend des pixel
     -> Donc faudrait pas convertir en case dans ConsoleGameManager.java mais plutot ici apres avoir appliquer la physique
+    
     public void drawCharacter(TextGraphics tx){       
         if (characterModel.isDead()){
             return;

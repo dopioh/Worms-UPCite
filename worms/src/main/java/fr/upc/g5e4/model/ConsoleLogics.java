@@ -11,12 +11,16 @@ import fr.upc.g5e4.view.ConsoleView;
 
 import com.googlecode.lanterna.screen.Screen;
 
+/**
+ * Gere la logique du terminal
+ * Permet de dire au manager quand il peut lancer le jeu
+ * @see ConsoleGameManager
+ */
 public class ConsoleLogics {
     private ConsoleInputController consoleInput;
     private CharacterController characterController;
     private ConsoleView consoleView;
     private Screen screen;
-    //private CharacterModel characterModel;
 
     public ConsoleLogics(CharacterController characterController){
         this.characterController = characterController;
@@ -29,6 +33,11 @@ public class ConsoleLogics {
         return consoleView;
     }
 
+    /**
+     * Recupere la ligne entre avec {@code word}
+     * @return vrai si l'utilisateur a ecrit "launch game"
+     * @see ConsoleLauncher
+     */
     public boolean launchGame(){
         if (word(screen).equals("launch game")){    
             return true;
@@ -49,18 +58,24 @@ public class ConsoleLogics {
         }
     }
 
+    /**
+     * 
+     * @param screen pour afficher sur l'ecran les entree clavier
+     * @return la ligne de mot entree pour l'envoyer dans {@code launchGame}
+     */
     private String word(Screen screen){
         try {
-        String word = "";   // pour le moment on mets un string classique, on mettra un StringBuffer plus tard
-        while (consoleInput.getEnterKey() == false){
-            Character lettre = consoleInput.addLetters(screen);
-            if (lettre != null){
-            word += lettre;
-            consoleView.printLetterMenu(lettre);
+            // pour le moment on mets un string classique, on mettra un StringBuffer plus tard
+            String word = "";   
+            while (consoleInput.getEnterKey() == false){
+                Character lettre = consoleInput.addLetters(screen);
+                if (lettre != null){
+                    word += lettre;
+                consoleView.printLetterMenu(lettre);
+                }
             }
-        }
-        consoleInput.setEnterPressed(false);
-        return word;
+            consoleInput.setEnterPressed(false);
+            return word;
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
