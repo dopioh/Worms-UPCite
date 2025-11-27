@@ -77,7 +77,7 @@ public class CharacterController {
         // Synchroniser les coordonnées du modèle avec le corps physique
         Vec2 position = body.getPosition();
         model.setXcord(position.x * 30f);  // Conversion mètres → pixels
-        model.setYcord((20 - position.y) * 30f);  // Inversion Y + conversion
+        model.setYcord((10 - position.y) * 30f);  // Inversion Y + conversion
         
         return LeftKeyPressed ^ RightKeyPressed;
     }
