@@ -42,3 +42,6 @@
 
 
 ## [v.0.2 : SPRINT 2](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/2) (unreleased)
+
+### Added
+- Écran d'accueil

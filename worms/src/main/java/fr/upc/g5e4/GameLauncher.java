@@ -5,12 +5,12 @@ import java.io.IOException;
 import javax.swing.*;
 
 import fr.upc.g5e4.model.InventoryModel.InventoryRoot;
-import fr.upc.g5e4.view.ConsoleView;
-import fr.upc.g5e4.view.GamePanel;
-import fr.upc.g5e4.view.InventoryUI;
+import fr.upc.g5e4.view.*;
+import fr.upc.g5e4.controller.*;
 import fr.upc.g5e4.model.*; //J'ai ajouté pour tester (Hugo)
 
-/** Class qui lance le jeu, elle set la taille de l'ecran (grace a son heritage de JFrame) */
+
+/** Classe qui lance le jeu, elle set la taille de l'ecran (grace a son heritage de JFrame) */
 public class GameLauncher{
     // classe pour lancer le jeu -> elle va instancier le GamePanel
     private final GameManager gameManager;
@@ -21,23 +21,24 @@ public class GameLauncher{
 
     public GameLauncher(boolean screen){
         this.screen = screen;
+
         if (screen){
             int sizeX = 800;
             int sizeY = 600;
-            JFrame jeu = new JFrame();
+            JFrame game = new JFrame();
 
-            jeu.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            jeu.setTitle("Prototype");
-            jeu.setSize(sizeX,sizeY);         
+            game.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            game.setTitle("Prototype");
+            game.setSize(sizeX,sizeY);         
 
             this.gameManager = new GameManager();
             this.gamePanel = gameManager.getGamePanel();
-            jeu.add(gamePanel);
-            jeu.pack();
-            jeu.setLocationRelativeTo(null);
-            jeu.setResizable(false);
+            game.add(gamePanel);
+            game.pack();
+            game.setLocationRelativeTo(null);
+            game.setResizable(false);
 
-            jeu.setVisible(true);
+            game.setVisible(true);
 
             // le clavier focus sur l'imput controller de this.gameManager
             this.gameManager.getImputController().requestFocusInWindow();
@@ -82,13 +83,25 @@ public class GameLauncher{
          */
     }
 
-    /**
-     * Il faut decommenter pour lancer la version terminal
-     * lancer les deux en meme temps marchent mais je vous conseille pas de le faire
-     */
+    
+    /**  Affiche l'écran d'accueil au démarrage  */
+    private static void showAccueil() {
+
+        SwingUtilities.invokeLater(() -> { //Mets cette tâche dans la file d'attente pour que l'interface la traite dès que possible
+
+            MainMenuView view = new MainMenuView(); 
+            new MainMenuController(view);
+            view.setVisible(true);
+
+        });
+    }
+
     public static void main(String[] args){
-        new GameLauncher(true);
+        //// Lance l'écran d'accueil au lieu du jeu directement
+        showAccueil();
+
+        //// Pour lancer le jeu directement (pour les testes)
+        //new GameLauncher(true);
         //new ConsoleLauncher();
-        
     }
 }

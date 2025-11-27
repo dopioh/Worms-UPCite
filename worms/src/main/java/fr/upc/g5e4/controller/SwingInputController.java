@@ -4,6 +4,8 @@ import java.awt.event.*;
 
 import javax.swing.JPanel;
 
+import fr.upc.g5e4.model.GameManager;
+
 /** 
  * Classe pour les Entrées Clavier Souris qui reprend celle de Nassim
  * Pour le moment je reprends l'ancien model et elle herite de JPanel
@@ -13,7 +15,8 @@ import javax.swing.JPanel;
  */
 public class SwingInputController extends JPanel{
     private CharacterController personnageController;
-    private CameraController cameraController; 
+    private CameraController cameraController;
+    private GameManager gameManager; 
 
     /**
      * Constructeur pour gérer uniquement le personnage
@@ -82,6 +85,11 @@ public class SwingInputController extends JPanel{
                     case KeyEvent.VK_SPACE:
                         if(cameraController != null) cameraController.centerOnCharacter();
                         break;
+                    
+                    // Changement de worm actif
+                    case KeyEvent.VK_A:
+                        if(gameManager != null) gameManager.switchToNextWorm();
+                        break;
                 }
             }
             
@@ -116,5 +124,21 @@ public class SwingInputController extends JPanel{
                 }
             }
         });
+    }
+    
+    /**
+     * Définit le GameManager pour permettre le changement de worm
+     * @param gameManager le gestionnaire de jeu
+     */
+    public void setGameManager(GameManager gameManager) {
+        this.gameManager = gameManager;
+    }
+    
+    /**
+     * Change le contrôleur de personnage actif
+     * @param controller le nouveau contrôleur de personnage
+     */
+    public void setCharacterController(CharacterController controller) {
+        this.personnageController = controller;
     }
 }
