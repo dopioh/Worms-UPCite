@@ -58,7 +58,9 @@ public abstract class Weapon extends Item {
         
         if (target[0] != null) {
             target[0].dealDamage(this.getDamage(), shooter);
+            System.out.println("Cible " + target[0].getName() + " touché " + this.getDamage() + " damage.");
         } else {
+            System.out.println("Aucune cible touchée.");
         }
     }
 
