@@ -1,4 +1,4 @@
-package fr.upc.g5e4;
+git package fr.upc.g5e4;
 import java.io.IOException;
 
 import javax.swing.*;
@@ -127,6 +127,7 @@ public class GameLauncher{
     }
 
     public static void main(String[] args) throws IOException{
+        
         //// Lance l'écran d'accueil au lieu du jeu directement
         showAccueil();
 
