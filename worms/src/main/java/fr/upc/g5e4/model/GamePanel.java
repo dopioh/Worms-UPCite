@@ -3,6 +3,7 @@ package fr.upc.g5e4.model;
 import fr.upc.g5e4.controller.CameraController;
 import fr.upc.g5e4.model.camera.CameraModel;
 import fr.upc.g5e4.view.CharacterView;
+import fr.upc.g5e4.view.TeamView;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,6 +19,10 @@ public class GamePanel extends JPanel {
     private final CharacterView personnageView;
     private final CameraModel camera;
     private final CameraController cameraController;
+    private final TeamModel teamModel1;
+    private final TeamView teamView1;
+    private final TeamModel teamModel2;
+    private final TeamView teamView2;
 
     private static final float PPM = 30f;
 
@@ -25,12 +30,17 @@ public class GamePanel extends JPanel {
      * {@code setPreferredSize()} est essentiel sinon rien ne s'affiche
      */
     public GamePanel(GroundModel model, CharacterModel personnageModel, CharacterView personnageView,
-            CameraModel camera, CameraController cameraController) {
+            CameraModel camera, CameraController cameraController, 
+            TeamModel teamModel1, TeamView teamView1, TeamModel teamModel2, TeamView teamView2) {
         this.model = model;
         this.personnageModel = personnageModel;
         this.personnageView = personnageView;
         this.camera = camera;
         this.cameraController = cameraController;
+        this.teamModel1 = teamModel1;
+        this.teamView1 = teamView1;
+        this.teamModel2 = teamModel2;
+        this.teamView2 = teamView2;
 
         setPreferredSize(new Dimension(model.getWidth(), model.getHeight()));
         setLayout(null);
@@ -82,6 +92,10 @@ public class GamePanel extends JPanel {
 
         // Personnage
         personnageView.draw(g2, personnageModel);
+        
+        // Team de worms
+        teamView1.draw(g2, teamModel1);
+        teamView2.draw(g2, teamModel2);
 
         // Eau
         g2.setColor(new Color(75, 147, 240));

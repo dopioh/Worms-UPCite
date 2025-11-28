@@ -20,6 +20,7 @@ import fr.upc.g5e4.controller.CharacterController;
 public class CharacterControllerTest {
     private GameLauncher gL;
     private GameManager gm;
+    private GameLoop gLoop;
     private World world;
 
     private CharacterModel model;
@@ -40,7 +41,7 @@ public class CharacterControllerTest {
     public void setUp() {
 
         gL = new GameLauncher(false);
-        gL.getGameLoop().timerStop();
+        gLoop = gL.getGameLoop(); 
         gm = gL.getGameManager();
         world = gm.getWorld();
 
@@ -51,6 +52,8 @@ public class CharacterControllerTest {
         controller.deactivateLeft();
         controller.deactivateRight();
         controller.deactivateJump();
+
+        gLoop.timerStop();
     }
     // @Tests activation/désactivation touches
     @Test
