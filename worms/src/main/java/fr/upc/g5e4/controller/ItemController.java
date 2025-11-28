@@ -53,7 +53,7 @@ public class ItemController {
         }
 
         if (weapon.use()) {
-            weapon.fireWithRaycast(shooter, world, allWorms, direction);
+            weapon.fire(shooter, world, allWorms, direction);
             view.showItem(weapon);
         } else {
             view.showUseResult(false);

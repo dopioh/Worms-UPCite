@@ -33,7 +33,7 @@ public abstract class Weapon extends Item {
      * @param allWorms Tableau de tous les worms du jeu
      * @param direction Direction du tir (1 pour droite, -1 pour gauche)
      */
-    public void fireWithRaycast(CharacterModel shooter, org.jbox2d.dynamics.World world, 
+    public void fire(CharacterModel shooter, org.jbox2d.dynamics.World world, 
                                CharacterModel[] allWorms, int direction) {
         Vec2 shooterPos = shooter.getBody().getPosition();
         float rayDistance = 20f; //Porter max du tir
@@ -48,7 +48,7 @@ public abstract class Weapon extends Item {
             Body hitBody = fixture.getBody(); //Le corps touché par le rayon
             
             for (CharacterModel worm : allWorms) {
-                if (worm != null && worm.getBody() == hitBody && !worm.isDead()) { //
+                if (worm != null && worm.getBody() == hitBody && !worm.isDead()) { 
                     target[0] = worm;
                     return 0;
                 }
