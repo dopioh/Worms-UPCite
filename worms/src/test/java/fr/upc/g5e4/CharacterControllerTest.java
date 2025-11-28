@@ -2,6 +2,8 @@ package fr.upc.g5e4;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.io.IOException;
+
 import org.jbox2d.dynamics.World;
 //import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,7 +39,7 @@ public class CharacterControllerTest {
      * Ca pourra etre optimisé plus tard
      */
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws IOException {
 
         gL = new GameLauncher(false);
         gLoop = gL.getGameLoop(); 

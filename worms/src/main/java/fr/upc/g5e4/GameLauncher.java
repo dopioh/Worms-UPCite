@@ -1,13 +1,13 @@
 package fr.upc.g5e4;
-
 import java.io.IOException;
 
 import javax.swing.*;
+import java.awt.event.ActionEvent;
 
 import fr.upc.g5e4.model.InventoryModel.InventoryRoot;
 import fr.upc.g5e4.view.*;
 import fr.upc.g5e4.controller.*;
-import fr.upc.g5e4.model.*; //J'ai ajouté pour tester (Hugo)
+import fr.upc.g5e4.model.*; 
 
 
 /** Classe qui lance le jeu, elle set la taille de l'ecran (grace a son heritage de JFrame) */
@@ -17,9 +17,11 @@ public class GameLauncher{
     private final GamePanel gamePanel;
     private final GameLoop gameLoop;
 
+    private InventoryOverlay inventoryOverlay; 
+
     private boolean screen;
 
-    public GameLauncher(boolean screen){
+    public GameLauncher(boolean screen) throws IOException{
         this.screen = screen;
 
         if (screen){
@@ -33,7 +35,28 @@ public class GameLauncher{
 
             this.gameManager = new GameManager();
             this.gamePanel = gameManager.getGamePanel();
-            game.add(gamePanel);
+
+            /* ------------------------ Partie Overlay Inventaire --------------------------------- */
+            //Charge l'inventaire 
+            InventoryRoot root = InventoryModel.load("worms/src/main/resources/inventory.json");
+            //Créer l'overlay
+            this.inventoryOverlay = new InventoryOverlay((root.inventory));
+            //Créer un layeredPane
+            JLayeredPane layered = new JLayeredPane();
+            layered.setPreferredSize(new java.awt.Dimension(sizeX,sizeY));
+            //placer dedans
+            gamePanel.setBounds(0,0,sizeX,sizeY);
+            inventoryOverlay.setBounds(0,0,sizeX,sizeY);
+
+            layered.add(gamePanel, JLayeredPane.DEFAULT_LAYER);
+            layered.add(inventoryOverlay, JLayeredPane.PALETTE_LAYER);
+            game.setContentPane(layered);
+            /* Fin de partie */
+
+            //Touches raccourcies
+            setupKeyBindings(layered, game);
+            
+            //game.add(gamePanel);
             game.pack();
             game.setLocationRelativeTo(null);
             game.setResizable(false);
@@ -54,6 +77,34 @@ public class GameLauncher{
         }
     }
 
+    private void setupKeyBindings(JComponent root, JFrame game) {
+        InputMap im = root.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ActionMap am = root.getActionMap();
+
+        // Touche ESC -> quitter le jeu
+        im.put(KeyStroke.getKeyStroke("ESCAPE"), "exitGame");
+        am.put("exitGame", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                game.dispose();
+                System.exit(0);
+            }
+        });
+
+        // Touche I -> ouvrir / fermer l'inventaire
+        im.put(KeyStroke.getKeyStroke('i'), "toggleInventory");
+        am.put("toggleInventory", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (inventoryOverlay != null) {
+                    boolean visible = inventoryOverlay.isInventoryVisible();
+                    inventoryOverlay.setInventoryVisible(!visible);
+                }
+            }
+        });
+    }
+
+    
     public GameManager getGameManager(){
         return this.gameManager;
     }
@@ -61,29 +112,8 @@ public class GameLauncher{
     public GameLoop getGameLoop(){
         return this.gameLoop;
     }
-
-    void testInventaire() throws IOException{        //il faut rajouter throws IOException pour le main aussi pour utiliser
-        InventoryRoot root = InventoryModel.load("worms/src/main/resources/inventory.json");
-        InventoryUI ui = new InventoryUI(null, root.inventory);
-
-        //Tue le programme après fermeture de la fenetre
-        ui.addWindowListener(new java.awt.event.WindowAdapter(){
-            @Override
-            public void windowClosed(java.awt.event.WindowEvent e){
-                System.exit(0);
-            }
-        });
-
-        ui.setVisible(true);
-
-        /* Plus tard 
-         * for(InventoryJson item : inventoryRoot.inventory){
-         *     item.resetTurn();
-         * }
-         */
-    }
-
     
+    /*  */
     /**  Affiche l'écran d'accueil au démarrage  */
     private static void showAccueil() {
 
@@ -96,7 +126,7 @@ public class GameLauncher{
         });
     }
 
-    public static void main(String[] args){
+    public static void main(String[] args) throws IOException{
         //// Lance l'écran d'accueil au lieu du jeu directement
         showAccueil();
 

@@ -1,5 +1,7 @@
 package fr.upc.g5e4.controller;
 
+import java.io.IOException;
+
 import javax.swing.JOptionPane;
 
 import fr.upc.g5e4.GameLauncher;
@@ -20,13 +22,20 @@ public class MainMenuController {
 
     //relie les buttons aux actions
     private void addListeners() {
-        view.getBtnNewGame().addActionListener(e -> startNewGame());
+        view.getBtnNewGame().addActionListener(e -> {
+            try {
+                startNewGame();
+            } catch (IOException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
+        });
         view.getBtnResume().addActionListener(e -> resumeGame());
         view.getBtnConfig().addActionListener(e -> openConfig());
         view.getBtnQuit().addActionListener(e -> quitGame());
     }
 
-    private void startNewGame() {
+    private void startNewGame() throws IOException {
         view.dispose(); // Ferme la fenêtre d'accueil
         new GameLauncher(true); // Lance le jeu
     }
