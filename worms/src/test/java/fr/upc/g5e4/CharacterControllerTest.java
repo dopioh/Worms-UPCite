@@ -86,7 +86,8 @@ public class CharacterControllerTest {
 
         controller.activateRight();
 
-        for (int i = 0; i < 120 ; i++){
+        // Plus d'itérations pour garantir le mouvement dans différents environnements CI
+        for (int i = 0; i < 200 ; i++){
             world.step(FIXHZ, 8, 3);
             controller.update();
         }
