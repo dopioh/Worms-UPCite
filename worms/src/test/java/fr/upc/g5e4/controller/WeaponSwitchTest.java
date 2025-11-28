@@ -4,7 +4,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.jbox2d.dynamics.World;
 
-import fr.upc.g5e4.GameManager;
 import fr.upc.g5e4.model.CharacterModel;
 import fr.upc.g5e4.model.GroundModel;
 import fr.upc.g5e4.model.PhysicsWorld;
