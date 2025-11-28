@@ -30,7 +30,7 @@ public class CharacterModel extends Entity{
     private boolean isDead;
     
     private long lastJumpTime = 0;  // Temps du dernier saut pour le cooldown
-    private static final double JUMP_COOLDOWN = 1;  // Cooldown du saut en secondes
+    private static final double JUMP_COOLDOWN = 0.5;  // Cooldown du saut en secondes
 
     private static float PPM = 30;
 

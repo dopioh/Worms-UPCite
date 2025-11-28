@@ -1,5 +1,7 @@
 package fr.upc.g5e4.model;
 
+import fr.upc.g5e4.view.GamePanel;
+
 /**
  * Initialise un terrain (Ground)
  * Seulement ses coordonnées
