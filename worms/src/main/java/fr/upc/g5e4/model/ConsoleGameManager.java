@@ -1,6 +1,7 @@
 package fr.upc.g5e4.model;
 
 import java.util.ArrayList;
+import java.awt.Color;
 
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.World;
@@ -35,6 +36,13 @@ public class ConsoleGameManager {
     private final ConsolePanel consolePanel;
     private final ConsoleView consoleView;
 
+    private final TeamModel teamModel1;
+    private final TeamView teamView1;
+    private final TeamModel teamModel2;  
+    private final TeamView teamView2;  
+    private int activeWormIndex;
+    private CharacterController activeWormController;    
+
     // Conversion de Pixel en Case :
     public static final int echelleConsole = 10; // on divise toute valeur en pixel par 10
 
@@ -65,7 +73,23 @@ public class ConsoleGameManager {
         this.personnageController = new CharacterController(personnageModel);
 
         physic.limitPanel(model);
-        this.wSL = physic.new WaterSensorListener(water, personnageModel, new ArrayList<CharacterModel>());
+
+        // création premiere equipe
+        int wormNumber = 3; 
+        this.teamModel1 = new TeamModel(model, world, "Team1", 100, 98, wormNumber);
+        this.teamView1 = new TeamView(wormNumber, Color.BLUE);
+
+        // création seconde equipe
+        this.teamModel2 = new TeamModel(model, world, "Team2", 400, 98, wormNumber);  
+        this.teamView2 = new TeamView(wormNumber, Color.RED);
+        ArrayList<CharacterModel> allWorms = new ArrayList<>();
+        allWorms.add(personnageModel);  // Worm de test jaune
+        for (int i = 0; i < wormNumber; i++) {
+            allWorms.add(teamModel1.getWorm(i));
+            allWorms.add(teamModel2.getWorm(i));
+        }
+        
+        this.wSL = physic.new WaterSensorListener(water, allWorms, new ArrayList<CharacterModel>());
         world.setContactListener(wSL);
 
         this.consolePanel = new ConsolePanel(model, personnageModel, XCase, YCase);
