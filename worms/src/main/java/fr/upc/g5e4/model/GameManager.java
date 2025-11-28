@@ -67,8 +67,8 @@ public class GameManager {
      * @see PhysicsWorld#createGroundFromModel()
      */
     public GameManager() {
-        int sizeX = 800;
-        int sizeY = 600;
+        int sizeX = 1280;
+        int sizeY = 720;
         int[] groundY = {400,420,450,450,400,700,930,450,350,300,250,230,200,200};
         /*
          * Plusieurs autres valeurs de groundY si vous voulez tester plusieurs terrains
@@ -98,7 +98,7 @@ public class GameManager {
         this.personnageController = new CharacterController(personnageModel);
 
         // Initialisation caméra et contrôleur
-        this.camera = new CameraModel(800, 600, model.getWidth(), model.getHeight(), 1);
+        this.camera = new CameraModel(sizeX, sizeY, model.getWidth(), model.getHeight(), 1);
         this.cameraController = new CameraController(camera, personnageModel);
 
         // Contrôleur fusionné personnage + caméra
@@ -149,7 +149,7 @@ public class GameManager {
         activeWormController.setCurrentWeapon(new Ak47());
         
         // Initialisation caméra avec le worm actif
-        this.camera = new CameraModel(800, 600, model.getWidth(), model.getHeight(), 1);
+        this.camera = new CameraModel(sizeX, sizeY, model.getWidth(), model.getHeight(), 1);
         this.cameraController = new CameraController(camera, teamModel1.getWorm(activeWormIndex));
         // Contrôleur fusionné avec le worm actif
         this.imputController = new SwingInputController(activeWormController, cameraController);
@@ -211,6 +211,10 @@ public class GameManager {
     
     public CameraController getCameraController() { 
         return this.cameraController;
+    }
+    
+    public CameraModel getCamera() {
+        return this.camera;
     }
     
     public TeamModel getTeamModel1() {

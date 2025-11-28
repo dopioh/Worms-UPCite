@@ -40,7 +40,7 @@ public class NameTagView {
         // Utiliser les coordonnées du Body pour suivre le worm
         org.jbox2d.common.Vec2 position = model.getBody().getPosition();
         int x = (int)(position.x * CharacterModel.getPPM());
-        int y = (int)((20 - position.y) * CharacterModel.getPPM());
+        int y = (int)((24 - position.y) * CharacterModel.getPPM());
         
         g2d.setFont(font);
         FontMetrics fm = g2d.getFontMetrics();
@@ -80,7 +80,7 @@ public class NameTagView {
         // Utiliser les coordonnées du Body pour suivre le worm
         org.jbox2d.common.Vec2 position = model.getBody().getPosition();
         int x = (int)(position.x * CharacterModel.getPPM());
-        int y = (int)((20 - position.y) * CharacterModel.getPPM());
+        int y = (int)((24 - position.y) * CharacterModel.getPPM());
         
         g2d.setFont(font);
         FontMetrics fm = g2d.getFontMetrics();
