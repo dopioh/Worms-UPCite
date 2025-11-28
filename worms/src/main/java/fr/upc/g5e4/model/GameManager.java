@@ -1,4 +1,4 @@
-package fr.upc.g5e4;
+package fr.upc.g5e4.model;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -6,11 +6,12 @@ import javax.swing.Timer;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.World;
 
+import fr.upc.g5e4.GameLauncher;
 import fr.upc.g5e4.controller.*;
-import fr.upc.g5e4.model.*;
 import fr.upc.g5e4.model.PhysicsWorld.WaterSensorListener;
 import fr.upc.g5e4.model.camera.CameraModel;
 import fr.upc.g5e4.view.CharacterView;
+import fr.upc.g5e4.view.GamePanel;
 import fr.upc.g5e4.view.TeamView;
 
 /**
@@ -28,9 +29,9 @@ public class GameManager {
     private final World world;
     private final Body water;
     private final WaterSensorListener wSL;
-    private final InputController imputController;
-    private final CameraModel camera; // AJOUT RAPHAËL
-    private final CameraController cameraController; // AJOUT RAPHAËL
+    private SwingInputController imputController;
+    private CameraModel camera; // AJOUT RAPHAËL
+    private CameraController cameraController; // AJOUT RAPHAËL
     private final TeamModel teamModel1;
     private final TeamView teamView1;
     private final TeamModel teamModel2;  
@@ -83,6 +84,13 @@ public class GameManager {
         this.personnageView = new CharacterView(25, Color.YELLOW);
         this.personnageController = new CharacterController(personnageModel);
 
+        // Initialisation caméra et contrôleur
+        this.camera = new CameraModel(800, 600, model.getWidth(), model.getHeight(), 1);
+        this.cameraController = new CameraController(camera, personnageModel);
+
+        // Contrôleur fusionné personnage + caméra
+        this.imputController = new SwingInputController(personnageController, cameraController); 
+
         physic.limitPanel(model);
 
         // création premiere equipe
@@ -114,7 +122,7 @@ public class GameManager {
         this.camera = new CameraModel(800, 600, model.getWidth(), model.getHeight(), 1);
         this.cameraController = new CameraController(camera, teamModel1.getWorm(activeWormIndex));
         // Contrôleur fusionné avec le worm actif
-        this.imputController = new InputController(activeWormController, cameraController);
+        this.imputController = new SwingInputController(activeWormController, cameraController);
 
         // GamePanel avec tout ce qui est nécessaire
         this.gamePanel = new GamePanel(model, personnageModel, personnageView, camera, cameraController, teamModel1, teamView1, teamModel2, teamView2); 
@@ -155,7 +163,7 @@ public class GameManager {
         return this.gamePanel;
     }
 
-    public InputController getImputController() {
+    public SwingInputController getImputController() {
         return this.imputController;
     }
 

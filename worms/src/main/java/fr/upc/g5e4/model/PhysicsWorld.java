@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import org.jbox2d.callbacks.*;
 import org.jbox2d.dynamics.contacts.Contact;
 
+import fr.upc.g5e4.view.GamePanel;
+
     /**
      * <p>
      * Classe qui gerera la physique du terrain (sol et eau pour le moment) seulement. 
