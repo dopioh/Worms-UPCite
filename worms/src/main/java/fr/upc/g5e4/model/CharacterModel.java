@@ -232,6 +232,25 @@ public class CharacterModel extends Entity{
     }
 
     /**
+     * Inflige des dégâts au worm
+     * Les dégâts sont d'abord sur le shield, puis au PV
+     * @param damageAmount Le montant des dégâts
+     * @param attacker Le worm qui a infligé les dégâts
+     */
+    public void dealDamage(double damageAmount, CharacterModel attacker) {
+        double actualDamage = damageAmount - this.shield; //Dégats apres le shield
+        if (actualDamage > 0) {
+            this.health -= actualDamage;
+            this.shield = 0;
+            if (this.health <= 0) {
+                this.isDead = true;
+            }
+        } else {
+            this.shield -= damageAmount;
+        }
+    }
+
+    /**
      * Methode pour creer son Body qui servira ensuite pour creer son image graphique
      */
     @Override

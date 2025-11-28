@@ -89,6 +89,11 @@ public class InputController extends JPanel{
                     case KeyEvent.VK_A:
                         if(gameManager != null) gameManager.switchToNextWorm();
                         break;
+                    
+                    // Changement d'arme (touche E)
+                    case KeyEvent.VK_E:
+                        if(gameManager != null) gameManager.switchWeapon();
+                        break;
                 }
             }
             
@@ -121,6 +126,29 @@ public class InputController extends JPanel{
                         if(cameraController != null) cameraController.deactivateRight();
                         break;
                 }
+            }
+        });
+    }
+    
+    /**
+     * Ajoute les listeners de souris à un JPanel (utilisé pour GamePanel)
+     * @param panel Le panel auquel ajouter les listeners
+     */
+    public void addMouseListenersToPanel(JPanel panel) {
+        panel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                // Click gauche pour tirer
+                if (e.getButton() == MouseEvent.BUTTON1) {
+                    personnageController.fireWeapon(e.getX(), e.getY());
+                }
+            }
+        });
+
+        panel.addMouseMotionListener(new MouseMotionAdapter() {
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                // Suivi de la souris (peut être utilisé pour des effets visuels futurs)
             }
         });
     }
