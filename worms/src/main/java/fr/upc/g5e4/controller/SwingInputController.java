@@ -4,7 +4,7 @@ import java.awt.event.*;
 
 import javax.swing.JPanel;
 
-import fr.upc.g5e4.GameManager;
+import fr.upc.g5e4.model.GameManager;
 
 /** 
  * Classe pour les Entrées Clavier Souris qui reprend celle de Nassim
@@ -13,7 +13,7 @@ import fr.upc.g5e4.GameManager;
  * 
  * @author Nassim et Raphaël pour plus d'info sur son fonctionnement
  */
-public class InputController extends JPanel{
+public class SwingInputController extends JPanel{
     private CharacterController personnageController;
     private CameraController cameraController;
     private GameManager gameManager; 
@@ -22,7 +22,7 @@ public class InputController extends JPanel{
      * Constructeur pour gérer uniquement le personnage
      * @param personnageController le controller du personnage
      */
-    public InputController(CharacterController personnageController){
+    public SwingInputController(CharacterController personnageController){
         this.personnageController = personnageController;
         addControls();
     }
@@ -32,7 +32,7 @@ public class InputController extends JPanel{
      * @param personnageController le controller du personnage
      * @param cameraController le controller de la caméra
      */
-    public InputController(CharacterController personnageController, CameraController cameraController){ 
+    public SwingInputController(CharacterController personnageController, CameraController cameraController){ 
         this.personnageController = personnageController;
         this.cameraController = cameraController;
 
@@ -42,7 +42,8 @@ public class InputController extends JPanel{
         addControls();
     }
 
-    private void addControls() {    
+    //@Override
+    public void addControls() {    
         //System.out.println("addControls() called");
         addKeyListener(new KeyAdapter() {
             @Override
@@ -89,6 +90,11 @@ public class InputController extends JPanel{
                     case KeyEvent.VK_A:
                         if(gameManager != null) gameManager.switchToNextWorm();
                         break;
+                    
+                    // Changement d'arme (touche E)
+                    case KeyEvent.VK_E:
+                        if(gameManager != null) gameManager.switchWeapon();
+                        break;
                 }
             }
             
@@ -121,6 +127,29 @@ public class InputController extends JPanel{
                         if(cameraController != null) cameraController.deactivateRight();
                         break;
                 }
+            }
+        });
+    }
+    
+    /**
+     * Ajoute les listeners de souris à un JPanel (utilisé pour GamePanel)
+     * @param panel Le panel auquel ajouter les listeners
+     */
+    public void addMouseListenersToPanel(JPanel panel) {
+        panel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                // Click gauche pour tirer
+                if (e.getButton() == MouseEvent.BUTTON1) {
+                    personnageController.fireWeapon(e.getX(), e.getY());
+                }
+            }
+        });
+
+        panel.addMouseMotionListener(new MouseMotionAdapter() {
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                // Suivi de la souris (peut être utilisé pour des effets visuels futurs)
             }
         });
     }

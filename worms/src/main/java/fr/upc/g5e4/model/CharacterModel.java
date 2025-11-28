@@ -30,7 +30,7 @@ public class CharacterModel extends Entity{
     private boolean isDead;
     
     private long lastJumpTime = 0;  // Temps du dernier saut pour le cooldown
-    private static final double JUMP_COOLDOWN = 1;  // Cooldown du saut en secondes
+    private static final double JUMP_COOLDOWN = 0.5;  // Cooldown du saut en secondes
 
     private static float PPM = 30;
 
@@ -228,6 +228,25 @@ public class CharacterModel extends Entity{
             Vec2 point = persoBody.getWorldCenter();
             persoBody.applyLinearImpulse(impulse, point);
             lastJumpTime = currentTime;  // Met à jour le timestamp du dernier saut
+        }
+    }
+
+    /**
+     * Inflige des dégâts au worm
+     * Les dégâts sont d'abord sur le shield, puis au PV
+     * @param damageAmount Le montant des dégâts
+     * @param attacker Le worm qui a infligé les dégâts
+     */
+    public void dealDamage(double damageAmount, CharacterModel attacker) {
+        double actualDamage = damageAmount - this.shield; //Dégats apres le shield
+        if (actualDamage > 0) {
+            this.health -= actualDamage;
+            this.shield = 0;
+            if (this.health <= 0) {
+                this.isDead = true;
+            }
+        } else {
+            this.shield -= damageAmount;
         }
     }
 

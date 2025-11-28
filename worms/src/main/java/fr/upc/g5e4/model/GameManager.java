@@ -1,4 +1,4 @@
-package fr.upc.g5e4;
+package fr.upc.g5e4.model;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -6,11 +6,22 @@ import javax.swing.Timer;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.World;
 
+import fr.upc.g5e4.GameLauncher;
 import fr.upc.g5e4.controller.*;
 import fr.upc.g5e4.model.*;
+import fr.upc.g5e4.model.weapons.Ak47;
+import fr.upc.g5e4.model.weapons.BaseballBat;
+import fr.upc.g5e4.model.weapons.Grenade;
+import fr.upc.g5e4.model.weapons.RocketLauncher;
 import fr.upc.g5e4.model.PhysicsWorld.WaterSensorListener;
 import fr.upc.g5e4.model.camera.CameraModel;
 import fr.upc.g5e4.view.CharacterView;
+import fr.upc.g5e4.view.GamePanel;
+import fr.upc.g5e4.view.ItemView;
+import fr.upc.g5e4.model.PhysicsWorld.WaterSensorListener;
+import fr.upc.g5e4.model.camera.CameraModel;
+import fr.upc.g5e4.view.CharacterView;
+import fr.upc.g5e4.view.GamePanel;
 import fr.upc.g5e4.view.TeamView;
 
 /**
@@ -28,15 +39,18 @@ public class GameManager {
     private final World world;
     private final Body water;
     private final WaterSensorListener wSL;
-    private final InputController imputController;
-    private final CameraModel camera; // AJOUT RAPHAËL
-    private final CameraController cameraController; // AJOUT RAPHAËL
+    private SwingInputController imputController;
+    private CameraModel camera; // AJOUT RAPHAËL
+    private CameraController cameraController; // AJOUT RAPHAËL
     private final TeamModel teamModel1;
     private final TeamView teamView1;
     private final TeamModel teamModel2;  
-    private final TeamView teamView2;  
+    private final TeamView teamView2;
+    private final ItemController itemController;
+    private final CharacterModel[] allWorms;
     private int activeWormIndex;
-    private CharacterController activeWormController;    
+    private CharacterController activeWormController;
+    private int currentWeaponIndex = 0;  // 0=AK47, 1=Baseball, 2=Grenade, 3=Rocket    
 
     /**
      * Initialise le terrain du jeu.
@@ -55,7 +69,7 @@ public class GameManager {
     public GameManager() {
         int sizeX = 800;
         int sizeY = 600;
-        int[] groundY = {470,450,430,420,410,400,390,370,340,300,280,250,230,200};
+        int[] groundY = {400,420,450,450,400,700,930,450,350,300,250,230,200,200};
         /*
          * Plusieurs autres valeurs de groundY si vous voulez tester plusieurs terrains
          * :
@@ -83,30 +97,62 @@ public class GameManager {
         this.personnageView = new CharacterView(25, Color.YELLOW);
         this.personnageController = new CharacterController(personnageModel);
 
-        physic.limitPanel(model);
+        // Initialisation caméra et contrôleur
+        this.camera = new CameraModel(800, 600, model.getWidth(), model.getHeight(), 1);
+        this.cameraController = new CameraController(camera, personnageModel);
 
-        this.wSL = physic.new WaterSensorListener(water, personnageModel, new ArrayList<CharacterModel>());
-        world.setContactListener(wSL);
+        // Contrôleur fusionné personnage + caméra
+        this.imputController = new SwingInputController(personnageController, cameraController); 
+
+        physic.limitPanel(model);
 
         // création premiere equipe
         int wormNumber = 3; 
-        this.teamModel1 = new TeamModel(model, world, "Team1", 100, 8, wormNumber);
+        this.teamModel1 = new TeamModel(model, world, "Team1", 100, 98, wormNumber);
         this.teamView1 = new TeamView(wormNumber, Color.BLUE);
 
         // création seconde equipe
-        this.teamModel2 = new TeamModel(model, world, "Team2", 400, 8, wormNumber);  
+        this.teamModel2 = new TeamModel(model, world, "Team2", 400, 98, wormNumber);  
         this.teamView2 = new TeamView(wormNumber, Color.RED);
         
+        // Créer une liste de tous les worms pour le WaterSensorListener
+        ArrayList<CharacterModel> allWorms = new ArrayList<>();
+        allWorms.add(personnageModel);  // Worm de test jaune
+        for (int i = 0; i < wormNumber; i++) {
+            allWorms.add(teamModel1.getWorm(i));
+            allWorms.add(teamModel2.getWorm(i));
+        }
+        
+        this.wSL = physic.new WaterSensorListener(water, allWorms, new ArrayList<CharacterModel>());
+        world.setContactListener(wSL);
+        
         // ON JOUE LES BLEUS PAR DEFAUT
-        // Le premier worm du tableau est actif au départ
+        // Le premier worm du tableau est le worm qu'on controle au debut
         this.activeWormIndex = 0;
         this.activeWormController = new CharacterController(teamModel1.getWorm(activeWormIndex));
+        
+        // Initialisation du système de tir
+        this.itemController = new ItemController(new ItemView());
+        this.itemController.setWorld(world);
+        
+        // Créer un tableau de tous les worms (équipe 1 + équipe 2)
+        this.allWorms = new CharacterModel[teamModel1.getTabWorms().length + teamModel2.getTabWorms().length];
+        System.arraycopy(teamModel1.getTabWorms(), 0, this.allWorms, 0, teamModel1.getTabWorms().length);
+        System.arraycopy(teamModel2.getTabWorms(), 0, this.allWorms, teamModel1.getTabWorms().length, teamModel2.getTabWorms().length);
+        
+        this.itemController.setAllWorms(this.allWorms);
+        activeWormController.setItemController(this.itemController);
+        activeWormController.setWorld(world);
+        activeWormController.setAllWorms(this.allWorms);
+        
+        // Équiper une arme par défaut (AK-47)
+        activeWormController.setCurrentWeapon(new Ak47());
         
         // Initialisation caméra avec le worm actif
         this.camera = new CameraModel(800, 600, model.getWidth(), model.getHeight(), 1);
         this.cameraController = new CameraController(camera, teamModel1.getWorm(activeWormIndex));
         // Contrôleur fusionné avec le worm actif
-        this.imputController = new InputController(activeWormController, cameraController);
+        this.imputController = new SwingInputController(activeWormController, cameraController);
 
         // GamePanel avec tout ce qui est nécessaire
         this.gamePanel = new GamePanel(model, personnageModel, personnageView, camera, cameraController, teamModel1, teamView1, teamModel2, teamView2); 
@@ -115,6 +161,10 @@ public class GameManager {
         this.gamePanel.add(imputController);
         imputController.setGameManager(this); // connecte inputController au GameManager
                                              //  pour que inputController puisse appeler switchToNextWorm()
+        
+        // Ajoute les listeners de souris au GamePanel
+        imputController.addMouseListenersToPanel(gamePanel);
+        
         imputController.requestFocusInWindow();
         this.gamePanel.setFocusable(true);
         this.gamePanel.requestFocusInWindow();
@@ -147,7 +197,7 @@ public class GameManager {
         return this.gamePanel;
     }
 
-    public InputController getImputController() {
+    public SwingInputController getImputController() {
         return this.imputController;
     }
 
@@ -197,6 +247,13 @@ public class GameManager {
                 // si le nouveau worm existe et n'est pas mort alors c'est le nouveau actif
                 // => on attache le worm a la camera et a son controller
                 activeWormController = new CharacterController(worm);
+                
+                // Initialiser le système de tir pour le nouveau worm
+                activeWormController.setItemController(this.itemController);
+                activeWormController.setWorld(world);
+                activeWormController.setAllWorms(this.allWorms);
+                activeWormController.setCurrentWeapon(new Ak47());
+                
                 imputController.setCharacterController(activeWormController);
                 cameraController.setTargetCharacter(worm);
                 cameraController.centerOnCharacter();
@@ -209,5 +266,35 @@ public class GameManager {
                 return;
             }
         } while (true);
+    }
+    
+    
+    /**
+     * Change l'arme équipée du worm actif (cycliquement)
+     * AK-47 → Baseball Bat → Grenade → Rocket Launcher → AK-47...
+     */
+    public void switchWeapon() {
+        currentWeaponIndex = (currentWeaponIndex + 1) % 4;  // Boucle entre 0, 1, 2, 3
+        
+        Weapon newWeapon = null;
+        
+        switch(currentWeaponIndex) {
+            case 0:
+                newWeapon = new Ak47();
+                break;
+            case 1:
+                newWeapon = new BaseballBat();
+                break;
+            case 2:
+                newWeapon = new Grenade();
+                break;
+            case 3:
+                newWeapon = new RocketLauncher();
+                break;
+        }
+        
+        if (newWeapon != null && activeWormController != null) {
+            activeWormController.setCurrentWeapon(newWeapon);
+        }
     }
 }
