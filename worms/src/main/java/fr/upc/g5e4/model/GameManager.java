@@ -8,6 +8,7 @@ import org.jbox2d.dynamics.World;
 
 import fr.upc.g5e4.GameLauncher;
 import fr.upc.g5e4.controller.*;
+<<<<<<< HEAD:worms/src/main/java/fr/upc/g5e4/GameManager.java
 import fr.upc.g5e4.model.*;
 import fr.upc.g5e4.model.weapons.Ak47;
 import fr.upc.g5e4.model.weapons.BaseballBat;
@@ -18,6 +19,12 @@ import fr.upc.g5e4.model.camera.CameraModel;
 import fr.upc.g5e4.view.CharacterView;
 import fr.upc.g5e4.view.GamePanel;
 import fr.upc.g5e4.view.ItemView;
+=======
+import fr.upc.g5e4.model.PhysicsWorld.WaterSensorListener;
+import fr.upc.g5e4.model.camera.CameraModel;
+import fr.upc.g5e4.view.CharacterView;
+import fr.upc.g5e4.view.GamePanel;
+>>>>>>> f20cd747bd608b9af0fd76cd7c0928aa4886f975:worms/src/main/java/fr/upc/g5e4/model/GameManager.java
 import fr.upc.g5e4.view.TeamView;
 
 /**
