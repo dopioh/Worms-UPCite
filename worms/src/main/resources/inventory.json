@@ -3,13 +3,13 @@
         {
             "objectType" : "WEAPON",
             "name" : "BaseballBat",
-            "maxUsages" : 1,
+            "maxUsages" : 2,
             "isInfinite" : true
         },
         {
             "objectType" : "WEAPON",
             "name" : "Grenade",
-            "maxUsages" : 2,
+            "maxUsages" : 1,
             "isInfinite" : false,
             "remainingUses" : 3
         },
@@ -18,6 +18,21 @@
             "name" : "Bumper",
             "maxUsages" : 1,
             "isInfinite" : true    
+        },
+        {
+            "objectType" : "WEAPON",
+            "name" : "Ak47",
+            "maxUsages" : 1,
+            "isInfinite" : false,
+            "remainingUses" : 30
+        },
+        {
+            "objectType" : "WEAPON",
+            "name" : "RocketLauncher",
+            "maxUsages" : 1,
+            "isInfinite" : false,
+            "remainingUses" : 2    
         }
+
     ]
 }

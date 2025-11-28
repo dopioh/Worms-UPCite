@@ -28,6 +28,10 @@
 - Classe Item [(#7)](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/issues/7)
     - Weapon (AK-47, Grenade, Rocket Launcher, Baseball Bat)
     - Gadget (Bumper)
+- Classe inventaire
+- Classe Donnée Joueur
+    - Système de sauvegarde des données (JSON)
+- Classe Camera
 - ...
 
 ### Added/Modified Configuration
@@ -45,3 +49,5 @@
 
 ### Added
 - Écran d'accueil
+- Equipes de worms (equipes variables : nb worm / couleurs worms)
+    - Chaque worm d'une equipe est jouable, on switch de worm en appuyant sur 'A'

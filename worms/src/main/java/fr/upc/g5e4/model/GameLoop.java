@@ -1,7 +1,9 @@
-package fr.upc.g5e4;
+package fr.upc.g5e4.model;
 
+import fr.upc.g5e4.controller.*;
 import fr.upc.g5e4.model.*;
 //import fr.upc.g5e4.view.*;
+import fr.upc.g5e4.view.GamePanel;
 
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -31,22 +33,28 @@ public class GameLoop{
                 if (gameManager.getActiveWormController() != null) {
                     gameManager.getActiveWormController().update();
                 }
+                
+                // Étape physique
                 gameManager.getWorld().step(FIXHZ,8,3);
-                gamePanel.repaint();
-
+                
                 /* -> Pas une javadoc puisque javadoc peut pas documenter des variables locale 
                  * @see WaterSensorListener.java
                  * Recupere la liste des Worms qui sont mort (pour le moment seulement dans l'eau)
                  * Et detruit leur body associés (on ne peut plus les controller)
-                 * Leur draw et nametag ne depop pas, ca sera a ajouter 
+                 * IMPORTANT : On détruit les bodies APRÈS le step pour éviter les erreurs
                  */
                 ArrayList<CharacterModel> destroy = gameManager.getWSL().getDestroyList();
-                if ( destroy != null){
+                if (destroy != null && !destroy.isEmpty()){
                     for (CharacterModel d : destroy){
-                        gameManager.getWorld().destroyBody(d.getBody());
+                        // Vérifier que le body existe encore avant de le détruire
+                        if (d.getBody() != null && d.getBody().getWorld() != null) {
+                            gameManager.getWorld().destroyBody(d.getBody());
+                        }
                     }
                     destroy.clear();
                 }
+                
+                gamePanel.repaint();
             }
         });
     }

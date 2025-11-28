@@ -1,10 +1,9 @@
-package fr.upc.g5e4.model;
+package fr.upc.g5e4.view;
 
 import fr.upc.g5e4.controller.CameraController;
+import fr.upc.g5e4.model.*;
 import fr.upc.g5e4.model.camera.CameraModel;
-import fr.upc.g5e4.view.CharacterView;
-import fr.upc.g5e4.view.TeamView;
-
+import fr.upc.g5e4.view.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Path2D;
