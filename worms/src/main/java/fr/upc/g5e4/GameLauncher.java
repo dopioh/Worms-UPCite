@@ -5,9 +5,8 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 
 import fr.upc.g5e4.model.InventoryModel.InventoryRoot;
-import fr.upc.g5e4.view.InventoryOverlay;
-import fr.upc.g5e4.view.MainMenuView;
-import fr.upc.g5e4.controller.MainMenuController;
+import fr.upc.g5e4.view.*;
+import fr.upc.g5e4.controller.*;
 import fr.upc.g5e4.model.*; //J'ai ajouté pour tester (Hugo)
 
 
@@ -133,5 +132,6 @@ public class GameLauncher{
 
         //// Pour lancer le jeu directement (pour les testes)
         //new GameLauncher(true);
+        //new ConsoleLauncher();
     }
 }

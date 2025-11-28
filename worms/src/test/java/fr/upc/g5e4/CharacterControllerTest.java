@@ -10,6 +10,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import fr.upc.g5e4.model.CharacterModel;
+import fr.upc.g5e4.model.GameLoop;
+import fr.upc.g5e4.model.GameManager;
 //import fr.upc.g5e4.model.GroundModel;
 import fr.upc.g5e4.controller.CharacterController;
 
