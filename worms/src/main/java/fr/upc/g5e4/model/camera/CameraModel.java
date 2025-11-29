@@ -17,14 +17,14 @@ import fr.upc.g5e4.model.CharacterModel;
 public class CameraModel {
     private double x;
     private double y;
-    private final int viewWidth;
-    private final int viewHeight;
+    private int viewWidth;
+    private int viewHeight;
     private final int worldWidth;
     private final int worldHeight;
     private double zoomFactor = 1.0;
 
     // Zoom minimum calculé automatiquement
-    private final double minZoom;
+    private double minZoom;
 
     // Ces variables stockent la position "voulue" par la caméra.
     // La position réelle (x, y) rejoindra ces cibles progressivement.
@@ -228,4 +228,38 @@ public class CameraModel {
             targetY = maxY;
     }
 
+    /**
+     * Met à jour les dimensions de la vue (utilisé lors du passage en plein écran)
+     * Conserve le même niveau de zoom relatif et la même position de caméra
+     */
+    public void setViewSize(int newViewWidth, int newViewHeight) {
+        // Sauvegarder le ratio de zoom par rapport au minimum actuel
+        double zoomRatio = zoomFactor / minZoom;
+        
+        // Sauvegarder le centre de la vue actuelle
+        double centerX = x + (viewWidth / zoomFactor) / 2.0;
+        double centerY = y + (viewHeight / zoomFactor) / 2.0;
+        
+        this.viewWidth = newViewWidth;
+        this.viewHeight = newViewHeight;
+        
+        // Recalcul du zoom minimum
+        double minZoomX = (double) newViewWidth / worldWidth;
+        double minZoomY = (double) newViewHeight / worldHeight;
+        this.minZoom = Math.max(minZoomX, minZoomY);
+        
+        // Appliquer le même ratio de zoom
+        this.zoomFactor = minZoom * zoomRatio;
+        
+        // Recentrer la caméra sur le même point
+        this.x = centerX - (viewWidth / zoomFactor) / 2.0;
+        this.y = centerY - (viewHeight / zoomFactor) / 2.0;
+        
+        // Synchroniser les targets
+        this.targetX = this.x;
+        this.targetY = this.y;
+        this.targetZoom = this.zoomFactor;
+        
+        clamp();
+    }
 }
