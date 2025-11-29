@@ -21,12 +21,16 @@ public class GameLauncher{
 
     private boolean screen;
 
-    public GameLauncher(boolean screen) throws IOException{
+    public GameLauncher(boolean screen) throws IOException {
+        this(screen, false);
+    }
+    
+    public GameLauncher(boolean screen, boolean startFullScreen) throws IOException{
         this.screen = screen;
 
         if (screen){
-            int sizeX = 800;
-            int sizeY = 600;
+            int sizeX = 1280;
+            int sizeY = 720;
             JFrame game = new JFrame();
 
             game.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -44,6 +48,8 @@ public class GameLauncher{
             //Créer un layeredPane
             JLayeredPane layered = new JLayeredPane();
             layered.setPreferredSize(new java.awt.Dimension(sizeX,sizeY));
+            layered.setBackground(java.awt.Color.BLACK);
+            layered.setOpaque(true);
             //placer dedans
             gamePanel.setBounds(0,0,sizeX,sizeY);
             inventoryOverlay.setBounds(0,0,sizeX,sizeY);
@@ -51,6 +57,7 @@ public class GameLauncher{
             layered.add(gamePanel, JLayeredPane.DEFAULT_LAYER);
             layered.add(inventoryOverlay, JLayeredPane.PALETTE_LAYER);
             game.setContentPane(layered);
+<<<<<<< HEAD
             
             // Passer le listener de tir de l'inputController à l'InventoryOverlay
             // pour que les clics souris soient transférés quand l'inventaire n'est pas visible
@@ -64,10 +71,13 @@ public class GameLauncher{
                 }
             };
             inventoryOverlay.setFireListener(fireListener);
+=======
+            game.getContentPane().setBackground(java.awt.Color.BLACK);
+>>>>>>> dev
             /* Fin de partie */
 
             //Touches raccourcies
-            setupKeyBindings(layered, game);
+            setupKeyBindings(layered, game, startFullScreen);
             
             //game.add(gamePanel);
             game.pack();
@@ -75,6 +85,24 @@ public class GameLauncher{
             game.setResizable(false);
 
             game.setVisible(true);
+            
+            // Démarrer en plein écran si demandé
+            if (startFullScreen) {
+                java.awt.GraphicsDevice device = java.awt.GraphicsEnvironment
+                    .getLocalGraphicsEnvironment().getDefaultScreenDevice();
+                game.dispose();
+                game.setUndecorated(true);
+                game.setVisible(true);
+                device.setFullScreenWindow(game);
+                
+                // Mettre à jour les dimensions
+                java.awt.Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+                layered.setPreferredSize(screenSize);
+                gamePanel.setBounds(0, 0, screenSize.width, screenSize.height);
+                gamePanel.setPreferredSize(screenSize);
+                inventoryOverlay.setBounds(0, 0, screenSize.width, screenSize.height);
+                gameManager.getCamera().setViewSize(screenSize.width, screenSize.height);
+            }
 
             // le clavier focus sur l'imput controller de this.gameManager
             this.gameManager.getImputController().requestFocusInWindow();
@@ -90,7 +118,7 @@ public class GameLauncher{
         }
     }
 
-    private void setupKeyBindings(JComponent root, JFrame game) {
+    private void setupKeyBindings(JComponent root, JFrame game, boolean initialFullScreen) {
         InputMap im = root.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         ActionMap am = root.getActionMap();
 
@@ -113,6 +141,68 @@ public class GameLauncher{
                     boolean visible = inventoryOverlay.isInventoryVisible();
                     inventoryOverlay.setInventoryVisible(!visible);
                 }
+            }
+        });
+
+        // Touche F11 -> basculer en plein écran
+        im.put(KeyStroke.getKeyStroke("F11"), "toggleFullScreen");
+        am.put("toggleFullScreen", new AbstractAction() {
+            private boolean isFullScreen = initialFullScreen;
+            private final int defaultSizeX = 1280;
+            private final int defaultSizeY = 720;
+            
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                java.awt.GraphicsDevice device = java.awt.GraphicsEnvironment
+                    .getLocalGraphicsEnvironment()
+                    .getDefaultScreenDevice();
+                
+                if (isFullScreen) {
+                    // Sortir du plein écran
+                    device.setFullScreenWindow(null);
+                    game.dispose();
+                    game.setUndecorated(false);
+                    game.setVisible(true);
+                    isFullScreen = false;
+                    
+                    // Remettre les dimensions par défaut
+                    updateGameSize(root, defaultSizeX, defaultSizeY);
+                } else {
+                    // Entrer en plein écran
+                    game.dispose();
+                    game.setUndecorated(true);
+                    game.setVisible(true);
+                    device.setFullScreenWindow(game);
+                    isFullScreen = true;
+                    
+                    // Récupérer les dimensions de l'écran et mettre à jour le jeu
+                    java.awt.Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+                    updateGameSize(root, screenSize.width, screenSize.height);
+                }
+                
+                // Redonner le focus au contrôleur d'input
+                gameManager.getImputController().requestFocusInWindow();
+            }
+            
+            private void updateGameSize(JComponent layered, int newWidth, int newHeight) {
+                // Mettre à jour les bounds du layered pane
+                layered.setPreferredSize(new java.awt.Dimension(newWidth, newHeight));
+                
+                // Mettre à jour les bounds du game panel
+                gamePanel.setBounds(0, 0, newWidth, newHeight);
+                gamePanel.setPreferredSize(new java.awt.Dimension(newWidth, newHeight));
+                
+                // Mettre à jour les bounds de l'overlay inventaire
+                if (inventoryOverlay != null) {
+                    inventoryOverlay.setBounds(0, 0, newWidth, newHeight);
+                }
+                
+                // Mettre à jour la taille de vue de la caméra
+                gameManager.getCamera().setViewSize(newWidth, newHeight);
+                
+                // Revalider et repeindre
+                layered.revalidate();
+                layered.repaint();
             }
         });
     }
@@ -140,6 +230,7 @@ public class GameLauncher{
     }
 
     public static void main(String[] args) throws IOException{
+
         //// Lance l'écran d'accueil au lieu du jeu directement
         showAccueil();
 

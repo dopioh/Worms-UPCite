@@ -94,6 +94,7 @@ public class SwingInputController extends JPanel{
                     // Changement d'arme (touche E)
                     case KeyEvent.VK_E:
                         if(gameManager != null) gameManager.switchWeapon();
+                        System.out.println("switch");
                         break;
                 }
             }

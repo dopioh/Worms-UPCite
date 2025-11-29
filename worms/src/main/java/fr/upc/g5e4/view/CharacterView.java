@@ -61,7 +61,7 @@ public class CharacterView {
     
         // Conversion mètres -> pixels
         int x = (int)(m_position.x * CharacterModel.getPPM());
-        int y = (int)((20 - m_position.y) * CharacterModel.getPPM());  // Conversion et Inversion Y
+        int y = (int)((24 - m_position.y) * CharacterModel.getPPM());  // Conversion et Inversion Y
     
         g2d.setColor(color);
         g2d.fillRect(x - size/2, y - size/2, size, size);
