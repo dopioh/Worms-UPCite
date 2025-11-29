@@ -11,20 +11,23 @@ public abstract class Weapon extends Item {
     private final int damage;         
     private final double blastRadius; // rayon d'explosion (0 si aucun)
     private final double speed;       // vitesse de projectile ou déplacement
+    private final int range;       // portée de l'arme
 
     protected Weapon(String name, int maxUsages, boolean isInfinite,
-                     int damage, double blastRadius, double speed) {
+                     int damage, double blastRadius, double speed, int range) {
         super(name, ItemType.WEAPON, maxUsages, isInfinite);
-        if (damage < 0 || blastRadius < 0 || speed < 0)
-            throw new IllegalArgumentException("damage/blastRadius/speed doivent être >= 0");
+        if (damage < 0 || blastRadius < 0 || speed < 0 || range < 0)
+            throw new IllegalArgumentException("damage/blastRadius/speed/range doivent être >= 0");
         this.damage = damage;
         this.blastRadius = blastRadius;
         this.speed = speed;
+        this.range = range;
     }
 
     public int getDamage() { return damage; }
     public double getBlastRadius() { return blastRadius; }
     public double getSpeed() { return speed; }
+    public int getRange() { return range; }
 
     /**
      * Tire un rayon depuis le worm attaquant pour trouver une cible et infliger des dégâts
@@ -36,7 +39,7 @@ public abstract class Weapon extends Item {
     public void fire(CharacterModel shooter, org.jbox2d.dynamics.World world, 
                                CharacterModel[] allWorms, int direction) {
         Vec2 shooterPos = shooter.getBody().getPosition();
-        float rayDistance = 20f; //Porter max du tir
+        float rayDistance = this.getRange(); //Porter max du tir
         Vec2 rayEnd = new Vec2(
             shooterPos.x + (direction * rayDistance), 
             shooterPos.y
@@ -58,7 +61,9 @@ public abstract class Weapon extends Item {
         
         if (target[0] != null) {
             target[0].dealDamage(this.getDamage(), shooter);
+            System.out.println("Cible " + target[0].getName() + " touché " + this.getDamage() + " damage.");
         } else {
+            System.out.println("Aucune cible touchée.");
         }
     }
 

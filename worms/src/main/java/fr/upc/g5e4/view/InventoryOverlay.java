@@ -9,10 +9,12 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
 import fr.upc.g5e4.model.InventoryModel.InventoryJson;
+import fr.upc.g5e4.controller.SwingInputController;
 
 public class InventoryOverlay extends JComponent{       //S'integre dans une interface Swing (JFrame)
     private final List<InventoryJson> inventory;
     private boolean visible = false;
+    private MouseAdapter fireListener; // Listener pour le tir
 
     //Icone image png
     private BufferedImage icon;
@@ -45,7 +47,36 @@ public class InventoryOverlay extends JComponent{       //S'integre dans une int
             public void mouseClicked(MouseEvent e){
                 handleClick(e.getX(), e.getY());
             }
+            
+            @Override
+            public void mousePressed(MouseEvent e){
+                // Si l'inventaire n'est pas visible, laisser le tir passer
+                if(!visible && fireListener != null){
+                    fireListener.mousePressed(e);
+                }
+            }
         });
+    }
+
+    /**
+     * Enregistre le listener pour le tir (pour le transférer si inventaire non visible)
+     */
+    public void setFireListener(MouseAdapter listener){
+        this.fireListener = listener;
+    }
+    
+    /**
+     * Enregistre le controller d'input pour le tir
+     */
+    public void setFireListener(SwingInputController inputController){
+        this.fireListener = new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON1) {
+                    inputController.getCharacterController().fireWeapon(e.getX(), e.getY());
+                }
+            }
+        };
     }
 
     private void handleClick(int x, int y){             //Si clic faire :

@@ -162,8 +162,8 @@ public class GameManager {
         imputController.setGameManager(this); // connecte inputController au GameManager
                                              //  pour que inputController puisse appeler switchToNextWorm()
         
-        // Ajoute les listeners de souris au GamePanel
-        imputController.addMouseListenersToPanel(gamePanel);
+        // Ajoute les listeners de souris au GamePanel pour les tirs
+        //this.gamePanel.addMouseListeners(activeWormController);
         
         imputController.requestFocusInWindow();
         this.gamePanel.setFocusable(true);
@@ -261,6 +261,9 @@ public class GameManager {
                 imputController.setCharacterController(activeWormController);
                 cameraController.setTargetCharacter(worm);
                 cameraController.centerOnCharacter();
+                
+                // Réappliquer les listeners de souris pour le nouveau worm
+                //gamePanel.addMouseListeners(activeWormController);
                 return;
             }
             
@@ -285,15 +288,19 @@ public class GameManager {
         switch(currentWeaponIndex) {
             case 0:
                 newWeapon = new Ak47();
+                System.out.println("AK-47");
                 break;
             case 1:
                 newWeapon = new BaseballBat();
+                System.out.println("Baseball Bat");
                 break;
             case 2:
                 newWeapon = new Grenade();
+                System.out.println("Grenade");
                 break;
             case 3:
                 newWeapon = new RocketLauncher();
+                System.out.println("Rocket Launcher");
                 break;
         }
         

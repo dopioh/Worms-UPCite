@@ -5,7 +5,7 @@ import fr.upc.g5e4.model.Weapon;
 public class BaseballBat extends Weapon {
 
     public BaseballBat() {
-        super("Baseball Bat", 8, false, 30, 0, 1);
+        super("Baseball Bat", 8, false, 30, 0, 1, 2);
     }
 
     @Override

@@ -130,27 +130,14 @@ public class SwingInputController extends JPanel{
                 }
             }
         });
-    }
-    
-    /**
-     * Ajoute les listeners de souris à un JPanel (utilisé pour GamePanel)
-     * @param panel Le panel auquel ajouter les listeners
-     */
-    public void addMouseListenersToPanel(JPanel panel) {
-        panel.addMouseListener(new MouseAdapter() {
+        
+        // Listener de souris pour le tir au click gauche
+        addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                // Click gauche pour tirer
                 if (e.getButton() == MouseEvent.BUTTON1) {
                     personnageController.fireWeapon(e.getX(), e.getY());
                 }
-            }
-        });
-
-        panel.addMouseMotionListener(new MouseMotionAdapter() {
-            @Override
-            public void mouseMoved(MouseEvent e) {
-                // Suivi de la souris (peut être utilisé pour des effets visuels futurs)
             }
         });
     }
@@ -169,5 +156,13 @@ public class SwingInputController extends JPanel{
      */
     public void setCharacterController(CharacterController controller) {
         this.personnageController = controller;
+    }
+    
+    /**
+     * Retourne le contrôleur de personnage actif
+     * @return le contrôleur de personnage
+     */
+    public CharacterController getCharacterController() {
+        return this.personnageController;
     }
 }

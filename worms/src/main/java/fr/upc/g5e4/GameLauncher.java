@@ -57,7 +57,11 @@ public class GameLauncher{
             layered.add(gamePanel, JLayeredPane.DEFAULT_LAYER);
             layered.add(inventoryOverlay, JLayeredPane.PALETTE_LAYER);
             game.setContentPane(layered);
+            
+            inventoryOverlay.setFireListener(gameManager.getImputController());
+
             game.getContentPane().setBackground(java.awt.Color.BLACK);
+
             /* Fin de partie */
 
             //Touches raccourcies
