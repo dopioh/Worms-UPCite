@@ -51,6 +51,19 @@ public class GameLauncher{
             layered.add(gamePanel, JLayeredPane.DEFAULT_LAYER);
             layered.add(inventoryOverlay, JLayeredPane.PALETTE_LAYER);
             game.setContentPane(layered);
+            
+            // Passer le listener de tir de l'inputController à l'InventoryOverlay
+            // pour que les clics souris soient transférés quand l'inventaire n'est pas visible
+            SwingInputController inputController = gameManager.getImputController();
+            java.awt.event.MouseAdapter fireListener = new java.awt.event.MouseAdapter() {
+                @Override
+                public void mousePressed(java.awt.event.MouseEvent e) {
+                    if (e.getButton() == java.awt.event.MouseEvent.BUTTON1) {
+                        inputController.getCharacterController().fireWeapon(e.getX(), e.getY());
+                    }
+                }
+            };
+            inventoryOverlay.setFireListener(fireListener);
             /* Fin de partie */
 
             //Touches raccourcies

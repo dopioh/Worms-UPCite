@@ -95,12 +95,6 @@ public class SwingInputController extends JPanel{
                     case KeyEvent.VK_E:
                         if(gameManager != null) gameManager.switchWeapon();
                         break;
-                    
-                    // Tirer (touche P)
-                    case KeyEvent.VK_P:
-                        personnageController.fireWeapon(getMousePosition() != null ? getMousePosition().x : 0, 
-                                                        getMousePosition() != null ? getMousePosition().y : 0);
-                        break;
                 }
             }
             
@@ -136,21 +130,13 @@ public class SwingInputController extends JPanel{
             }
         });
         
-        // Ajouter les listeners de souris directement
+        // Listener de souris pour le tir au click gauche
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                // Click gauche pour tirer
                 if (e.getButton() == MouseEvent.BUTTON1) {
                     personnageController.fireWeapon(e.getX(), e.getY());
                 }
-            }
-        });
-
-        addMouseMotionListener(new MouseMotionAdapter() {
-            @Override
-            public void mouseMoved(MouseEvent e) {
-                // Suivi de la souris
             }
         });
     }
@@ -169,5 +155,13 @@ public class SwingInputController extends JPanel{
      */
     public void setCharacterController(CharacterController controller) {
         this.personnageController = controller;
+    }
+    
+    /**
+     * Retourne le contrôleur de personnage actif
+     * @return le contrôleur de personnage
+     */
+    public CharacterController getCharacterController() {
+        return this.personnageController;
     }
 }
