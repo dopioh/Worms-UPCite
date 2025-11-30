@@ -1,9 +1,8 @@
 package fr.upc.g5e4.model;
 
 import com.google.gson.*;                 //Gson sert à faire un transfert de données "json to java"
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 import java.util.List;
@@ -59,12 +58,17 @@ public class InventoryModel {
         public List<InventoryJson> inventory;  
     }
 
-    //Lecture du Json depuis jsonPath
-    public static InventoryRoot load(String jsonPath) throws IOException{      //IOException pour mieux gérer l'erreur                
+    //Lecture du Json depuis le classpath (fonctionne dans le JAR)
+    public static InventoryRoot load(String resourcePath) throws IOException{      //IOException pour mieux gérer l'erreur                
         Gson gson = new Gson();
-        String json = Files.readString(Path.of(jsonPath), StandardCharsets.UTF_8);    
-        InventoryRoot root = gson.fromJson(json, InventoryRoot.class);
-        return root;
+        try (InputStream is = InventoryModel.class.getResourceAsStream(resourcePath)) {
+            if (is == null) {
+                throw new IOException("Ressource introuvable: " + resourcePath);
+            }
+            String json = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+            InventoryRoot root = gson.fromJson(json, InventoryRoot.class);
+            return root;
+        }
     }
     
 }
