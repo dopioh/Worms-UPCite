@@ -42,7 +42,7 @@ public class GameLauncher{
 
             /* ------------------------ Partie Overlay Inventaire --------------------------------- */
             //Charge l'inventaire 
-            InventoryRoot root = InventoryModel.load("worms/src/main/resources/inventory.json");
+            InventoryRoot root = InventoryModel.load("/inventory.json");
             //Créer l'overlay
             this.inventoryOverlay = new InventoryOverlay((root.inventory));
             //Créer un layeredPane
