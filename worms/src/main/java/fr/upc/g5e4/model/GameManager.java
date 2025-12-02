@@ -1,3 +1,4 @@
+// File: fr/upc/g5e4/model/GameManager.java
 package fr.upc.g5e4.model;
 
 import java.awt.Color;
@@ -18,10 +19,6 @@ import fr.upc.g5e4.model.camera.CameraModel;
 import fr.upc.g5e4.view.CharacterView;
 import fr.upc.g5e4.view.GamePanel;
 import fr.upc.g5e4.view.ItemView;
-import fr.upc.g5e4.model.PhysicsWorld.WaterSensorListener;
-import fr.upc.g5e4.model.camera.CameraModel;
-import fr.upc.g5e4.view.CharacterView;
-import fr.upc.g5e4.view.GamePanel;
 import fr.upc.g5e4.view.TeamView;
 
 /**
@@ -51,6 +48,10 @@ public class GameManager {
     private int activeWormIndex;
     private CharacterController activeWormController;
     private int currentWeaponIndex = 0;  // 0=AK47, 1=Baseball, 2=Grenade, 3=Rocket    
+
+    // ajout minimal: gestion des rounds
+    private int roundNumber = 1;
+    private int currentTeamIndex = 0; // 0 = Team1, 1 = Team2
 
     /**
      * Initialise le terrain du jeu.
@@ -232,7 +233,15 @@ public class GameManager {
     public CharacterController getActiveWormController() {
         return this.activeWormController;
     }
-    
+
+    public int getRoundNumber() {
+        return this.roundNumber;
+    }
+
+    public int getCurrentTeamIndex() {
+        return this.currentTeamIndex;
+    }
+
     /**
      * switch le worm actif vers le suivant dans l'équipe
      * saute les worms morts
@@ -275,6 +284,44 @@ public class GameManager {
         } while (true);
     }
     
+    // switch généralisé pour une équipe donnée
+    public void switchToNextWorm(TeamModel team) {
+        int startIndex = activeWormIndex;
+        do {
+            activeWormIndex++;
+            if (activeWormIndex >= team.getWormNumberAtStart()) {
+                activeWormIndex = 0; // Retour au début dans l'équipe passée en paramètre
+            }
+            CharacterModel worm = team.getWorm(activeWormIndex);
+
+            if (worm != null && !worm.isDead()) {
+                activeWormController = new CharacterController(worm);
+                activeWormController.setItemController(this.itemController);
+                activeWormController.setWorld(world);
+                activeWormController.setAllWorms(this.allWorms);
+                activeWormController.setCurrentWeapon(new Ak47());
+
+                imputController.setCharacterController(activeWormController);
+                cameraController.setTargetCharacter(worm);
+                cameraController.centerOnCharacter();
+                return;
+            }
+
+            if (activeWormIndex == startIndex) {
+                System.out.println("Aucun worm vivant disponible...");
+                return;
+            }
+        } while (true);
+    }
+
+    // passe au round suivant et alterne les équipes
+    public void nextRound() {
+        roundNumber++;
+        currentTeamIndex = (currentTeamIndex + 1) % 2;
+        TeamModel currentTeam = (currentTeamIndex == 0) ? teamModel1 : teamModel2;
+        switchToNextWorm(currentTeam);
+        System.out.println("Round " + roundNumber + " - Equipe active : " + (currentTeamIndex == 0 ? "Team1" : "Team2"));
+    }
     
     /**
      * Change l'arme équipée du worm actif (cycliquement)

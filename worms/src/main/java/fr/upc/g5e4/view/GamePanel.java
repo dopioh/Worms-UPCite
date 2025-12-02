@@ -1,3 +1,4 @@
+// File: fr/upc/g5e4/view/GamePanel.java
 package fr.upc.g5e4.view;
 
 import fr.upc.g5e4.controller.CameraController;
@@ -24,6 +25,9 @@ public class GamePanel extends JPanel {
 
     private static final float PPM = 30f;
 
+    // ajout: label pour afficher le temps restant (vue)
+    private final JLabel roundTimerLabel = new JLabel("Temps restant : 30s");
+
     /**
      * {@code setPreferredSize()} est essentiel sinon rien ne s'affiche
      */
@@ -43,6 +47,13 @@ public class GamePanel extends JPanel {
         setPreferredSize(new Dimension(model.getWidth(), model.getHeight()));
         setLayout(null);
 
+        // ajout: configuration du label chrono
+        roundTimerLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        roundTimerLabel.setForeground(Color.WHITE);
+        roundTimerLabel.setBounds(20, 10, 220, 30);
+        roundTimerLabel.setOpaque(false);
+        this.add(roundTimerLabel);
+
         // Timer pour update régulier de la caméra et repaint
         new javax.swing.Timer(16, e -> {
             cameraController.update();
@@ -52,6 +63,11 @@ public class GamePanel extends JPanel {
 
     public static float getPPM() {
         return PPM;
+    }
+
+    // ajout: API publique pour mettre à jour l'affichage du chrono
+    public void setRoundTimer(int seconds) {
+        SwingUtilities.invokeLater(() -> roundTimerLabel.setText("Temps restant : " + seconds + "s"));
     }
 
     /**
