@@ -106,12 +106,14 @@ public class CharacterController {
     public boolean update() {
         Body body = model.getBody();
         
-        // Appliquer une force horizontale
+        // Appliquer une force horizontale et mettre à jour la direction di worm (pour le sprite)
         if (LeftKeyPressed) {
             body.applyForceToCenter(new Vec2((float)-MOVE_FORCE, 0));
+            model.setFacingRight(false);  // Regarde vers la gauche
         }
         if (RightKeyPressed) {
             body.applyForceToCenter(new Vec2((float)MOVE_FORCE, 0));
+            model.setFacingRight(true);  // Regarde vers la droite
         }
         
         // Synchroniser les coordonnées du modèle avec le corps physique

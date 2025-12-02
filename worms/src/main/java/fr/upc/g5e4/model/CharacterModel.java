@@ -28,6 +28,7 @@ public class CharacterModel extends Entity{
     private double jump;
     
     private boolean isDead;
+    private boolean facingRight;  // true si le worm regarde vers la droite
     
     private long lastJumpTime = 0;  // Temps du dernier saut pour le cooldown
     private static final double JUMP_COOLDOWN = 0.5;  // Cooldown du saut en secondes
@@ -60,6 +61,7 @@ public class CharacterModel extends Entity{
         this.speed = 5.0;  // defini à 3 à la base
         this.jump = 5.0;
         this.isDead = false;
+        this.facingRight = true;  // Par défaut, regarde vers la droite
         
         this.persoBody = createBody();
     }
@@ -86,6 +88,7 @@ public class CharacterModel extends Entity{
         this.speed = speed;
         this.jump = jump;
         this.isDead = false;
+        this.facingRight = true;  // Par défaut, regarde vers la droite
 
         this.persoBody = createBody();
     }
@@ -140,6 +143,10 @@ public class CharacterModel extends Entity{
     public boolean isDead() {
         return isDead;
     }
+    
+    public boolean isFacingRight() {
+        return facingRight;
+    }
 
     // Setters
     public void setName(String name) {
@@ -172,6 +179,10 @@ public class CharacterModel extends Entity{
 
     public void setDead(boolean isDead) {
         this.isDead = isDead;
+    }
+    
+    public void setFacingRight(boolean facingRight) {
+        this.facingRight = facingRight;
     }
 
         public Body getBody(){
