@@ -1,3 +1,4 @@
+// File: fr/upc/g5e4/controller/SwingInputController.java
 package fr.upc.g5e4.controller;
 //import java.awt.*;
 import java.awt.event.*;
@@ -86,9 +87,9 @@ public class SwingInputController extends JPanel{
                         if(cameraController != null) cameraController.centerOnCharacter();
                         break;
                     
-                    // Changement de worm actif
+                    // modif: A déclenche nextRound
                     case KeyEvent.VK_A:
-                        if(gameManager != null) gameManager.switchToNextWorm();
+                        if(gameManager != null) gameManager.nextRound();
                         break;
                     
                     // Changement d'arme (touche E)
