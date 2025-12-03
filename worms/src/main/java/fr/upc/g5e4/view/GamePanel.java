@@ -21,6 +21,7 @@ public class GamePanel extends JPanel {
     private final TeamView teamView1;
     private final TeamModel teamModel2;
     private final TeamView teamView2;
+    private final TrajectoryRenderer trajectoryRenderer;
 
     private static final float PPM = 30f;
 
@@ -39,6 +40,7 @@ public class GamePanel extends JPanel {
         this.teamView1 = teamView1;
         this.teamModel2 = teamModel2;
         this.teamView2 = teamView2;
+        this.trajectoryRenderer = new TrajectoryRenderer();
 
         setPreferredSize(new Dimension(model.getWidth(), model.getHeight()));
         setLayout(null);
@@ -52,6 +54,13 @@ public class GamePanel extends JPanel {
 
     public static float getPPM() {
         return PPM;
+    }
+
+    /**
+     * Retourne le renderer de trajectoire pour que d'autres composants puissent l'utiliser
+     */
+    public TrajectoryRenderer getTrajectoryRenderer() {
+        return trajectoryRenderer;
     }
 
     /**
@@ -94,6 +103,9 @@ public class GamePanel extends JPanel {
         // Team de worms
         teamView1.draw(g2, teamModel1);
         teamView2.draw(g2, teamModel2);
+
+        // Trajectoire de tir (Angry Birds style)
+        trajectoryRenderer.draw(g2, null);
 
         // Eau
         g2.setColor(new Color(75, 147, 240));

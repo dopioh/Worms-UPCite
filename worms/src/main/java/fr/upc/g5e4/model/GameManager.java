@@ -162,8 +162,10 @@ public class GameManager {
         imputController.setGameManager(this); // connecte inputController au GameManager
                                              //  pour que inputController puisse appeler switchToNextWorm()
         
-        // Ajoute les listeners de souris au GamePanel pour les tirs
-        //this.gamePanel.addMouseListeners(activeWormController);
+        // Connecter le renderer de trajectoire
+        imputController.setTrajectoryRenderer(gamePanel.getTrajectoryRenderer());
+        gamePanel.getTrajectoryRenderer().setShooter(activeWormController.getModel());
+        gamePanel.getTrajectoryRenderer().setRange(new Ak47().getRange());
         
         imputController.requestFocusInWindow();
         this.gamePanel.setFocusable(true);
