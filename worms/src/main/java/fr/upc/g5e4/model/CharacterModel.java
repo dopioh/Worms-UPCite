@@ -272,8 +272,8 @@ public class CharacterModel extends Entity{
 
         fixtureWorm.shape = square;
         fixtureWorm.restitution = 0.01f;
-        fixtureWorm.density = 2.0f;     // valeur modif pour tester le terminal
-        fixtureWorm.friction = 0.2f;    // valeur modif pour tester le terminal
+        fixtureWorm.density = 5.0f;
+        fixtureWorm.friction = 18f;
 
         Body bWorm = world.createBody(bdWorm);
         bWorm.createFixture(fixtureWorm);
