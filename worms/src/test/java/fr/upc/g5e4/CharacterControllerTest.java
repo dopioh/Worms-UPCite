@@ -5,8 +5,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.io.IOException;
 
 import org.jbox2d.dynamics.World;
-import org.junit.jupiter.api.BeforeAll;
-//import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -49,8 +47,9 @@ public class CharacterControllerTest {
         gm = gL.getGameManager();
         world = gm.getWorld();
 
-        model = gm.getPersonnageModel();
-        controller = gm.getPersonnageController();
+        // on utilise le worm actif a la place de l'ancien worm jaune de test
+        controller = gm.getActiveWormController();
+        model = gm.getTeamModel1().getWorm(gm.getActiveWormIndex());
         
         // Désactiver toutes les touches au cas où un test précédent les aurait laissées actives
         controller.deactivateLeft();

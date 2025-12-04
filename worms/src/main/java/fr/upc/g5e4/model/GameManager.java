@@ -28,10 +28,6 @@ import fr.upc.g5e4.view.TeamView;
 public class GameManager {
     private final GamePanel gamePanel;
     private final GroundModel model;
-
-    private final CharacterModel personnageModel;
-    private final CharacterView personnageView;
-    private final CharacterController personnageController;
     private final PhysicsWorld physic;
     private final World world;
     private final Body water;
@@ -70,13 +66,14 @@ public class GameManager {
     public GameManager() {
         int sizeX = 1280;
         int sizeY = 720;
-        int[] groundY = {400,420,450,450,400,700,930,450,350,300,250,230,200,200};
+        int[] groundY = {470,450,430,420,410,400,390,370,340,300,280,250,230,200};
         /*
          * Plusieurs autres valeurs de groundY si vous voulez tester plusieurs terrains
          * :
          * int[] groundY = {400,420,450,450,400,300,530,450,350,300,250,230,200,230};
          * int[] groundY = {200,230,250,280,300,340,370,390,400,410,420,430,450,470};
          * int[] groundY = {470,450,430,420,410,400,390,370,340,300,280,250,230,200};
+         * int[] groundY = {400,420,450,450,400,700,930,450,350,300,250,230,200,200};
          * 
          * J'ai toujours pris la meme taille de tableau pour faire les tests
          * Mais vous pouvez mettre autant de valeurs que vous voulez
@@ -90,21 +87,12 @@ public class GameManager {
         physic.createGroundFromModel(model);
         this.water = physic.createBodyWater(model);
 
-        this.personnageModel = new CharacterModel(model, world, 700, model.getHeight() - 500); // Si le x est à 800
+        //this.personnageModel = new CharacterModel(model, world, 700, model.getHeight() - 500); // Si le x est à 800
                                                                                                 // pile i ça marche pas
         // System.out.println("\nGame Manager xcord : " +
-        // this.personnageModel.getXcord());
-        // personnage est un worm jaune utilisé SEULEMENT pour les TESTS => A SUPPRIMER A LA FIN !!!
-        this.personnageView = new CharacterView(25, Color.YELLOW);
-        this.personnageController = new CharacterController(personnageModel);
 
         // Initialisation caméra et contrôleur
         this.camera = new CameraModel(sizeX, sizeY, model.getWidth(), model.getHeight(), 1);
-        this.cameraController = new CameraController(camera, personnageModel);
-
-        // Contrôleur fusionné personnage + caméra
-        this.imputController = new SwingInputController(personnageController, cameraController); 
-
         physic.limitPanel(model);
 
         // création premiere equipe
@@ -118,7 +106,6 @@ public class GameManager {
         
         // Créer une liste de tous les worms pour le WaterSensorListener
         ArrayList<CharacterModel> allWorms = new ArrayList<>();
-        allWorms.add(personnageModel);  // Worm de test jaune
         for (int i = 0; i < wormNumber; i++) {
             allWorms.add(teamModel1.getWorm(i));
             allWorms.add(teamModel2.getWorm(i));
@@ -156,7 +143,7 @@ public class GameManager {
         this.imputController = new SwingInputController(activeWormController, cameraController);
 
         // GamePanel avec tout ce qui est nécessaire
-        this.gamePanel = new GamePanel(model, personnageModel, personnageView, camera, cameraController, teamModel1, teamView1, teamModel2, teamView2); 
+        this.gamePanel = new GamePanel(model, camera, cameraController, teamModel1, teamView1, teamModel2, teamView2); 
 
         // Ajoute le contrôleur pour capter les touches
         this.gamePanel.add(imputController);
@@ -200,14 +187,6 @@ public class GameManager {
 
     public SwingInputController getImputController() {
         return this.imputController;
-    }
-
-    public CharacterController getPersonnageController() {
-        return this.personnageController;
-    }
-
-    public CharacterModel getPersonnageModel(){
-        return this.personnageModel;
     }
     
     public CameraController getCameraController() { 
