@@ -5,29 +5,34 @@ import fr.upc.g5e4.model.*;
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
 
+import org.jbox2d.dynamics.Body;
+
+import java.util.ArrayList;
+
+import org.jbox2d.common.*;
+
 /**
- * Classe pour initialiser les graphismes de la partie Jeu dans la vue Terminal
+ * Classe pour dessiner les graphismes de la partie Jeu dans la vue Terminal
  * @see GamePanel pour la version avec Swing
  * Swing -> Lanterna
  */
 public class ConsolePanel {
     public static final int echelleConsole = 10;
     private GroundModel groundModel;
-    private CharacterModel characterModel;
-    private int XCase;
-    private int YCase;
 
-    public ConsolePanel(GroundModel groundModel,CharacterModel characterModel, int XCase, int YCase){
+    public ConsolePanel(GroundModel groundModel){
         this.groundModel = groundModel;
-        this.characterModel = characterModel;
-        this.XCase = XCase;
-        this.YCase = YCase;
     }
 
-    public void drawGround(TextGraphics tx){    // equivalent dans GamePanel.java
-        int[] gmYGround = groundModel.getGroundY();
+    public void drawGround(TextGraphics tx,int XCase, int YCase){    // equivalent dans GamePanel.java
+        int[] gmYGroundPixel = groundModel.getGroundY();
+        int[] gmYGround = new int[gmYGroundPixel.length];
 
-        int step = XCase / (gmYGround.length -1 );
+        for (int i = 0 ; i < gmYGroundPixel.length ; i++){
+            gmYGround[i] = PixelConverterCase.transformCoordY(gmYGroundPixel[i]);
+        }
+
+        int step = XCase / (gmYGround.length -1);
 
         tx.setForegroundColor(TextColor.ANSI.GREEN);
 
@@ -35,7 +40,7 @@ public class ConsolePanel {
             int x1 = (int) (i * step);
             int x2;
 
-            if (i == gmYGround. length - 2) {
+            if (i == gmYGround.length - 2) {
                 x2 = XCase - 1;
             } else {
                 x2 = (int) ((i + 1) * step);
@@ -62,34 +67,49 @@ public class ConsolePanel {
         }
     }
 
-    /*
-    -> Mauvaise Conversion de pixel en case 
-    -> ET la physique que j'ai config attend des pixel
-    -> Donc faudrait pas convertir en case dans ConsoleGameManager.java mais plutot ici apres avoir appliquer la physique
     
-    public void drawCharacter(TextGraphics tx){       
+    public void drawAllCharacter(TextGraphics tx, ArrayList<CharacterModel> listCharacter){
+        for (int i = 0 ; i < listCharacter.size(); i++){
+            drawCharacter(tx,listCharacter.get(i));
+        }
+    }
+
+    // Mauvaise Conversion de pixel en case 
+    // ET la physique que j'ai config attend des pixel
+    // Donc faudrait pas convertir en case dans ConsoleGameManager.java mais plutot ici apres avoir appliquer la physique
+    
+    private void drawCharacter(TextGraphics tx, CharacterModel characterModel){
+        //System.out.println("drawCharacter est called");       
         if (characterModel.isDead()){
             return;
         }
 
+        tx.setForegroundColor(TextColor.ANSI.RED_BRIGHT);
+
         Body body = characterModel.getBody();
         Vec2 m_position = body.getPosition();   // le centre du body non ?
 
-        int posCaseX = (int)(m_position.x * CharacterModel.getPPM())/ConsoleGameManager.echelleConsole;
-        int posCaseY = (int)((20 - m_position.y) * CharacterModel.getPPM()/ConsoleGameManager.echelleConsole);  // Conversion et Inversion Y
+        int heightMeter = (int)(groundModel.getHeight()/ CharacterModel.getPPM());
+
+        int posCaseX = PixelConverterCase.transformCoordX((int)(m_position.x * CharacterModel.getPPM()));
+        int posCaseY = PixelConverterCase.transformCoordY((int)((heightMeter - m_position.y) * CharacterModel.getPPM()));  // Conversion et Inversion Y
 
         // hauteur et largeur du perso
-        int case_WidthPerso = (int)((characterModel.getMWidthPerso()) * CharacterModel.getPPM()/ConsoleGameManager.echelleConsole);
-        int case_HeightPerso =(int)(20 - characterModel.getMHeightPerso()*CharacterModel.getPPM())/ConsoleGameManager.echelleConsole;
-      
-        tx.setForegroundColor(TextColor.ANSI.GREEN);
+        int case_WidthPerso = PixelConverterCase.transformCoordX((int)((characterModel.getMWidthPerso()) * CharacterModel.getPPM()));
+        int case_HeightPerso =PixelConverterCase.transformCoordY((int)(20 - characterModel.getMHeightPerso()*CharacterModel.getPPM()));
+
+        // verif que la taille n'est jamais a 0
+        int width = Math.max(1, case_WidthPerso);
+        int height = Math.max(1, case_HeightPerso);
 
 
-
-        for (int i = posCaseX - case_WidthPerso/2 ; i < posCaseX + case_WidthPerso/2 ; i++){
-            for (int j = posCaseY - case_HeightPerso/2 ; j < posCaseY + case_HeightPerso/2 ; j++){
-                tx.setCharacter(i,j, '@');
+        for (int i = posCaseX - width/2; i <= posCaseX + width/2; i++) { 
+            for (int j = posCaseY - height/2; j <= posCaseY + height/2; j++) {
+         // verif pour ne pas dessiner hors écran
+                if (i >= 0 && i < ConsoleView.getXCase() && j >= 0 && j < ConsoleView.getYCase()) {
+                    tx.setCharacter(i, j, '+');
+                }
             }
         }
-    }*/
+    }
 }

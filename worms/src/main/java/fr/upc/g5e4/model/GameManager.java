@@ -67,9 +67,9 @@ public class GameManager {
      * @see GameLauncher
      * @see PhysicsWorld#createGroundFromModel()
      */
-    public GameManager() {
-        int sizeX = 1280;
-        int sizeY = 720;
+    public GameManager(int sizex, int sizey) {
+        int sizeX = sizex;
+        int sizeY = sizey;
         int[] groundY = {400,420,450,450,400,700,930,450,350,300,250,230,200,200};
         /*
          * Plusieurs autres valeurs de groundY si vous voulez tester plusieurs terrains

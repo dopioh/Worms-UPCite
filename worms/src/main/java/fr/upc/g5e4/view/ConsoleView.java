@@ -27,16 +27,14 @@ public class ConsoleView {
     private Terminal terminal;
     private Screen screen;
     private TextGraphics text;
-    private int XCase;
-    private int YCase;
+    private static final int XCase = 100;
+    private static final int YCase = 28;
 
     /**
      * Initialise la fenetre
      */
     public ConsoleView(){
         try {
-            this.XCase = 100;
-            this.YCase = 28;
             Font maPolice = new Font("Monospaced", Font.BOLD, 20);
 
             DefaultTerminalFactory defaultTerminalFactory = new DefaultTerminalFactory();   // pour regler prbnlm windows
@@ -72,12 +70,12 @@ public class ConsoleView {
         return this.screen;
     }
 
-    public int getXCase(){
-        return this.XCase;
+    public static int getXCase(){
+        return XCase;
     }
 
-    public int getYCase(){
-        return this.YCase;
+    public static int getYCase(){
+        return YCase;
     }
 
     public TextGraphics getTextGraphics(){

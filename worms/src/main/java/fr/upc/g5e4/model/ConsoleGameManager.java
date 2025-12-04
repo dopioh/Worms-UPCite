@@ -37,14 +37,19 @@ public class ConsoleGameManager {
     private final ConsoleView consoleView;
 
     private final TeamModel teamModel1;
-    private final TeamView teamView1;
     private final TeamModel teamModel2;  
-    private final TeamView teamView2;  
+
     private int activeWormIndex;
-    private CharacterController activeWormController;    
+    private CharacterController activeWormController;  
+    
+    private final CharacterModel[] allWormsCharacter;
+    private final ArrayList<CharacterModel> allWorms;
+
+    public static final int pixelX = 1280;
+    public static final int pixelY = 720;
 
     // Conversion de Pixel en Case :
-    public static final int echelleConsole = 10; // on divise toute valeur en pixel par 10
+    //public static final int echelleConsole = 10; // on divise toute valeur en pixel par 10
 
     /**
      * Initialise le jeu de la meme maniere que GameManager
@@ -56,19 +61,17 @@ public class ConsoleGameManager {
 
         this.consoleView = consoleView;
         consoleView.clearRefresh();
-        int XCase = consoleView.getXCase();
-        int YCase = consoleView.getYCase();
 
         // il faut pas appliquer la conversion ici 
-        int[] groundY = { 400/YCase, 420/YCase, 450/YCase, 500/YCase, 550/YCase, 540/YCase, 530/YCase, 450/YCase, 350/YCase, 300/YCase, 250/YCase, 230/YCase, 200/YCase, 230/YCase};
-        this.model = new GroundModel(groundY, XCase, YCase, YCase - YCase/3);   // car de haut en bas (ancienne valeur de water = 500)
+        int[] groundY = { 400, 420, 450, 500, 550, 540, 530, 450, 350, 300, 250, 230, 200, 230};
+        this.model = new GroundModel(groundY, pixelX, pixelY, pixelX - pixelX/3);   // car de haut en bas (ancienne valeur de water = 500)
 
         this.physic = new PhysicsWorld();
         this.world = physic.getWorld();
         physic.createGroundFromModel(model);
         this.water = physic.createBodyWater(model);
 
-        this.personnageModel = new CharacterModel(model, world, XCase/2, YCase/3);
+        this.personnageModel = new CharacterModel(model, world, pixelX, pixelY/3);
         this.personnageView = new CharacterView();
         this.personnageController = new CharacterController(personnageModel);
 
@@ -77,32 +80,44 @@ public class ConsoleGameManager {
         // création premiere equipe
         int wormNumber = 3; 
         this.teamModel1 = new TeamModel(model, world, "Team1", 100, 98, wormNumber);
-        this.teamView1 = new TeamView(wormNumber, Color.BLUE);
 
         // création seconde equipe
-        this.teamModel2 = new TeamModel(model, world, "Team2", 400, 98, wormNumber);  
-        this.teamView2 = new TeamView(wormNumber, Color.RED);
-        ArrayList<CharacterModel> allWorms = new ArrayList<>();
+        this.teamModel2 = new TeamModel(model, world, "Team2", 400, 158, wormNumber);  
+
+        this.allWorms = new ArrayList<>();
         allWorms.add(personnageModel);  // Worm de test jaune
         for (int i = 0; i < wormNumber; i++) {
             allWorms.add(teamModel1.getWorm(i));
             allWorms.add(teamModel2.getWorm(i));
         }
+
+        this.activeWormIndex = 0;
+        this.activeWormController = new CharacterController(teamModel1.getWorm(activeWormIndex));
+
+        this.allWormsCharacter = new CharacterModel[teamModel1.getTabWorms().length + teamModel2.getTabWorms().length];
+        System.arraycopy(teamModel1.getTabWorms(), 0, this.allWormsCharacter, 0, teamModel1.getTabWorms().length);
+        System.arraycopy(teamModel2.getTabWorms(), 0, this.allWormsCharacter, teamModel1.getTabWorms().length, teamModel2.getTabWorms().length);
         
+        activeWormController.setWorld(world);
+        activeWormController.setAllWorms(this.allWormsCharacter);
+
         this.wSL = physic.new WaterSensorListener(water, allWorms, new ArrayList<CharacterModel>());
         world.setContactListener(wSL);
 
-        this.consolePanel = new ConsolePanel(model, personnageModel, XCase, YCase);
-        this.consoleInputController = new ConsoleInputController(personnageController);
+        this.consolePanel = new ConsolePanel(model);
+        this.consoleInputController = new ConsoleInputController(activeWormController);
 
         
 
         consoleView.refresh();
     }
 
+    /**
+     * Est appeler dans le ConsoleGameLoop
+     */
     public void draw(){
-        this.consolePanel.drawGround(consoleView.getTextGraphics());
-        //this.consolePanel.drawCharacter(consoleView.getTextGraphics());
+        this.consolePanel.drawGround(consoleView.getTextGraphics(),ConsoleView.getXCase(), ConsoleView.getYCase());
+        this.consolePanel.drawAllCharacter(consoleView.getTextGraphics(),allWorms);
     }
 
     public ConsolePanel getConsolePanel(){
@@ -123,5 +138,9 @@ public class ConsoleGameManager {
 
     public World getWorld(){
         return this.world;
+    }
+
+    public CharacterController getActiveWormController(){
+        return this.activeWormController;
     }
 }

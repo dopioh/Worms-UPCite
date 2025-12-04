@@ -30,6 +30,10 @@ public class ConsoleGameLoop{
             long startTime = System.currentTimeMillis();
             //System.out.println("Run");
             consoleGameManager.getConsoleInputController().addControlsGame(consoleGameManager.getConsoleView().getScreen());
+            if (consoleGameManager.getActiveWormController() != null) {
+                //System.out.println("ActiveWormController n'est pas nul");
+                consoleGameManager.getActiveWormController().update();
+            }
 
             consoleGameManager.getCharacterController().update();
             consoleGameManager.getWorld().step(FIXHZ, 8, 3);

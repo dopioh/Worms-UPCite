@@ -35,6 +35,9 @@ public class ConsoleInputController{
          */
         public void addControlsGame(Screen screen){
             try {
+                this.personnageController.deactivateJump();
+                this.personnageController.deactivateRight();
+                this.personnageController.deactivateLeft();
                 //System.out.println("DEBUG : addControlsGame de ConsoleInputController.java");
                 KeyStroke key = screen.pollInput();
                 keyPressedPerso(key);
@@ -59,15 +62,17 @@ public class ConsoleInputController{
             switch (key.getCharacter()) {
                 case 'z': 
                     this.personnageController.activateJump();
-                    this.personnageController.deactivateJump();
+                    //System.out.println("Z pressed");
+                   
                     break;
                 case 'd' : 
                     this.personnageController.activateRight();
-                    this.personnageController.deactivateRight();
+                    //System.out.println("D pressed");
+                    
                     break;
                 case 'q' : 
                     personnageController.activateLeft();
-                    personnageController.deactivateLeft();
+                    
                     break;
                 default:
                     break;
