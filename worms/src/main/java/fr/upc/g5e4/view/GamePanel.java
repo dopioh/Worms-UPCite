@@ -7,6 +7,9 @@ import fr.upc.g5e4.model.camera.CameraModel;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Path2D;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 
 /**
  * Classe qui sert pour tous les graphismes du monde
@@ -15,13 +18,14 @@ import java.awt.geom.Path2D;
 public class GamePanel extends JPanel {
     private final GroundModel model;
     private final CameraModel camera;
-    private final CameraController cameraController;
     private final TeamModel teamModel1;
     private final TeamView teamView1;
     private final TeamModel teamModel2;
     private final TeamView teamView2;
 
     private static final float PPM = 30f;
+    
+    private BufferedImage groundTexture;
 
     // ajout: label pour afficher le temps restant (vue)
     private final JLabel roundTimerLabel = new JLabel("Temps restant : 30s");
@@ -34,7 +38,6 @@ public class GamePanel extends JPanel {
             TeamModel teamModel1, TeamView teamView1, TeamModel teamModel2, TeamView teamView2) {
         this.model = model;
         this.camera = camera;
-        this.cameraController = cameraController;
         this.teamModel1 = teamModel1;
         this.teamView1 = teamView1;
         this.teamModel2 = teamModel2;
@@ -42,6 +45,14 @@ public class GamePanel extends JPanel {
 
         setPreferredSize(new Dimension(model.getWidth(), model.getHeight()));
         setLayout(null);
+        
+        // Charger la texture du ground
+        try {
+            groundTexture = ImageIO.read(getClass().getResourceAsStream("/ground_texture.png"));
+        } catch (IOException | IllegalArgumentException e) {
+            System.err.println("impossible de charger la texture du ground : " + e.getMessage());
+            groundTexture = null;
+        }
 
         // ajout: configuration du label chrono
         roundTimerLabel.setFont(new Font("Arial", Font.BOLD, 18));
@@ -89,7 +100,6 @@ public class GamePanel extends JPanel {
         g2.fillRect(0, 0, model.getWidth(), model.getHeight());
 
         // Ground
-        g2.setColor(new Color(34, 139, 34));
         Path2D path = new Path2D.Double();
         path.moveTo(0, model.getHeight());
         double step = (double) model.getWidth() / (model.getGroundY().length - 1);
@@ -98,14 +108,26 @@ public class GamePanel extends JPanel {
         }
         path.lineTo(model.getWidth(), model.getHeight());
         path.closePath();
+        
+        // Appliquer la texture ou la couleur
+        if (groundTexture != null) {
+            g2.setPaint(new TexturePaint(groundTexture, 
+                new Rectangle(0, 0, groundTexture.getWidth(), groundTexture.getHeight())));
+        } else {
+            g2.setColor(new Color(34, 139, 34));
+        }
         g2.fill(path);
 
         // Personnage
         //personnageView.draw(g2, personnageModel);
         
         // Team de worms
-        teamView1.draw(g2, teamModel1);
-        teamView2.draw(g2, teamModel2);
+        if (teamView1 != null && teamModel1 != null) {
+            teamView1.draw(g2, teamModel1);
+        }
+        if (teamView2 != null && teamModel2 != null) {
+            teamView2.draw(g2, teamModel2);
+        }
 
         // Eau
         g2.setColor(new Color(75, 147, 240));

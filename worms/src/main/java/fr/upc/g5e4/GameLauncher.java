@@ -224,6 +224,6 @@ public class GameLauncher{
 
         //// Pour lancer le jeu directement (pour les testes)
         new GameLauncher(true);
-        new ConsoleLauncher();
+        //new ConsoleLauncher(); la console est trop nulle
     }
 }
