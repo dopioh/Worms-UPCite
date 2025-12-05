@@ -42,7 +42,7 @@ public class PerlinGameLauncher {
         physic.limitPanel(groundModel);
         
         // Créer une équipe de worms
-        int wormNumber = 3;
+        int wormNumber = 1;
         TeamModel team = new TeamModel(groundModel, world, "Team Perlin", 300, 300, wormNumber);
         TeamView teamView = new TeamView(wormNumber, Color.ORANGE);
         
