@@ -10,6 +10,9 @@ import fr.upc.g5e4.controller.*;
 import fr.upc.g5e4.view.*;
 //import fr.upc.g5e4.model.*;
 import fr.upc.g5e4.model.PhysicsWorld.WaterSensorListener;
+import fr.upc.g5e4.model.weapons.Ak47;
+
+
 
 //import com.googlecode.lanterna.screen.Screen;
 //import com.googlecode.lanterna.terminal.Terminal;
@@ -45,6 +48,9 @@ public class ConsoleGameManager {
     private final CharacterModel[] allWormsCharacter;
     private final ArrayList<CharacterModel> allWorms;
 
+    private int roundNumber = 1;
+    private int currentTeamIndex = 0; // 0 = Team1, 1 = Team2
+
     public static final int pixelX = 1280;
     public static final int pixelY = 720;
 
@@ -71,7 +77,7 @@ public class ConsoleGameManager {
         physic.createGroundFromModel(model);
         this.water = physic.createBodyWater(model);
 
-        this.personnageModel = new CharacterModel(model, world, pixelX, pixelY/3);
+        this.personnageModel = new CharacterModel(model, world, pixelX, pixelY/3, true);
         this.personnageView = new CharacterView();
         this.personnageController = new CharacterController(personnageModel);
 
@@ -79,10 +85,10 @@ public class ConsoleGameManager {
 
         // création premiere equipe
         int wormNumber = 3; 
-        this.teamModel1 = new TeamModel(model, world, "Team1", 100, 98, wormNumber);
+        this.teamModel1 = new TeamModel(model, world, "Team1", 100, 98, wormNumber,true);
 
         // création seconde equipe
-        this.teamModel2 = new TeamModel(model, world, "Team2", 400, 158, wormNumber);  
+        this.teamModel2 = new TeamModel(model, world, "Team2", 400, 158, wormNumber,true);  
 
         this.allWorms = new ArrayList<>();
         allWorms.add(personnageModel);  // Worm de test jaune
@@ -105,7 +111,7 @@ public class ConsoleGameManager {
         world.setContactListener(wSL);
 
         this.consolePanel = new ConsolePanel(model);
-        this.consoleInputController = new ConsoleInputController(activeWormController);
+        this.consoleInputController = new ConsoleInputController(activeWormController,this);
 
         
 
@@ -117,7 +123,7 @@ public class ConsoleGameManager {
      */
     public void draw(){
         this.consolePanel.drawGround(consoleView.getTextGraphics(),ConsoleView.getXCase(), ConsoleView.getYCase());
-        this.consolePanel.drawAllCharacter(consoleView.getTextGraphics(),allWorms);
+        this.consolePanel.drawAllCharacter(consoleView.getTextGraphics(),teamModel1,teamModel2);
     }
 
     public ConsolePanel getConsolePanel(){
@@ -142,5 +148,45 @@ public class ConsoleGameManager {
 
     public CharacterController getActiveWormController(){
         return this.activeWormController;
+    }
+
+
+    // switch généralisé pour une équipe donnée
+    public void switchToNextWorm(TeamModel team) {
+        int startIndex = activeWormIndex;
+        do {
+            activeWormIndex++;
+            if (activeWormIndex >= team.getWormNumberAtStart()) {
+                activeWormIndex = 0; // Retour au début dans l'équipe passée en paramètre
+            }
+            CharacterModel worm = team.getWorm(activeWormIndex);
+
+            if (worm != null && !worm.isDead()) {
+                activeWormController = new CharacterController(worm);
+                //activeWormController.setItemController(this.itemController);
+                activeWormController.setWorld(world);
+                activeWormController.setAllWorms(this.allWormsCharacter);
+                //activeWormController.setCurrentWeapon(new Ak47());
+
+                consoleInputController.setCharacterController(activeWormController);
+                //cameraController.setTargetCharacter(worm);
+                //cameraController.centerOnCharacter();
+                return;
+            }
+
+            if (activeWormIndex == startIndex) {
+                System.out.println("Aucun worm vivant disponible...");
+                return;
+            }
+        } while (true);
+    }
+
+    // passe au round suivant et alterne les équipes
+    public void nextRound() {
+        roundNumber++;
+        currentTeamIndex = (currentTeamIndex + 1) % 2;
+        TeamModel currentTeam = (currentTeamIndex == 0) ? teamModel1 : teamModel2;
+        switchToNextWorm(currentTeam);
+        System.out.println("Round " + roundNumber + " - Equipe active : " + (currentTeamIndex == 0 ? "Team1" : "Team2"));
     }
 }

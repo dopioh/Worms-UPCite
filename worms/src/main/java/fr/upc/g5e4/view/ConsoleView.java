@@ -1,6 +1,7 @@
 package fr.upc.g5e4.view;
 
 import java.io.IOException;
+import java.util.Random;
 
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextColor;
@@ -128,6 +129,19 @@ public class ConsoleView {
             screen.refresh();
         } catch (Exception e) {
             System.out.println(e.getMessage());
+        }
+    }
+
+    public static TextColor randomColor(){
+        Random rand = new Random();
+        int randNumber = rand.nextInt(3);   // Pour 4 equipes au max
+
+        switch (randNumber) {
+            case 0: return TextColor.ANSI.BLUE;
+            case 1: return TextColor.ANSI.YELLOW;
+            case 2: return TextColor.ANSI.MAGENTA;
+            case 3: return TextColor.ANSI.CYAN;
+            default: return TextColor.ANSI.RED;
         }
     }
 }

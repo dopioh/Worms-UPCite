@@ -90,7 +90,7 @@ public class GameManager {
         physic.createGroundFromModel(model);
         this.water = physic.createBodyWater(model);
 
-        this.personnageModel = new CharacterModel(model, world, 700, model.getHeight() - 500); // Si le x est à 800
+        this.personnageModel = new CharacterModel(model, world, 700, model.getHeight() - 500, false); // Si le x est à 800
                                                                                                 // pile i ça marche pas
         // System.out.println("\nGame Manager xcord : " +
         // this.personnageModel.getXcord());
@@ -109,11 +109,11 @@ public class GameManager {
 
         // création premiere equipe
         int wormNumber = 3; 
-        this.teamModel1 = new TeamModel(model, world, "Team1", 100, 98, wormNumber);
+        this.teamModel1 = new TeamModel(model, world, "Team1", 100, 98, wormNumber,false);
         this.teamView1 = new TeamView(wormNumber, Color.BLUE);
 
         // création seconde equipe
-        this.teamModel2 = new TeamModel(model, world, "Team2", 400, 98, wormNumber);  
+        this.teamModel2 = new TeamModel(model, world, "Team2", 400, 98, wormNumber,false);  
         this.teamView2 = new TeamView(wormNumber, Color.RED);
         
         // Créer une liste de tous les worms pour le WaterSensorListener

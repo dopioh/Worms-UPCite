@@ -7,6 +7,9 @@ import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.screen.Screen;
 //import com.googlecode.lanterna.terminal.Terminal;
 
+import fr.upc.g5e4.model.ConsoleGameManager;
+import fr.upc.g5e4.model.ConsoleLogics;
+
 /**
  * Gere les input clavier 
  * Version lanterna de InputController qui etait avec Swing
@@ -14,11 +17,13 @@ import com.googlecode.lanterna.screen.Screen;
  */
 public class ConsoleInputController{
         private CharacterController personnageController;
+        private ConsoleGameManager consoleGameManager;
 
         private boolean EnterKey;
 
-        public ConsoleInputController(CharacterController personnageController){
+        public ConsoleInputController(CharacterController personnageController,ConsoleGameManager consoleGameManager){
             this.personnageController = personnageController;
+            this.consoleGameManager = consoleGameManager;
             this.EnterKey = false;
         }
 
@@ -74,6 +79,9 @@ public class ConsoleInputController{
                     personnageController.activateLeft();
                     
                     break;
+                case 'a':
+                        consoleGameManager.nextRound();
+                        break;
                 default:
                     break;
             }
@@ -103,5 +111,9 @@ public class ConsoleInputController{
         }
         // on doit ajouter des methodes pour enlever les addControls avec les key relier,
         // pour quand on switch entre menu et jeu
+
+        public void setCharacterController(CharacterController controller) {
+        this.personnageController = controller;
+    }
     
 }

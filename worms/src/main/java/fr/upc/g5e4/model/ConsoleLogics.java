@@ -26,7 +26,7 @@ public class ConsoleLogics {
         this.characterController = characterController;
         this.consoleView = new ConsoleView();
         this.screen = consoleView.getScreen();
-        this.consoleInput = new ConsoleInputController(characterController);
+        this.consoleInput = new ConsoleInputController(characterController, null);
     }
 
     public ConsoleView getConsoleView(){
@@ -50,7 +50,7 @@ public class ConsoleLogics {
             while (!(word(screen).equals("launch game"))){ 
             consoleView.clearRefresh();
             consoleView.menu();
-            this.consoleInput = new ConsoleInputController(characterController);
+            this.consoleInput = new ConsoleInputController(characterController, null);
             ConsoleView.positionLettre = 0;
             consoleView.refresh();
             }

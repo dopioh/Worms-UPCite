@@ -68,23 +68,26 @@ public class ConsolePanel {
     }
 
     
-    public void drawAllCharacter(TextGraphics tx, ArrayList<CharacterModel> listCharacter){
-        for (int i = 0 ; i < listCharacter.size(); i++){
-            drawCharacter(tx,listCharacter.get(i));
+    public void drawAllCharacter(TextGraphics tx, TeamModel t1, TeamModel t2){
+        TextColor tc1 = TextColor.ANSI.RED;
+        TextColor tc2 = TextColor.ANSI.BLUE;
+        
+        for (int i = 0 ; i < t1.getTabWorms().length ; i++){
+            drawCharacter(tx, t1.getTabWorms()[i], tc1);
+        }
+
+        for (int i = 0 ; i < t2.getTabWorms().length ; i++){
+            drawCharacter(tx, t2.getTabWorms()[i], tc2);
         }
     }
-
-    // Mauvaise Conversion de pixel en case 
-    // ET la physique que j'ai config attend des pixel
-    // Donc faudrait pas convertir en case dans ConsoleGameManager.java mais plutot ici apres avoir appliquer la physique
     
-    private void drawCharacter(TextGraphics tx, CharacterModel characterModel){
+    private void drawCharacter(TextGraphics tx, CharacterModel characterModel, TextColor tc){
         //System.out.println("drawCharacter est called");       
         if (characterModel.isDead()){
             return;
         }
 
-        tx.setForegroundColor(TextColor.ANSI.RED_BRIGHT);
+        tx.setForegroundColor(tc);
 
         Body body = characterModel.getBody();
         Vec2 m_position = body.getPosition();   // le centre du body non ?
