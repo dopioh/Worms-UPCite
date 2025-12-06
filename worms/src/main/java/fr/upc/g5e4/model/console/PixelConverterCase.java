@@ -1,6 +1,6 @@
-package fr.upc.g5e4.model;
+package fr.upc.g5e4.model.console;
 
-import fr.upc.g5e4.view.ConsoleView;
+import fr.upc.g5e4.view.console.ConsoleView;
 
 /**
  * Toute methode ici est statique

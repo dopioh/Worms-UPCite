@@ -279,7 +279,7 @@ public class CharacterModel{
             System.out.println("Console Version");
             fixtureWorm.restitution = 0.1f;
             fixtureWorm.density = 2f;  
-            fixtureWorm.friction = 0.9f;
+            fixtureWorm.friction = 0.1f;
         } else {
             System.out.println("Swing Version");
             fixtureWorm.restitution = 0.01f;

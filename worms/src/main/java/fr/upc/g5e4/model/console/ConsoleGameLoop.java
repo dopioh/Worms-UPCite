@@ -1,4 +1,6 @@
-package fr.upc.g5e4.model;
+package fr.upc.g5e4.model.console;
+
+import fr.upc.g5e4.model.GameLoop;
 
 /**
  * Adaptation de la classe GameLoop pour la vue terminal avec Lanterna
@@ -39,6 +41,7 @@ public class ConsoleGameLoop{
             consoleGameManager.getWorld().step(FIXHZ, 8, 3);
             consoleGameManager.getConsoleView().getScreen().clear();
             consoleGameManager.draw();
+            consoleGameManager.statsPartie();
             consoleGameManager.getConsoleView().refresh();
 
             long elapsedTime = System.currentTimeMillis() - startTime;  // duree de temps en ms entre le debut de la loop et la

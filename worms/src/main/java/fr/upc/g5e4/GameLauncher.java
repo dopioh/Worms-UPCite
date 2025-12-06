@@ -5,6 +5,7 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 
 import fr.upc.g5e4.model.InventoryModel.InventoryRoot;
+import fr.upc.g5e4.model.console.ConsoleLauncher;
 import fr.upc.g5e4.view.*;
 import fr.upc.g5e4.controller.*;
 import fr.upc.g5e4.model.*; 

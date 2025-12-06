@@ -1,13 +1,14 @@
-package fr.upc.g5e4.view;
+package fr.upc.g5e4.view.console;
 
 import fr.upc.g5e4.model.*;
+import fr.upc.g5e4.model.console.PixelConverterCase;
+import fr.upc.g5e4.view.GamePanel;
 
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
 
 import org.jbox2d.dynamics.Body;
 
-import java.util.ArrayList;
 
 import org.jbox2d.common.*;
 
@@ -20,11 +21,15 @@ public class ConsolePanel {
     public static final int echelleConsole = 10;
     private GroundModel groundModel;
 
+    /**
+     * Pour creer une instance
+     * @param groundModel -> se base sur ca pour creer le terrain
+     */
     public ConsolePanel(GroundModel groundModel){
         this.groundModel = groundModel;
     }
 
-    public void drawGround(TextGraphics tx,int XCase, int YCase){    // equivalent dans GamePanel.java
+    public void drawGround(TextGraphics tx,int XCase, int YCase){
         int[] gmYGroundPixel = groundModel.getGroundY();
         int[] gmYGround = new int[gmYGroundPixel.length];
 
@@ -46,7 +51,7 @@ public class ConsolePanel {
                 x2 = (int) ((i + 1) * step);
             }
 
-            int y1 = gmYGround[i];  // pour des soucis de conversion, il faudrait convertir ici et plus dans ConsoleGameManager
+            int y1 = gmYGround[i];
             int y2 = gmYGround[i+1];
 
             for (int x = x1; x <= x2 && x < XCase; x++ ){
@@ -67,20 +72,34 @@ public class ConsolePanel {
         }
     }
 
-    
+    /**
+     * Methode pour dessiner tous les worms des deux equipes
+     * Seulement deux equipes car terminal = version prototype
+     * @param tx -> interface pour dessiner
+     * @param t1 -> Team1
+     * @param t2 -> Team2
+     */
     public void drawAllCharacter(TextGraphics tx, TeamModel t1, TeamModel t2){
         TextColor tc1 = TextColor.ANSI.RED;
         TextColor tc2 = TextColor.ANSI.BLUE;
         
-        for (int i = 0 ; i < t1.getTabWorms().length ; i++){
+        // dessine la premiere equipe
+        for (int i = 0 ; i < t1.getTabWorms().length ; i++){    
             drawCharacter(tx, t1.getTabWorms()[i], tc1);
         }
 
+        // dessine la seconde equipe
         for (int i = 0 ; i < t2.getTabWorms().length ; i++){
             drawCharacter(tx, t2.getTabWorms()[i], tc2);
         }
     }
     
+    /**
+     * Methode prv qui dessine un CharacterModel
+     * @param tx -> interface pour dessiner
+     * @param characterModel -> le CharacterModel choisi pour etre dessiner
+     * @param tc -> la couleur (selon l'equipe)
+     */
     private void drawCharacter(TextGraphics tx, CharacterModel characterModel, TextColor tc){
         //System.out.println("drawCharacter est called");       
         if (characterModel.isDead()){
@@ -89,8 +108,9 @@ public class ConsolePanel {
 
         tx.setForegroundColor(tc);
 
+        // Pareil que swing, on se base sur son body (Jbox2D)
         Body body = characterModel.getBody();
-        Vec2 m_position = body.getPosition();   // le centre du body non ?
+        Vec2 m_position = body.getPosition();
 
         int heightMeter = (int)(groundModel.getHeight()/ CharacterModel.getPPM());
 

@@ -1,4 +1,4 @@
-package fr.upc.g5e4.controller;
+package fr.upc.g5e4.controller.console;
 
 import java.io.IOException;
 
@@ -7,8 +7,10 @@ import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.screen.Screen;
 //import com.googlecode.lanterna.terminal.Terminal;
 
-import fr.upc.g5e4.model.ConsoleGameManager;
-import fr.upc.g5e4.model.ConsoleLogics;
+import fr.upc.g5e4.controller.CharacterController;
+import fr.upc.g5e4.controller.SwingInputController;
+import fr.upc.g5e4.model.console.ConsoleGameManager;
+import fr.upc.g5e4.model.console.ConsoleLogics;
 
 /**
  * Gere les input clavier 

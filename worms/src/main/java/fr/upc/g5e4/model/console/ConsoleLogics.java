@@ -1,4 +1,4 @@
-package fr.upc.g5e4.model;
+package fr.upc.g5e4.model.console;
 
 //import com.googlecode.lanterna.terminal.Terminal;
 
@@ -7,7 +7,8 @@ import java.io.IOException;
 //import com.googlecode.lanterna.screen.Screen;
 
 import fr.upc.g5e4.controller.*;
-import fr.upc.g5e4.view.ConsoleView;
+import fr.upc.g5e4.controller.console.ConsoleInputController;
+import fr.upc.g5e4.view.console.ConsoleView;
 
 import com.googlecode.lanterna.screen.Screen;
 
