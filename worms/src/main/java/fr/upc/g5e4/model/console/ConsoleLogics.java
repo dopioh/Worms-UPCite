@@ -16,6 +16,8 @@ import com.googlecode.lanterna.screen.Screen;
  * Gere la logique du terminal
  * Permet de dire au manager quand il peut lancer le jeu
  * @see ConsoleGameManager
+ * 
+ * @author Mei
  */
 public class ConsoleLogics {
     private ConsoleInputController consoleInput;
@@ -39,35 +41,40 @@ public class ConsoleLogics {
      * @return vrai si l'utilisateur a ecrit "launch game"
      * @see ConsoleLauncher
      */
-    public boolean launchGame(){
-        if (word(screen).equals("launch game")){    
-            return true;
-        } else {
-            /**
-             * A fix :
-             * on doit appuyer deux fois sur entree pour refresh quand c'est pas launch game 
-             * si je creer une variable String word = word(screen); 
-             * ca actualise pas si le mot est faux -> boucle infini
-             */
-            while (!(word(screen).equals("launch game"))){ 
+    /**
+     * Recupere la ligne entre avec {@code word}
+     * @return vrai si l'utilisateur a ecrit "launch game"
+     * @see ConsoleLauncher
+     */
+    public boolean launchGame() {
+
+        String input = word(screen); // stock l'entree de l'utilisateur
+
+        while (!input.equals("launch game")) {
+            
             consoleView.clearRefresh();
             consoleView.menu();
-            this.consoleInput = new ConsoleInputController(characterController, null);
-            ConsoleView.positionLettre = 0;
+            
+            // pour que lorsque on re ecrit
+            // on reparte de en bas a gauche
+            ConsoleView.positionLettre = 0;  
             consoleView.refresh();
-            }
-            return true;
+
+            input = word(screen);
         }
+
+        return true;
     }
 
     /**
-     * 
+     * Methode interne de launchGame() qui stock un mot jusqu'a qu'on appuie sur entree
      * @param screen pour afficher sur l'ecran les entree clavier
      * @return la ligne de mot entree pour l'envoyer dans {@code launchGame}
+     * 
+     * @see ConsoleView#printLetterMenu pour voir la methode qui affiche les lettres
      */
     private String word(Screen screen){
         try {
-            // pour le moment on mets un string classique, on mettra un StringBuffer plus tard
             String word = "";   
             while (consoleInput.getEnterKey() == false){
                 Character lettre = consoleInput.addLetters(screen);

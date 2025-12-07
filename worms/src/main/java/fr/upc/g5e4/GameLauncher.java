@@ -225,6 +225,8 @@ public class GameLauncher{
 
         //// Pour lancer le jeu directement (pour les testes)
         //new GameLauncher(true);
+
+        // Pour lancer la vue terminal
         new ConsoleLauncher();
     }
 }

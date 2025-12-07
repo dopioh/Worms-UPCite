@@ -16,6 +16,8 @@ import org.jbox2d.common.*;
  * Classe pour dessiner les graphismes de la partie Jeu dans la vue Terminal
  * @see GamePanel pour la version avec Swing
  * Swing -> Lanterna
+ * 
+ * @author Mei
  */
 public class ConsoleGamePanel {
     public static final int echelleConsole = 10;
@@ -29,42 +31,50 @@ public class ConsoleGamePanel {
         this.groundModel = groundModel;
     }
 
-    public void drawGround(TextGraphics tx,int XCase, int YCase){
+    /**
+     * Pour dessiner et remplir le sol selon son tableau de Y 
+     * @param tx pour dessiner
+     * @param XCase nombre de case X du terminal
+     * @param YCase nombre de case Y du terminal
+     * 
+     * @see PixelConverterCase pour conversion px -> case
+     */
+    public void drawGround(TextGraphics tx, int XCase, int YCase){
         int[] gmYGroundPixel = groundModel.getGroundY();
         int[] gmYGround = new int[gmYGroundPixel.length];
 
+        // connversion des valeurs du tableau de pixel en case
         for (int i = 0 ; i < gmYGroundPixel.length ; i++){
-            gmYGround[i] = PixelConverterCase.transformCoordY(gmYGroundPixel[i]);
+            gmYGround[i] = PixelConverterCase.transformCoordY(gmYGroundPixel[i]); 
         }
-
-        int step = XCase / (gmYGround.length -1);
 
         tx.setForegroundColor(TextColor.ANSI.GREEN);
 
-        for (int i = 0; i < gmYGround.length -1; i++){
-            int x1 = (int) (i * step);
-            int x2;
+        for (int i = 0; i < gmYGround.length - 1; i++){
 
-            if (i == gmYGround.length - 2) {
-                x2 = XCase - 1;
-            } else {
-                x2 = (int) ((i + 1) * step);
-            }
+            // (i * LargeurTotale) / NombreDeSegments
+            int x1 = (i * XCase) / (gmYGround.length - 1);
+            
+            // pour le point suivant 
+            int x2 = ((i + 1) * XCase) / (gmYGround.length - 1);
 
             int y1 = gmYGround[i];
             int y2 = gmYGround[i+1];
 
-            for (int x = x1; x <= x2 && x < XCase; x++ ){
+            // On dessine l'espace entre x1 et x2
+            for (int x = x1; x < x2 && x < XCase; x++ ){
                 int y;
                 if (x2 != x1){
-                    int deltaY = y2 - y1;          // difference de hauteur entre les 2 points
-                    int deltaX = x2 - x1;          // difference de position X entre les 2 points
-                    int progression = x - x1;      // ou on en est entre x1 et x2
+                    int distanceY = y2 - y1;
+                    int distanceX = x2 - x1;
+                    int progression = x - x1;
     
-                    y = y1 + (deltaY * progression / deltaX);
+                    y = y1 + (distanceY * progression / distanceX);
                 } else {
                     y = y1;
                 }
+                
+                // Remplissage vers le bas
                 for (int fillY = y; fillY < YCase; fillY++) {
                     tx.setCharacter(x, fillY, '#');
                 }

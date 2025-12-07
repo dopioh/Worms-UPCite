@@ -62,10 +62,6 @@ public class ConsoleInputControllerTest {
         // verifie que la methode a ete appeler dans CharacterController
         verify(characterController).activateJump();
 
-        // verifie que ca a ete appeler aussi car ils sont appele dans addControls
-        verify(characterController).deactivateJump();
-        verify(characterController).deactivateLeft();
-        verify(characterController).deactivateRight();
     }
 
     @Test

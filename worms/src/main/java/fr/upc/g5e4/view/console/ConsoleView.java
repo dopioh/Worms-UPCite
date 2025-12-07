@@ -14,6 +14,7 @@ import com.googlecode.lanterna.terminal.swing.SwingTerminalFontConfiguration;
 import com.googlecode.lanterna.terminal.swing.SwingTerminalFrame;
 
 import fr.upc.g5e4.model.CharacterModel;
+import fr.upc.g5e4.model.console.ConsoleLogics;
 
 import java.awt.Font;
 
@@ -21,15 +22,19 @@ import javax.swing.JFrame;
 
 /**
  * Gere l'ecran du terminal externe
- * Pas possible d'avoir ca dans le terminal machine 
- * A cause de windows qui veut qu'on utilise javaw
- * Possibiliter de le regler au SPRINT 3 si necessaire
- * @see https://github.com/mabe02/lanterna/issues/335
+ * -> Ouvre une fenetre de termninal externe
+ * 
+ * Pas possible de lancer dans le terminal interne
+ * @see https://github.com/mabe02/lanterna/issues/335 
+ * 
+ * @author Mei
  */
 public class ConsoleView {
     private Terminal terminal;
     private Screen screen;
     private TextGraphics text;
+
+    // taille de la fenetre en case
     private static final int XCase = 100;
     private static final int YCase = 28;
 
@@ -114,6 +119,8 @@ public class ConsoleView {
     /**
      * Affiche les lettres taper par l'utilisateur pour lancer une partie
      * Pour simuler un terminal
+     * 
+     * @see ConsoleLogics#launchGame
      */
     public void printLetterMenu(char r) throws IOException{
         text.setCharacter(positionLettre, screen.getTerminalSize().getRows() -1, r);

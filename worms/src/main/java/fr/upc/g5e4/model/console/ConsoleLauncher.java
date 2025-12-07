@@ -9,7 +9,10 @@ public class ConsoleLauncher {
     private ConsoleGameLoop consoleGameLoop;
 
     /**
+     * Initialise le jeu console 
      * Gere la transition entre le menu et la partie
+     * 
+     * @author Mei
      */
     public ConsoleLauncher(){
         // null car le parametre ici sert a faire bouger le perso, or dans le menu il n'y a pas de game et donc pas de perso
@@ -17,7 +20,7 @@ public class ConsoleLauncher {
         this.consoleView = consoleLogics.getConsoleView();
         consoleView.menu();
         if (consoleLogics.launchGame()){
-            this.consoleGameManager = new ConsoleGameManager(this.consoleView); // ici ca ouvre une nouvelle fenetre alors que on veut juste effacer tout
+            this.consoleGameManager = new ConsoleGameManager(this.consoleView);
             this.consoleGameLoop = new ConsoleGameLoop(consoleGameManager);
             this.consoleGameLoop.start();
         }

@@ -276,12 +276,12 @@ public class CharacterModel{
         square.setAsBox(m_WidthPerso/2, m_HeightPerso/2);   
 
         if (console){
-            System.out.println("Console Version");
+            //System.out.println("Console Version");
             fixtureWorm.restitution = 0.1f;
             fixtureWorm.density = 2f;  
             fixtureWorm.friction = 0.1f;
         } else {
-            System.out.println("Swing Version");
+            //System.out.println("Swing Version");
             fixtureWorm.restitution = 0.01f;
             fixtureWorm.density = 5f;   // quand on baisse ca ca foire le test controller character
             fixtureWorm.friction = 10f; // 18 a la base

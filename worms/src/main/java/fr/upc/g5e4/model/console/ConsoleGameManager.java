@@ -70,28 +70,36 @@ public class ConsoleGameManager {
      * Initialise le jeu de la meme maniere que GameManager
      * Mais en l'adaptant pour Lanterna
      * Les XCase et YCase seront supprimer d'ici au SPRINT 3
+     * @see GameManager pour la version avec Swing
      * 
      * @param consoleView recupere le terminal graphique
+     * 
+     * @author Mei
      */
     public ConsoleGameManager(ConsoleView consoleView) { // equivalent au game manager
 
         this.consoleView = consoleView;
         consoleView.clearRefresh();
 
-        // il faut pas appliquer la conversion ici
+        
+        //int[] groundY = { 400, 410, 420, 400, 410, 420, 430, 420, 420, 310, 390, 400, 400, 400 };
         int[] groundY = { 400, 420, 450, 500, 550, 540, 530, 450, 350, 300, 250, 230, 200, 230 };
-        this.model = new GroundModel(groundY, pixelX, pixelY, pixelX - pixelX / 3); // car de haut en bas (ancienne
-                                                                                    // valeur de water = 500)
-
+        this.model = new GroundModel(groundY, pixelX, pixelY, 600);
+                                                                                    
+        // on itnitialise la physique du jeu
         this.physic = new PhysicsWorld();
         this.world = physic.getWorld();
         physic.createGroundFromModel(model);
         this.water = physic.createBodyWater(model);
 
+        // partie terminal ecrit sur une version de GameManger en cours de refactoring
+        // ici on se base sur un seul personnageModel (controller/view..) alors que on a des team
+        // version corrige dans le vrai jeu
         this.personnageModel = new CharacterModel(model, world, pixelX, pixelY / 3, true);
         this.personnageView = new CharacterView();
         this.personnageController = new CharacterController(personnageModel);
 
+        // limite de la partie/fenetre (droite et gauche)
         physic.limitPanel(model);
 
         // création premiere equipe
@@ -101,8 +109,11 @@ public class ConsoleGameManager {
         // création seconde equipe
         this.teamModel2 = new TeamModel(model, world, "Team2", 400, 158, wormNumber, true);
 
+        // les noms des arraylist et du tableau de CharacterModel des worms sont les memes dans le GameMangager
+        // j'ai change le nom du tableau ici pour plus de visibilite
+        // pour plus de detail sur les equipes -> Partie de Nassim
         this.allWorms = new ArrayList<>();
-        allWorms.add(personnageModel); // Worm de test jaune
+
         for (int i = 0; i < wormNumber; i++) {
             allWorms.add(teamModel1.getWorm(i));
             allWorms.add(teamModel2.getWorm(i));
@@ -113,15 +124,19 @@ public class ConsoleGameManager {
 
         this.allWormsCharacter = new CharacterModel[teamModel1.getTabWorms().length + teamModel2.getTabWorms().length];
         System.arraycopy(teamModel1.getTabWorms(), 0, this.allWormsCharacter, 0, teamModel1.getTabWorms().length);
-        System.arraycopy(teamModel2.getTabWorms(), 0, this.allWormsCharacter, teamModel1.getTabWorms().length,
-                teamModel2.getTabWorms().length);
+        System.arraycopy(teamModel2.getTabWorms(), 0, this.allWormsCharacter, teamModel1.getTabWorms().length,teamModel2.getTabWorms().length);
 
         activeWormController.setWorld(world);
         activeWormController.setAllWorms(this.allWormsCharacter);
 
+
+        // on initialise l'eau
+        // elle est bien dans le terminal mais on la voit pas 
+        // pas d'utiliter de la mettre (pour le moment)
         this.wSL = physic.new WaterSensorListener(water, allWorms, new ArrayList<CharacterModel>());
         world.setContactListener(wSL);
 
+        // initilise les controlleurs et la classe pour les graphismes
         this.consolePanel = new ConsoleGamePanel(model);
         this.consoleInputController = new ConsoleInputController(activeWormController, this);
 
@@ -160,7 +175,13 @@ public class ConsoleGameManager {
         return this.activeWormController;
     }
 
-    // switch généralisé pour une équipe donnée
+    /**
+     * Switch generalisee pour une equipe donnee 
+     * J'ai enlever les elements liee a la camera
+     * Puisque il y'en a pas dans le terminal
+     * 
+     * @see GameManager#switchToNextWorm
+     */
     public void switchToNextWorm(TeamModel team) {
         int startIndex = activeWormIndex;
         do {
@@ -190,7 +211,9 @@ public class ConsoleGameManager {
         } while (true);
     }
 
-    // passe au round suivant et alterne les équipes
+    /**
+     * @see GameManager#nextRound
+     */
     public void nextRound() {
         roundNumber++;
         currentTeamIndex = (currentTeamIndex + 1) % 2;
@@ -199,6 +222,13 @@ public class ConsoleGameManager {
         System.out.println("Round " + roundNumber + " - Equipe active : " + (currentTeamIndex == 0 ? "Team1" : "Team2"));
     }
 
+    /**
+     * Recupere les donnees a print sur l'ecran de jeu 
+     * 
+     * @see ConsoleView#printStatsInGame
+     * 
+     * @author Mei
+     */
     public void statsPartie() {
         String team;
         CharacterModel cmActuel;
