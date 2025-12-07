@@ -1,12 +1,7 @@
 package fr.upc.g5e4.model.console;
 
 import java.util.ArrayList;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.awt.Color;
-import java.io.IOException;
+
 
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.World;
@@ -14,7 +9,7 @@ import org.jbox2d.dynamics.World;
 import fr.upc.g5e4.controller.*;
 import fr.upc.g5e4.controller.console.ConsoleInputController;
 import fr.upc.g5e4.view.*;
-import fr.upc.g5e4.view.console.ConsolePanel;
+import fr.upc.g5e4.view.console.ConsoleGamePanel;
 import fr.upc.g5e4.view.console.ConsoleView;
 import fr.upc.g5e4.model.CharacterModel;
 import fr.upc.g5e4.model.GameManager;
@@ -49,7 +44,7 @@ public class ConsoleGameManager {
     private final Body water;
     private final WaterSensorListener wSL;
     private final ConsoleInputController consoleInputController;
-    private final ConsolePanel consolePanel;
+    private final ConsoleGamePanel consolePanel;
     private final ConsoleView consoleView;
 
     private final TeamModel teamModel1;
@@ -127,7 +122,7 @@ public class ConsoleGameManager {
         this.wSL = physic.new WaterSensorListener(water, allWorms, new ArrayList<CharacterModel>());
         world.setContactListener(wSL);
 
-        this.consolePanel = new ConsolePanel(model);
+        this.consolePanel = new ConsoleGamePanel(model);
         this.consoleInputController = new ConsoleInputController(activeWormController, this);
 
         consoleView.refresh();
@@ -141,7 +136,7 @@ public class ConsoleGameManager {
         this.consolePanel.drawAllCharacter(consoleView.getTextGraphics(), teamModel1, teamModel2);
     }
 
-    public ConsolePanel getConsolePanel() {
+    public ConsoleGamePanel getConsolePanel() {
         return this.consolePanel;
     }
 
@@ -201,8 +196,7 @@ public class ConsoleGameManager {
         currentTeamIndex = (currentTeamIndex + 1) % 2;
         TeamModel currentTeam = (currentTeamIndex == 0) ? teamModel1 : teamModel2;
         switchToNextWorm(currentTeam);
-        System.out
-                .println("Round " + roundNumber + " - Equipe active : " + (currentTeamIndex == 0 ? "Team1" : "Team2"));
+        System.out.println("Round " + roundNumber + " - Equipe active : " + (currentTeamIndex == 0 ? "Team1" : "Team2"));
     }
 
     public void statsPartie() {

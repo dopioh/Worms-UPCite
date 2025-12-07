@@ -17,7 +17,7 @@ import org.jbox2d.common.*;
  * @see GamePanel pour la version avec Swing
  * Swing -> Lanterna
  */
-public class ConsolePanel {
+public class ConsoleGamePanel {
     public static final int echelleConsole = 10;
     private GroundModel groundModel;
 
@@ -25,7 +25,7 @@ public class ConsolePanel {
      * Pour creer une instance
      * @param groundModel -> se base sur ca pour creer le terrain
      */
-    public ConsolePanel(GroundModel groundModel){
+    public ConsoleGamePanel(GroundModel groundModel){
         this.groundModel = groundModel;
     }
 

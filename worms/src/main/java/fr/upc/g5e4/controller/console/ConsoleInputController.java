@@ -99,8 +99,10 @@ public class ConsoleInputController{
         public Character addLetters(Screen screen){   
             try {
                 KeyStroke key = screen.readInput();
+
                 if (key.getKeyType().equals(KeyType.Character)){
                     return key.getCharacter();
+                    
                 } else if (key.getKeyType().equals(KeyType.Enter)){
                     setEnterPressed(true);
                     return null;

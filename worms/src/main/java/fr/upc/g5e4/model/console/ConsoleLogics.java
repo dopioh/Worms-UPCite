@@ -44,7 +44,8 @@ public class ConsoleLogics {
             return true;
         } else {
             /**
-             * on doit appuyer deux fois sur entree pour refresh quand c'est pas launch game
+             * A fix :
+             * on doit appuyer deux fois sur entree pour refresh quand c'est pas launch game 
              * si je creer une variable String word = word(screen); 
              * ca actualise pas si le mot est faux -> boucle infini
              */
