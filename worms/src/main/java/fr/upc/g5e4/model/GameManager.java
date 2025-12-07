@@ -87,10 +87,6 @@ public class GameManager {
         physic.createGroundFromModel(model);
         this.water = physic.createBodyWater(model);
 
-        this.personnageModel = new CharacterModel(model, world, 700, model.getHeight() - 500, false); // Si le x est à 800
-                                                                                                // pile i ça marche pas
-        // System.out.println("\nGame Manager xcord : " +
-
         // Initialisation caméra et contrôleur
         this.camera = new CameraModel(sizeX, sizeY, model.getWidth(), model.getHeight(), 1);
         physic.limitPanel(model);
