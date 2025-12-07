@@ -14,8 +14,6 @@ import java.awt.geom.Path2D;
  */
 public class GamePanel extends JPanel {
     private final GroundModel model;
-    private final CharacterModel personnageModel;
-    private final CharacterView personnageView;
     private final CameraModel camera;
     private final CameraController cameraController;
     private final TeamModel teamModel1;
@@ -31,12 +29,10 @@ public class GamePanel extends JPanel {
     /**
      * {@code setPreferredSize()} est essentiel sinon rien ne s'affiche
      */
-    public GamePanel(GroundModel model, CharacterModel personnageModel, CharacterView personnageView,
+    public GamePanel(GroundModel model,
             CameraModel camera, CameraController cameraController, 
             TeamModel teamModel1, TeamView teamView1, TeamModel teamModel2, TeamView teamView2) {
         this.model = model;
-        this.personnageModel = personnageModel;
-        this.personnageView = personnageView;
         this.camera = camera;
         this.cameraController = cameraController;
         this.teamModel1 = teamModel1;
@@ -105,7 +101,7 @@ public class GamePanel extends JPanel {
         g2.fill(path);
 
         // Personnage
-        personnageView.draw(g2, personnageModel);
+        //personnageView.draw(g2, personnageModel);
         
         // Team de worms
         teamView1.draw(g2, teamModel1);

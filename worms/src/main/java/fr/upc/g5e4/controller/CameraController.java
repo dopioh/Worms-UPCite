@@ -3,17 +3,12 @@ package fr.upc.g5e4.controller;
 import fr.upc.g5e4.model.CharacterModel;
 import fr.upc.g5e4.model.camera.CameraModel;
 
-
 /*
  * CameraController gère la caméra dans le jeu.
- * * Elle permet de :
- * - Déplacer la caméra avec les flèches
- * - Zoomer et dézoomer sur le personnage
- * - Centrer la caméra sur le personnage
- * - Suivre automatiquement le personnage si souhaité
- *
+ * - Déplacement caméra
+ * - Zoom
+ * - Centrage et suivi du personnage
  */
-
 public class CameraController {
 
     private final CameraModel camera;
@@ -81,40 +76,32 @@ public class CameraController {
         camera.centerTargetOn(personnage);
     }
 
-    // Centre sur le personnage et active le suivi
+    // Centre immédiatement sur le personnage et active le suivi
     public void centerOnCharacter() {
-        camera.centerTargetOn(personnage);
+        if (personnage == null) return;
+        camera.centerOn(personnage);
+        camera.updateSmoothPosition();
         followPlayer = true;
     }
 
     // Met à jour la caméra en fonction des touches enfoncées
-
     public void update() {
         double deltaX = 0;
         double deltaY = 0;
 
-        if (leftPressed)
-            deltaX -= MOVE_STEP;
-        if (rightPressed)
-            deltaX += MOVE_STEP;
-        if (upPressed)
-            deltaY -= MOVE_STEP;
-        if (downPressed)
-            deltaY += MOVE_STEP;
+        if (leftPressed) deltaX -= MOVE_STEP;
+        if (rightPressed) deltaX += MOVE_STEP;
+        if (upPressed) deltaY -= MOVE_STEP;
+        if (downPressed) deltaY += MOVE_STEP;
 
-        // On déplace la CIBLE, pas la caméra directement
         if (deltaX != 0 || deltaY != 0) {
             camera.moveTarget(deltaX, deltaY);
         }
 
-        /*
-         * Suivi automatique si activé.
-         * A l'avenir, on pourrais laisser le choix a l'utilisateur d'activer cette
-         * fonction dans les options.
-         */
-        if (followPlayer) {
+        if (followPlayer && personnage != null) {
             camera.centerTargetOn(personnage);
         }
+
         camera.updateSmoothPosition();
     }
     
@@ -124,5 +111,9 @@ public class CameraController {
      */
     public void setTargetCharacter(CharacterModel newTarget) {
         this.personnage = newTarget;
+        if (newTarget != null) {
+            camera.centerOn(newTarget);
+            camera.updateSmoothPosition();
+        }
     }
 }
