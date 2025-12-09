@@ -21,7 +21,7 @@ public class CharacterView {
     private boolean useSprite; // utile pour savoir si on dessine un carré ou le sprite
     
     /**
-     * Constructeur de la classe PersonnageView
+     * Constructeur de la classe PersonnageView avec couleur, taille et sprite par defaut
      */
     public CharacterView() {
         this.size = 15;
@@ -31,15 +31,28 @@ public class CharacterView {
     }
     
     /**
-     * Constructeur de la classe PersonnageView avec paramètres personnalisés
-     * @param taille La taille du worm
-     * @param couleur La couleur du worm
+     * Constructeur de la classe PersonnageView avec taille et couleur personnaliséé
+     * @param size La taille du worm
+     * @param color La couleur du worm
      */
     public CharacterView(int size, Color color) {
         this.size = size;
         this.color = color;
         this.nameTagView = new NameTagView(color);
         loadSprite("/worm.png");
+    }
+    
+    /**
+     * Constructeur de la classe PersonnageView avec sprite custom
+     * @param size La taille du worm
+     * @param color La couleur du worm
+     * @param spritePath le chemin du sprite dans /resources (ex: "/worm_blue.png")
+     */
+    public CharacterView(int size, Color color, String spritePath) {
+        this.size = size;
+        this.color = color;
+        this.nameTagView = new NameTagView(color);
+        loadSprite(spritePath);
     }
     
     /**

@@ -12,7 +12,8 @@ public class TeamView {
     private CharacterView[] tabViewWorms;
     
     /**
-     * Constructeur de la classe TeamView
+     * Constructeur de la classe TeamView (avec un sprite par defaut (un carré de couleur))
+     * @param wormNumber nombre de worms dans l'équipe
      * @param teamColor Couleur de l'équipe
      */
     public TeamView(int wormNumber, Color teamColor) {
@@ -22,6 +23,22 @@ public class TeamView {
         // Attribut une vue pour chaque worm de l'equipe
         for (int i = 0; i < tabViewWorms.length; i++) {
             tabViewWorms[i] = new CharacterView(25, teamColor);
+        }
+    }
+    
+    /**
+     * Constructeur de la classe TeamView avec sprite personnalisé
+     * @param wormNumber nombre de worms dans l'équipe
+     * @param teamColor Couleur de l'équipe
+     * @param spritePath le chemin du sprite dans /resources (ex: "/worm.png")
+     */
+    public TeamView(int wormNumber, Color teamColor, String spritePath) {
+        this.teamColor = teamColor;
+        this.tabViewWorms = new CharacterView[wormNumber];
+        
+        // Attribut une vue avec sprite personnalisé pour chaque worm de l'equipe
+        for (int i = 0; i < tabViewWorms.length; i++) {
+            tabViewWorms[i] = new CharacterView(25, teamColor, spritePath);
         }
     }
     

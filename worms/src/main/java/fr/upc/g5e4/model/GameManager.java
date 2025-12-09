@@ -8,7 +8,6 @@ import org.jbox2d.dynamics.World;
 
 import fr.upc.g5e4.GameLauncher;
 import fr.upc.g5e4.controller.*;
-import fr.upc.g5e4.model.*;
 import fr.upc.g5e4.model.weapons.Ak47;
 import fr.upc.g5e4.model.weapons.BaseballBat;
 import fr.upc.g5e4.model.weapons.Grenade;
@@ -18,10 +17,6 @@ import fr.upc.g5e4.model.camera.CameraModel;
 import fr.upc.g5e4.view.CharacterView;
 import fr.upc.g5e4.view.GamePanel;
 import fr.upc.g5e4.view.ItemView;
-import fr.upc.g5e4.model.PhysicsWorld.WaterSensorListener;
-import fr.upc.g5e4.model.camera.CameraModel;
-import fr.upc.g5e4.view.CharacterView;
-import fr.upc.g5e4.view.GamePanel;
 import fr.upc.g5e4.view.TeamView;
 
 /**
@@ -109,11 +104,11 @@ public class GameManager {
         // création premiere equipe
         int wormNumber = 3; 
         this.teamModel1 = new TeamModel(model, world, "Team1", 100, 98, wormNumber);
-        this.teamView1 = new TeamView(wormNumber, Color.BLUE);
+        this.teamView1 = new TeamView(wormNumber, Color.BLUE, "/backpack.png");
 
         // création seconde equipe
         this.teamModel2 = new TeamModel(model, world, "Team2", 400, 98, wormNumber);  
-        this.teamView2 = new TeamView(wormNumber, Color.RED);
+        this.teamView2 = new TeamView(wormNumber, Color.RED, "/backpack.png");
         
         // Créer une liste de tous les worms pour le WaterSensorListener
         ArrayList<CharacterModel> allWorms = new ArrayList<>();
