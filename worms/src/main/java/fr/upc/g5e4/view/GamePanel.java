@@ -1,3 +1,4 @@
+// File: fr/upc/g5e4/view/GamePanel.java
 package fr.upc.g5e4.view;
 
 import fr.upc.g5e4.controller.CameraController;
@@ -13,8 +14,6 @@ import java.awt.geom.Path2D;
  */
 public class GamePanel extends JPanel {
     private final GroundModel model;
-    private final CharacterModel personnageModel;
-    private final CharacterView personnageView;
     private final CameraModel camera;
     private final CameraController cameraController;
     private final TeamModel teamModel1;
@@ -24,15 +23,16 @@ public class GamePanel extends JPanel {
 
     private static final float PPM = 30f;
 
+    // ajout: label pour afficher le temps restant (vue)
+    private final JLabel roundTimerLabel = new JLabel("Temps restant : 30s");
+
     /**
      * {@code setPreferredSize()} est essentiel sinon rien ne s'affiche
      */
-    public GamePanel(GroundModel model, CharacterModel personnageModel, CharacterView personnageView,
+    public GamePanel(GroundModel model,
             CameraModel camera, CameraController cameraController, 
             TeamModel teamModel1, TeamView teamView1, TeamModel teamModel2, TeamView teamView2) {
         this.model = model;
-        this.personnageModel = personnageModel;
-        this.personnageView = personnageView;
         this.camera = camera;
         this.cameraController = cameraController;
         this.teamModel1 = teamModel1;
@@ -43,6 +43,13 @@ public class GamePanel extends JPanel {
         setPreferredSize(new Dimension(model.getWidth(), model.getHeight()));
         setLayout(null);
 
+        // ajout: configuration du label chrono
+        roundTimerLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        roundTimerLabel.setForeground(Color.WHITE);
+        roundTimerLabel.setBounds(20, 10, 220, 30);
+        roundTimerLabel.setOpaque(false);
+        this.add(roundTimerLabel);
+
         // Timer pour update régulier de la caméra et repaint
         new javax.swing.Timer(16, e -> {
             cameraController.update();
@@ -52,6 +59,11 @@ public class GamePanel extends JPanel {
 
     public static float getPPM() {
         return PPM;
+    }
+
+    // ajout: API publique pour mettre à jour l'affichage du chrono
+    public void setRoundTimer(int seconds) {
+        SwingUtilities.invokeLater(() -> roundTimerLabel.setText("Temps restant : " + seconds + "s"));
     }
 
     /**
@@ -89,7 +101,7 @@ public class GamePanel extends JPanel {
         g2.fill(path);
 
         // Personnage
-        personnageView.draw(g2, personnageModel);
+        //personnageView.draw(g2, personnageModel);
         
         // Team de worms
         teamView1.draw(g2, teamModel1);

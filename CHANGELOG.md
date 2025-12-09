@@ -1,8 +1,9 @@
 # Changelog
 
-## v.0.1 Configuration : (Avant le premier sprint)
+## v.0.0 Configuration : (Avant le premier sprint)
+---
 
-- Création de la base Maven [(#2)](https://moule.informatique.univ-paris-diderot.fr/militon/projet-worms/-/issues/2)
+- Création de la base Maven
 
 ### Added
 - CONTRIBUTING.md
@@ -11,9 +12,11 @@
 - gitlab-ci.yml
 - DESIGN.md
 
-## [v.0.1 : SPRINT 1](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/1)
 
-### Added Java <!-- Remplir si vous voulez avant et pdt la reunion du TP de fin de SPRINT 1 -->
+## [v.0.1 : SPRINT 1](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/1)
+---
+
+### Added Java
 
 - format **MVC** 
 - Des tests unitaires pour une grande partie des classes  
@@ -25,14 +28,13 @@
 - Un Worms (pour le moment Character, est un carre rouge)  
     - Peut se deplacer et sauter
     - Est integrer a la physique du monde
-- Classe Item [(#7)](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/issues/7)
+- Classe Item
     - Weapon (AK-47, Grenade, Rocket Launcher, Baseball Bat)
     - Gadget (Bumper)
 - Classe inventaire
 - Classe Donnée Joueur
     - Système de sauvegarde des données (JSON)
 - Classe Camera
-- ...
 
 ### Added/Modified Configuration
 
@@ -43,11 +45,37 @@
     - Ajout de la phase `deploy`, qui genere un .jar
 
 
-
-
-## [v.0.2 : SPRINT 2](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/2) (unreleased)
+## [v.0.2 : SPRINT 2](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/2)
+---
 
 ### Added
 - Écran d'accueil
 - Equipes de worms (equipes variables : nb worm / couleurs worms)
-    - Chaque worm d'une equipe est jouable, on switch de worm en appuyant sur 'A'
+    - Chaque worm d'une equipe est jouable, on switch de worm en appuyant sur `A`
+- tire et dégâts
+    - les vers peuvent désormais tirer et infliger des dégâts
+        - Détection de la souris pour viser
+        - click gauche pour tirer
+        - Touche e, pour changer d'arme
+- Raccourcis
+    - `Esc` pour quitter le jeu
+    - `I` pour ouvrir l’inventaire
+- vue console : on peut désormais lancer le jeu en mode console
+- JaCoCo et de Mockito
+- Mise en place d’un inventaire consultable en jeu
+
+### Modified
+- Vitesse et du saut
+    - Ajustement des valeurs de vitesse de déplacement et de saut pour équilibrer le gameplay
+- Camera
+    - Les déplacements, le zoom et le recentrage de la caméra se font maintenant avec un glissement fluide
+
+## [v.0.3 : SPRINT 3](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/3) (unreleased)
+---
+
+### Added
+- Mode plein ecran
+    - passage du jeu en 16:9
+
+### Fixed
+- `.jar` injouable
