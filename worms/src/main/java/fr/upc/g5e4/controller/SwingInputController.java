@@ -1,10 +1,13 @@
+// File: fr/upc/g5e4/controller/SwingInputController.java
 package fr.upc.g5e4.controller;
 //import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.JPanel;
+import org.jbox2d.common.Vec2;
 
 import fr.upc.g5e4.model.GameManager;
+import fr.upc.g5e4.model.CharacterModel;
 import fr.upc.g5e4.view.TrajectoryRenderer;
 
 /** 
@@ -19,8 +22,8 @@ public class SwingInputController extends JPanel{
     private CameraController cameraController;
     private GameManager gameManager; 
     private TrajectoryRenderer trajectoryRenderer;
-    private double shootingAngle = 0;  // angle de tir (0 = horizontal, π/2 = vertical vers le haut)
-    private boolean isAiming = false;  //ajustement de l'angle 
+    private boolean isAiming = false;  // affichage de la trajectoire
+    private double shootingAngle = 0;  // angle de visée en degrés
 
     /**
      * Constructeur pour gérer uniquement le personnage
@@ -65,30 +68,24 @@ public class SwingInputController extends JPanel{
                         personnageController.activateJump();
                         break;
 
-                    // Caméra déplacements
+                    // contrôle du viseur - UP/DOWN pour rotation circulaire (0-360°)
                     case KeyEvent.VK_UP:
-                        //augmenter l'angle de tir (viser vers le haut)
-                        shootingAngle += Math.PI / 18;  // +10 degrés
-                        if (shootingAngle > Math.PI / 2) {
-                            shootingAngle = Math.PI *2 ; //permet de tourner complètement
+                        // augmenter l'angle (viser plus haut)
+                        shootingAngle += 10;  // +10 degrés
+                        if (shootingAngle >= 360) {
+                            shootingAngle -= 360;  // revenir à 0 si dépassement
                         }
                         isAiming = true;
                         updateTrajectory();
                         break;
                     case KeyEvent.VK_DOWN:
-                        // diminuer l'angle de tir (viser vers le bas)
-                        shootingAngle -= Math.PI / 18;  // -10 degrés
+                        // diminuer l'angle (viser plus bas)
+                        shootingAngle -= 10;  // -10 degrés
                         if (shootingAngle < 0) {
-                            shootingAngle =  Math.PI *2;  
+                            shootingAngle += 360;  // revenir à 360 si négatif
                         }
                         isAiming = true;
                         updateTrajectory();
-                        break;
-                    case KeyEvent.VK_LEFT:
-                        if(cameraController != null) cameraController.activateLeft();
-                        break;
-                    case KeyEvent.VK_RIGHT:
-                        if(cameraController != null) cameraController.activateRight();
                         break;
 
                     // Caméra zoom
@@ -102,9 +99,9 @@ public class SwingInputController extends JPanel{
                         if(cameraController != null) cameraController.centerOnCharacter();
                         break;
                     
-                    // Changement de worm actif
+                    // modif: A déclenche nextRound
                     case KeyEvent.VK_A:
-                        if(gameManager != null) gameManager.switchToNextWorm();
+                        if(gameManager != null) gameManager.nextRound();
                         break;
                     
                     // Changement d'arme (touche E)
@@ -149,18 +146,23 @@ public class SwingInputController extends JPanel{
             @Override
             public void mousePressed(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON1) {
-                    //shoot avec l'angle défini par les touches
                     if (trajectoryRenderer != null) {
                         trajectoryRenderer.setAiming(false);
                     }
                     isAiming = false;
-                    //déterminer la direction (droite par défaut)
-                    int direction = 1;
-                    personnageController.fireWeaponWithAngle(shootingAngle, direction);
+                    
+                    // Passer l'angle au weapon avant de tirer
+                    if (personnageController != null && personnageController.getCurrentWeapon() != null) {
+                        personnageController.getCurrentWeapon().setShootingAngle(shootingAngle);
+                    }
+                    
+                    // Tirer le projectile - il suit la trajectoire dessinée
+                    if (personnageController != null) {
+                        personnageController.fireWeapon(1);  // direction par défaut (non utilisée)
+                    }
                 }
             }
         });
-        
     }
     
     /**
@@ -170,7 +172,14 @@ public class SwingInputController extends JPanel{
         if (trajectoryRenderer != null && personnageController != null) {
             trajectoryRenderer.setShootingAngle(shootingAngle);
             trajectoryRenderer.setAiming(isAiming);
-            System.out.println("Angle de tir: " + Math.toDegrees(shootingAngle) + "°");
+            trajectoryRenderer.setShooter(personnageController.getModel());
+            
+            // Passer aussi l'angle au weapon pour que la trajectoire affichée = trajectoire du tir
+            if (personnageController.getCurrentWeapon() != null) {
+                personnageController.getCurrentWeapon().setShootingAngle(shootingAngle);
+            }
+            
+            System.out.println("Angle: " + String.format("%.0f°", shootingAngle));
         }
     }
     

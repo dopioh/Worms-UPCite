@@ -6,33 +6,30 @@ import org.jbox2d.dynamics.World;
 import org.jbox2d.common.Vec2;
 
 import fr.upc.g5e4.model.CharacterModel;
+import fr.upc.g5e4.model.Weapon;
 
 /**
- * Classe pour afficher la trajectoire de tir comme dans Angry Birds
- * @param shooter le worm qui tire
- * @param shootingAngle angle de tir en radians
- * @param range portée du tir
- * @param isAiming indique si le joueur est en train de viser
+ * classe pour afficher la trajectoire de tir
+ * système de visée 360°
  */
 public class TrajectoryRenderer {
     private CharacterModel shooter;
-    private double shootingAngle;
-    private double range;
+    private Weapon currentWeapon;
+    private double shootingAngle = 0;  // angle en degrés (0-360)
     private boolean isAiming = false;
-    private static final int TRAJECTORY_POINTS = 20;
+    private static final int TRAJECTORY_POINTS = 50;
     private static final Color TRAJECTORY_COLOR = new Color(255, 200, 0, 180); // Orange semi-transparent
     private static final Color TRAJECTORY_LINE_COLOR = new Color(255, 150, 0, 200); // Orange foncé
     private static final float PPM = 30f;
 
     public TrajectoryRenderer() {
-        this.range = 30;
     }
 
     /**
-     * définit l'angle de tir
+     * définit l'angle de tir en degrés (0-360)
      */
     public void setShootingAngle(double angle) {
-        this.shootingAngle = angle;
+        this.shootingAngle = angle % 360;
     }
 
     /**
@@ -43,10 +40,10 @@ public class TrajectoryRenderer {
     }
 
     /**
-     * définit la portée
+     * définit l'arme actuelle
      */
-    public void setRange(double range) {
-        this.range = range;
+    public void setWeapon(Weapon weapon) {
+        this.currentWeapon = weapon;
     }
 
     /**
@@ -57,63 +54,63 @@ public class TrajectoryRenderer {
     }
 
     /**
-     * Récupère l'état de visée
+     * récupère l'état de visée
      */
     public boolean isAiming() {
         return this.isAiming;
     }
 
     /**
-     * Récupère l'angle de tir
-     */
-    public double getAngle() {
-        return this.shootingAngle;
-    }
-
-    /**
-     * Récupère la portée
-     */
-    public double getRange() {
-        return this.range;
-    }
-
-    /**
-     * dessine la trajectoire de tir
+     * dessine la trajectoire de tir basée sur l'angle de visée
      */
     public void draw(Graphics2D g2, World world) {
-        if (!isAiming || shooter == null) {
+        if (!isAiming || shooter == null || currentWeapon == null || g2 == null) {
             return;
         }
 
+        // obtenir la position du tireur
         Vec2 shooterPos = shooter.getBody().getPosition();
-        float startX = shooterPos.x * PPM;
-        float startY = (10 - shooterPos.y) * PPM;
+        double range = currentWeapon.getRange();
+
+        // convertir l'angle en radians
+        double angleRad = Math.toRadians(shootingAngle);
 
         // calculer les points de la trajectoire
-        float[] trajectoryX = new float[TRAJECTORY_POINTS + 1];
-        float[] trajectoryY = new float[TRAJECTORY_POINTS + 1];
+        float[] trajectoryWorldX = new float[TRAJECTORY_POINTS + 1];
+        float[] trajectoryWorldY = new float[TRAJECTORY_POINTS + 1];
 
-        trajectoryX[0] = startX;
-        trajectoryY[0] = startY;
+        trajectoryWorldX[0] = shooterPos.x;
+        trajectoryWorldY[0] = shooterPos.y;
 
-        // simulation de la trajectoire avec une parabole approximée
+        // générer les points avec trajectoire parabolique
         for (int i = 1; i <= TRAJECTORY_POINTS; i++) {
-            float t = (float) i / TRAJECTORY_POINTS;
-            float distance = (float) (range * t);
+            float t = (float) i / TRAJECTORY_POINTS;  // t entre 0 et 1
             
-            // calculer la position avec l'angle
-            float x = startX + (float) (distance * Math.cos(shootingAngle));
-            float y = startY - (float) (distance * Math.sin(shootingAngle));
+            //la trajectoire parcourt la distance 'range' toujours horizontalement
+            float horizontalDistance = (float)(range * t);
             
-            // ajouter une petite gravité pour la parabole 
-            float gravity = (float) (0.5f * 9.81 * t * t * PPM);
-            y += gravity;
+            //position basée sur l'angle
+            float worldX = shooterPos.x + (float)(horizontalDistance * Math.cos(angleRad));
+            float worldY = shooterPos.y + (float)(horizontalDistance * Math.sin(angleRad));
+            
+            //apliquer la courbe parabolique
+            double curveEffect = 0.3;
+            worldY -= (float)(curveEffect * 4 * t * (1 - t));
 
-            trajectoryX[i] = x;
-            trajectoryY[i] = y;
+            trajectoryWorldX[i] = worldX;
+            trajectoryWorldY[i] = worldY;
         }
 
-        // dessiner la ligne de trajectoire
+        //convertir en coordonnées écran pour affichage
+        float[] trajectoryX = new float[TRAJECTORY_POINTS + 1];
+        float[] trajectoryY = new float[TRAJECTORY_POINTS + 1];
+        
+        for (int i = 0; i <= TRAJECTORY_POINTS; i++) {
+            trajectoryX[i] = trajectoryWorldX[i] * PPM;
+            trajectoryY[i] = (24 - trajectoryWorldY[i]) * PPM;  // Conversion et inversion Y
+        }
+
+        // déssiner la ligne de trajectoire
         g2.setColor(TRAJECTORY_LINE_COLOR);
         g2.setStroke(new BasicStroke(2.0f));
         for (int i = 0; i < TRAJECTORY_POINTS; i++) {
@@ -123,7 +120,7 @@ public class TrajectoryRenderer {
             );
         }
 
-        // dessiner les points de trajectoire
+        //dessiner les points de trajectoire
         g2.setColor(TRAJECTORY_COLOR);
         int pointSize = 4;
         for (int i = 0; i <= TRAJECTORY_POINTS; i++) {
@@ -134,22 +131,5 @@ public class TrajectoryRenderer {
                 pointSize
             );
         }
-
-    }
-
-    /**
-     *calcule l'angle basé sur la position du curseur
-     */
-    public void updateAngleFromMouse(int mouseX, int mouseY) {
-        if (shooter == null) return;
-
-        Vec2 shooterPos = shooter.getBody().getPosition();
-        float shooterScreenX = shooterPos.x * PPM;
-        float shooterScreenY = (10 - shooterPos.y) * PPM;
-
-        float dx = mouseX - shooterScreenX;
-        float dy = shooterScreenY - mouseY;
-
-        this.shootingAngle = Math.atan2(dy, dx);
     }
 }

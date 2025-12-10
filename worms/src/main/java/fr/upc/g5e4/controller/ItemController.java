@@ -1,22 +1,28 @@
 package fr.upc.g5e4.controller;
 
 import org.jbox2d.dynamics.World;
+import org.jbox2d.common.Vec2;
 import fr.upc.g5e4.model.CharacterModel;
 import fr.upc.g5e4.model.Item;
 import fr.upc.g5e4.model.Weapon;
+import fr.upc.g5e4.model.Projectile;
 import fr.upc.g5e4.view.ItemView;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ItemController {
     private final ItemView view;
     private World world;
     private CharacterModel[] allWorms;
+    private List<Projectile> activeProjectiles;
 
     public ItemController(ItemView view) {
         this.view = view;
+        this.activeProjectiles = new ArrayList<>();
     }
 
     /**
-     * Définit le monde physique pour les raycast des armes
+     * Définit le monde physique (non utilisé dans le système Graphwar)
      * @param world Le monde JBox2D
      */
     public void setWorld(World world) {
@@ -24,7 +30,7 @@ public class ItemController {
     }
 
     /**
-     * Définit le tableau de tous les worms pour les raycast
+     * Définit le tableau de tous les worms pour la détection de collision
      * @param allWorms Tableau de tous les worms du jeu
      */
     public void setAllWorms(CharacterModel[] allWorms) {
@@ -42,21 +48,74 @@ public class ItemController {
     }
 
     /**
-     * Utilise une arme avec raycast pour tirer sur les worms
+     * Utilise une arme avec projectile pour tirer dans une direction (système Graphwar)
      * @param weapon L'arme à utiliser
      * @param shooter Le worm qui tire
      * @param direction Direction du tir (1 pour droite, -1 pour gauche)
      */
     public void useWeaponOnTarget(Weapon weapon, CharacterModel shooter, int direction) {
-        if (world == null || allWorms == null) {
+        if (allWorms == null) {
             return;
         }
 
         if (weapon.use()) {
-            weapon.fire(shooter, world, allWorms, direction);
+            Projectile projectile = weapon.fire(shooter, world, allWorms, direction);
+            if (projectile != null) {
+                activeProjectiles.add(projectile);
+                System.out.println("Projectile lancé à l'angle: " + String.format("%.0f°", projectile.getShootingAngle()));
+            }
             view.showItem(weapon);
         } else {
             view.showUseResult(false);
         }
+    }
+    
+    /**
+     * met à jour les projectiles actifs et détecte les collisions
+     * @param deltaTime temps écoulé en secondes
+     */
+    public void updateProjectiles(float deltaTime) {
+        List<Projectile> toRemove = new ArrayList<>();
+        // met à jour chaque projectile
+        for (Projectile projectile : activeProjectiles) {
+            if (!projectile.update(deltaTime)) {
+                toRemove.add(projectile);
+                continue;
+            }
+            
+            // détection de collision avec les worms
+            Vec2 projectilePos = projectile.getCurrentPosition();
+            for (CharacterModel worm : allWorms) {
+                if (worm != null && !worm.isDead()) {
+                    // ignorer le tireur
+                    if (worm == projectile.getShooter()) {
+                        continue;
+                    }
+                    
+                    Vec2 wormPos = worm.getBody().getPosition();
+                    float distance = Math.abs(projectilePos.x - wormPos.x) + 
+                                    Math.abs(projectilePos.y - wormPos.y);
+                    
+                    // Si le projectile est proche du worm 
+                    if (distance < 0.7f) {
+                        worm.dealDamage(projectile.getSourceWeapon().getDamage(), projectile.getShooter());
+                        System.out.println("Cible " + worm.getName() + " touchée avec " + 
+                                         projectile.getSourceWeapon().getDamage() + " damage.");
+                        toRemove.add(projectile);
+                        break;
+                    }
+                }
+            }
+        }
+        
+        // supp les projectiles morts
+        activeProjectiles.removeAll(toRemove);
+    }
+    
+    /**
+     * retourne la liste des projectiles actifs
+     */
+    public List<Projectile> getActiveProjectiles() {
+        return activeProjectiles;
     }
 }

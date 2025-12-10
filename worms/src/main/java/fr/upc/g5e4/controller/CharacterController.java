@@ -69,6 +69,14 @@ public class CharacterController {
     }
 
     /**
+     * retourne l'arme actuellement équipée
+     * @return l'arme actuelle
+     */
+    public Weapon getCurrentWeapon() {
+        return this.currentWeapon;
+    }
+
+    /**
      * Retourne le modèle du worm
      * @return le modèle du worm
      */
@@ -173,7 +181,7 @@ public class CharacterController {
     
     /**
      * Tire avec l'arme actuelle à un angle spécifique
-     * @param angle L'angle de tir en radians
+     * @param angle L'angle de tir en radians (non utilisé en système Graphwar)
      * @param direction La direction (1 pour droite, -1 pour gauche)
      */
     public void fireWeaponWithAngle(double angle, int direction) {
@@ -181,11 +189,20 @@ public class CharacterController {
             return;
         }
         
-        // Stocker l'angle pour que l'arme puisse l'utiliser
-        currentWeapon.setShootingAngle(angle);
-        
-        // Tirer avec l'arme
+        // tirer avec l'arme 
         itemController.useWeaponOnTarget(currentWeapon, model, direction);
     }
     
+    /**
+     * tire avec l'arme actuelle dans la direction spécifiée 
+     * @param direction la direction
+     */
+    public void fireWeapon(int direction) {
+        if (itemController == null || world == null || allWorms == null || currentWeapon == null) { 
+            return;
+        }
+        
+        // tirer avec l'arme 
+        itemController.useWeaponOnTarget(currentWeapon, model, direction);
+    }
 }

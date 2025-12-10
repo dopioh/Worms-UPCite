@@ -11,8 +11,8 @@ public abstract class Weapon extends Item {
     private final int damage;         
     private final double blastRadius; // rayon d'explosion (0 si aucun)
     private final double speed;       // vitesse de projectile ou déplacement
-    private final int range;       // portée de l'arme
-    private double shootAngle = 0;   // angle de tir (0 = horizontal)
+    private final int range;          // portée de l'arme
+    private double shootingAngle = 0;  // angle de tir en degrés (0-360)
 
     protected Weapon(String name, int maxUsages, boolean isInfinite,
                      int damage, double blastRadius, double speed, int range) {
@@ -31,60 +31,43 @@ public abstract class Weapon extends Item {
     public int getRange() { return range; }
     
     /**
-     *définit l'angle de tir
-     *@param angle L'angle en radians
+     * Définit l'angle de tir en degrés (0-360)
      */
     public void setShootingAngle(double angle) {
-        this.shootAngle = angle;
+        this.shootingAngle = angle % 360;
     }
     
     /**
      * Obtient l'angle de tir
-     * @return L'angle en radians
      */
-    public double getShootAngle() {
-        return this.shootAngle;
+    public double getShootingAngle() {
+        return this.shootingAngle;
+    }
+    
+    /**
+     * Getter pour amplitude (gardé pour compatibilité)
+     */
+    public double getCurveAmplitude() {
+        return 0.5;  // Valeur par défaut
     }
 
     /**
-     * Tire un rayon depuis le worm attaquant pour trouver une cible et infliger des dégâts
-     * utilise l'angle de tir pour calculer la direction
+     * Tire un projectile avec une trajectoire basée sur l'angle de tir
      * @param shooter Le worm qui tire
-     * @param world Le monde physique JBox2D
+     * @param world Le monde physique JBox2D (non utilisé, mais gardé pour compatibilité)
      * @param allWorms Tableau de tous les worms du jeu
-     * @param direction Direction du tir (1 pour droite, -1 pour gauche)
+     * @param direction Direction du tir (non utilisé maintenant, déterminé par l'angle)
      */
-    public void fire(CharacterModel shooter, org.jbox2d.dynamics.World world, 
-                               CharacterModel[] allWorms, int direction) {
+    public Projectile fire(CharacterModel shooter, org.jbox2d.dynamics.World world, 
+        CharacterModel[] allWorms, int direction) {
         Vec2 shooterPos = shooter.getBody().getPosition();
-        float rayDistance = this.getRange(); //Portée max du tir
         
-        //calcul du rayon en utilisant l'angle
-        float rayEndX = shooterPos.x + (float)(rayDistance * Math.cos(shootAngle));
-        float rayEndY = shooterPos.y + (float)(rayDistance * Math.sin(shootAngle));
+        // créer le projectile avec l'angle de tir
+        Projectile projectile = new Projectile(this, shooter, shooterPos, this.range, this.speed, this.shootingAngle);
+        System.out.println("[" + this.getName() + "] Tir à angle " + String.format("%.0f°", shootingAngle) + 
+                         " portée=" + this.range);
         
-        Vec2 rayEnd = new Vec2(rayEndX, rayEndY);
-        
-        final CharacterModel[] target = {null};
-        
-        world.raycast((fixture, point, normal, fraction) -> { 
-            Body hitBody = fixture.getBody(); //Le corps touché par le rayon
-            
-            for (CharacterModel worm : allWorms) {
-                if (worm != null && worm.getBody() == hitBody && !worm.isDead()) { 
-                    target[0] = worm;
-                    return 0;
-                }
-            }
-            return 1;
-        }, shooterPos, rayEnd);
-        
-        if (target[0] != null) {
-            target[0].dealDamage(this.getDamage(), shooter);
-            System.out.println("Cible " + target[0].getName() + " touché " + this.getDamage() + " damage.");
-        } else {
-            System.out.println("Aucune cible touchée.");
-        }
+        return projectile;
     }
 
 }

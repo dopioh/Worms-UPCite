@@ -42,7 +42,7 @@ public class GameLauncher{
 
             /* ------------------------ Partie Overlay Inventaire --------------------------------- */
             //Charge l'inventaire 
-            InventoryRoot root = InventoryModel.load("worms/src/main/resources/inventory.json");
+            InventoryRoot root = InventoryModel.load("/inventory.json");
             //Créer l'overlay
             this.inventoryOverlay = new InventoryOverlay((root.inventory));
             //Créer un layeredPane
@@ -220,10 +220,10 @@ public class GameLauncher{
     public static void main(String[] args) throws IOException{
 
         //// Lance l'écran d'accueil au lieu du jeu directement
-        showAccueil();
+        //showAccueil();
 
         //// Pour lancer le jeu directement (pour les testes)
-        //new GameLauncher(true);
-        //new ConsoleLauncher();
+        new GameLauncher(true);
+        new ConsoleLauncher();
     }
 }

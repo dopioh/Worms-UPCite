@@ -1,3 +1,4 @@
+// File: fr/upc/g5e4/model/GameLoop.java
 package fr.upc.g5e4.model;
 
 import fr.upc.g5e4.controller.*;
@@ -20,10 +21,16 @@ public class GameLoop{
     private final GameManager gameManager;
     private final GamePanel gamePanel;
 
+    // 30s à 60 FPS
+    private int roundTimeRemaining = 1800;
+
     /** Toute les update de Timer se font dans le Constructeur de GameLoop, pas besoin de creer de methode ici*/
     public GameLoop(GameManager gameManager){
         this.gameManager = gameManager;
         this.gamePanel = this.gameManager.getGamePanel();
+
+        // Initialiser l'affichage du chrono dans la vue
+        this.gamePanel.setRoundTimer(30);
 
         //on multiplie FIXHZ 1000 psq Timer fonctionne en ms
         this.timer = new Timer((int)(FIXHZ*1000),new ActionListener() {         
@@ -53,6 +60,34 @@ public class GameLoop{
                     }
                     destroy.clear();
                 }
+
+                // si le worm actif est mort -> passer immédiatement au round suivant
+                try {
+                    TeamModel currentTeam = (gameManager.getCurrentTeamIndex() == 0) ? gameManager.getTeamModel1() : gameManager.getTeamModel2();
+                    int activeIndex = gameManager.getActiveWormIndex();
+                    if (activeIndex >= 0 && activeIndex < currentTeam.getWormNumberAtStart()) {
+                        CharacterModel activeWorm = currentTeam.getWorm(activeIndex);
+                        if (activeWorm == null || activeWorm.isDead()) {
+                            gameManager.nextRound();
+                            roundTimeRemaining = 1800;
+                            gamePanel.setRoundTimer(30);
+                        }
+                    }
+                } catch (Exception ex) {
+                    // ignore changements de transition possibles
+                }
+
+                // décrémente le temps du round, met à jour la vue et change si nécessaire
+                roundTimeRemaining--; 
+                if (roundTimeRemaining % 60 == 0) {
+                    int secondsLeft = roundTimeRemaining / 60; 
+                    gamePanel.setRoundTimer(Math.max(0, secondsLeft));
+                }
+                if (roundTimeRemaining <= 0) {
+                    gameManager.nextRound();        
+                    roundTimeRemaining = 1800;      // reset
+                    gamePanel.setRoundTimer(30);    // reset affichage
+                }
                 
                 gamePanel.repaint();
             }
@@ -66,7 +101,4 @@ public class GameLoop{
     public void timerStop(){
         this.timer.stop();
     }
-
-
-
 }
