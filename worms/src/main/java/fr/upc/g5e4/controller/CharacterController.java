@@ -104,6 +104,7 @@ public class CharacterController {
      * On le syncro ensuite avec son model
      */
     public boolean update() {
+        //System.out.println("update called");
         Body body = model.getBody();
         
         // Appliquer une force horizontale

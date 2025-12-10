@@ -18,7 +18,7 @@ public class TeamModel {
      * @param spacing L'espacement entre chaque worm
      * @param wormNumber Le nombre de worms dans l'équipe
      */
-    public TeamModel(GroundModel groundModel, World world, String teamName, double startX, double spacing, int wormNumber) {
+    public TeamModel(GroundModel groundModel, World world, String teamName, double startX, double spacing, int wormNumber, boolean console) {
         if (wormNumber < 1) {
             throw new IllegalArgumentException("Une équipe doit avoir au moins 1 worm");
         }
@@ -41,7 +41,8 @@ public class TeamModel {
                 100.0,  // health
                 50.0,   // shield
                 15.0,   // speed
-                5.0     // jump
+                5.0,     // jump
+                console
             );
         }
     }

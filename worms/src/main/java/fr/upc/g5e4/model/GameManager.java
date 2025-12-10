@@ -63,10 +63,10 @@ public class GameManager {
      * @see GameLauncher
      * @see PhysicsWorld#createGroundFromModel()
      */
-    public GameManager() {
-        int sizeX = 1280;
-        int sizeY = 720;
-        int[] groundY = {470,450,430,420,410,400,390,370,340,300,280,250,230,200};
+    public GameManager(int sizex, int sizey) {
+        int sizeX = sizex;
+        int sizeY = sizey;
+        int[] groundY = {400,420,450,450,400,700,930,450,350,300,250,230,200,200};
         /*
          * Plusieurs autres valeurs de groundY si vous voulez tester plusieurs terrains
          * :
@@ -87,21 +87,17 @@ public class GameManager {
         physic.createGroundFromModel(model);
         this.water = physic.createBodyWater(model);
 
-        //this.personnageModel = new CharacterModel(model, world, 700, model.getHeight() - 500); // Si le x est à 800
-                                                                                                // pile i ça marche pas
-        // System.out.println("\nGame Manager xcord : " +
-
         // Initialisation caméra et contrôleur
         this.camera = new CameraModel(sizeX, sizeY, model.getWidth(), model.getHeight(), 1);
         physic.limitPanel(model);
 
         // création premiere equipe
         int wormNumber = 3; 
-        this.teamModel1 = new TeamModel(model, world, "Team1", 100, 98, wormNumber);
+        this.teamModel1 = new TeamModel(model, world, "Team1", 100, 98, wormNumber,false);
         this.teamView1 = new TeamView(wormNumber, Color.BLUE);
 
         // création seconde equipe
-        this.teamModel2 = new TeamModel(model, world, "Team2", 400, 98, wormNumber);  
+        this.teamModel2 = new TeamModel(model, world, "Team2", 400, 98, wormNumber,false);  
         this.teamView2 = new TeamView(wormNumber, Color.RED);
         
         // Créer une liste de tous les worms pour le WaterSensorListener

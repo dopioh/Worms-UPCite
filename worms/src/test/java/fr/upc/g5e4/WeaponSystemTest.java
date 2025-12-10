@@ -30,8 +30,8 @@ public class WeaponSystemTest {
         ground = new GroundModel(groundY, 800, 600, 500);
         physicsWorld.createGroundFromModel(ground);
         
-        shooter = new CharacterModel(ground, world, 100, ground.getHeight() - 400);
-        target = new CharacterModel(ground, world, 300, ground.getHeight() - 400);
+        shooter = new CharacterModel(ground, world, 100, ground.getHeight() - 400,false);
+        target = new CharacterModel(ground, world, 300, ground.getHeight() - 400,false);
     }
 
     @Test

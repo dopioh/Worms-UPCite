@@ -25,7 +25,7 @@ class CameraTest {
         private double x, y;
 
         public TestPersonnageModel(double x, double y) {
-            super(null, null, 0, 0); // Ne pas utiliser world ou model
+            super(null, null, 0, 0,false); // Ne pas utiliser world ou model
             this.x = x;
             this.y = y;
         }
@@ -46,7 +46,7 @@ class CameraTest {
         }
 
         @Override
-        public org.jbox2d.dynamics.Body createBody() {
+        public org.jbox2d.dynamics.Body createBody(boolean terminal) {
             return null; // On ne crée aucun body pour le test. Cette fonction est un semblant de mock
                          // pour satisfaire JBox2D.
         }

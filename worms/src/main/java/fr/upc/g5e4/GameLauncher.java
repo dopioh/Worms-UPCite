@@ -5,6 +5,7 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 
 import fr.upc.g5e4.model.InventoryModel.InventoryRoot;
+import fr.upc.g5e4.model.console.ConsoleLauncher;
 import fr.upc.g5e4.view.*;
 import fr.upc.g5e4.controller.*;
 import fr.upc.g5e4.model.*; 
@@ -27,17 +28,17 @@ public class GameLauncher{
     
     public GameLauncher(boolean screen, boolean startFullScreen) throws IOException{
         this.screen = screen;
+        int sizeX = 1280;
+        int sizeY = 720;
 
         if (screen){
-            int sizeX = 1280;
-            int sizeY = 720;
             JFrame game = new JFrame();
 
             game.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             game.setTitle("Prototype");
             game.setSize(sizeX,sizeY);         
 
-            this.gameManager = new GameManager();
+            this.gameManager = new GameManager(sizeX, sizeY);
             this.gamePanel = gameManager.getGamePanel();
 
             /* ------------------------ Partie Overlay Inventaire --------------------------------- */
@@ -99,7 +100,7 @@ public class GameLauncher{
             this.gameLoop.timerStart();
         }
         else{
-            this.gameManager = new GameManager();
+            this.gameManager = new GameManager(sizeX, sizeY);
             this.gamePanel = gameManager.getGamePanel();
             this.gameLoop = new GameLoop(gameManager);
             this.gameLoop.timerStart();
@@ -223,7 +224,9 @@ public class GameLauncher{
         //showAccueil();
 
         //// Pour lancer le jeu directement (pour les testes)
-        new GameLauncher(true);
+        //new GameLauncher(true);
+
+        // Pour lancer la vue terminal
         new ConsoleLauncher();
     }
 }
