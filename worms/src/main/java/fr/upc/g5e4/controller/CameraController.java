@@ -1,7 +1,7 @@
 package fr.upc.g5e4.controller;
 
-import fr.upc.g5e4.model.CameraModel;
 import fr.upc.g5e4.model.CharacterModel;
+import fr.upc.g5e4.model.camera.CameraModel;
 
 /*
  * CameraController gère la caméra dans le jeu.
