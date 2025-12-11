@@ -9,7 +9,6 @@ import org.jbox2d.dynamics.World;
 
 import fr.upc.g5e4.GameLauncher;
 import fr.upc.g5e4.controller.*;
-import fr.upc.g5e4.model.*;
 import fr.upc.g5e4.model.weapons.Ak47;
 import fr.upc.g5e4.model.weapons.BaseballBat;
 import fr.upc.g5e4.model.weapons.Grenade;
@@ -95,12 +94,14 @@ public class GameManager {
 
         // création premiere equipe (spawn en haut de la map pour éviter d'être coincés)
         int wormNumber = 3; 
-        this.teamModel1 = new TeamModel(model, world, "Team1", 100, 80, wormNumber, false);
-        this.teamView1 = new TeamView(wormNumber, Color.BLUE);
+        // Team1 regarde vers la droite par défaut
+        this.teamModel1 = new TeamModel(model, world, "Team1", 100, 80, wormNumber, false, true);
+        this.teamView1 = new TeamView(wormNumber, Color.BLUE, "/worm.png", true);
 
         // création seconde equipe
-        this.teamModel2 = new TeamModel(model, world, "Team2", 2100, 50, wormNumber, false);  
-        this.teamView2 = new TeamView(wormNumber, Color.RED);
+        // Team2 regarde vers la gauche (face à Team1)
+        this.teamModel2 = new TeamModel(model, world, "Team2", 2100, 50, wormNumber, false, false);  
+        this.teamView2 = new TeamView(wormNumber, Color.RED, "/worm.png", false);
         
         // Créer une liste de tous les worms pour le WaterSensorListener
         ArrayList<CharacterModel> allWorms = new ArrayList<>();
@@ -159,9 +160,11 @@ public class GameManager {
         gamePanel.getTrajectoryRenderer().setShooter(activeWormController.getModel());
         gamePanel.getTrajectoryRenderer().setWeapon(activeWormController.getCurrentWeapon());
         
-        imputController.requestFocusInWindow();
-        this.gamePanel.setFocusable(true);
-        this.gamePanel.requestFocusInWindow();
+        // pour ne pas que gamePanel et imputController se disputent le focus
+        // en lancant le jeu, certaines fois rien n'était controllable mais c'est fix maintenant
+        this.gamePanel.setFocusable(false);  // le panel ne prend pas le focus
+        imputController.setFocusable(true);   // l'inputController prend le focus    
+        
 
         // Timer pour update régulier de la caméra, projectiles et repaint
         new Timer(16, e -> {

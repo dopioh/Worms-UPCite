@@ -17,8 +17,10 @@ public class TeamModel {
      * @param startX La position X de départ pour le premier worm
      * @param spacing L'espacement entre chaque worm
      * @param wormNumber Le nombre de worms dans l'équipe
+     * @param console Mode console (debug)
+     * @param facingRight Direction initiale des worms (true = droite, false = gauche)
      */
-    public TeamModel(GroundModel groundModel, World world, String teamName, double startX, double spacing, int wormNumber, boolean console) {
+    public TeamModel(GroundModel groundModel, World world, String teamName, double startX, double spacing, int wormNumber, boolean console, boolean facingRight) {
         if (wormNumber < 1) {
             throw new IllegalArgumentException("Une équipe doit avoir au moins 1 worm");
         }
@@ -44,7 +46,17 @@ public class TeamModel {
                 5.0,     // jump
                 console
             );
+            
+            // Définir la direction initiale
+            tabModelWorms[i].setFacingRight(facingRight);
         }
+    }
+    
+    /**
+     * Constructeur sans paramètre facingRight (par défaut = droite)
+     */
+    public TeamModel(GroundModel groundModel, World world, String teamName, double startX, double spacing, int wormNumber, boolean console) {
+        this(groundModel, world, teamName, startX, spacing, wormNumber, console, true);
     }
     
     // Getters et Setters   
