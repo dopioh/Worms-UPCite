@@ -68,6 +68,22 @@ public class CharacterController {
         this.currentWeapon = weapon;
     }
 
+    /**
+     * retourne l'arme actuellement équipée
+     * @return l'arme actuelle
+     */
+    public Weapon getCurrentWeapon() {
+        return this.currentWeapon;
+    }
+
+    /**
+     * Retourne le modèle du worm
+     * @return le modèle du worm
+     */
+    public CharacterModel getModel() {
+        return this.model;
+    }
+
     // Activation & Desactivation des touches
     public void activateLeft() {
         LeftKeyPressed = true;
@@ -142,18 +158,52 @@ public class CharacterController {
      * @param screenY Position Y de la souris à l'écran
      */
     public void fireWeapon(int screenX, int screenY) { 
+        if (itemController == null || world == null || allWorms == null || currentWeapon == null) { //
+            return;
+        }
+        
+        //position du worm
+        Body body = model.getBody();
+        float wormWorldX = body.getPosition().x * 30f;  // conversion en pixels
+        float wormWorldY = (10 - body.getPosition().y) * 30f;  // conversion en pixels
+        //le vecteur direction depuis le worm vers le curseur
+        float dx = screenX - wormWorldX;
+        float dy = screenY - wormWorldY;
+        
+        //angle en radians
+        double angle = Math.atan2(-dy, dx);  // -dy car Y est inversé en écran
+        
+        //direction (gauche/droite) basée sur l'angle
+        int direction = dx > 0 ? 1 : -1;
+        
+        //tirer avec l'arme en passant l'angle
+        fireWeaponWithAngle(angle, direction);
+    }
+    
+    /**
+     * Tire avec l'arme actuelle à un angle spécifique
+     * @param angle L'angle de tir en radians (non utilisé en système Graphwar)
+     * @param direction La direction (1 pour droite, -1 pour gauche)
+     */
+    public void fireWeaponWithAngle(double angle, int direction) {
         if (itemController == null || world == null || allWorms == null || currentWeapon == null) { 
             return;
         }
-        // Déterminer la direction en fonction de la position du curseur par rapport au worm
-        Body body = model.getBody();
-        float wormWorldX = body.getPosition().x;
         
-        // Convertir les coordonnées écran en coordonnées monde
-        int direction = screenX > (int)(wormWorldX * 30f) ? 1 : -1;
-        
-        // Tirer avec l'arme
+        // tirer avec l'arme 
         itemController.useWeaponOnTarget(currentWeapon, model, direction);
     }
     
+    /**
+     * tire avec l'arme actuelle dans la direction spécifiée 
+     * @param direction la direction
+     */
+    public void fireWeapon(int direction) {
+        if (itemController == null || world == null || allWorms == null || currentWeapon == null) { 
+            return;
+        }
+        
+        // tirer avec l'arme 
+        itemController.useWeaponOnTarget(currentWeapon, model, direction);
+    }
 }

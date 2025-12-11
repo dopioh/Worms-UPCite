@@ -2,6 +2,7 @@
 package fr.upc.g5e4.view;
 
 import fr.upc.g5e4.controller.CameraController;
+import fr.upc.g5e4.controller.ItemController;
 import fr.upc.g5e4.model.*;
 import fr.upc.g5e4.model.camera.CameraModel;
 import javax.swing.*;
@@ -20,6 +21,8 @@ public class GamePanel extends JPanel {
     private final TeamView teamView1;
     private final TeamModel teamModel2;
     private final TeamView teamView2;
+    private final TrajectoryRenderer trajectoryRenderer;
+    private ItemController itemController;
 
     private static final float PPM = 30f;
 
@@ -39,6 +42,7 @@ public class GamePanel extends JPanel {
         this.teamView1 = teamView1;
         this.teamModel2 = teamModel2;
         this.teamView2 = teamView2;
+        this.trajectoryRenderer = new TrajectoryRenderer();
 
         setPreferredSize(new Dimension(model.getWidth(), model.getHeight()));
         setLayout(null);
@@ -64,6 +68,22 @@ public class GamePanel extends JPanel {
     // ajout: API publique pour mettre à jour l'affichage du chrono
     public void setRoundTimer(int seconds) {
         SwingUtilities.invokeLater(() -> roundTimerLabel.setText("Temps restant : " + seconds + "s"));
+    }
+
+    /**
+     * Retourne le renderer de trajectoire pour que d'autres composants puissent l'utiliser
+     */
+    public TrajectoryRenderer getTrajectoryRenderer() {
+        return trajectoryRenderer;
+    }
+    
+    
+    /**
+     * Définit l'ItemController pour dessiner les projectiles
+     * @param itemController Le contrôleur d'items
+     */
+    public void setItemController(ItemController itemController) {
+        this.itemController = itemController;
     }
 
     /**
@@ -107,11 +127,22 @@ public class GamePanel extends JPanel {
         teamView1.draw(g2, teamModel1);
         teamView2.draw(g2, teamModel2);
 
+        // Trajectoire de tir (Angry Birds style)
+        trajectoryRenderer.draw(g2, null);
+        
+        // Projectiles en vol
+        if (itemController != null) {
+            ProjectileView.drawProjectiles(g2, itemController.getActiveProjectiles());
+        }
+
         // Eau
         g2.setColor(new Color(75, 147, 240));
         g2.fillRect(0, model.getWaterLevel(), model.getWidth(), model.getHeight() - model.getWaterLevel());
 
         // permet libérer les ressources graphiques
+        g2.dispose();
+        
+        
         g2.dispose();
     }
 }
