@@ -38,7 +38,7 @@ public class GameLauncher{
             game.setTitle("Prototype");
             game.setSize(sizeX,sizeY);         
 
-            this.gameManager = new GameManager(sizeX, sizeY);
+            this.gameManager = new GameManager();
             this.gamePanel = gameManager.getGamePanel();
 
             /* ------------------------ Partie Overlay Inventaire --------------------------------- */
@@ -100,7 +100,7 @@ public class GameLauncher{
             this.gameLoop.timerStart();
         }
         else{
-            this.gameManager = new GameManager(sizeX, sizeY);
+            this.gameManager = new GameManager();
             this.gamePanel = gameManager.getGamePanel();
             this.gameLoop = new GameLoop(gameManager);
             this.gameLoop.timerStart();
@@ -224,9 +224,7 @@ public class GameLauncher{
         showAccueil();
 
         //// Pour lancer le jeu directement (pour les testes)
-        //new GameLauncher(true);
-
-        //// Pour lancer la vue terminal
-        //new ConsoleLauncher();
+        new GameLauncher(true);
+        //new ConsoleLauncher(); //la console est trop bien
     }
 }

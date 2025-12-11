@@ -59,13 +59,16 @@ public class SaveData {
 
 
     public SaveData(GameManager gameManager){
+
         System.out.println("SaveData Called");
-        this.groundModel = gameManager.getGroundModel();
-        teamDatas = modelToData(gameManager.getlistTeams());
+        
         this.round = gameManager.getRoundNumber();
         this.currentTeamindex = gameManager.getCurrentTeamIndex();
         this.activeWormIndex = gameManager.getActiveWormIndex();
         this.roundTimeRemaining = gameManager.getRoundTimeSave();
+
+        this.groundModel = gameManager.getGroundModel();
+        this.teamDatas = modelToData(gameManager.getlistTeams());
     }
 
     public ArrayList<TeamData> modelToData(ArrayList<TeamModel> teamModels){

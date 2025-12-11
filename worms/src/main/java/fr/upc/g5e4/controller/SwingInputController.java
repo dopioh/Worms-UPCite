@@ -4,8 +4,11 @@ package fr.upc.g5e4.controller;
 import java.awt.event.*;
 
 import javax.swing.JPanel;
+import org.jbox2d.common.Vec2;
 
 import fr.upc.g5e4.model.GameManager;
+import fr.upc.g5e4.model.CharacterModel;
+import fr.upc.g5e4.view.TrajectoryRenderer;
 
 /** 
  * Classe pour les Entrées Clavier Souris qui reprend celle de Nassim
@@ -18,6 +21,9 @@ public class SwingInputController extends JPanel{
     private CharacterController personnageController;
     private CameraController cameraController;
     private GameManager gameManager; 
+    private TrajectoryRenderer trajectoryRenderer;
+    private boolean isAiming = false;  // affichage de la trajectoire
+    private double shootingAngle = 0;  // angle de visée en degrés
 
     /**
      * Constructeur pour gérer uniquement le personnage
@@ -46,6 +52,7 @@ public class SwingInputController extends JPanel{
     //@Override
     public void addControls() {    
         //System.out.println("addControls() called");
+        
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -62,20 +69,34 @@ public class SwingInputController extends JPanel{
                         personnageController.activateJump();
                         break;
 
-                    // Caméra déplacements
+                    // contrôle du viseur - UP/DOWN pour rotation circulaire (0-360°)
                     case KeyEvent.VK_UP:
-                        if(cameraController != null) cameraController.activateUp();
+                        // augmenter l'angle (viser plus haut)
+                        shootingAngle += 10;  // +10 degrés
+                        if (shootingAngle >= 360) {
+                            shootingAngle -= 360;  // revenir à 0 si dépassement
+                        }
+                        isAiming = true;
+                        updateTrajectory();
                         break;
                     case KeyEvent.VK_DOWN:
-                        if(cameraController != null) cameraController.activateDown();
+                        // diminuer l'angle (viser plus bas)
+                        shootingAngle -= 10;  // -10 degrés
+                        if (shootingAngle < 0) {
+                            shootingAngle += 360;  // revenir à 360 si négatif
+                        }
+                        isAiming = true;
+                        updateTrajectory();
                         break;
+
+                    // Caméra déplacements
                     case KeyEvent.VK_LEFT:
                         if(cameraController != null) cameraController.activateLeft();
                         break;
                     case KeyEvent.VK_RIGHT:
                         if(cameraController != null) cameraController.activateRight();
                         break;
-
+                    
                     // Caméra zoom
                     case KeyEvent.VK_T:
                         if(cameraController != null) cameraController.zoomIn();
@@ -99,9 +120,15 @@ public class SwingInputController extends JPanel{
                         break;
 
                     // Ouverture de l'inventaire
-                    case KeyEvent.VK_P:
+                    case KeyEvent.VK_J:
                         gameManager.actionPerformed();
                         System.out.println("Save Buttun Pressed");
+                        break;
+                    
+                    // Toggle mode vol (touche P)
+                    case KeyEvent.VK_P:
+                        personnageController.toggleFlyMode();
+                        System.out.println("SUPERMAAAAAAAAAAAAN (todo : ajouter cape)");
                         break;
                 }
             }
@@ -123,10 +150,7 @@ public class SwingInputController extends JPanel{
 
                     // Caméra relâchement touches
                     case KeyEvent.VK_UP:
-                        if(cameraController != null) cameraController.deactivateUp();
-                        break;
                     case KeyEvent.VK_DOWN:
-                        if(cameraController != null) cameraController.deactivateDown();
                         break;
                     case KeyEvent.VK_LEFT:
                         if(cameraController != null) cameraController.deactivateLeft();
@@ -142,11 +166,50 @@ public class SwingInputController extends JPanel{
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
+                requestFocusInWindow();  // Récupérer le focus au clic
                 if (e.getButton() == MouseEvent.BUTTON1) {
-                    personnageController.fireWeapon(e.getX(), e.getY());
+                    if (trajectoryRenderer != null) {
+                        trajectoryRenderer.setAiming(false);
+                    }
+                    isAiming = false;
+                    
+                    // Passer l'angle au weapon avant de tirer
+                    if (personnageController != null && personnageController.getCurrentWeapon() != null) {
+                        personnageController.getCurrentWeapon().setShootingAngle(shootingAngle);
+                    }
+                    
+                    // Tirer le projectile - il suit la trajectoire dessinée
+                    if (personnageController != null) {
+                        personnageController.fireWeapon(1);  // direction par défaut (non utilisée)
+                    }
                 }
             }
         });
+    }
+    
+    /**
+     * met à jour l'affichage de la trajectoire avec l'angle courant
+     */
+    private void updateTrajectory() {
+        if (trajectoryRenderer != null && personnageController != null) {
+            trajectoryRenderer.setShootingAngle(shootingAngle);
+            trajectoryRenderer.setAiming(isAiming);
+            trajectoryRenderer.setShooter(personnageController.getModel());
+            
+            // Passer aussi l'angle au weapon pour que la trajectoire affichée = trajectoire du tir
+            if (personnageController.getCurrentWeapon() != null) {
+                personnageController.getCurrentWeapon().setShootingAngle(shootingAngle);
+            }
+            
+            System.out.println("Angle: " + String.format("%.0f°", shootingAngle));
+        }
+    }
+    
+    /**
+     * Définit le rendu de la trajectoire
+     */
+    public void setTrajectoryRenderer(TrajectoryRenderer renderer) {
+        this.trajectoryRenderer = renderer;
     }
     
     /**

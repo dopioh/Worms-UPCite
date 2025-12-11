@@ -12,7 +12,8 @@ public class TeamView {
     private CharacterView[] tabViewWorms;
     
     /**
-     * Constructeur de la classe TeamView
+     * Constructeur de la classe TeamView (avec un sprite par defaut (un carré de couleur))
+     * @param wormNumber nombre de worms dans l'équipe
      * @param teamColor Couleur de l'équipe
      */
     public TeamView(int wormNumber, Color teamColor) {
@@ -22,6 +23,33 @@ public class TeamView {
         // Attribut une vue pour chaque worm de l'equipe
         for (int i = 0; i < tabViewWorms.length; i++) {
             tabViewWorms[i] = new CharacterView(25, teamColor);
+        }
+    }
+    
+    /**
+     * constructeur de la classe TeamView avec sprite personnalisé
+     * @param wormNumber nombre de worms dans l'équipe
+     * @param teamColor Couleur de l'équipe
+     * @param spritePath le chemin du sprite dans /resources (ex: "/worm.png")
+     */
+    public TeamView(int wormNumber, Color teamColor, String spritePath) {
+        this(wormNumber, teamColor, spritePath, true);
+    }
+    
+    /**
+     * constructeur de la classe TeamView avec sprite personnalisé + direction personnalisée
+     * @param wormNumber nombre de worms dans l'équipe
+     * @param teamColor Couleur de l'équipe
+     * @param spritePath le chemin du sprite dans /resources (ex: "/worm.png")
+     * @param facingRight true si les worms regardent à droite par défaut, false pour gauche
+     */
+    public TeamView(int wormNumber, Color teamColor, String spritePath, boolean facingRight) {
+        this.teamColor = teamColor;
+        this.tabViewWorms = new CharacterView[wormNumber];
+        
+        // Attribut une vue avec sprite personnalisé pour chaque worm de l'equipe
+        for (int i = 0; i < tabViewWorms.length; i++) {
+            tabViewWorms[i] = new CharacterView(25, teamColor, spritePath);
         }
     }
     
@@ -53,5 +81,21 @@ public class TeamView {
                 view.setColor(teamColor);
             }
         }
+    }
+    
+    /**
+     * active ou désactive l'affichage des nametags pour toute l'équipe
+     * @param show true pour afficher, false pour masquer
+     */
+    public void setShowAllNameTags(boolean show) {
+        for (CharacterView view : tabViewWorms) {
+            if (view != null) {
+                view.setShowNameTag(show);
+            }
+        }
+    }
+    
+    public CharacterView getCharacterView(int index) {
+        return tabViewWorms[index];
     }
 }

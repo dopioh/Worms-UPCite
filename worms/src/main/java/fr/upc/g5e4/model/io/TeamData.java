@@ -12,10 +12,9 @@ public class TeamData {
 
     private final int teamID; // c'est ca le team name ?
     private int wormsNumber; // par equipe
-    private CharacterData[] dataTabCharacter;
-
     private String teamName;
 
+    private CharacterData[] dataTabCharacter;
     /**
      * 
      * @param teamNumber numero d'equipe (= ID)
@@ -48,7 +47,7 @@ public class TeamData {
     }
 
     public TeamModel dataToModel(GroundModel groundModel,World world){
-        TeamModel result = new TeamModel(groundModel, world, teamName, teamID, teamID, wormsNumber, false);
+        TeamModel result = new TeamModel(groundModel, world, teamName, teamID, teamID, wormsNumber, false,false,false);
         return result;
     }
 
