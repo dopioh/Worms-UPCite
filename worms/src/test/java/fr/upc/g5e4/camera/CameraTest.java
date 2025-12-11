@@ -3,8 +3,8 @@ package fr.upc.g5e4.camera;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
+import fr.upc.g5e4.model.CameraModel;
 import fr.upc.g5e4.model.CharacterModel;
-import fr.upc.g5e4.model.camera.CameraModel;
 
 class CameraTest {
 

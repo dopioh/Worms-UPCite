@@ -1,6 +1,5 @@
-package fr.upc.g5e4.model.camera;
+package fr.upc.g5e4.model;
 
-import fr.upc.g5e4.model.CharacterModel;
 import org.jbox2d.dynamics.Body;
 
 /*
