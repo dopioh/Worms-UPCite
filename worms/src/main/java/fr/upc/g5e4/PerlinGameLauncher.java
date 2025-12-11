@@ -25,15 +25,16 @@ public class PerlinGameLauncher {
     }
     
     public PerlinGameLauncher() {
-        int sizeX = 3380;
+        int sizeX = 6000;  // Taille du terrain
         int sizeY = 720;
         
-        // Générer le terrain avec Perlin
+        // seed = temp actuelle de la machine donc jamais le meme terrain
         TerrainGenerator generator = new TerrainGenerator(System.currentTimeMillis());
-        int[] groundY = generator.generateTerrainWithFlatEdges(14, 200, 600);
+        System.out.println("seed actuelle : " + System.currentTimeMillis());
+        int[] groundY = generator.generateTerrain(1000, 70, 800); //minHeight a 400 decalait le ground de sa hitbox wtff
         
         // Créer le modèle de terrain
-        GroundModel groundModel = new GroundModel(groundY, sizeX, sizeY, 500);
+        GroundModel groundModel = new GroundModel(groundY, sizeX, sizeY, 700);
         
         // Initialiser la physique
         PhysicsWorld physic = new PhysicsWorld();
@@ -46,9 +47,12 @@ public class PerlinGameLauncher {
         TeamModel team = new TeamModel(groundModel, world, "Team Perlin", 300, 300, wormNumber);
         TeamView teamView = new TeamView(wormNumber, Color.ORANGE);
         
-        // Initialiser la caméra
-        CameraModel camera = new CameraModel(sizeX, sizeY, groundModel.getWidth(), groundModel.getHeight(), 1);
+        // Initialiser la caméra (utiliser la taille de la fenêtre, pas du terrain)
+        CameraModel camera = new CameraModel(1280, 720, groundModel.getWidth(), groundModel.getHeight(), 1);
         CameraController cameraController = new CameraController(camera, team.getWorm(0));
+        
+        // Centrer immédiatement la caméra sur le worm
+        cameraController.centerOnCharacter();
         
         // Créer le contrôleur pour le premier worm
         CharacterController wormController = new CharacterController(team.getWorm(0));

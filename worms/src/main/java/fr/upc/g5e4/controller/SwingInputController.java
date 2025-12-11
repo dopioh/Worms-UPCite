@@ -97,6 +97,12 @@ public class SwingInputController extends JPanel{
                         if(gameManager != null) gameManager.switchWeapon();
                         System.out.println("switch");
                         break;
+                    
+                    // Toggle mode vol (touche P)
+                    case KeyEvent.VK_P:
+                        personnageController.toggleFlyMode();
+                        System.out.println("SUPERMAAAAAAAAAAAAN (todo : ajouter cape)");
+                        break;
                 }
             }
             

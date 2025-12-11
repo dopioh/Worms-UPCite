@@ -14,6 +14,7 @@ public class CharacterView {
     private int size;
     private Color color;
     private NameTagView nameTagView;
+    private boolean showNameTag = true;
     
     /**
      * Constructeur de la classe PersonnageView
@@ -73,6 +74,11 @@ public class CharacterView {
      * @param model Le modèle du worm
      */
     private void drawStats(Graphics2D g2d, CharacterModel model) {
+        if (!showNameTag) {
+            nameTagView.setVisible(false);
+            return;
+        }
+        
         if (model.isDead()) {
             nameTagView.setVisible(false);
             return;
@@ -109,5 +115,13 @@ public class CharacterView {
     
     public NameTagView getNameTagView() {
         return nameTagView;
+    }
+    
+    public boolean isShowNameTag() {
+        return showNameTag;
+    }
+    
+    public void setShowNameTag(boolean showNameTag) {
+        this.showNameTag = showNameTag;
     }
 }

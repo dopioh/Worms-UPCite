@@ -26,6 +26,7 @@ public class GamePanel extends JPanel {
     private static final float PPM = 30f;
     
     private BufferedImage groundTexture;
+    private boolean blueprintMode = true;
 
     // ajout: label pour afficher le temps restant (vue)
     private final JLabel roundTimerLabel = new JLabel("Temps restant : 30s");
@@ -76,6 +77,11 @@ public class GamePanel extends JPanel {
     public void setRoundTimer(int seconds) {
         SwingUtilities.invokeLater(() -> roundTimerLabel.setText("Temps restant : " + seconds + "s"));
     }
+    
+    // Activer le mode blueprint (style bleu foncé)
+    public void setBlueprintMode(boolean enabled) {
+        this.blueprintMode = enabled;
+    }
 
     /**
      * L'ordre d'ajout pour les éléments graphiques impacte la superposition des
@@ -95,11 +101,50 @@ public class GamePanel extends JPanel {
         // Permet le deplacement de la caméra
         g2.translate(-camera.getX(), -camera.getY());
 
-        // Ciel
-        g2.setColor(new Color(135, 206, 235));
-        g2.fillRect(0, 0, model.getWidth(), model.getHeight());
+        // Ciel (ou fond blueprint)
+        if (blueprintMode) {
+            // Fond bleu foncé
+            g2.setColor(new Color(20, 40, 80));
+            g2.fillRect(0, 0, model.getWidth(), model.getHeight());
+            
+            // Quadrillage blueprint
+            g2.setColor(new Color(60, 100, 150, 180)); // Bleu plus clair semi-transparent
+            g2.setStroke(new BasicStroke(1));
+            
+            // Lignes verticales (tous les 50 pixels)
+            for (int x = 0; x < model.getWidth(); x += 50) {
+                g2.drawLine(x, 0, x, model.getHeight());
+            }
+            
+            // Lignes horizontales (tous les 50 pixels)
+            for (int y = 0; y < model.getHeight(); y += 50) {
+                g2.drawLine(0, y, model.getWidth(), y);
+            }
+            
+            // Lignes plus épaisses tous les 200 pixels
+            g2.setColor(new Color(100, 140, 200, 220));
+            g2.setStroke(new BasicStroke(2));
+            for (int x = 0; x < model.getWidth(); x += 200) {
+                g2.drawLine(x, 0, x, model.getHeight());
+            }
+            for (int y = 0; y < model.getHeight(); y += 200) {
+                g2.drawLine(0, y, model.getWidth(), y);
+            }
+            
+            // Rétablir le stroke normal
+            g2.setStroke(new BasicStroke(1));
+        } else {
+            g2.setColor(new Color(135, 206, 235)); // Ciel normal
+            g2.fillRect(0, 0, model.getWidth(), model.getHeight());
+        }
 
-        // Ground
+        // Eau (en arrière-plan, pas en mode blueprint)
+        if (!blueprintMode) {
+            g2.setColor(new Color(75, 147, 240));
+            g2.fillRect(0, model.getWaterLevel(), model.getWidth(), model.getHeight() - model.getWaterLevel());
+        }
+
+        // Ground (au premier plan)
         Path2D path = new Path2D.Double();
         path.moveTo(0, model.getHeight());
         double step = (double) model.getWidth() / (model.getGroundY().length - 1);
@@ -128,10 +173,6 @@ public class GamePanel extends JPanel {
         if (teamView2 != null && teamModel2 != null) {
             teamView2.draw(g2, teamModel2);
         }
-
-        // Eau
-        g2.setColor(new Color(75, 147, 240));
-        g2.fillRect(0, model.getWaterLevel(), model.getWidth(), model.getHeight() - model.getWaterLevel());
 
         // permet libérer les ressources graphiques
         g2.dispose();

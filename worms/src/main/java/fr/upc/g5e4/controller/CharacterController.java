@@ -106,12 +106,29 @@ public class CharacterController {
     public boolean update() {
         Body body = model.getBody();
         
-        // Appliquer une force horizontale
-        if (LeftKeyPressed) {
-            body.applyForceToCenter(new Vec2((float)-MOVE_FORCE, 0));
-        }
-        if (RightKeyPressed) {
-            body.applyForceToCenter(new Vec2((float)MOVE_FORCE, 0));
+        
+        if (model.isFlyMode()) { // deplacements flymod
+            Vec2 velocity = new Vec2(0, 0);
+            
+            if (LeftKeyPressed) {
+                velocity.x = (float)-MOVE_FORCE*3;
+            }
+            if (RightKeyPressed) {
+                velocity.x = (float)MOVE_FORCE*3;
+            }
+            if (SpaceKeyPressed) {
+                velocity.y = (float)MOVE_FORCE*3;  // monter
+            }
+            
+            body.setLinearVelocity(velocity);
+        } else {
+            // Mode normal : appliquer une force horizontale
+            if (LeftKeyPressed) {
+                body.applyForceToCenter(new Vec2((float)-MOVE_FORCE, 0));
+            }
+            if (RightKeyPressed) {
+                body.applyForceToCenter(new Vec2((float)MOVE_FORCE, 0));
+            }
         }
         
         // Synchroniser les coordonnées du modèle avec le corps physique
@@ -120,6 +137,13 @@ public class CharacterController {
         model.setYcord((10 - position.y) * 30f);  // Inversion Y + conversion
         
         return LeftKeyPressed ^ RightKeyPressed;
+    }
+    
+    /**
+     * Active/désactive le mode vol pour ce worm
+     */
+    public void toggleFlyMode() {
+        model.toggleFlyMode();
     }
 
 

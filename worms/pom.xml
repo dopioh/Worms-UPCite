@@ -46,6 +46,12 @@
         <artifactId>lanterna</artifactId>
         <version>3.1.2</version>
     </dependency>
+    
+    <dependency>
+        <groupId>de.articdive</groupId>
+        <artifactId>jnoise-pipeline</artifactId>
+        <version>4.1.0</version>
+    </dependency>
 
   </dependencies>
 
@@ -58,7 +64,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>fr.upc.g5e4.GameLauncher</mainClass>
+                            <mainClass>fr.upc.g5e4.TutorialLauncher</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

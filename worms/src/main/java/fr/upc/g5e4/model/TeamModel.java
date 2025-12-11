@@ -28,7 +28,7 @@ public class TeamModel {
         // Initialisation automatique des worms et position espacée
         for (int i = 0; i < number; i++) {
             double xPosition = startX + (i * spacing);
-            double yPosition = groundModel.getHeight() - 500;
+            double yPosition = groundModel.getHeight() - 600;
             
             String wormName = "Worm";
             

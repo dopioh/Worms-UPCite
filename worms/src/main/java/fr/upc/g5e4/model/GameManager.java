@@ -64,20 +64,22 @@ public class GameManager {
      * @see PhysicsWorld#createGroundFromModel()
      */
     public GameManager() {
-        int sizeX = 1280;
+        int sizeX = 6000;  // Taille du terrain (comme dans PerlinGameLauncher)
         int sizeY = 720;
-        int[] groundY = {470,450,430,420,410,400,390,370,340,300,280,250,230,200};
+        
+        // generation procédurale du terrain avec seed (le temps de la machine)
+        TerrainGenerator generator = new TerrainGenerator(System.currentTimeMillis());
+        int[] groundY = generator.generateTerrainWithPlatforms(1000, 70, 900, 200, 15);
+
         /*
-         * Plusieurs autres valeurs de groundY si vous voulez tester plusieurs terrains
-         * :
+         * Ancienne méthode : terrain manuel
+         * int[] groundY = {470,450,430,420,410,400,390,370,340,300,280,250,230,200};
+         * 
+         * Plusieurs autres valeurs de groundY si vous voulez tester plusieurs terrains :
          * int[] groundY = {400,420,450,450,400,300,530,450,350,300,250,230,200,230};
          * int[] groundY = {200,230,250,280,300,340,370,390,400,410,420,430,450,470};
          * int[] groundY = {470,450,430,420,410,400,390,370,340,300,280,250,230,200};
          * int[] groundY = {400,420,450,450,400,700,930,450,350,300,250,230,200,200};
-         * 
-         * J'ai toujours pris la meme taille de tableau pour faire les tests
-         * Mais vous pouvez mettre autant de valeurs que vous voulez
-         * Ca rendra d'ailleurs le Ground plus lisse normalement
          */
 
         this.model = new GroundModel(groundY, sizeX, sizeY, 500);
@@ -87,21 +89,17 @@ public class GameManager {
         physic.createGroundFromModel(model);
         this.water = physic.createBodyWater(model);
 
-        //this.personnageModel = new CharacterModel(model, world, 700, model.getHeight() - 500); // Si le x est à 800
-                                                                                                // pile i ça marche pas
-        // System.out.println("\nGame Manager xcord : " +
-
-        // Initialisation caméra et contrôleur
-        this.camera = new CameraModel(sizeX, sizeY, model.getWidth(), model.getHeight(), 1);
+        // initialisation caméra et contrôleur (ON PREND LES COORDONNEES DE LA FENETRE)
+        this.camera = new CameraModel(1280, 720, model.getWidth(), model.getHeight(), 1);
         physic.limitPanel(model);
 
-        // création premiere equipe
+        // création premiere equipe (spawn en haut de la map pour éviter d'être coincés)
         int wormNumber = 3; 
-        this.teamModel1 = new TeamModel(model, world, "Team1", 100, 98, wormNumber);
+        this.teamModel1 = new TeamModel(model, world, "Team1", 0, 80, wormNumber);
         this.teamView1 = new TeamView(wormNumber, Color.BLUE);
 
         // création seconde equipe
-        this.teamModel2 = new TeamModel(model, world, "Team2", 400, 98, wormNumber);  
+        this.teamModel2 = new TeamModel(model, world, "Team2", 5600, 50, wormNumber);  
         this.teamView2 = new TeamView(wormNumber, Color.RED);
         
         // Créer une liste de tous les worms pour le WaterSensorListener
@@ -136,9 +134,12 @@ public class GameManager {
         // Équiper une arme par défaut (AK-47)
         activeWormController.setCurrentWeapon(new Ak47());
         
-        // Initialisation caméra avec le worm actif
-        this.camera = new CameraModel(sizeX, sizeY, model.getWidth(), model.getHeight(), 1);
+        // Initialisation caméra avec le worm actif (fenêtre 1280x720, terrain 6000x720)
         this.cameraController = new CameraController(camera, teamModel1.getWorm(activeWormIndex));
+        
+        // Centrer la caméra sur le worm actif au démarrage
+        this.cameraController.centerOnCharacter();
+        
         // Contrôleur fusionné avec le worm actif
         this.imputController = new SwingInputController(activeWormController, cameraController);
 
