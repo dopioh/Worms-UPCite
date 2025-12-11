@@ -16,10 +16,15 @@ import fr.upc.g5e4.model.weapons.Grenade;
 import fr.upc.g5e4.model.weapons.RocketLauncher;
 import fr.upc.g5e4.model.PhysicsWorld.WaterSensorListener;
 import fr.upc.g5e4.model.camera.CameraModel;
+import fr.upc.g5e4.model.io.SaveData;
+import fr.upc.g5e4.model.io.TeamData;
 //import fr.upc.g5e4.view.CharacterView;
 import fr.upc.g5e4.view.GamePanel;
 import fr.upc.g5e4.view.ItemView;
 import fr.upc.g5e4.view.TeamView;
+
+import java.io.*;
+import com.google.gson.*;
 
 /**
  * Cette classe servira pour instancier tout ce dont le jeu (une partie de jeu)
@@ -27,7 +32,7 @@ import fr.upc.g5e4.view.TeamView;
  */
 public class GameManager {
     private final GamePanel gamePanel;
-    private final GroundModel model;
+    private GroundModel model;
     private final PhysicsWorld physic;
     private final World world;
     private final Body water;
@@ -56,6 +61,10 @@ public class GameManager {
     private int roundNumber = 1;
     private int currentTeamIndex = 0; // 0 = Team1, 1 = Team2
 
+    // Timer : 
+    private int roundTimeRemaining = 1800;
+    private int roundTimeSave = 1800;
+
     /**
      * Initialise le terrain du jeu.
      * <p>
@@ -73,7 +82,7 @@ public class GameManager {
     public GameManager(int sizex, int sizey) {
         int sizeX = sizex;
         int sizeY = sizey;
-        int[] groundY = {400,420,450,450,400,700,930,450,350,300,250,230,200,200};
+        int[] groundY = {470,450,430,420,410,400,390,370,340,300,280,250,230,200};
         /*
          * Plusieurs autres valeurs de groundY si vous voulez tester plusieurs terrains
          * :
@@ -233,6 +242,17 @@ public class GameManager {
         return listTeamModel;
     }
 
+    public int getRoundTimeRemaining(){
+        return this.roundTimeRemaining;
+    }
+    public int getRoundTimeSave(){
+        return this.roundTimeSave;
+    }
+
+    public void setRoundTimeSave(int time){
+        this.roundTimeSave = time;
+    }
+
     /**
      * switch le worm actif vers le suivant dans l'équipe
      * saute les worms morts
@@ -345,5 +365,72 @@ public class GameManager {
         if (newWeapon != null && activeWormController != null) {
             activeWormController.setCurrentWeapon(newWeapon);
         }
+    }
+
+    // SAUVEGARDE :
+
+    /**
+     * Methode appelee lorsqu'on appuie sur le bouton save
+     */
+    public void save(){
+        // creer une sauvegarde automatiquement
+        SaveData saveData = new SaveData(this);
+
+        try {
+            File dossier = new File("sauvegardes");
+            File file = new File(dossier, "sauvegarde.txt");
+            FileWriter fileWriter = new FileWriter(file);
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            gson.toJson(saveData,fileWriter);
+            System.out.println(file.getAbsolutePath());
+            System.out.println(file.getCanonicalPath());
+            System.out.println("Partie sauvegardee !");
+
+            fileWriter.close();
+        } catch (Exception e) {
+            e.getMessage();
+        }
+    }
+
+    public void loadGame(String filePath){
+        try {
+            Gson gson = new Gson();
+            FileReader fileReader = new FileReader(filePath);
+
+            SaveData saveData = gson.fromJson(fileReader, SaveData.class);
+
+            //// On remplace :
+
+            // Donnees Partie :
+            this.roundNumber = saveData.getRound();
+            this.currentTeamIndex = saveData.getCurrentTeamIndex();
+            this.activeWormIndex = saveData.getActiveWormIndex();
+            this.roundTimeRemaining = saveData.getRoundTimeRemaining();
+
+            // Terrain :
+            this.model = saveData.getGroundModel();
+
+            // Worms : 
+
+            // Comment attribuer les equipes ? -> Le code n'est pas modulable pour les equipes 
+            // A corriger Sprint 4
+
+            for (TeamData td : saveData.getListTeamData()){
+                listTeamModel.add(td.dataToModel(model, world));
+            }
+
+            // a finir 
+        } catch (Exception e) {
+            e.getMessage();
+        }
+    }
+
+    /**
+     * Sauvegarde la partie
+     * Est called dans le controller
+     */
+    public void actionPerformed(){
+        save();
+        //System.out.println("JSON Creer");
     }
 }

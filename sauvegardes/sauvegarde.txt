@@ -1,0 +1,97 @@
+{
+  "round": 1,
+  "currentTeamindex": 0,
+  "activeWormIndex": 0,
+  "roundTimeRemaining": 1239,
+  "groundModel": {
+    "groundY": [
+      470,
+      450,
+      430,
+      420,
+      410,
+      400,
+      390,
+      370,
+      340,
+      300,
+      280,
+      250,
+      230,
+      200
+    ],
+    "width": 1280,
+    "height": 720,
+    "waterLevel": 500
+  },
+  "teamDatas": [
+    {
+      "teamID": 1,
+      "wormsNumber": 3,
+      "dataTabCharacter": [
+        {
+          "ID": 0,
+          "name": "Worm-0",
+          "xcord": 107.1781234741211,
+          "ycord": 18.444414138793945,
+          "health": 100.0,
+          "shield": 50.0,
+          "isDead": false
+        },
+        {
+          "ID": 1,
+          "name": "Worm-1",
+          "xcord": 198.0,
+          "ycord": 220.0,
+          "health": 100.0,
+          "shield": 50.0,
+          "isDead": false
+        },
+        {
+          "ID": 2,
+          "name": "Worm-2",
+          "xcord": 296.0,
+          "ycord": 220.0,
+          "health": 100.0,
+          "shield": 50.0,
+          "isDead": false
+        }
+      ],
+      "teamName": "Team1"
+    },
+    {
+      "teamID": 2,
+      "wormsNumber": 3,
+      "dataTabCharacter": [
+        {
+          "ID": 3,
+          "name": "Worm-3",
+          "xcord": 400.0,
+          "ycord": 220.0,
+          "health": 100.0,
+          "shield": 50.0,
+          "isDead": false
+        },
+        {
+          "ID": 4,
+          "name": "Worm-4",
+          "xcord": 498.0,
+          "ycord": 220.0,
+          "health": 100.0,
+          "shield": 50.0,
+          "isDead": false
+        },
+        {
+          "ID": 5,
+          "name": "Worm-5",
+          "xcord": 596.0,
+          "ycord": 220.0,
+          "health": 100.0,
+          "shield": 50.0,
+          "isDead": false
+        }
+      ],
+      "teamName": "Team2"
+    }
+  ]
+}

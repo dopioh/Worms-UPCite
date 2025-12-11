@@ -6,6 +6,7 @@ import fr.upc.g5e4.model.*;
 import fr.upc.g5e4.model.camera.CameraModel;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
 import java.awt.geom.Path2D;
 
 /**
@@ -20,6 +21,8 @@ public class GamePanel extends JPanel {
     private final TeamView teamView1;
     private final TeamModel teamModel2;
     private final TeamView teamView2;
+
+    private JButton saveButton;
 
     private static final float PPM = 30f;
 
@@ -49,6 +52,14 @@ public class GamePanel extends JPanel {
         roundTimerLabel.setBounds(20, 10, 220, 30);
         roundTimerLabel.setOpaque(false);
         this.add(roundTimerLabel);
+
+        /*
+        // Bouton de sauvegarde
+        this.saveButton = new JButton("Sauvegarde");
+        this.saveButton.setBounds(40, 70, 70, 30);
+        saveButton.setFocusable(false);
+        this.add(saveButton);
+        */
 
         // Timer pour update régulier de la caméra et repaint
         new javax.swing.Timer(16, e -> {
@@ -114,4 +125,10 @@ public class GamePanel extends JPanel {
         // permet libérer les ressources graphiques
         g2.dispose();
     }
+
+    /*
+    // Pour relier le bouton avec la save ? -> Faire mtn ?
+    public void addSaveListener(ActionListener actionListener){
+        saveButton.addActionListener(actionListener);
+    }*/
 }

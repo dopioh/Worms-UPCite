@@ -1,5 +1,7 @@
 package fr.upc.g5e4.model;
 
+//import java.util.ArrayList;
+
 import org.jbox2d.dynamics.World;
 
 import fr.upc.g5e4.model.io.*;
@@ -9,10 +11,14 @@ import fr.upc.g5e4.model.io.*;
  */
 public class TeamModel {
     private int teamID; // ID de l'equipe, peut pas etre final sinon on peut pas load une partie
+    private String teamName;
+
     private int number; // nbr de worms dans l'equipe
     private CharacterModel[] tabModelWorms;
+    
 
     private static int TEAMSNUMBER = 0;
+
     
     /**
      * Constructeur de la classe TeamModel avec initialisation automatique des worms
@@ -29,6 +35,7 @@ public class TeamModel {
         }
         this.number = wormNumber;
         this.tabModelWorms = new CharacterModel[number];
+        this.teamName = teamName;
 
         TEAMSNUMBER++;
         this.teamID = TEAMSNUMBER;
@@ -102,7 +109,7 @@ public class TeamModel {
 
     // Getter Data
     public TeamData toData(){
-        return new TeamData(teamID, number, tabModelWorms);
+        return new TeamData(teamID, number, tabModelWorms,teamName);
     }
 
     // Setter Data
@@ -110,14 +117,6 @@ public class TeamModel {
         this.teamID = teamData.getTeamID();
         this.number = teamData.getWormsNumber();
     
-    }
-
-    public CharacterModel[] dataToModel(CharacterData[] dataTabCharacter){
-        CharacterModel[] result = new CharacterModel[dataTabCharacter.length];
-        for (int i = 0 ; i < result.length ; i++){
-            result[i] = new CharacterModel(null, null, i, i, false);
-        }
-        return result;
     }
 
     

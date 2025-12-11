@@ -26,6 +26,12 @@ Que mettre dans la sauvegarde ?
 
     - Inventaire : 
         - l'inventaire par equipe (est ce que c'est deja correctement configurer ca ?)
+
+    - Donnees Parties :
+        - Timer 
+        - Round 
+        - Team Actif 
+        - Ver Actif 
 */
 
 /**
@@ -36,6 +42,12 @@ Que mettre dans la sauvegarde ?
  * Grace a GSON
  */
 public class SaveData {
+    // Donnes Parties :
+    private int round;
+    private int currentTeamindex;
+    private int activeWormIndex;
+
+    private int roundTimeRemaining;
     // Terrain : 
     private GroundModel groundModel; // pas besoin de classe Data car aucune data useless dans GroundModel
     // Worms :
@@ -43,10 +55,17 @@ public class SaveData {
     
     // Inventaire :
 
+    // Infos Partie (Round, team et worm actif) :
+
 
     public SaveData(GameManager gameManager){
+        System.out.println("SaveData Called");
         this.groundModel = gameManager.getGroundModel();
         teamDatas = modelToData(gameManager.getlistTeams());
+        this.round = gameManager.getRoundNumber();
+        this.currentTeamindex = gameManager.getCurrentTeamIndex();
+        this.activeWormIndex = gameManager.getActiveWormIndex();
+        this.roundTimeRemaining = gameManager.getRoundTimeSave();
     }
 
     public ArrayList<TeamData> modelToData(ArrayList<TeamModel> teamModels){
@@ -56,6 +75,30 @@ public class SaveData {
             result.add(tdTemp);
         }
         return result;
+    }
+
+    public GroundModel getGroundModel(){
+        return groundModel;
+    }
+
+    public ArrayList<TeamData> getListTeamData(){
+        return teamDatas;
+    }
+
+    public int getRound(){
+        return round;
+    }
+    
+    public int getCurrentTeamIndex(){
+        return currentTeamindex;
+    }
+
+    public int getActiveWormIndex(){
+        return activeWormIndex;
+    }
+
+    public int getRoundTimeRemaining(){
+        return roundTimeRemaining;
     }
 
 
