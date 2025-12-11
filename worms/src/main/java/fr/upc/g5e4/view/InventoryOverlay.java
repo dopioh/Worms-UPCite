@@ -12,7 +12,7 @@ import fr.upc.g5e4.model.InventoryModel.InventoryJson;
 import fr.upc.g5e4.controller.SwingInputController;
 
 public class InventoryOverlay extends JComponent{       //S'integre dans une interface Swing (JFrame)
-    private final List<InventoryJson> inventory;
+    private List<InventoryJson> inventory;
     private boolean visible = false;
     private MouseAdapter fireListener; // Listener pour le tir
 
@@ -134,14 +134,14 @@ public class InventoryOverlay extends JComponent{       //S'integre dans une int
             return;
         }
 
-        /* FOND SOMBRE */
-        g2.setColor(new Color(0,0,0,150));
-        g2.fillRect(0, 0, w, h);
+        // /* FOND SOMBRE */
+        // g2.setColor(new Color(0,0,0,150));
+        // g2.fillRect(0, 0, w, h);
 
         /* Overlay */
-        int panelW = 300;
-        int panelH = 250;
-        int panelX = (w - panelW) /2;
+        int panelW = 250;
+        int panelH = 400;
+        int panelX = 20;
         int panelY = (h - panelH) /2;
 
         g2.setColor(new Color(40,40,40));
@@ -196,6 +196,13 @@ public class InventoryOverlay extends JComponent{       //S'integre dans une int
 
     }
 
+    public void setInventory(List<InventoryJson> inventory){
+        this.inventory = inventory;
+        selectedIndex = -1;
+        equippedItem = null;
+        itemBounds.clear();
+        repaint();
+    }
     public void setInventoryVisible(boolean visible){
         this.visible = visible;
         repaint();
