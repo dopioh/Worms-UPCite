@@ -92,11 +92,11 @@ public class GameManager {
         this.camera = new CameraModel(1280, 720, model.getWidth(), model.getHeight(), 1);
         physic.limitPanel(model);
 
-        // création premiere equipe (spawn en haut de la map pour éviter d'être coincés)
+        // création premiere equipe
         int wormNumber = 3; 
-        // Team1 regarde vers la droite par défaut
+        // Team1 regarde vers la droite
         this.teamModel1 = new TeamModel(model, world, "Team1", 100, 80, wormNumber, false, true);
-        this.teamView1 = new TeamView(wormNumber, Color.BLUE, "/worm.png", true);
+        this.teamView1 = new TeamView(wormNumber, Color.BLUE, "/GIGAWORMM.png", true);
 
         // création seconde equipe
         // Team2 regarde vers la gauche (face à Team1)

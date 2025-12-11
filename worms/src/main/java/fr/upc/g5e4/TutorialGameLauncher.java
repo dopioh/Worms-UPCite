@@ -45,14 +45,13 @@ public class TutorialGameLauncher {
         physic.limitPanel(groundModel);
         
         TeamModel team = new TeamModel(groundModel, world, "Tuto", 300, 300, 1, false);
-        TeamView teamView = new TeamView(1, Color.GREEN);
+        TeamView teamView = new TeamView(1, Color.GREEN, "/worm.png", true    );
         teamView.setShowAllNameTags(true);
 
         TeamModel teamTest = new TeamModel(groundModel, world, "Tuto", 500, 0, 5, false);
-        TeamView teamViewTest = new TeamView(5, Color.WHITE);
-        
+        TeamView teamViewTest = new TeamView(5, Color.WHITE, "/box.png"    );
         teamViewTest.setShowAllNameTags(false);
-
+        
         // init camera (utiliser la taille de la fenêtre, pas du terrain)
         CameraModel camera = new CameraModel(1280, 720, groundModel.getWidth(), groundModel.getHeight(), 1.5);
         CameraController cameraController = new CameraController(camera, team.getWorm(0));
