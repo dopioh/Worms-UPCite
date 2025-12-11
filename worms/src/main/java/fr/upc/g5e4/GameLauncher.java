@@ -4,6 +4,7 @@ import java.io.IOException;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 
+import fr.upc.g5e4.model.InventoryModel.*;
 import fr.upc.g5e4.model.InventoryModel.InventoryRoot;
 import fr.upc.g5e4.model.console.ConsoleLauncher;
 import fr.upc.g5e4.view.*;
@@ -44,8 +45,11 @@ public class GameLauncher{
             /* ------------------------ Partie Overlay Inventaire --------------------------------- */
             //Charge l'inventaire 
             InventoryRoot root = InventoryModel.load("/inventory.json");
+            java.util.List<InventoryJson> team1Inventory = copyInventory(root.inventory);
+            java.util.List<InventoryJson> team2Inventory = copyInventory(root.inventory);
             //Créer l'overlay
-            this.inventoryOverlay = new InventoryOverlay((root.inventory));
+            this.inventoryOverlay = new InventoryOverlay((team1Inventory));
+            //inventoryOverlay.setInventory(team2Inventory); Pour la 2e équipe
             //Créer un layeredPane
             JLayeredPane layered = new JLayeredPane();
             layered.setPreferredSize(new java.awt.Dimension(sizeX,sizeY));
@@ -62,7 +66,7 @@ public class GameLauncher{
             inventoryOverlay.setFireListener(gameManager.getImputController());
 
             game.getContentPane().setBackground(java.awt.Color.BLACK);
-
+            
             /* Fin de partie */
 
             //Touches raccourcies
@@ -105,6 +109,21 @@ public class GameLauncher{
             this.gameLoop = new GameLoop(gameManager);
             this.gameLoop.timerStart();
         }
+    }
+
+    private java.util.List<InventoryModel.InventoryJson> copyInventory(java.util.List<InventoryModel.InventoryJson> src) {
+                java.util.List<InventoryModel.InventoryJson> res = new java.util.ArrayList<>();
+                for (InventoryModel.InventoryJson it : src) {
+                    InventoryModel.InventoryJson c = new InventoryModel.InventoryJson();
+                    c.objectType = it.objectType;
+                    c.name = it.name;
+                    c.maxUsages = it.maxUsages;
+                    c.isInfinite = it.isInfinite;
+                    c.remainingUses = it.remainingUses;
+                    // useThisTurn reste à 0
+                    res.add(c);
+                }
+                return res;
     }
 
     private void setupKeyBindings(JComponent root, JFrame game, boolean initialFullScreen) {
