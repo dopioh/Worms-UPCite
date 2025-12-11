@@ -34,6 +34,8 @@ public class CharacterModel{
     
     private long lastJumpTime = 0;  // Temps du dernier saut pour le cooldown
     private static final double JUMP_COOLDOWN = 0.5;  // Cooldown du saut en secondes
+    
+    private boolean flyMode = false;  // Mode vol activé ou non
 
     private static float PPM = 30;
 
@@ -177,6 +179,26 @@ public class CharacterModel{
 
     public void setDead(boolean isDead) {
         this.isDead = isDead;
+    }
+    
+    public boolean isFlyMode() {
+        return flyMode;
+    }
+    
+    public void setFlyMode(boolean flyMode) {
+        this.flyMode = flyMode;
+        // Quand on active le mode vol, désactiver la gravité
+        if (flyMode) {
+            persoBody.setGravityScale(0);
+            persoBody.setLinearVelocity(new Vec2(0, 0));
+        } else {
+            // Réactiver la gravité quand on désactive le mode vol
+            persoBody.setGravityScale(1);
+        }
+    }
+    
+    public void toggleFlyMode() {
+        setFlyMode(!flyMode);
     }
 
         public Body getBody(){
