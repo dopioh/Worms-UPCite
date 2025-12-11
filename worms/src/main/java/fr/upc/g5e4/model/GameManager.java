@@ -162,6 +162,7 @@ public class GameManager {
         imputController.requestFocusInWindow();
         this.gamePanel.setFocusable(true);
         this.gamePanel.requestFocusInWindow();
+        this.gamePanel.setBlueprintMode(false);
 
         // Timer pour update régulier de la caméra, projectiles et repaint
         new Timer(16, e -> {
