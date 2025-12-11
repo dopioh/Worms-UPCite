@@ -26,7 +26,7 @@ public class GamePanel extends JPanel {
     private static final float PPM = 30f;
     
     private BufferedImage groundTexture;
-    private boolean blueprintMode = true;
+    private boolean blueprintMode = false; // active le background blueprint
 
     // ajout: label pour afficher le temps restant (vue)
     private final JLabel roundTimerLabel = new JLabel("Temps restant : 30s");
