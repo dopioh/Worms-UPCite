@@ -145,22 +145,29 @@ public class GameManager {
 
         // GamePanel avec tout ce qui est nécessaire
         this.gamePanel = new GamePanel(model, camera, cameraController, teamModel1, teamView1, teamModel2, teamView2); 
+        
+        // Passer l'ItemController au GamePanel pour dessiner les projectiles
+        this.gamePanel.setItemController(this.itemController);
 
         // Ajoute le contrôleur pour capter les touches
         this.gamePanel.add(imputController);
         imputController.setGameManager(this); // connecte inputController au GameManager
                                              //  pour que inputController puisse appeler switchToNextWorm()
         
-        // Ajoute les listeners de souris au GamePanel pour les tirs
-        //this.gamePanel.addMouseListeners(activeWormController);
+        // Connecter le renderer de trajectoire
+        imputController.setTrajectoryRenderer(gamePanel.getTrajectoryRenderer());
+        gamePanel.getTrajectoryRenderer().setShooter(activeWormController.getModel());
+        gamePanel.getTrajectoryRenderer().setWeapon(activeWormController.getCurrentWeapon());
         
         imputController.requestFocusInWindow();
         this.gamePanel.setFocusable(true);
         this.gamePanel.requestFocusInWindow();
 
-        // Timer pour update régulier de la caméra et repaint
+        // Timer pour update régulier de la caméra, projectiles et repaint
         new Timer(16, e -> {
             cameraController.update();
+            // mettre à jour les projectiles (16ms = 0.016s par frame)
+            itemController.updateProjectiles(0.016f);
             gamePanel.repaint();
         }).start();
     }
@@ -251,6 +258,10 @@ public class GameManager {
                 cameraController.setTargetCharacter(worm);
                 cameraController.centerOnCharacter();
                 
+                // mettre à jour la trajectoire avec le nouveau worm et son arme
+                gamePanel.getTrajectoryRenderer().setShooter(worm);
+                gamePanel.getTrajectoryRenderer().setWeapon(activeWormController.getCurrentWeapon());
+                
                 // Réappliquer les listeners de souris pour le nouveau worm
                 //gamePanel.addMouseListeners(activeWormController);
                 return;
@@ -284,6 +295,11 @@ public class GameManager {
                 imputController.setCharacterController(activeWormController);
                 cameraController.setTargetCharacter(worm);
                 cameraController.centerOnCharacter();
+                
+                // mettre à jour la trajectoire avec le nouveau worm et son arme
+                gamePanel.getTrajectoryRenderer().setShooter(worm);
+                gamePanel.getTrajectoryRenderer().setWeapon(activeWormController.getCurrentWeapon());
+                
                 return;
             }
 
@@ -333,6 +349,8 @@ public class GameManager {
         
         if (newWeapon != null && activeWormController != null) {
             activeWormController.setCurrentWeapon(newWeapon);
+            // mettre à jour la trajectoire avec la nouvelle arme
+            gamePanel.getTrajectoryRenderer().setWeapon(newWeapon);
         }
     }
 }
