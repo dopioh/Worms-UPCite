@@ -10,6 +10,8 @@ import java.util.ArrayList;
 
 import fr.upc.g5e4.model.InventoryModel.InventoryJson;
 import fr.upc.g5e4.controller.SwingInputController;
+import fr.upc.g5e4.model.CharacterModel;
+import fr.upc.g5e4.model.GameManager;
 
 public class InventoryOverlay extends JComponent{       //S'integre dans une interface Swing (JFrame)
     private List<InventoryJson> inventory;
@@ -28,8 +30,17 @@ public class InventoryOverlay extends JComponent{       //S'integre dans une int
     //
     private Rectangle useButtonBounds;
 
+    private final CharacterModel currentWorm;
+
+    private GameManager gameManager;
+
     public InventoryOverlay(List<InventoryJson> inventory){
+        this(inventory, null);
+    }
+
+    public InventoryOverlay(List<InventoryJson> inventory, CharacterModel currentWorm){
         this.inventory = inventory;
+        this.currentWorm = currentWorm;
         setOpaque(false);                   // transparent
 
         //Chargement d'icon
@@ -58,6 +69,10 @@ public class InventoryOverlay extends JComponent{       //S'integre dans une int
         });
     }
 
+    public void setGameManager(GameManager gameManager){
+        this.gameManager = gameManager;
+    }
+    
     /**
      * Enregistre le listener pour le tir (pour le transférer si inventaire non visible)
      */
@@ -236,17 +251,27 @@ public class InventoryOverlay extends JComponent{       //S'integre dans une int
             return;
         }
 
-        //Log dans le terminal
-        int restantesTour = selected.getRemainingUseThisTurn();
-        if(selected.remainingUses == null){
-            System.out.println("[Inventaire] " + selected.name + " : " + restantesTour + " utilisation(s) restante(s) ce tour, munitions globales : infinite");
-        } else {
-            System.out.println("[Inventaire] " + selected.name + " : " + restantesTour + " utilisation(s) restante(s) ce tour, "+ selected.remainingUses + " munition(s) globale(s) restante(s)");
+        // Récupérer le nom de l'équipe active depuis GameManager
+        String teamName = "???";
+        if (gameManager != null) {
+            teamName = gameManager.getCurrentTeamName();
         }
 
-        //Met à jour l'affichage
+        // Log dans le terminal
+        int restantesTour = selected.getRemainingUseThisTurn();
+        if(selected.remainingUses == null){
+            System.out.println("[" + teamName + "] utilise " + selected.name + " " + restantesTour + " utilisation(s) ce tour, munitions : infinies");
+        } else {
+            System.out.println("[" + teamName + "] utilise " + selected.name + " " + restantesTour + " utilisation(s) ce tour, " + selected.remainingUses + " munition(s) restantes");
+        }
+
+        // Attacher l'arme au worm actif
+        if (gameManager != null) {
+            gameManager.setWeaponFromInventory(selected.name);
+        }
+
+        // Mise à jour affichage
         equippedItem = selected;
         repaint();
     }
-
 }

@@ -5,7 +5,6 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 
 import fr.upc.g5e4.model.InventoryModel.*;
-import fr.upc.g5e4.model.InventoryModel.InventoryRoot;
 import fr.upc.g5e4.model.console.ConsoleLauncher;
 import fr.upc.g5e4.view.*;
 import fr.upc.g5e4.controller.*;
@@ -47,9 +46,11 @@ public class GameLauncher{
             InventoryRoot root = InventoryModel.load("/inventory.json");
             java.util.List<InventoryJson> team1Inventory = copyInventory(root.inventory);
             java.util.List<InventoryJson> team2Inventory = copyInventory(root.inventory);
+            // Attacher les inventaires aux teams
+            gameManager.getTeamModel1().setInventory(team1Inventory);
+            gameManager.getTeamModel2().setInventory(team2Inventory);
             //Créer l'overlay
-            this.inventoryOverlay = new InventoryOverlay((team1Inventory));
-            //inventoryOverlay.setInventory(team2Inventory); Pour la 2e équipe
+            this.inventoryOverlay = new InventoryOverlay(gameManager.getTeamModel1().getInventory());  
             //Créer un layeredPane
             JLayeredPane layered = new JLayeredPane();
             layered.setPreferredSize(new java.awt.Dimension(sizeX,sizeY));
@@ -63,7 +64,9 @@ public class GameLauncher{
             layered.add(inventoryOverlay, JLayeredPane.PALETTE_LAYER);
             game.setContentPane(layered);
             
+            inventoryOverlay.setGameManager(gameManager);    
             inventoryOverlay.setFireListener(gameManager.getImputController());
+            gameManager.setInventoryOverlay(inventoryOverlay);
 
             game.getContentPane().setBackground(java.awt.Color.BLACK);
             
