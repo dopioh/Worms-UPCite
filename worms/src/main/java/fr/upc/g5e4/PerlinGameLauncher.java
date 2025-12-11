@@ -41,19 +41,24 @@ public class PerlinGameLauncher {
         physic.limitPanel(groundModel);
         
         int wormNumber = 1;
-        TeamModel team = new TeamModel(groundModel, world, "Team Perlin", 300, 300, wormNumber, false);
-        TeamView teamView = new TeamView(wormNumber, Color.ORANGE);
+        TeamModel team1 = new TeamModel(groundModel, world, "Team Perlin", 300, 300, wormNumber, false, true, true);
+        TeamView teamView1 = new TeamView(wormNumber, Color.ORANGE);
+        
+        // créer une deuxième équipe vide pour éviter les NullPointerException
+        TeamModel team2 = new TeamModel(groundModel, world, "Team 2", 5000, 300, 1, false, false, true);
+        TeamView teamView2 = new TeamView(1, Color.BLUE);
         
         // init camera (utiliser la taille de la fenêtre, pas du terrain)
         CameraModel camera = new CameraModel(1280, 720, groundModel.getWidth(), groundModel.getHeight(), 1);
-        CameraController cameraController = new CameraController(camera, team.getWorm(0));
+        CameraController cameraController = new CameraController(camera, team1.getWorm(0));
         cameraController.centerOnCharacter();
         
-        CharacterController wormController = new CharacterController(team.getWorm(0));
+        CharacterController wormController = new CharacterController(team1.getWorm(0));
         SwingInputController inputController = new SwingInputController(wormController, cameraController);
         
         GamePanel gamePanel = new GamePanel(groundModel, camera, cameraController, 
-                                           team, teamView, null, null);
+                                           team1, teamView1, team2, teamView2);
+        gamePanel.setPreferredSize(new java.awt.Dimension(1280, 720));
         // ajout du controller
         gamePanel.add(inputController);
         gamePanel.setFocusable(true);
@@ -76,6 +81,8 @@ public class PerlinGameLauncher {
         Timer gameTimer = new Timer(16, e -> {
             world.step(1f/60f, 8, 3);
             wormController.update();
+            cameraController.update();
+            gamePanel.repaint();
         });
         gameTimer.start();
         

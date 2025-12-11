@@ -40,23 +40,19 @@ public class GameLoop{
                 if (gameManager.getActiveWormController() != null) {
                     gameManager.getActiveWormController().update();
                 }
-                
-                // Étape physique
                 gameManager.getWorld().step(FIXHZ,8,3);
-                
+                gamePanel.repaint();
+
                 /* -> Pas une javadoc puisque javadoc peut pas documenter des variables locale 
                  * @see WaterSensorListener.java
                  * Recupere la liste des Worms qui sont mort (pour le moment seulement dans l'eau)
                  * Et detruit leur body associés (on ne peut plus les controller)
-                 * IMPORTANT : On détruit les bodies APRÈS le step pour éviter les erreurs
+                 * Leur draw et nametag ne depop pas, ca sera a ajouter 
                  */
                 ArrayList<CharacterModel> destroy = gameManager.getWSL().getDestroyList();
-                if (destroy != null && !destroy.isEmpty()){
+                if ( destroy != null){
                     for (CharacterModel d : destroy){
-                        // Vérifier que le body existe encore avant de le détruire
-                        if (d.getBody() != null && d.getBody().getWorld() != null) {
-                            gameManager.getWorld().destroyBody(d.getBody());
-                        }
+                        gameManager.getWorld().destroyBody(d.getBody());
                     }
                     destroy.clear();
                 }

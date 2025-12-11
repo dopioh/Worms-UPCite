@@ -31,6 +31,8 @@ public class CharacterModel{
     private double jump;
     
     private boolean isDead;
+    private boolean facingRight;  // true si le worm regarde vers la droite
+    private boolean withCollision = false;  // collisions entre worms activées ou non
     
     private long lastJumpTime = 0;  // Temps du dernier saut pour le cooldown
     private static final double JUMP_COOLDOWN = 0.5;  // Cooldown du saut en secondes
@@ -70,6 +72,7 @@ public class CharacterModel{
         this.speed = 5.0;  // defini à 3 à la base
         this.jump = 5.0;
         this.isDead = false;
+        this.facingRight = true;
         
         this.persoBody = createBody(console);
     }
@@ -84,8 +87,10 @@ public class CharacterModel{
      * @param shield Le bouclier du worm
      * @param speed La vitesse du worm
      * @param jump Le saut du worm
+     * @param console Mode console
+     * @param withCollision Active les collisions entre worms
      */
-    public CharacterModel(GroundModel model, World world,String name, double xcord, double ycord, double health, double shield, double speed, double jump, boolean console) {
+    public CharacterModel(GroundModel model, World world,String name, double xcord, double ycord, double health, double shield, double speed, double jump, boolean console, boolean withCollision) {
         this.model = model;
         this.world = world;
         this.ID = wormsCounter++;
@@ -97,6 +102,8 @@ public class CharacterModel{
         this.speed = speed;
         this.jump = jump;
         this.isDead = false;
+        this.facingRight = true;  // Par défaut, regarde vers la droite
+        this.withCollision = withCollision;
 
         this.persoBody = createBody(console);
     }
@@ -151,6 +158,10 @@ public class CharacterModel{
     public boolean isDead() {
         return isDead;
     }
+    
+    public boolean isFacingRight() {
+        return facingRight;
+    }
 
     // Setters
     public void setName(String name) {
@@ -203,6 +214,10 @@ public class CharacterModel{
     
     public void toggleFlyMode() {
         setFlyMode(!flyMode);
+    }
+    
+    public void setFacingRight(boolean facingRight) {
+        this.facingRight = facingRight;
     }
 
         public Body getBody(){
@@ -318,9 +333,15 @@ public class CharacterModel{
         }
         fixtureWorm.shape = square;
 
-        // Filtre pour ignorer les collisions entre worms
-        fixtureWorm.filter.categoryBits = CATEGORY_WORM; //je suis quoi
-        fixtureWorm.filter.maskBits = CATEGORY_TERRAIN; //je peut collision avec quoi
+        // Filtre de collision
+        fixtureWorm.filter.categoryBits = CATEGORY_WORM; // Je suis un worm
+        if (withCollision) {
+            // collisions avec terrain ET autres worms
+            fixtureWorm.filter.maskBits = CATEGORY_TERRAIN | CATEGORY_WORM;
+        } else {
+            // collisions uniquement avec le terrain (pas entre worms)
+            fixtureWorm.filter.maskBits = CATEGORY_TERRAIN;
+        }
 
         Body bWorm = world.createBody(bdWorm);
         bWorm.createFixture(fixtureWorm);
