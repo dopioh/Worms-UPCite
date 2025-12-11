@@ -68,6 +68,22 @@ public class CharacterController {
         this.currentWeapon = weapon;
     }
 
+    /**
+     * retourne l'arme actuellement équipée
+     * @return l'arme actuelle
+     */
+    public Weapon getCurrentWeapon() {
+        return this.currentWeapon;
+    }
+
+    /**
+     * Retourne le modèle du worm
+     * @return le modèle du worm
+     */
+    public CharacterModel getModel() {
+        return this.model;
+    }
+
     // Activation & Desactivation des touches
     public void activateLeft() {
         LeftKeyPressed = true;
@@ -107,12 +123,29 @@ public class CharacterController {
         //System.out.println("update called");
         Body body = model.getBody();
         
-        // Appliquer une force horizontale
-        if (LeftKeyPressed) {
-            body.applyForceToCenter(new Vec2((float)-MOVE_FORCE, 0));
-        }
-        if (RightKeyPressed) {
-            body.applyForceToCenter(new Vec2((float)MOVE_FORCE, 0));
+        
+        if (model.isFlyMode()) { // deplacements flymod
+            Vec2 velocity = new Vec2(0, 0);
+            
+            if (LeftKeyPressed) {
+                velocity.x = (float)-MOVE_FORCE*3;
+            }
+            if (RightKeyPressed) {
+                velocity.x = (float)MOVE_FORCE*3;
+            }
+            if (SpaceKeyPressed) {
+                velocity.y = (float)MOVE_FORCE*3;  // monter
+            }
+            
+            body.setLinearVelocity(velocity);
+        } else {
+            // Mode normal : appliquer une force horizontale
+            if (LeftKeyPressed) {
+                body.applyForceToCenter(new Vec2((float)-MOVE_FORCE, 0));
+            }
+            if (RightKeyPressed) {
+                body.applyForceToCenter(new Vec2((float)MOVE_FORCE, 0));
+            }
         }
         
         // Synchroniser les coordonnées du modèle avec le corps physique
@@ -121,6 +154,13 @@ public class CharacterController {
         model.setYcord((10 - position.y) * 30f);  // Inversion Y + conversion
         
         return LeftKeyPressed ^ RightKeyPressed;
+    }
+    
+    /**
+     * Active/désactive le mode vol pour ce worm
+     */
+    public void toggleFlyMode() {
+        model.toggleFlyMode();
     }
 
 
@@ -142,18 +182,52 @@ public class CharacterController {
      * @param screenY Position Y de la souris à l'écran
      */
     public void fireWeapon(int screenX, int screenY) { 
+        if (itemController == null || world == null || allWorms == null || currentWeapon == null) { //
+            return;
+        }
+        
+        //position du worm
+        Body body = model.getBody();
+        float wormWorldX = body.getPosition().x * 30f;  // conversion en pixels
+        float wormWorldY = (10 - body.getPosition().y) * 30f;  // conversion en pixels
+        //le vecteur direction depuis le worm vers le curseur
+        float dx = screenX - wormWorldX;
+        float dy = screenY - wormWorldY;
+        
+        //angle en radians
+        double angle = Math.atan2(-dy, dx);  // -dy car Y est inversé en écran
+        
+        //direction (gauche/droite) basée sur l'angle
+        int direction = dx > 0 ? 1 : -1;
+        
+        //tirer avec l'arme en passant l'angle
+        fireWeaponWithAngle(angle, direction);
+    }
+    
+    /**
+     * Tire avec l'arme actuelle à un angle spécifique
+     * @param angle L'angle de tir en radians (non utilisé en système Graphwar)
+     * @param direction La direction (1 pour droite, -1 pour gauche)
+     */
+    public void fireWeaponWithAngle(double angle, int direction) {
         if (itemController == null || world == null || allWorms == null || currentWeapon == null) { 
             return;
         }
-        // Déterminer la direction en fonction de la position du curseur par rapport au worm
-        Body body = model.getBody();
-        float wormWorldX = body.getPosition().x;
         
-        // Convertir les coordonnées écran en coordonnées monde
-        int direction = screenX > (int)(wormWorldX * 30f) ? 1 : -1;
-        
-        // Tirer avec l'arme
+        // tirer avec l'arme 
         itemController.useWeaponOnTarget(currentWeapon, model, direction);
     }
     
+    /**
+     * tire avec l'arme actuelle dans la direction spécifiée 
+     * @param direction la direction
+     */
+    public void fireWeapon(int direction) {
+        if (itemController == null || world == null || allWorms == null || currentWeapon == null) { 
+            return;
+        }
+        
+        // tirer avec l'arme 
+        itemController.useWeaponOnTarget(currentWeapon, model, direction);
+    }
 }

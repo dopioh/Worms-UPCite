@@ -63,21 +63,23 @@ public class GameManager {
      * @see GameLauncher
      * @see PhysicsWorld#createGroundFromModel()
      */
-    public GameManager(int sizex, int sizey) {
-        int sizeX = sizex;
-        int sizeY = sizey;
-        int[] groundY = {400,420,450,450,400,700,930,450,350,300,250,230,200,200};
+    public GameManager() {
+        int sizeX = 2400;  // Taille du terrain
+        int sizeY = 720;
+        
+        // generation procédurale du terrain avec seed (le temps de la machine)
+        TerrainGenerator generator = new TerrainGenerator(System.currentTimeMillis());
+        int[] groundY = generator.generateTerrainWithPlatforms(400, 70, 900, 200, 30);
+
         /*
-         * Plusieurs autres valeurs de groundY si vous voulez tester plusieurs terrains
-         * :
+         * Ancienne méthode : terrain manuel
+         * int[] groundY = {470,450,430,420,410,400,390,370,340,300,280,250,230,200};
+         * 
+         * Plusieurs autres valeurs de groundY si vous voulez tester plusieurs terrains :
          * int[] groundY = {400,420,450,450,400,300,530,450,350,300,250,230,200,230};
          * int[] groundY = {200,230,250,280,300,340,370,390,400,410,420,430,450,470};
          * int[] groundY = {470,450,430,420,410,400,390,370,340,300,280,250,230,200};
          * int[] groundY = {400,420,450,450,400,700,930,450,350,300,250,230,200,200};
-         * 
-         * J'ai toujours pris la meme taille de tableau pour faire les tests
-         * Mais vous pouvez mettre autant de valeurs que vous voulez
-         * Ca rendra d'ailleurs le Ground plus lisse normalement
          */
 
         this.model = new GroundModel(groundY, sizeX, sizeY, 500);
@@ -87,17 +89,17 @@ public class GameManager {
         physic.createGroundFromModel(model);
         this.water = physic.createBodyWater(model);
 
-        // Initialisation caméra et contrôleur
-        this.camera = new CameraModel(sizeX, sizeY, model.getWidth(), model.getHeight(), 1);
+        // initialisation caméra et contrôleur (ON PREND LES COORDONNEES DE LA FENETRE)
+        this.camera = new CameraModel(1280, 720, model.getWidth(), model.getHeight(), 1);
         physic.limitPanel(model);
 
-        // création premiere equipe
+        // création premiere equipe (spawn en haut de la map pour éviter d'être coincés)
         int wormNumber = 3; 
-        this.teamModel1 = new TeamModel(model, world, "Team1", 100, 98, wormNumber,false);
+        this.teamModel1 = new TeamModel(model, world, "Team1", 100, 80, wormNumber, false);
         this.teamView1 = new TeamView(wormNumber, Color.BLUE);
 
         // création seconde equipe
-        this.teamModel2 = new TeamModel(model, world, "Team2", 400, 98, wormNumber,false);  
+        this.teamModel2 = new TeamModel(model, world, "Team2", 2100, 50, wormNumber, false);  
         this.teamView2 = new TeamView(wormNumber, Color.RED);
         
         // Créer une liste de tous les worms pour le WaterSensorListener
@@ -132,30 +134,40 @@ public class GameManager {
         // Équiper une arme par défaut (AK-47)
         activeWormController.setCurrentWeapon(new Ak47());
         
-        // Initialisation caméra avec le worm actif
-        this.camera = new CameraModel(sizeX, sizeY, model.getWidth(), model.getHeight(), 1);
+        // Initialisation caméra avec le worm actif (fenêtre 1280x720, terrain 6000x720)
         this.cameraController = new CameraController(camera, teamModel1.getWorm(activeWormIndex));
+        
+        // Centrer la caméra sur le worm actif au démarrage
+        this.cameraController.centerOnCharacter();
+        
         // Contrôleur fusionné avec le worm actif
         this.imputController = new SwingInputController(activeWormController, cameraController);
 
         // GamePanel avec tout ce qui est nécessaire
         this.gamePanel = new GamePanel(model, camera, cameraController, teamModel1, teamView1, teamModel2, teamView2); 
+        
+        // Passer l'ItemController au GamePanel pour dessiner les projectiles
+        this.gamePanel.setItemController(this.itemController);
 
         // Ajoute le contrôleur pour capter les touches
         this.gamePanel.add(imputController);
         imputController.setGameManager(this); // connecte inputController au GameManager
                                              //  pour que inputController puisse appeler switchToNextWorm()
         
-        // Ajoute les listeners de souris au GamePanel pour les tirs
-        //this.gamePanel.addMouseListeners(activeWormController);
+        // Connecter le renderer de trajectoire
+        imputController.setTrajectoryRenderer(gamePanel.getTrajectoryRenderer());
+        gamePanel.getTrajectoryRenderer().setShooter(activeWormController.getModel());
+        gamePanel.getTrajectoryRenderer().setWeapon(activeWormController.getCurrentWeapon());
         
         imputController.requestFocusInWindow();
         this.gamePanel.setFocusable(true);
         this.gamePanel.requestFocusInWindow();
 
-        // Timer pour update régulier de la caméra et repaint
+        // Timer pour update régulier de la caméra, projectiles et repaint
         new Timer(16, e -> {
             cameraController.update();
+            // mettre à jour les projectiles (16ms = 0.016s par frame)
+            itemController.updateProjectiles(0.016f);
             gamePanel.repaint();
         }).start();
     }
@@ -246,6 +258,10 @@ public class GameManager {
                 cameraController.setTargetCharacter(worm);
                 cameraController.centerOnCharacter();
                 
+                // mettre à jour la trajectoire avec le nouveau worm et son arme
+                gamePanel.getTrajectoryRenderer().setShooter(worm);
+                gamePanel.getTrajectoryRenderer().setWeapon(activeWormController.getCurrentWeapon());
+                
                 // Réappliquer les listeners de souris pour le nouveau worm
                 //gamePanel.addMouseListeners(activeWormController);
                 return;
@@ -279,6 +295,11 @@ public class GameManager {
                 imputController.setCharacterController(activeWormController);
                 cameraController.setTargetCharacter(worm);
                 cameraController.centerOnCharacter();
+                
+                // mettre à jour la trajectoire avec le nouveau worm et son arme
+                gamePanel.getTrajectoryRenderer().setShooter(worm);
+                gamePanel.getTrajectoryRenderer().setWeapon(activeWormController.getCurrentWeapon());
+                
                 return;
             }
 
@@ -328,6 +349,8 @@ public class GameManager {
         
         if (newWeapon != null && activeWormController != null) {
             activeWormController.setCurrentWeapon(newWeapon);
+            // mettre à jour la trajectoire avec la nouvelle arme
+            gamePanel.getTrajectoryRenderer().setWeapon(newWeapon);
         }
     }
 }
