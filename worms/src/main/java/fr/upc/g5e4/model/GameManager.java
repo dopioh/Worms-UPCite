@@ -64,12 +64,12 @@ public class GameManager {
      * @see PhysicsWorld#createGroundFromModel()
      */
     public GameManager() {
-        int sizeX = 6000;  // Taille du terrain (comme dans PerlinGameLauncher)
+        int sizeX = 2400;  // Taille du terrain
         int sizeY = 720;
         
         // generation procédurale du terrain avec seed (le temps de la machine)
         TerrainGenerator generator = new TerrainGenerator(System.currentTimeMillis());
-        int[] groundY = generator.generateTerrainWithPlatforms(1000, 70, 900, 200, 15);
+        int[] groundY = generator.generateTerrainWithPlatforms(400, 70, 900, 200, 30);
 
         /*
          * Ancienne méthode : terrain manuel
@@ -95,11 +95,11 @@ public class GameManager {
 
         // création premiere equipe (spawn en haut de la map pour éviter d'être coincés)
         int wormNumber = 3; 
-        this.teamModel1 = new TeamModel(model, world, "Team1", 0, 80, wormNumber, false);
+        this.teamModel1 = new TeamModel(model, world, "Team1", 100, 80, wormNumber, false);
         this.teamView1 = new TeamView(wormNumber, Color.BLUE);
 
         // création seconde equipe
-        this.teamModel2 = new TeamModel(model, world, "Team2", 5600, 50, wormNumber, false);  
+        this.teamModel2 = new TeamModel(model, world, "Team2", 2100, 50, wormNumber, false);  
         this.teamView2 = new TeamView(wormNumber, Color.RED);
         
         // Créer une liste de tous les worms pour le WaterSensorListener

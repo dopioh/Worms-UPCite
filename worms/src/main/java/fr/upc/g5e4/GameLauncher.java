@@ -28,7 +28,7 @@ public class GameLauncher{
     
     public GameLauncher(boolean screen, boolean startFullScreen) throws IOException{
         this.screen = screen;
-        int sizeX = 6000;
+        int sizeX = 1280;
         int sizeY = 720;
 
         if (screen){
