@@ -1,6 +1,8 @@
 package fr.upc.g5e4.model;
 
 import org.jbox2d.dynamics.World;
+import java.util.List;
+import fr.upc.g5e4.model.InventoryModel.InventoryJson;
 
 /**
  * Modèle pour une équipe de worms
@@ -8,6 +10,8 @@ import org.jbox2d.dynamics.World;
 public class TeamModel {
     private int number;
     private CharacterModel[] tabModelWorms;
+    
+    private List<InventoryJson> inventory;
     
     /**
      * Constructeur de la classe TeamModel avec initialisation automatique des worms
@@ -96,5 +100,21 @@ public class TeamModel {
             }
         }
         return aliveCount;
+    }
+
+    public void setInventory(List<InventoryJson> inventory) {
+        this.inventory = inventory;
+    }
+
+    public List<InventoryJson> getInventory() {
+        return inventory;
+    }
+
+    // Remet useThisTurn = 0 pour tous les items de l'équipe (nouveau tour pour cette team)
+    public void resetInventoryTurn() {
+        if (inventory == null) return;
+        for (InventoryJson item : inventory) {
+            item.resetTurn();
+        }
     }
 }
