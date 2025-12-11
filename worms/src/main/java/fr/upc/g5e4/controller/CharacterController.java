@@ -141,10 +141,14 @@ public class CharacterController {
         } else {
             // Mode normal : appliquer une force horizontale
             if (LeftKeyPressed) {
+                model.setFacingRight(false);
                 body.applyForceToCenter(new Vec2((float)-MOVE_FORCE, 0));
+                
             }
             if (RightKeyPressed) {
+                model.setFacingRight(true);
                 body.applyForceToCenter(new Vec2((float)MOVE_FORCE, 0));
+                
             }
         }
         
