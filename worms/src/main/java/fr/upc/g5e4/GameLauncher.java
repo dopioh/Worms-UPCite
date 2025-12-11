@@ -221,12 +221,12 @@ public class GameLauncher{
     public static void main(String[] args) throws IOException{
 
         //// Lance l'écran d'accueil au lieu du jeu directement
-        //showAccueil();
+        showAccueil();
 
         //// Pour lancer le jeu directement (pour les testes)
         //new GameLauncher(true);
 
         // Pour lancer la vue terminal
-        new ConsoleLauncher();
+        // new ConsoleLauncher();
     }
 }

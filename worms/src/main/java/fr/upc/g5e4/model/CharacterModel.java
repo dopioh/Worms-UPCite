@@ -40,6 +40,10 @@ public class CharacterModel{
     private final float m_HeightPerso = 0.6f;   // tous les worms font la meme taille en metre
     private final float m_WidthPerso = 0.6f;
 
+    // Catégories de collision (chaque bit = une catégorie différente)
+    public static final int CATEGORY_TERRAIN = 0x0001;  // Bit 1 : terrain/sol
+    public static final int CATEGORY_WORM = 0x0002;     // Bit 2 : worms
+
     private final Body persoBody;
 
     //private static final int sizePerso = 40;
@@ -287,7 +291,10 @@ public class CharacterModel{
             fixtureWorm.friction = 10f; // 18 a la base
         }
         fixtureWorm.shape = square;
-        
+
+        // Filtre pour ignorer les collisions entre worms
+        fixtureWorm.filter.categoryBits = CATEGORY_WORM; //je suis quoi
+        fixtureWorm.filter.maskBits = CATEGORY_TERRAIN; //je peut collision avec quoi
 
         Body bWorm = world.createBody(bdWorm);
         bWorm.createFixture(fixtureWorm);
