@@ -14,6 +14,7 @@ public class CharacterView {
     private int size;
     private Color color;
     private NameTagView nameTagView;
+    private boolean showNameTag = true;
     
     /**
      * Constructeur de la classe PersonnageView
@@ -61,7 +62,7 @@ public class CharacterView {
     
         // Conversion mètres -> pixels
         int x = (int)(m_position.x * CharacterModel.getPPM());
-        int y = (int)((20 - m_position.y) * CharacterModel.getPPM());  // Conversion et Inversion Y
+        int y = (int)((24 - m_position.y) * CharacterModel.getPPM());  // Conversion et Inversion Y
     
         g2d.setColor(color);
         g2d.fillRect(x - size/2, y - size/2, size, size);
@@ -73,6 +74,11 @@ public class CharacterView {
      * @param model Le modèle du worm
      */
     private void drawStats(Graphics2D g2d, CharacterModel model) {
+        if (!showNameTag) {
+            nameTagView.setVisible(false);
+            return;
+        }
+        
         if (model.isDead()) {
             nameTagView.setVisible(false);
             return;
@@ -109,5 +115,13 @@ public class CharacterView {
     
     public NameTagView getNameTagView() {
         return nameTagView;
+    }
+    
+    public boolean isShowNameTag() {
+        return showNameTag;
+    }
+    
+    public void setShowNameTag(boolean showNameTag) {
+        this.showNameTag = showNameTag;
     }
 }

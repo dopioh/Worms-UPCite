@@ -35,7 +35,7 @@ public class WeaponSwitchTest {
         physicsWorld.createGroundFromModel(ground);
         
         // Créer un worm et son contrôleur
-        worm = new CharacterModel(ground, world, 100, ground.getHeight() - 400);
+        worm = new CharacterModel(ground, world, 100, ground.getHeight() - 400,false);
         controller = new CharacterController(worm);
     }
 

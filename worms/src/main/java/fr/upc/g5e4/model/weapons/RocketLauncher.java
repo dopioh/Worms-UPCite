@@ -5,7 +5,7 @@ import fr.upc.g5e4.model.Weapon;
 public class RocketLauncher extends Weapon {
 
     public RocketLauncher() {
-        super("Rocket Launcher", 2, false, 100, 4, 8);
+        super("Rocket Launcher", 2, false, 100, 4, 8, 25);
     }
 
     @Override

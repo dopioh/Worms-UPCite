@@ -1,4 +1,6 @@
-package fr.upc.g5e4.model;
+package fr.upc.g5e4.model.console;
+
+import fr.upc.g5e4.model.GameLoop;
 
 /**
  * Adaptation de la classe GameLoop pour la vue terminal avec Lanterna
@@ -23,22 +25,33 @@ public class ConsoleGameLoop{
      * {@see sleepTime} gere la framerate
      * Sans ca, les fps vont bien au dessus de 60
      *  - Gachis de perf
-     *  - le {@code screen} s'intille 
+     *  - le {@code screen} s'intille psq lanterna arrive pas a suivre
      */
     public void gameLoop(){
         while (running) {
             long startTime = System.currentTimeMillis();
             //System.out.println("Run");
             consoleGameManager.getConsoleInputController().addControlsGame(consoleGameManager.getConsoleView().getScreen());
+            if (consoleGameManager.getActiveWormController() != null) {
+                //System.out.println("ActiveWormController n'est pas nul");
+                consoleGameManager.getActiveWormController().update();
+            }
 
             consoleGameManager.getCharacterController().update();
             consoleGameManager.getWorld().step(FIXHZ, 8, 3);
             consoleGameManager.getConsoleView().getScreen().clear();
+
+            // Graphismes -> on pourrait mettre ca dans GameManager aussi ? 
             consoleGameManager.draw();
+            consoleGameManager.statsPartie();
+
             consoleGameManager.getConsoleView().refresh();
 
-            long elapsedTime = System.currentTimeMillis() - startTime;  // duree de temps en ms entre le debut de la loop et la
-            long sleepTime = (long)(FIXHZ*1000) - elapsedTime;
+            long elapsedTime = System.currentTimeMillis() - startTime;  // duree de temps en ms entre le debut de la loop et ici
+
+            // FIXHZ (en sec) * 1000 pour passer en ms
+            // on a la meme unite de mesure que elapsedTime
+            long sleepTime = (long)(FIXHZ*1000) - elapsedTime; // le temps que le Thread devra sleep pour rester a 60 fps
             
             if (sleepTime > 0) {
                 try {

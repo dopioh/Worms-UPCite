@@ -12,8 +12,11 @@ import org.jbox2d.dynamics.World;
  * Modèle du Personnage
  * Initialise ses stats et position
  */
-public class CharacterModel extends Entity{
+public class CharacterModel{
     private static int wormsCounter = 0;
+
+    private final GroundModel model;
+    private final World world;
 
     private int ID;
     private String name;
@@ -31,6 +34,8 @@ public class CharacterModel extends Entity{
     
     private long lastJumpTime = 0;  // Temps du dernier saut pour le cooldown
     private static final double JUMP_COOLDOWN = 0.5;  // Cooldown du saut en secondes
+    
+    private boolean flyMode = false;  // Mode vol activé ou non
 
     private static float PPM = 30;
 
@@ -47,8 +52,9 @@ public class CharacterModel extends Entity{
      * @param xcord La coordonnée x du worm
      * @param ycord La coordonnée y du worm
      */
-    public CharacterModel(GroundModel model, World world, double xcord, double ycord) {
-        super(model,world);
+    public CharacterModel(GroundModel model, World world, double xcord, double ycord, boolean console) {
+        this.model = model;
+        this.world = world;
         this.ID = wormsCounter++;
         this.name = "Worm-" + this.ID;
         this.xcord = xcord;
@@ -61,7 +67,7 @@ public class CharacterModel extends Entity{
         this.jump = 5.0;
         this.isDead = false;
         
-        this.persoBody = createBody();
+        this.persoBody = createBody(console);
     }
 
     /** 
@@ -75,8 +81,9 @@ public class CharacterModel extends Entity{
      * @param speed La vitesse du worm
      * @param jump Le saut du worm
      */
-    public CharacterModel(GroundModel model, World world,String name, double xcord, double ycord, double health, double shield, double speed, double jump) {
-        super(model,world);
+    public CharacterModel(GroundModel model, World world,String name, double xcord, double ycord, double health, double shield, double speed, double jump, boolean console) {
+        this.model = model;
+        this.world = world;
         this.ID = wormsCounter++;
         this.name = name + "-" + this.ID;
         this.xcord = xcord;
@@ -87,7 +94,7 @@ public class CharacterModel extends Entity{
         this.jump = jump;
         this.isDead = false;
 
-        this.persoBody = createBody();
+        this.persoBody = createBody(console);
     }
 
     /**
@@ -173,6 +180,26 @@ public class CharacterModel extends Entity{
     public void setDead(boolean isDead) {
         this.isDead = isDead;
     }
+    
+    public boolean isFlyMode() {
+        return flyMode;
+    }
+    
+    public void setFlyMode(boolean flyMode) {
+        this.flyMode = flyMode;
+        // Quand on active le mode vol, désactiver la gravité
+        if (flyMode) {
+            persoBody.setGravityScale(0);
+            persoBody.setLinearVelocity(new Vec2(0, 0));
+        } else {
+            // Réactiver la gravité quand on désactive le mode vol
+            persoBody.setGravityScale(1);
+        }
+    }
+    
+    public void toggleFlyMode() {
+        setFlyMode(!flyMode);
+    }
 
         public Body getBody(){
         return persoBody;
@@ -244,6 +271,10 @@ public class CharacterModel extends Entity{
             this.shield = 0;
             if (this.health <= 0) {
                 this.isDead = true;
+                // on détruit le body physique
+                if (this.persoBody != null && this.persoBody.getWorld() != null) {
+                    this.world.destroyBody(this.persoBody);
+                }
             }
         } else {
             this.shield -= damageAmount;
@@ -252,9 +283,9 @@ public class CharacterModel extends Entity{
 
     /**
      * Methode pour creer son Body qui servira ensuite pour creer son image graphique
+     * @param console pour donner des valeurs differentes si on lance la version terminal
      */
-    @Override
-    public Body createBody(){
+    public Body createBody(boolean console){
 
         float xWorld = (float) this.xcord / PPM;
         //System.out.println("xcord : " + xcord);
@@ -270,10 +301,19 @@ public class CharacterModel extends Entity{
         PolygonShape square = new PolygonShape();
         square.setAsBox(m_WidthPerso/2, m_HeightPerso/2);   
 
+        if (console){
+            //System.out.println("Console Version");
+            fixtureWorm.restitution = 0.1f;
+            fixtureWorm.density = 2f;  
+            fixtureWorm.friction = 0.1f;
+        } else {
+            //System.out.println("Swing Version");
+            fixtureWorm.restitution = 0.01f;
+            fixtureWorm.density = 5f;   // quand on baisse ca ca foire le test controller character
+            fixtureWorm.friction = 10f; // 18 a la base
+        }
         fixtureWorm.shape = square;
-        fixtureWorm.restitution = 0.01f;
-        fixtureWorm.density = 5.0f;
-        fixtureWorm.friction = 18f;
+        
 
         Body bWorm = world.createBody(bdWorm);
         bWorm.createFixture(fixtureWorm);

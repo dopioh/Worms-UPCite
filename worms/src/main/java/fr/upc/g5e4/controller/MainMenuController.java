@@ -36,8 +36,9 @@ public class MainMenuController {
     }
 
     private void startNewGame() throws IOException {
+        boolean wasFullScreen = view.isFullScreen();
         view.dispose(); // Ferme la fenêtre d'accueil
-        new GameLauncher(true); // Lance le jeu
+        new GameLauncher(true, wasFullScreen); // Lance le jeu
     }
 
     private void resumeGame() {

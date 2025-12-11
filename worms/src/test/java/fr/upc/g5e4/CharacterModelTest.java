@@ -28,7 +28,7 @@ public class CharacterModelTest {
         world = new World(new org.jbox2d.common.Vec2(0, -10f)); // gravité vers le bas
 
         // Création d'un personnage
-        personnage = new CharacterModel(ground, world, 100.0, 200.0);
+        personnage = new CharacterModel(ground, world, 100.0, 200.0,false);
     }
 
     @Test

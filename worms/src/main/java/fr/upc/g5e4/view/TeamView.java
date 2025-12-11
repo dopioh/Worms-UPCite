@@ -54,4 +54,20 @@ public class TeamView {
             }
         }
     }
+    
+    /**
+     * active ou désactive l'affichage des nametags pour toute l'équipe
+     * @param show true pour afficher, false pour masquer
+     */
+    public void setShowAllNameTags(boolean show) {
+        for (CharacterView view : tabViewWorms) {
+            if (view != null) {
+                view.setShowNameTag(show);
+            }
+        }
+    }
+    
+    public CharacterView getCharacterView(int index) {
+        return tabViewWorms[index];
+    }
 }

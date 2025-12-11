@@ -11,55 +11,63 @@ public abstract class Weapon extends Item {
     private final int damage;         
     private final double blastRadius; // rayon d'explosion (0 si aucun)
     private final double speed;       // vitesse de projectile ou déplacement
+    private final int range;          // portée de l'arme
+    private double shootingAngle = 0;  // angle de tir en degrés (0-360)
 
     protected Weapon(String name, int maxUsages, boolean isInfinite,
-                     int damage, double blastRadius, double speed) {
+                     int damage, double blastRadius, double speed, int range) {
         super(name, ItemType.WEAPON, maxUsages, isInfinite);
-        if (damage < 0 || blastRadius < 0 || speed < 0)
-            throw new IllegalArgumentException("damage/blastRadius/speed doivent être >= 0");
+        if (damage < 0 || blastRadius < 0 || speed < 0 || range < 0)
+            throw new IllegalArgumentException("damage/blastRadius/speed/range doivent être >= 0");
         this.damage = damage;
         this.blastRadius = blastRadius;
         this.speed = speed;
+        this.range = range;
     }
 
     public int getDamage() { return damage; }
     public double getBlastRadius() { return blastRadius; }
     public double getSpeed() { return speed; }
+    public int getRange() { return range; }
+    
+    /**
+     * Définit l'angle de tir en degrés (0-360)
+     */
+    public void setShootingAngle(double angle) {
+        this.shootingAngle = angle % 360;
+    }
+    
+    /**
+     * Obtient l'angle de tir
+     */
+    public double getShootingAngle() {
+        return this.shootingAngle;
+    }
+    
+    /**
+     * Getter pour amplitude (gardé pour compatibilité)
+     */
+    public double getCurveAmplitude() {
+        return 0.5;  // Valeur par défaut
+    }
 
     /**
-     * Tire un rayon depuis le worm attaquant pour trouver une cible et infliger des dégâts
+     * Tire un projectile avec une trajectoire basée sur l'angle de tir
      * @param shooter Le worm qui tire
-     * @param world Le monde physique JBox2D
+     * @param world Le monde physique JBox2D (non utilisé, mais gardé pour compatibilité)
      * @param allWorms Tableau de tous les worms du jeu
-     * @param direction Direction du tir (1 pour droite, -1 pour gauche)
+     * @param direction Direction du tir (non utilisé maintenant, déterminé par l'angle)
      */
-    public void fire(CharacterModel shooter, org.jbox2d.dynamics.World world, 
-                               CharacterModel[] allWorms, int direction) {
+    public Projectile fire(CharacterModel shooter, org.jbox2d.dynamics.World world, 
+        CharacterModel[] allWorms, int direction) {
         Vec2 shooterPos = shooter.getBody().getPosition();
-        float rayDistance = 20f; //Porter max du tir
-        Vec2 rayEnd = new Vec2(
-            shooterPos.x + (direction * rayDistance), 
-            shooterPos.y
-        );
         
-        final CharacterModel[] target = {null};
+        // créer le projectile avec l'angle de tir
+        Projectile projectile = new Projectile(this, shooter, shooterPos, this.range, this.speed, this.shootingAngle);
+        System.out.println("[" + this.getName() + "] Tir à angle " + String.format("%.0f°", shootingAngle) + 
+                         " portée=" + this.range);
         
-        world.raycast((fixture, point, normal, fraction) -> { 
-            Body hitBody = fixture.getBody(); //Le corps touché par le rayon
-            
-            for (CharacterModel worm : allWorms) {
-                if (worm != null && worm.getBody() == hitBody && !worm.isDead()) { 
-                    target[0] = worm;
-                    return 0;
-                }
-            }
-            return 1;
-        }, shooterPos, rayEnd);
-        
-        if (target[0] != null) {
-            target[0].dealDamage(this.getDamage(), shooter);
-        } else {
-        }
+        return projectile;
     }
 
 }
