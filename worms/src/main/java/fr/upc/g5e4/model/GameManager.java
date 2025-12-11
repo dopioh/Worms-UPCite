@@ -9,14 +9,14 @@ import org.jbox2d.dynamics.World;
 
 import fr.upc.g5e4.GameLauncher;
 import fr.upc.g5e4.controller.*;
-import fr.upc.g5e4.model.*;
+//import fr.upc.g5e4.model.*;
 import fr.upc.g5e4.model.weapons.Ak47;
 import fr.upc.g5e4.model.weapons.BaseballBat;
 import fr.upc.g5e4.model.weapons.Grenade;
 import fr.upc.g5e4.model.weapons.RocketLauncher;
 import fr.upc.g5e4.model.PhysicsWorld.WaterSensorListener;
 import fr.upc.g5e4.model.camera.CameraModel;
-import fr.upc.g5e4.view.CharacterView;
+//import fr.upc.g5e4.view.CharacterView;
 import fr.upc.g5e4.view.GamePanel;
 import fr.upc.g5e4.view.ItemView;
 import fr.upc.g5e4.view.TeamView;
@@ -35,10 +35,17 @@ public class GameManager {
     private SwingInputController imputController;
     private CameraModel camera; // AJOUT RAPHAËL
     private CameraController cameraController; // AJOUT RAPHAËL
+
+    // Team Model : (on peut en mettre autant qu'on veut)
     private final TeamModel teamModel1;
     private final TeamView teamView1;
     private final TeamModel teamModel2;  
     private final TeamView teamView2;
+
+    private ArrayList<TeamModel> listTeamModel;
+
+    //private TeamModel[] teamModelsTab; // dit combien on a d'equipe
+
     private final ItemController itemController;
     private final CharacterModel[] allWorms;
     private int activeWormIndex;
@@ -91,15 +98,20 @@ public class GameManager {
         this.camera = new CameraModel(sizeX, sizeY, model.getWidth(), model.getHeight(), 1);
         physic.limitPanel(model);
 
+        // Initialisation liste d'equipes : 
+        this.listTeamModel = new ArrayList<>();
+
         // création premiere equipe
         int wormNumber = 3; 
         this.teamModel1 = new TeamModel(model, world, "Team1", 100, 98, wormNumber,false);
         this.teamView1 = new TeamView(wormNumber, Color.BLUE);
+        listTeamModel.add(teamModel1);
 
         // création seconde equipe
         this.teamModel2 = new TeamModel(model, world, "Team2", 400, 98, wormNumber,false);  
         this.teamView2 = new TeamView(wormNumber, Color.RED);
-        
+        listTeamModel.add(teamModel2);
+
         // Créer une liste de tous les worms pour le WaterSensorListener
         ArrayList<CharacterModel> allWorms = new ArrayList<>();
         for (int i = 0; i < wormNumber; i++) {
@@ -215,6 +227,10 @@ public class GameManager {
 
     public int getCurrentTeamIndex() {
         return this.currentTeamIndex;
+    }
+
+    public ArrayList<TeamModel> getlistTeams(){
+        return listTeamModel;
     }
 
     /**
