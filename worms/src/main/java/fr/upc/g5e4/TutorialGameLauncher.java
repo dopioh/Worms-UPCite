@@ -44,11 +44,11 @@ public class TutorialGameLauncher {
         physic.createGroundFromModel(groundModel);
         physic.limitPanel(groundModel);
         
-        TeamModel team = new TeamModel(groundModel, world, "Tuto", 300, 300, 1);
+        TeamModel team = new TeamModel(groundModel, world, "Tuto", 300, 300, 1, false);
         TeamView teamView = new TeamView(1, Color.GREEN);
         teamView.setShowAllNameTags(true);
 
-        TeamModel teamTest = new TeamModel(groundModel, world, "Tuto", 500, 0, 5);
+        TeamModel teamTest = new TeamModel(groundModel, world, "Tuto", 500, 0, 5, false);
         TeamView teamViewTest = new TeamView(5, Color.WHITE);
         
         teamViewTest.setShowAllNameTags(false);

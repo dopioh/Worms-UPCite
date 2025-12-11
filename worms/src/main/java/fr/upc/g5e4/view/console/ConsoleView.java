@@ -1,6 +1,7 @@
-package fr.upc.g5e4.view;
+package fr.upc.g5e4.view.console;
 
 import java.io.IOException;
+import java.util.Random;
 
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextColor;
@@ -12,31 +13,37 @@ import com.googlecode.lanterna.terminal.Terminal;
 import com.googlecode.lanterna.terminal.swing.SwingTerminalFontConfiguration;
 import com.googlecode.lanterna.terminal.swing.SwingTerminalFrame;
 
+import fr.upc.g5e4.model.CharacterModel;
+import fr.upc.g5e4.model.console.ConsoleLogics;
+
 import java.awt.Font;
 
 import javax.swing.JFrame;
 
 /**
  * Gere l'ecran du terminal externe
- * Pas possible d'avoir ca dans le terminal machine 
- * A cause de windows qui veut qu'on utilise javaw
- * Possibiliter de le regler au SPRINT 3 si necessaire
- * @see https://github.com/mabe02/lanterna/issues/335
+ * -> Ouvre une fenetre de termninal externe
+ * 
+ * Pas possible de lancer dans le terminal interne
+ * @see https://github.com/mabe02/lanterna/issues/335 
+ * 
+ * @author Mei
  */
 public class ConsoleView {
     private Terminal terminal;
     private Screen screen;
     private TextGraphics text;
-    private int XCase;
-    private int YCase;
+
+    // taille de la fenetre en case
+    private static final int XCase = 100;
+    private static final int YCase = 28;
 
     /**
-     * Initialise la fenetre
+     * Initialise la fenetre et tout ce qui est overlay
+     *  -> le menu, les stats etc..
      */
     public ConsoleView(){
         try {
-            this.XCase = 100;
-            this.YCase = 28;
             Font maPolice = new Font("Monospaced", Font.BOLD, 20);
 
             DefaultTerminalFactory defaultTerminalFactory = new DefaultTerminalFactory();   // pour regler prbnlm windows
@@ -72,18 +79,21 @@ public class ConsoleView {
         return this.screen;
     }
 
-    public int getXCase(){
-        return this.XCase;
+    public static int getXCase(){
+        return XCase;
     }
 
-    public int getYCase(){
-        return this.YCase;
+    public static int getYCase(){
+        return YCase;
     }
 
     public TextGraphics getTextGraphics(){
         return this.text;
     }
 
+    /**
+     * Print le menu, ne fait rien a part print
+     */
     public void menu(){
         try {
             screen.clear();
@@ -105,17 +115,37 @@ public class ConsoleView {
         
     }
 
-    /**
-     * affiche les lettres taper par l'utilisateur pour lancer une partie
-     * Pour simuler un terminal
-     */
     public static int positionLettre = 0;
+    /**
+     * Affiche les lettres taper par l'utilisateur pour lancer une partie
+     * Pour simuler un terminal
+     * 
+     * @see ConsoleLogics#launchGame
+     */
     public void printLetterMenu(char r) throws IOException{
         text.setCharacter(positionLettre, screen.getTerminalSize().getRows() -1, r);
         positionLettre++;
         screen.refresh();
     }
 
+    /**
+     * Print les stats de la partie
+     * @param round -> Le numero de round
+     * @param team -> la team active
+     * @param indexWActif -> le worm actif de la team
+     * @param characterModel -> Pour afficher les PV du worms actif
+     */
+    public void printStatsInGame(int round, String team, int indexWActif, CharacterModel characterModel){
+        text.setForegroundColor(TextColor.ANSI.WHITE);
+        text.putString(1,1, "Round " + round + " - Equipe active : " + team);
+        text.putString(1,2,"Worms actif numero : " + indexWActif);  // pas d'utiliter dans le terminal mais on pourrait print le nom du characterModel a la place
+        text.putString(1,3, "PV = " + characterModel.getHealth());
+        //screen.refresh();
+    }
+
+    /**
+     * Pour effacer et raffraichir la page plus simplement
+     */
     public void clearRefresh(){
         try {
             screen.clear();
@@ -125,6 +155,9 @@ public class ConsoleView {
         }
     }
 
+    /**
+     * Pour raffraichir la page plus simplement
+     */
     public void refresh(){
         try {
             screen.refresh();
@@ -132,4 +165,6 @@ public class ConsoleView {
             System.out.println(e.getMessage());
         }
     }
+
+    
 }

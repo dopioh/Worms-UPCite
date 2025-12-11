@@ -95,11 +95,11 @@ public class GameManager {
 
         // création premiere equipe (spawn en haut de la map pour éviter d'être coincés)
         int wormNumber = 3; 
-        this.teamModel1 = new TeamModel(model, world, "Team1", 0, 80, wormNumber);
+        this.teamModel1 = new TeamModel(model, world, "Team1", 0, 80, wormNumber, false);
         this.teamView1 = new TeamView(wormNumber, Color.BLUE);
 
         // création seconde equipe
-        this.teamModel2 = new TeamModel(model, world, "Team2", 5600, 50, wormNumber);  
+        this.teamModel2 = new TeamModel(model, world, "Team2", 5600, 50, wormNumber, false);  
         this.teamView2 = new TeamView(wormNumber, Color.RED);
         
         // Créer une liste de tous les worms pour le WaterSensorListener

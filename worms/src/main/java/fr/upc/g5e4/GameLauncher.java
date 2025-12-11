@@ -5,6 +5,7 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 
 import fr.upc.g5e4.model.InventoryModel.InventoryRoot;
+import fr.upc.g5e4.model.console.ConsoleLauncher;
 import fr.upc.g5e4.view.*;
 import fr.upc.g5e4.controller.*;
 import fr.upc.g5e4.model.*; 
@@ -27,10 +28,10 @@ public class GameLauncher{
     
     public GameLauncher(boolean screen, boolean startFullScreen) throws IOException{
         this.screen = screen;
+        int sizeX = 6000;
+        int sizeY = 720;
 
         if (screen){
-            int sizeX = 1280;
-            int sizeY = 720;
             JFrame game = new JFrame();
 
             game.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -224,6 +225,6 @@ public class GameLauncher{
 
         //// Pour lancer le jeu directement (pour les testes)
         new GameLauncher(true);
-        //new ConsoleLauncher(); la console est trop nulle
+        //new ConsoleLauncher(); //la console est trop bien
     }
 }

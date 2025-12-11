@@ -41,7 +41,7 @@ public class PerlinGameLauncher {
         physic.limitPanel(groundModel);
         
         int wormNumber = 1;
-        TeamModel team = new TeamModel(groundModel, world, "Team Perlin", 300, 300, wormNumber);
+        TeamModel team = new TeamModel(groundModel, world, "Team Perlin", 300, 300, wormNumber, false);
         TeamView teamView = new TeamView(wormNumber, Color.ORANGE);
         
         // init camera (utiliser la taille de la fenêtre, pas du terrain)
