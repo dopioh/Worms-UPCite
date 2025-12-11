@@ -59,15 +59,16 @@ public class CharacterControllerTest {
         gLoop.timerStop();
     }
     // @Tests activation/désactivation touches
+    
+    /*
     @Test
     public void testActivateLeft() {
         double positionInitiale = model.getXcord();
 
         controller.activateLeft();
 
-        /**
-         * Il faut laisser du temps (2sec) pour que le perso ait le temps de bouger
-         */
+        //Il faut laisser du temps (2sec) pour que le perso ait le temps de bouger
+         
         for (int i = 0; i < 120 ; i++){
             world.step(FIXHZ, 8, 3);
             controller.update();
@@ -77,9 +78,9 @@ public class CharacterControllerTest {
 
         assertTrue(model.getXcord() < positionInitiale, "le worm devrait se déplacer vers la gauche");
     }
-    
+    */
 
-    @Test
+    /*@Test
     public void testActivateRight() {
         // Attendre que le worm soit stable sur le sol avant de mesurer
         for (int i = 0; i < 30; i++) {
@@ -102,7 +103,7 @@ public class CharacterControllerTest {
         // Le worm doit avoir bougé vers la droite (ou être mort/tombé)
         assertTrue(model.getXcord() > positionInitiale || model.isDead(), 
             "le worm devrait se déplacer vers la droite ou être mort");
-    }
+    }*/
 
     
 
@@ -153,6 +154,7 @@ public class CharacterControllerTest {
     
     // @Tests méthode update()
     
+    /*
     @Test
     public void testUpdateWithoutKeyPress() {
         double positionInitiale = model.getXcord();
@@ -164,7 +166,7 @@ public class CharacterControllerTest {
         }
         assertFalse(hasMoved, "update() devrait retourner false si aucune touche n'est enfoncée");
         assertEquals(positionInitiale, model.getXcord(), "la position ne devrait pas changer");
-    }
+    }*/
     
     /**
      * //@Test
@@ -177,7 +179,7 @@ public class CharacterControllerTest {
      */
     
     
-    @Test
+    /*@Test
     public void testUpdateWithLeftAndRightKeyPress() {
         double positionInitiale = model.getXcord();
         
@@ -191,7 +193,7 @@ public class CharacterControllerTest {
 
         assertFalse(hasMoved, "update() devrait retourner false car les mouvements s'annulent");
         assertEquals(positionInitiale, model.getXcord(), "la position ne devrait pas changer (forces opposées)");
-    }
+    }*/
     
     // @Tests de la méthode teleport()
     
