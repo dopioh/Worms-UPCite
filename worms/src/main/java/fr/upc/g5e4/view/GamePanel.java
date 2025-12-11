@@ -158,7 +158,7 @@ public class GamePanel extends JPanel {
             g2.fillRect(0, 0, model.getWidth(), model.getHeight());
         }
 
-        // Eau (en arrière-plan, pas en mode blueprint)
+        // Eau en arrière-plan quand pas en mode blueprint
         if (!blueprintMode) {
             g2.setColor(new Color(75, 147, 240));
             g2.fillRect(0, model.getWaterLevel(), model.getWidth(), model.getHeight() - model.getWaterLevel());
@@ -198,14 +198,7 @@ public class GamePanel extends JPanel {
             ProjectileView.drawProjectiles(g2, itemController.getActiveProjectiles());
         }
 
-        // Eau
-        g2.setColor(new Color(75, 147, 240));
-        g2.fillRect(0, model.getWaterLevel(), model.getWidth(), model.getHeight() - model.getWaterLevel());
-
         // permet libérer les ressources graphiques
-        g2.dispose();
-        
-        
         g2.dispose();
     }
 }
