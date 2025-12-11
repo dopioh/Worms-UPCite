@@ -28,7 +28,7 @@ public class TrajectoryRendererTest {
         world = physicsWorld.getWorld();
         physicsWorld.createGroundFromModel(ground);
         
-        character = new CharacterModel(ground, world, 400, ground.getHeight() - 100);
+        character = new CharacterModel(ground, world, 400, ground.getHeight() - 100, false);
         
         // Créer une arme simple pour les tests
         weapon = new Weapon("Test Weapon", 10, false, 10, 0, 10, 30) {

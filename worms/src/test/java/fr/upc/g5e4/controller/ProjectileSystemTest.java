@@ -29,8 +29,8 @@ public class ProjectileSystemTest {
         physicsWorld.createGroundFromModel(ground);
         
         // Créer le tireur et la cible
-        shooter = new CharacterModel(ground, world, 100, ground.getHeight() - 400);
-        target = new CharacterModel(ground, world, 300, ground.getHeight() - 400);
+        shooter = new CharacterModel(ground, world, 100, ground.getHeight() - 400, false);
+        target = new CharacterModel(ground, world, 300, ground.getHeight() - 400, false);
         
         // Créer une arme
         weapon = new Weapon("Test Weapon", 10, false, 10, 0, 10, 30) {

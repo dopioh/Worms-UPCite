@@ -1,7 +1,6 @@
 package fr.upc.g5e4.view;
 
 import java.awt.*;
-import java.awt.geom.Line2D;
 import org.jbox2d.dynamics.World;
 import org.jbox2d.common.Vec2;
 

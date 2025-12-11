@@ -31,7 +31,7 @@ public class ProjectileTest {
         physicsWorld.createGroundFromModel(ground);
         
         // Créer le tireur
-        shooter = new CharacterModel(ground, world, 100, ground.getHeight() - 400);
+        shooter = new CharacterModel(ground, world, 100, ground.getHeight() - 400, false);
         
         // Créer une arme simple
         weapon = new Weapon("Test Weapon", 10, false, 10, 0, 10, 30) {
@@ -200,6 +200,7 @@ public class ProjectileTest {
         Vec2 pos_0_25 = projectileHorizontal.getPositionAtTime(0.25f);
         Vec2 pos_0_5 = projectileHorizontal.getPositionAtTime(0.5f);
         Vec2 pos_0_75 = projectileHorizontal.getPositionAtTime(0.75f);
+        @SuppressWarnings("unused")
         Vec2 pos_1_0 = projectileHorizontal.getPositionAtTime(1.0f);
         
         // La trajectoire doit descendre au début à cause de la courbe parabolique
