@@ -15,4 +15,8 @@ public class Ak47 extends Weapon{
         return true;
     }
     
+    @Override
+    public double getCurveAmplitude(){
+        return 0.05;
+    }
 }
