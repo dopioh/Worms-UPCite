@@ -68,10 +68,13 @@ public class GameLauncher{
             inventoryOverlay.setFireListener(gameManager.getImputController());
             gameManager.setInventoryOverlay(inventoryOverlay);
 
+            SwingInputController input = gameManager.getImputController();
+            input.setGameFrame(game);
+            input.setInventoryOverlay(inventoryOverlay);
+            input.setGameManager(gameManager);
+
             game.getContentPane().setBackground(java.awt.Color.BLACK);
             
-            /* Fin de partie */
-
             //Touches raccourcies
             setupKeyBindings(layered, game, startFullScreen);
             
@@ -132,29 +135,6 @@ public class GameLauncher{
     private void setupKeyBindings(JComponent root, JFrame game, boolean initialFullScreen) {
         InputMap im = root.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         ActionMap am = root.getActionMap();
-
-        // Touche ESC -> quitter le jeu
-        im.put(KeyStroke.getKeyStroke("ESCAPE"), "exitGame");
-        am.put("exitGame", new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                game.dispose();
-                System.exit(0);
-            }
-        });
-
-        // Touche I -> ouvrir / fermer l'inventaire
-        im.put(KeyStroke.getKeyStroke('i'), "toggleInventory");
-        am.put("toggleInventory", new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (inventoryOverlay != null) {
-                    boolean visible = inventoryOverlay.isInventoryVisible();
-                    inventoryOverlay.setInventoryVisible(!visible);
-                }
-            }
-        });
-
         // Touche F11 -> basculer en plein écran
         im.put(KeyStroke.getKeyStroke("F11"), "toggleFullScreen");
         am.put("toggleFullScreen", new AbstractAction() {

@@ -93,7 +93,7 @@ public class TrajectoryRenderer {
             float worldY = shooterPos.y + (float)(horizontalDistance * Math.sin(angleRad));
             
             //apliquer la courbe parabolique
-            double curveEffect = 0.3;
+            double curveEffect = currentWeapon.getCurveAmplitude();
             worldY -= (float)(curveEffect * 4 * t * (1 - t));
 
             trajectoryWorldX[i] = worldX;

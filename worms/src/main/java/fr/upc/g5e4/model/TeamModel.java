@@ -10,7 +10,8 @@ import fr.upc.g5e4.model.InventoryModel.InventoryJson;
 public class TeamModel {
     private int number;
     private CharacterModel[] tabModelWorms;
-    
+    public String teamName;
+
     private List<InventoryJson> inventory;
     
     /**
@@ -29,6 +30,7 @@ public class TeamModel {
         if (wormNumber < 1) {
             throw new IllegalArgumentException("Une équipe doit avoir au moins 1 worm");
         }
+        this.teamName = teamName;
         this.number = wormNumber;
         this.tabModelWorms = new CharacterModel[number];
         
@@ -59,6 +61,10 @@ public class TeamModel {
     }
     
     // Getters et Setters   
+    public String getTeamName(){
+        return teamName;
+    }
+
     public CharacterModel[] getTabWorms() {
         return tabModelWorms;
     }
