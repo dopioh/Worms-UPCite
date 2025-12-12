@@ -9,6 +9,7 @@ import fr.upc.g5e4.model.Projectile;
 import fr.upc.g5e4.view.ItemView;
 import java.util.ArrayList;
 import java.util.List;
+import fr.upc.g5e4.model.SoundPlayer;
 
 public class ItemController {
     private final ItemView view;
@@ -59,6 +60,8 @@ public class ItemController {
         }
 
         if (weapon.use()) {
+            SoundPlayer.play("/sfx/gunshot.wav");
+
             Projectile projectile = weapon.fire(shooter, world, allWorms, direction);
             if (projectile != null) {
                 activeProjectiles.add(projectile);

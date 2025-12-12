@@ -15,4 +15,8 @@ public class Grenade extends Weapon{
         return true;
     }
 
+    @Override
+    public double getCurveAmplitude(){
+        return 0.6;
+    }
 }

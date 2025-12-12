@@ -39,6 +39,7 @@ public class TeamModel {
         if (wormNumber < 1) {
             throw new IllegalArgumentException("Une équipe doit avoir au moins 1 worm");
         }
+        this.teamName = teamName;
         this.number = wormNumber;
         this.tabModelWorms = new CharacterModel[number];
         this.teamName = teamName;
@@ -73,6 +74,10 @@ public class TeamModel {
     }
     
     // Getters et Setters   
+    public String getTeamName(){
+        return teamName;
+    }
+
     public CharacterModel[] getTabWorms() {
         return tabModelWorms;
     }
