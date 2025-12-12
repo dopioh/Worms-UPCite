@@ -6,6 +6,7 @@ import fr.upc.g5e4.model.CharacterModel;
 import fr.upc.g5e4.model.Item;
 import fr.upc.g5e4.model.Weapon;
 import fr.upc.g5e4.model.Projectile;
+import fr.upc.g5e4.model.GroundModel;
 import fr.upc.g5e4.view.ItemView;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +16,7 @@ public class ItemController {
     private final ItemView view;
     private World world;
     private CharacterModel[] allWorms;
+    private GroundModel groundModel;
     private List<Projectile> activeProjectiles;
 
     public ItemController(ItemView view) {
@@ -36,6 +38,14 @@ public class ItemController {
      */
     public void setAllWorms(CharacterModel[] allWorms) {
         this.allWorms = allWorms;
+    }
+    
+    /**
+     * définit le modèle du sol pour la détection de collision ( a utilisé pour la dégradation du sol)
+     * @param groundModel Le modèle du terrain
+     */
+    public void setGroundModel(GroundModel groundModel) {
+        this.groundModel = groundModel;
     }
 
     /**
@@ -86,6 +96,12 @@ public class ItemController {
                 continue;
             }
             
+            // permet de détecter le sol
+            if (groundModel != null && hitGround(projectile)) {
+                toRemove.add(projectile);
+                continue;
+            }
+            
             // détection de collision avec les worms
             Vec2 projectilePos = projectile.getCurrentPosition();
             for (CharacterModel worm : allWorms) {
@@ -113,6 +129,28 @@ public class ItemController {
         
         // supp les projectiles morts
         activeProjectiles.removeAll(toRemove);
+    }
+    
+    /**
+     * vérifie si un projectile a touché le sol
+     * @param projectile le projectile
+     * @return true si le projectile a touché le sol
+     */
+    private boolean hitGround(Projectile projectile) {
+        Vec2 pos = projectile.getCurrentPosition();
+        
+        //convertit la position monde en position écran pour vérifier la hauteur du terrain
+        float PPM = 30f;
+        int heightPx = 720;  // hauteur de l'écran en pixels
+        
+        // position écran du projectile
+        float screenY = (heightPx - (pos.y * PPM));
+        
+        //obtenir la hauteur du sol à la position X du projectile
+        float groundHeightPx = groundModel.getGroundHeightAt(pos.x * PPM);
+        
+        // le projectile a touché le sol si screenY >= groundHeightPx
+        return screenY >= groundHeightPx;
     }
     
     /**

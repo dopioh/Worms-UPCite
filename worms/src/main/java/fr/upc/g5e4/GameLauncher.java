@@ -42,8 +42,8 @@ public class GameLauncher{
             this.gamePanel = gameManager.getGamePanel();
              
             //VENT
-            WindOverlay windOverlay = new WindOverlay(gameManager.getWindModel());
-            windOverlay.setBounds(0, 0, sizeX, sizeY);
+           // WindOverlay windOverlay = new WindOverlay(gameManager.getWindModel());
+            //windOverlay.setBounds(0, 0, sizeX, sizeY);
 
 
             /* ------------------------ Partie Overlay Inventaire --------------------------------- */
@@ -66,7 +66,7 @@ public class GameLauncher{
             inventoryOverlay.setBounds(0,0,sizeX,sizeY);
 
             layered.add(gamePanel, JLayeredPane.DEFAULT_LAYER);
-            layered.add(windOverlay, JLayeredPane.PALETTE_LAYER);
+            //layered.add(windOverlay, JLayeredPane.PALETTE_LAYER);
             layered.add(inventoryOverlay, JLayeredPane.PALETTE_LAYER);
             game.setContentPane(layered);
             

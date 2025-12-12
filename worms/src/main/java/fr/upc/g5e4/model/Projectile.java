@@ -55,10 +55,6 @@ public class Projectile {
         float x = startPosition.x + (float)(horizontalDistance * Math.cos(angleRad));
         float y = startPosition.y + (float)(horizontalDistance * Math.sin(angleRad));
         
-        // appliquer la courbe parabolique 
-        double curveEffect = sourceWeapon.getCurveAmplitude();
-        y -= (float)(curveEffect * 4 * t * (1 - t));
-        
         return new Vec2(x, y);
     }
     

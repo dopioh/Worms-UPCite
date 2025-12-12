@@ -80,7 +80,7 @@ public class TrajectoryRenderer {
 
         trajectoryWorldX[0] = shooterPos.x;
         trajectoryWorldY[0] = shooterPos.y;
-        System.out.println("Renderer curve=" + currentWeapon.getCurveAmplitude() + " weapon=" + currentWeapon.getName());
+        System.out.println(" weapon=" + currentWeapon.getName());
 
         // générer les points avec trajectoire parabolique
         for (int i = 1; i <= TRAJECTORY_POINTS; i++) {
@@ -93,10 +93,9 @@ public class TrajectoryRenderer {
             float worldX = shooterPos.x + (float)(horizontalDistance * Math.cos(angleRad));
             float worldY = shooterPos.y + (float)(horizontalDistance * Math.sin(angleRad));
             
-            //apliquer la courbe parabolique
-            double curveEffect = currentWeapon.getCurveAmplitude();
-            worldY -= (float)(curveEffect * 4 * t * (1 - t));
-
+            //ajouter un effet de chute (parabole simple)
+            float gravityEffect = 9.81f * (t * t); // effet 
+            worldY -= gravityEffect;
             trajectoryWorldX[i] = worldX;
             trajectoryWorldY[i] = worldY;
         }

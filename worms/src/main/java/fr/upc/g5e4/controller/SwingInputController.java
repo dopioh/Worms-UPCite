@@ -228,7 +228,7 @@ public class SwingInputController extends JPanel{
                 }
             }
         });
-        
+
         // Tir au clic gauche -> vers la souris
         addMouseListener(new MouseAdapter() {
             @Override

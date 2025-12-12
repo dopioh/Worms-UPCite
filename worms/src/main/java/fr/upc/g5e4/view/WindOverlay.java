@@ -1,3 +1,5 @@
+/* 
+
 package fr.upc.g5e4.view;
 
 import fr.upc.g5e4.model.WindModel;
@@ -176,3 +178,6 @@ public class WindOverlay extends JComponent {
         float alpha;
     }
 }
+
+
+*/

@@ -44,19 +44,11 @@ public abstract class Weapon extends Item {
         return this.shootingAngle;
     }
     
-    /**
-     * Getter pour amplitude (gardé pour compatibilité)
-     */
-    public double getCurveAmplitude() {
-        return 0.5;  // Valeur par défaut
-    }
 
     /**
-     * Tire un projectile avec une trajectoire basée sur l'angle de tir
+     * Tire un projectile avec une trajectoire 
      * @param shooter Le worm qui tire
-     * @param world Le monde physique JBox2D (non utilisé, mais gardé pour compatibilité)
      * @param allWorms Tableau de tous les worms du jeu
-     * @param direction Direction du tir (non utilisé maintenant, déterminé par l'angle)
      */
     public Projectile fire(CharacterModel shooter, org.jbox2d.dynamics.World world, 
         CharacterModel[] allWorms, int direction) {

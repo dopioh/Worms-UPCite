@@ -15,8 +15,4 @@ public class RocketLauncher extends Weapon {
         return true;
     }
 
-    @Override
-    public double getCurveAmplitude(){
-        return 0.3;
-    }
 }

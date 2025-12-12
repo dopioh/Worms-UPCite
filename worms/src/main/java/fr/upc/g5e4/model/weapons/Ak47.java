@@ -14,9 +14,5 @@ public class Ak47 extends Weapon{
         System.out.println("[AK-47] tir !");
         return true;
     }
-    
-    @Override
-    public double getCurveAmplitude(){
-        return 0.05;
-    }
+
 }
