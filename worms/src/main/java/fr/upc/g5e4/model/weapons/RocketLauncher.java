@@ -14,4 +14,9 @@ public class RocketLauncher extends Weapon {
         System.out.println("[RocketLauncher] Roquette tirée !");
         return true;
     }
+
+    @Override
+    public double getCurveAmplitude(){
+        return 0.3;
+    }
 }
