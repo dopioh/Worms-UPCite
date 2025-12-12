@@ -104,10 +104,10 @@ public class ConsoleGameManager {
 
         // création premiere equipe
         int wormNumber = 3;
-        this.teamModel1 = new TeamModel(model, world, "Team1", 100, 98, wormNumber, true);
+        this.teamModel1 = new TeamModel(model, world, "Team1", 100, 98, wormNumber, true, true, false);
 
         // création seconde equipe
-        this.teamModel2 = new TeamModel(model, world, "Team2", 400, 158, wormNumber, true);
+        this.teamModel2 = new TeamModel(model, world, "Team2", 400, 158, wormNumber, true, true, false);
 
         // les noms des arraylist et du tableau de CharacterModel des worms sont les memes dans le GameMangager
         // j'ai change le nom du tableau ici pour plus de visibilite

@@ -1,13 +1,27 @@
 package fr.upc.g5e4.model;
 
+//import java.util.ArrayList;
+
 import org.jbox2d.dynamics.World;
+import java.util.List;
+import fr.upc.g5e4.model.InventoryModel.InventoryJson;
+
+import fr.upc.g5e4.model.io.*;
 
 /**
  * Modèle pour une équipe de worms
  */
 public class TeamModel {
-    private int number;
+    private int teamID; // ID de l'equipe, peut pas etre final sinon on peut pas load une partie
+    private String teamName;
+
+    private int number; // nbr de worms dans l'equipe
     private CharacterModel[] tabModelWorms;
+    
+
+    private static int TEAMSNUMBER = 0;
+
+    private List<InventoryJson> inventory;
     
     /**
      * Constructeur de la classe TeamModel avec initialisation automatique des worms
@@ -17,13 +31,20 @@ public class TeamModel {
      * @param startX La position X de départ pour le premier worm
      * @param spacing L'espacement entre chaque worm
      * @param wormNumber Le nombre de worms dans l'équipe
+     * @param console Mode console (debug)
+     * @param facingRight Direction initiale des worms (true = droite, false = gauche)
+     * @param withCollision Active les collisions entre worms (true = avec collisions, false = sans)
      */
-    public TeamModel(GroundModel groundModel, World world, String teamName, double startX, double spacing, int wormNumber, boolean console) {
+    public TeamModel(GroundModel groundModel, World world, String teamName, double startX, double spacing, int wormNumber, boolean console, boolean facingRight, boolean withCollision) {
         if (wormNumber < 1) {
             throw new IllegalArgumentException("Une équipe doit avoir au moins 1 worm");
         }
         this.number = wormNumber;
         this.tabModelWorms = new CharacterModel[number];
+        this.teamName = teamName;
+
+        TEAMSNUMBER++;
+        this.teamID = TEAMSNUMBER;
         
         // Initialisation automatique des worms et position espacée
         for (int i = 0; i < number; i++) {
@@ -42,8 +63,12 @@ public class TeamModel {
                 50.0,   // shield
                 15.0,   // speed
                 5.0,     // jump
-                console
+                console,
+                withCollision
             );
+            
+            // Définir la direction initiale
+            tabModelWorms[i].setFacingRight(facingRight);
         }
     }
     
@@ -89,5 +114,35 @@ public class TeamModel {
             }
         }
         return aliveCount;
+    }
+
+
+    // Getter Data
+    public TeamData toData(){
+        return new TeamData(teamID, number, tabModelWorms,teamName);
+    }
+
+    // Setter Data
+    public void loadFromData(TeamData teamData){
+        this.teamID = teamData.getTeamID();
+        this.number = teamData.getWormsNumber();
+    
+    }
+
+    
+    public void setInventory(List<InventoryJson> inventory) {
+        this.inventory = inventory;
+    }
+
+    public List<InventoryJson> getInventory() {
+        return inventory;
+    }
+
+    // Remet useThisTurn = 0 pour tous les items de l'équipe (nouveau tour pour cette team)
+    public void resetInventoryTurn() {
+        if (inventory == null) return;
+        for (InventoryJson item : inventory) {
+            item.resetTurn();
+        }
     }
 }

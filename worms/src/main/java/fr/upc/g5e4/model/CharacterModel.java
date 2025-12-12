@@ -1,5 +1,6 @@
 package fr.upc.g5e4.model;
 
+import fr.upc.g5e4.model.InventoryModel.InventoryJson;
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
@@ -7,6 +8,8 @@ import org.jbox2d.dynamics.BodyDef;
 import org.jbox2d.dynamics.BodyType;
 import org.jbox2d.dynamics.FixtureDef;
 import org.jbox2d.dynamics.World;
+
+import fr.upc.g5e4.model.io.CharacterData;
 
 /**
  * Modèle du Personnage
@@ -31,6 +34,8 @@ public class CharacterModel{
     private double jump;
     
     private boolean isDead;
+    private boolean facingRight;  // true si le worm regarde vers la droite
+    private boolean withCollision = false;  // collisions entre worms activées ou non
     
     private long lastJumpTime = 0;  // Temps du dernier saut pour le cooldown
     private static final double JUMP_COOLDOWN = 0.5;  // Cooldown du saut en secondes
@@ -42,7 +47,14 @@ public class CharacterModel{
     private final float m_HeightPerso = 0.6f;   // tous les worms font la meme taille en metre
     private final float m_WidthPerso = 0.6f;
 
+    // Catégories de collision (chaque bit = une catégorie différente)
+    public static final int CATEGORY_TERRAIN = 0x0001;  // Bit 1 : terrain/sol
+    public static final int CATEGORY_WORM = 0x0002;     // Bit 2 : worms
+
     private final Body persoBody;
+
+    //Armes équipées
+    private InventoryJson equippedItem;
 
     //private static final int sizePerso = 40;
 
@@ -66,6 +78,7 @@ public class CharacterModel{
         this.speed = 5.0;  // defini à 3 à la base
         this.jump = 5.0;
         this.isDead = false;
+        this.facingRight = true;
         
         this.persoBody = createBody(console);
     }
@@ -80,8 +93,10 @@ public class CharacterModel{
      * @param shield Le bouclier du worm
      * @param speed La vitesse du worm
      * @param jump Le saut du worm
+     * @param console Mode console
+     * @param withCollision Active les collisions entre worms
      */
-    public CharacterModel(GroundModel model, World world,String name, double xcord, double ycord, double health, double shield, double speed, double jump, boolean console) {
+    public CharacterModel(GroundModel model, World world,String name, double xcord, double ycord, double health, double shield, double speed, double jump, boolean console, boolean withCollision) {
         this.model = model;
         this.world = world;
         this.ID = wormsCounter++;
@@ -93,6 +108,8 @@ public class CharacterModel{
         this.speed = speed;
         this.jump = jump;
         this.isDead = false;
+        this.facingRight = true;  // Par défaut, regarde vers la droite
+        this.withCollision = withCollision;
 
         this.persoBody = createBody(console);
     }
@@ -147,6 +164,14 @@ public class CharacterModel{
     public boolean isDead() {
         return isDead;
     }
+    
+    public boolean isFacingRight() {
+        return facingRight;
+    }
+
+    public InventoryJson getEquippedItem(){
+        return equippedItem;
+    }
 
     // Setters
     public void setName(String name) {
@@ -200,6 +225,10 @@ public class CharacterModel{
     public void toggleFlyMode() {
         setFlyMode(!flyMode);
     }
+    
+    public void setFacingRight(boolean facingRight) {
+        this.facingRight = facingRight;
+    }
 
         public Body getBody(){
         return persoBody;
@@ -215,6 +244,11 @@ public class CharacterModel{
 
     public static float getPPM(){
         return PPM;
+    }
+
+    
+    public void setEquippedItem(InventoryJson item){
+        this.equippedItem = item;
     }
 
     /**
@@ -313,12 +347,37 @@ public class CharacterModel{
             fixtureWorm.friction = 10f; // 18 a la base
         }
         fixtureWorm.shape = square;
-        
+
+        // Filtre de collision
+        fixtureWorm.filter.categoryBits = CATEGORY_WORM; // Je suis un worm
+        if (withCollision) {
+            // collisions avec terrain ET autres worms
+            fixtureWorm.filter.maskBits = CATEGORY_TERRAIN | CATEGORY_WORM;
+        } else {
+            // collisions uniquement avec le terrain (pas entre worms)
+            fixtureWorm.filter.maskBits = CATEGORY_TERRAIN;
+        }
 
         Body bWorm = world.createBody(bdWorm);
         bWorm.createFixture(fixtureWorm);
 
         return bWorm;
+    }
+
+    // Getter Data
+    public CharacterData toData(){
+        return new CharacterData(ID, name, xcord, ycord, health, shield, isDead);
+    }
+
+    // Setter Data
+    public void loadFromData(CharacterData characterData){
+        this.ID = characterData.getID();
+        this.name = characterData.getName();
+        this.xcord = characterData.getXcord();
+        this.ycord = characterData.getYcord();
+        this.health = characterData.getHealth();
+        this.shield = characterData.getShield();
+        this.isDead = characterData.getIsDead();
     }
 
     

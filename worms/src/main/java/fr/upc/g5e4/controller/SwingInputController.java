@@ -52,6 +52,7 @@ public class SwingInputController extends JPanel{
     //@Override
     public void addControls() {    
         //System.out.println("addControls() called");
+        
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -88,6 +89,14 @@ public class SwingInputController extends JPanel{
                         updateTrajectory();
                         break;
 
+                    // Caméra déplacements
+                    case KeyEvent.VK_LEFT:
+                        if(cameraController != null) cameraController.activateLeft();
+                        break;
+                    case KeyEvent.VK_RIGHT:
+                        if(cameraController != null) cameraController.activateRight();
+                        break;
+                    
                     // Caméra zoom
                     case KeyEvent.VK_T:
                         if(cameraController != null) cameraController.zoomIn();
@@ -108,6 +117,12 @@ public class SwingInputController extends JPanel{
                     case KeyEvent.VK_E:
                         if(gameManager != null) gameManager.switchWeapon();
                         System.out.println("switch");
+                        break;
+
+                    // Ouverture de l'inventaire
+                    case KeyEvent.VK_J:
+                        gameManager.actionPerformed();
+                        System.out.println("Save Buttun Pressed");
                         break;
                     
                     // Toggle mode vol (touche P)
@@ -151,6 +166,7 @@ public class SwingInputController extends JPanel{
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
+                requestFocusInWindow();  // Récupérer le focus au clic
                 if (e.getButton() == MouseEvent.BUTTON1) {
                     if (trajectoryRenderer != null) {
                         trajectoryRenderer.setAiming(false);

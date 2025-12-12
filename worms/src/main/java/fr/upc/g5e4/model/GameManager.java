@@ -9,17 +9,23 @@ import org.jbox2d.dynamics.World;
 
 import fr.upc.g5e4.GameLauncher;
 import fr.upc.g5e4.controller.*;
-import fr.upc.g5e4.model.*;
+//import fr.upc.g5e4.model.*;
 import fr.upc.g5e4.model.weapons.Ak47;
 import fr.upc.g5e4.model.weapons.BaseballBat;
 import fr.upc.g5e4.model.weapons.Grenade;
 import fr.upc.g5e4.model.weapons.RocketLauncher;
 import fr.upc.g5e4.model.PhysicsWorld.WaterSensorListener;
 import fr.upc.g5e4.model.camera.CameraModel;
-import fr.upc.g5e4.view.CharacterView;
+import fr.upc.g5e4.model.io.SaveData;
+import fr.upc.g5e4.model.io.TeamData;
+//import fr.upc.g5e4.view.CharacterView;
 import fr.upc.g5e4.view.GamePanel;
 import fr.upc.g5e4.view.ItemView;
 import fr.upc.g5e4.view.TeamView;
+import fr.upc.g5e4.view.InventoryOverlay;
+
+import java.io.*;
+import com.google.gson.*;
 
 /**
  * Cette classe servira pour instancier tout ce dont le jeu (une partie de jeu)
@@ -27,7 +33,7 @@ import fr.upc.g5e4.view.TeamView;
  */
 public class GameManager {
     private final GamePanel gamePanel;
-    private final GroundModel model;
+    private GroundModel model;
     private final PhysicsWorld physic;
     private final World world;
     private final Body water;
@@ -35,10 +41,17 @@ public class GameManager {
     private SwingInputController imputController;
     private CameraModel camera; // AJOUT RAPHAËL
     private CameraController cameraController; // AJOUT RAPHAËL
+
+    // Team Model : (on peut en mettre autant qu'on veut)
     private final TeamModel teamModel1;
     private final TeamView teamView1;
     private final TeamModel teamModel2;  
     private final TeamView teamView2;
+
+    private ArrayList<TeamModel> listTeamModel;
+
+    //private TeamModel[] teamModelsTab; // dit combien on a d'equipe
+
     private final ItemController itemController;
     private final CharacterModel[] allWorms;
     private int activeWormIndex;
@@ -48,6 +61,13 @@ public class GameManager {
     // ajout minimal: gestion des rounds
     private int roundNumber = 1;
     private int currentTeamIndex = 0; // 0 = Team1, 1 = Team2
+
+    // Timer : 
+    private int roundTimeRemaining = 1800;
+    private int roundTimeSave = 1800;
+
+    
+    private InventoryOverlay inventoryOverlay;
 
     /**
      * Initialise le terrain du jeu.
@@ -93,14 +113,21 @@ public class GameManager {
         this.camera = new CameraModel(1280, 720, model.getWidth(), model.getHeight(), 1);
         physic.limitPanel(model);
 
-        // création premiere equipe (spawn en haut de la map pour éviter d'être coincés)
+        // Initialisation liste d'equipes : 
+        this.listTeamModel = new ArrayList<>();
+
+        // création premiere equipe
         int wormNumber = 3; 
-        this.teamModel1 = new TeamModel(model, world, "Team1", 100, 80, wormNumber, false);
-        this.teamView1 = new TeamView(wormNumber, Color.BLUE);
+        // Team1 regarde vers la droite
+        this.teamModel1 = new TeamModel(model, world, "Team1", 100, 80, wormNumber, false, true, false);
+        this.teamView1 = new TeamView(wormNumber, Color.BLUE, "/worm.png", true);
+        listTeamModel.add(teamModel1);
 
         // création seconde equipe
-        this.teamModel2 = new TeamModel(model, world, "Team2", 2100, 50, wormNumber, false);  
-        this.teamView2 = new TeamView(wormNumber, Color.RED);
+        // Team2 regarde vers la gauche (face à Team1)
+        this.teamModel2 = new TeamModel(model, world, "Team2", 2100, 50, wormNumber, false, false, false);  
+        this.teamView2 = new TeamView(wormNumber, Color.RED, "/worm.png", false);
+        listTeamModel.add(teamModel2);
         
         // Créer une liste de tous les worms pour le WaterSensorListener
         ArrayList<CharacterModel> allWorms = new ArrayList<>();
@@ -159,10 +186,11 @@ public class GameManager {
         gamePanel.getTrajectoryRenderer().setShooter(activeWormController.getModel());
         gamePanel.getTrajectoryRenderer().setWeapon(activeWormController.getCurrentWeapon());
         
-        imputController.requestFocusInWindow();
-        this.gamePanel.setFocusable(true);
-        this.gamePanel.requestFocusInWindow();
-        this.gamePanel.setBlueprintMode(false);
+        // pour ne pas que gamePanel et imputController se disputent le focus
+        // en lancant le jeu, certaines fois rien n'était controllable mais c'est fix maintenant
+        this.gamePanel.setFocusable(false);  // le panel ne prend pas le focus
+        imputController.setFocusable(true);   // l'inputController prend le focus    
+        
 
         // Timer pour update régulier de la caméra, projectiles et repaint
         new Timer(16, e -> {
@@ -229,7 +257,30 @@ public class GameManager {
     public int getCurrentTeamIndex() {
         return this.currentTeamIndex;
     }
+    
+    public TeamModel getCurrentTeam() {
+        return (currentTeamIndex == 0) ? teamModel1 : teamModel2;
+    }
 
+    public ArrayList<TeamModel> getlistTeams(){
+        System.out.print(listTeamModel.toString()); // pq ca affiche [] ?
+        return listTeamModel;
+    }
+
+    public int getRoundTimeRemaining(){
+        return this.roundTimeRemaining;
+    }
+    public int getRoundTimeSave(){
+        return this.roundTimeSave;
+    }
+
+    public void setRoundTimeSave(int time){
+        this.roundTimeSave = time;
+    }
+
+    public String getCurrentTeamName(){
+        return (currentTeamIndex == 0)? "Team1" : "Team2";
+    }
     /**
      * switch le worm actif vers le suivant dans l'équipe
      * saute les worms morts
@@ -315,10 +366,20 @@ public class GameManager {
     public void nextRound() {
         roundNumber++;
         currentTeamIndex = (currentTeamIndex + 1) % 2;
-        TeamModel currentTeam = (currentTeamIndex == 0) ? teamModel1 : teamModel2;
+        TeamModel currentTeam = getCurrentTeam();
+        //reset des usages par tour pour l'équipe active
+        if (currentTeam != null) {
+            currentTeam.resetInventoryTurn();
+        }
+        //switch worm dans cette équipe
         switchToNextWorm(currentTeam);
+        //mettre à jour l'inventaire affiché dans l'overlay
+        if (inventoryOverlay != null) {
+            inventoryOverlay.setInventory(getCurrentTeamInventory());
+        }
         System.out.println("Round " + roundNumber + " - Equipe active : " + (currentTeamIndex == 0 ? "Team1" : "Team2"));
     }
+
     
     /**
      * Change l'arme équipée du worm actif (cycliquement)
@@ -354,4 +415,122 @@ public class GameManager {
             gamePanel.getTrajectoryRenderer().setWeapon(newWeapon);
         }
     }
+
+    // SAUVEGARDE :
+
+    /**
+     * Methode appelee lorsqu'on appuie sur le bouton save
+     */
+    public void save(){
+        // creer une sauvegarde automatiquement
+        SaveData saveData = new SaveData(this);
+
+        try {
+            File dossier = new File("sauvegardes");
+            File file = new File(dossier, "sauvegarde.txt");
+            FileWriter fileWriter = new FileWriter(file);
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            gson.toJson(saveData,fileWriter);
+            System.out.println(file.getAbsolutePath());
+            System.out.println(file.getCanonicalPath());
+            System.out.println("Partie sauvegardee !");
+
+            fileWriter.close();
+        } catch (Exception e) {
+            e.getMessage();
+        }
+    }
+
+    public void loadGame(String filePath){
+        try {
+            Gson gson = new Gson();
+            FileReader fileReader = new FileReader(filePath);
+
+            SaveData saveData = gson.fromJson(fileReader, SaveData.class);
+
+            //// On remplace :
+
+            // Donnees Partie :
+            this.roundNumber = saveData.getRound();
+            this.currentTeamIndex = saveData.getCurrentTeamIndex();
+            this.activeWormIndex = saveData.getActiveWormIndex();
+            this.roundTimeRemaining = saveData.getRoundTimeRemaining();
+
+            // Terrain :
+            this.model = saveData.getGroundModel();
+
+            // Worms : 
+
+            // Comment attribuer les equipes ? -> Le code n'est pas modulable pour les equipes 
+            // A corriger Sprint 4
+
+            for (TeamData td : saveData.getListTeamData()){
+                listTeamModel.add(td.dataToModel(model, world));
+            }
+
+            // a finir 
+        } catch (Exception e) {
+            e.getMessage();
+        }
+    }
+
+    /**
+     * Sauvegarde la partie
+     * Est called dans le controller
+     */
+    public void actionPerformed(){
+        save();
+        //System.out.println("JSON Creer");
+    }
+
+    /*Selection d'inventaire depuis l'inventaire*/
+    public void setWeaponFromInventory(String itemName) {
+        Weapon newWeapon = null;
+
+        switch (itemName) {
+            case "Ak47":
+            case "AK47":
+                newWeapon = new Ak47();
+                System.out.println("[Inventaire] Arme équipée depuis inventaire : AK-47");
+                break;
+            case "BaseballBat":
+                newWeapon = new BaseballBat();
+                System.out.println("[Inventaire] Arme équipée depuis inventaire : Baseball Bat");
+                break;
+            case "Grenade":
+                newWeapon = new Grenade();
+                System.out.println("[Inventaire] Arme équipée depuis inventaire : Grenade");
+                break;
+            case "RocketLauncher":
+                newWeapon = new RocketLauncher();
+                System.out.println("[Inventaire] Arme équipée depuis inventaire : Rocket Launcher");
+                break;
+            default:
+                System.out.println("[Inventaire] Aucun mapping d’arme pour : " + itemName);
+                break;
+        }
+
+        if (newWeapon != null && activeWormController != null) {
+            activeWormController.setCurrentWeapon(newWeapon);
+            // Met à jour la trajectoire
+            gamePanel.getTrajectoryRenderer().setWeapon(newWeapon);
+        }
+    }
+
+    public java.util.List<InventoryModel.InventoryJson> getCurrentTeamInventory() {
+        TeamModel team = getCurrentTeam();
+        return (team != null) ? team.getInventory() : null;
+    }
+
+    public void setInventoryOverlay(InventoryOverlay overlay){
+        this.inventoryOverlay = overlay;
+    }
+
+    private void resetCurrentTeamInventoryTurn() {
+        TeamModel team = getCurrentTeam();
+        if (team != null) {
+            team.resetInventoryTurn();
+        }
+    }
+
 }
