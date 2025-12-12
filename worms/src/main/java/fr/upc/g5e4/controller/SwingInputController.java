@@ -172,6 +172,12 @@ public class SwingInputController extends JPanel{
                         if(gameManager != null) gameManager.switchWeapon();
                         System.out.println("switch");
                         break;
+
+                    // Ouverture de l'inventaire
+                    case KeyEvent.VK_J:
+                        gameManager.actionPerformed();
+                        System.out.println("Save Buttun Pressed");
+                        break;
                     
                     // Toggle mode vol (touche P)
                     case KeyEvent.VK_P:

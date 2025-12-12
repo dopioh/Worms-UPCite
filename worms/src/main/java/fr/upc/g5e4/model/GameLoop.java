@@ -22,15 +22,16 @@ public class GameLoop{
     private final GamePanel gamePanel;
 
     // 30s à 60 FPS
-    private int roundTimeRemaining = 1800;
+    private int roundTimeRemaining;
 
     /** Toute les update de Timer se font dans le Constructeur de GameLoop, pas besoin de creer de methode ici*/
     public GameLoop(GameManager gameManager){
         this.gameManager = gameManager;
         this.gamePanel = this.gameManager.getGamePanel();
+        this.roundTimeRemaining = gameManager.getRoundTimeRemaining();
 
-        // Initialiser l'affichage du chrono dans la vue
-        this.gamePanel.setRoundTimer(30);
+        // Initialiser l'affichage du chrono dans la vue -> Ca sert a rien ? 
+        //this.gamePanel.setRoundTimer(30);
 
         //on multiplie FIXHZ 1000 psq Timer fonctionne en ms
         this.timer = new Timer((int)(FIXHZ*1000),new ActionListener() {         
@@ -75,6 +76,7 @@ public class GameLoop{
 
                 // décrémente le temps du round, met à jour la vue et change si nécessaire
                 roundTimeRemaining--; 
+                gameManager.setRoundTimeSave(roundTimeRemaining);
                 if (roundTimeRemaining % 60 == 0) {
                     int secondsLeft = roundTimeRemaining / 60; 
                     gamePanel.setRoundTimer(Math.max(0, secondsLeft));
