@@ -22,6 +22,7 @@ import fr.upc.g5e4.model.io.TeamData;
 import fr.upc.g5e4.view.GamePanel;
 import fr.upc.g5e4.view.ItemView;
 import fr.upc.g5e4.view.TeamView;
+import fr.upc.g5e4.view.InventoryOverlay;
 
 import java.io.*;
 import com.google.gson.*;
@@ -64,6 +65,9 @@ public class GameManager {
     // Timer : 
     private int roundTimeRemaining = 1800;
     private int roundTimeSave = 1800;
+
+    
+    private InventoryOverlay inventoryOverlay;
 
     /**
      * Initialise le terrain du jeu.
@@ -253,6 +257,10 @@ public class GameManager {
     public int getCurrentTeamIndex() {
         return this.currentTeamIndex;
     }
+    
+    public TeamModel getCurrentTeam() {
+        return (currentTeamIndex == 0) ? teamModel1 : teamModel2;
+    }
 
     public ArrayList<TeamModel> getlistTeams(){
         System.out.print(listTeamModel.toString()); // pq ca affiche [] ?
@@ -270,6 +278,9 @@ public class GameManager {
         this.roundTimeSave = time;
     }
 
+    public String getCurrentTeamName(){
+        return (currentTeamIndex == 0)? "Team1" : "Team2";
+    }
     /**
      * switch le worm actif vers le suivant dans l'équipe
      * saute les worms morts
@@ -355,10 +366,20 @@ public class GameManager {
     public void nextRound() {
         roundNumber++;
         currentTeamIndex = (currentTeamIndex + 1) % 2;
-        TeamModel currentTeam = (currentTeamIndex == 0) ? teamModel1 : teamModel2;
+        TeamModel currentTeam = getCurrentTeam();
+        //reset des usages par tour pour l'équipe active
+        if (currentTeam != null) {
+            currentTeam.resetInventoryTurn();
+        }
+        //switch worm dans cette équipe
         switchToNextWorm(currentTeam);
+        //mettre à jour l'inventaire affiché dans l'overlay
+        if (inventoryOverlay != null) {
+            inventoryOverlay.setInventory(getCurrentTeamInventory());
+        }
         System.out.println("Round " + roundNumber + " - Equipe active : " + (currentTeamIndex == 0 ? "Team1" : "Team2"));
     }
+
     
     /**
      * Change l'arme équipée du worm actif (cycliquement)
@@ -461,4 +482,55 @@ public class GameManager {
         save();
         //System.out.println("JSON Creer");
     }
+
+    /*Selection d'inventaire depuis l'inventaire*/
+    public void setWeaponFromInventory(String itemName) {
+        Weapon newWeapon = null;
+
+        switch (itemName) {
+            case "Ak47":
+            case "AK47":
+                newWeapon = new Ak47();
+                System.out.println("[Inventaire] Arme équipée depuis inventaire : AK-47");
+                break;
+            case "BaseballBat":
+                newWeapon = new BaseballBat();
+                System.out.println("[Inventaire] Arme équipée depuis inventaire : Baseball Bat");
+                break;
+            case "Grenade":
+                newWeapon = new Grenade();
+                System.out.println("[Inventaire] Arme équipée depuis inventaire : Grenade");
+                break;
+            case "RocketLauncher":
+                newWeapon = new RocketLauncher();
+                System.out.println("[Inventaire] Arme équipée depuis inventaire : Rocket Launcher");
+                break;
+            default:
+                System.out.println("[Inventaire] Aucun mapping d’arme pour : " + itemName);
+                break;
+        }
+
+        if (newWeapon != null && activeWormController != null) {
+            activeWormController.setCurrentWeapon(newWeapon);
+            // Met à jour la trajectoire
+            gamePanel.getTrajectoryRenderer().setWeapon(newWeapon);
+        }
+    }
+
+    public java.util.List<InventoryModel.InventoryJson> getCurrentTeamInventory() {
+        TeamModel team = getCurrentTeam();
+        return (team != null) ? team.getInventory() : null;
+    }
+
+    public void setInventoryOverlay(InventoryOverlay overlay){
+        this.inventoryOverlay = overlay;
+    }
+
+    private void resetCurrentTeamInventoryTurn() {
+        TeamModel team = getCurrentTeam();
+        if (team != null) {
+            team.resetInventoryTurn();
+        }
+    }
+
 }

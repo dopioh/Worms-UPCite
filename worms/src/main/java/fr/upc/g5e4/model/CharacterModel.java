@@ -1,5 +1,6 @@
 package fr.upc.g5e4.model;
 
+import fr.upc.g5e4.model.InventoryModel.InventoryJson;
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
@@ -51,6 +52,9 @@ public class CharacterModel{
     public static final int CATEGORY_WORM = 0x0002;     // Bit 2 : worms
 
     private final Body persoBody;
+
+    //Armes équipées
+    private InventoryJson equippedItem;
 
     //private static final int sizePerso = 40;
 
@@ -165,6 +169,10 @@ public class CharacterModel{
         return facingRight;
     }
 
+    public InventoryJson getEquippedItem(){
+        return equippedItem;
+    }
+
     // Setters
     public void setName(String name) {
         this.name = name;
@@ -236,6 +244,11 @@ public class CharacterModel{
 
     public static float getPPM(){
         return PPM;
+    }
+
+    
+    public void setEquippedItem(InventoryJson item){
+        this.equippedItem = item;
     }
 
     /**
