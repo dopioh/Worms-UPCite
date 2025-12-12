@@ -10,7 +10,7 @@ import org.jbox2d.dynamics.World;
 
 import fr.upc.g5e4.GameLauncher;
 import fr.upc.g5e4.controller.*;
-//import fr.upc.g5e4.model.WindModel;
+import fr.upc.g5e4.model.WindModel;
 import fr.upc.g5e4.model.weapons.*;
 import fr.upc.g5e4.model.PhysicsWorld.WaterSensorListener;
 import fr.upc.g5e4.model.camera.CameraModel;
@@ -67,7 +67,7 @@ public class GameManager {
     
     private InventoryOverlay inventoryOverlay;
 
-    //private final WindModel windModel = new WindModel();
+    private final WindModel windModel = new WindModel();
     private final Random windRng = new Random();
 
     /**
@@ -284,7 +284,7 @@ public class GameManager {
         return (currentTeamIndex == 0)? "Team1" : "Team2";
     }
 
-    /*public WindModel getWindModel(){
+    public WindModel getWindModel(){
         return this.windModel;
     }
     /**
@@ -385,7 +385,7 @@ public class GameManager {
         }
         System.out.println("Round " + roundNumber + " - Equipe active : " + (currentTeamIndex == 0 ? "Team1" : "Team2"));
 
-        /*
+        
         // --- Vent : change à chaque tour (fixe pendant le tour) ---
         WindModel.Dir[] dirs = WindModel.Dir.values();
         windModel.setDir(dirs[windRng.nextInt(dirs.length)]);
@@ -396,7 +396,6 @@ public class GameManager {
 
         System.out.println("[VENT] " + windModel.getDir().label + " | force=" + String.format("%.2f", windModel.getStrength()));
     }
-        */    }
     
     /**
      * Change l'arme équipée du worm actif (cycliquement)

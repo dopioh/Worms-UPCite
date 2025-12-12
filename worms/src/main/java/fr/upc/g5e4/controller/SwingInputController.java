@@ -256,12 +256,38 @@ public class SwingInputController extends JPanel{
         // Position du worm en coordonnées monde
         Vec2 pos = model.getBody().getPosition();
 
-        // Position écran approximative
-        float wormScreenX = pos.x * ppm;
-        float wormScreenY = (worldHeightMeters - pos.y) * ppm;  // inversion Y
+        //info de la caméra
+        double zoomFactor = 1.0;
+        double cameraX = 0.0;
+        double cameraY = 0.0;
+        
+        if (cameraController != null) {
+            zoomFactor = cameraController.getCamera().getZoomFactor();
+            cameraX = cameraController.getCamera().getX();
+            cameraY = cameraController.getCamera().getY();
+        }
+        
+        // obtenir les coordonnées monde
+        //convertir les pixel écran (x, y) en coordonnées monde:
 
-        double dx = x - wormScreenX;
-        double dy = wormScreenY - y; // inversion Y
+        //Compenser le translate(-camX, -camY) en pixels
+        double xAfterCamera = x + cameraX;
+        double yAfterCamera = y + cameraY;
+        
+        //inverser le zoom
+        double xAfterZoom = xAfterCamera / zoomFactor;
+        double yAfterZoom = yAfterCamera / zoomFactor;
+        
+        //convertir pixels en mètres
+        float clickWorldX = (float)(xAfterZoom / ppm);
+        float clickWorldY = (float)(yAfterZoom / ppm);
+        
+        // Inverser l'axe Y
+        clickWorldY = (float)(worldHeightMeters - clickWorldY);
+
+        // calculer l'angle entre le worm et le clic
+        double dx = clickWorldX - pos.x;
+        double dy = clickWorldY - pos.y;
 
         shootingAngle = Math.toDegrees(Math.atan2(dy, dx));
         if (shootingAngle < 0) {

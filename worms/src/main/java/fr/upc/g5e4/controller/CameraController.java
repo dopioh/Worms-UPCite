@@ -116,4 +116,12 @@ public class CameraController {
             camera.updateSmoothPosition();
         }
     }
+    
+    /**
+     * Getter
+     * @return la CameraModel
+     */
+    public CameraModel getCamera() {
+        return this.camera;
+    }
 }

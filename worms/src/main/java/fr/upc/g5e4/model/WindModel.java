@@ -1,4 +1,4 @@
-/*
+
 package fr.upc.g5e4.model;
 
 public class WindModel {
@@ -33,4 +33,3 @@ public class WindModel {
         this.strength = Math.max(0f, Math.min(1f, strength));
     }
 }
-*/

@@ -1,4 +1,4 @@
-/* 
+
 
 package fr.upc.g5e4.view;
 
@@ -32,6 +32,7 @@ public class WindOverlay extends JComponent {
             tick(0.016f);
             repaint();
         }).start();
+        
     }
 
     private Particle spawnParticle() {
@@ -180,4 +181,3 @@ public class WindOverlay extends JComponent {
 }
 
 
-*/
