@@ -233,6 +233,7 @@ public class SwingInputController extends JPanel{
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
+                requestFocusInWindow();  // Récupérer le focus au clic
                 if (e.getButton() == MouseEvent.BUTTON1) {
                     handleFireAt(e.getX(), e.getY());
                 }

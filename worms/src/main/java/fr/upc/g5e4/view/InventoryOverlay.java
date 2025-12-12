@@ -248,7 +248,6 @@ public class InventoryOverlay extends JComponent {
         itemBounds.clear();
         repaint();
     }
-
     public void setInventoryVisible(boolean visible){
         this.visible = visible;
         repaint();
