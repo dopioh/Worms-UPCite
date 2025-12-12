@@ -9,17 +9,23 @@ import org.jbox2d.dynamics.World;
 
 import fr.upc.g5e4.GameLauncher;
 import fr.upc.g5e4.controller.*;
+//import fr.upc.g5e4.model.*;
 import fr.upc.g5e4.model.weapons.Ak47;
 import fr.upc.g5e4.model.weapons.BaseballBat;
 import fr.upc.g5e4.model.weapons.Grenade;
 import fr.upc.g5e4.model.weapons.RocketLauncher;
 import fr.upc.g5e4.model.PhysicsWorld.WaterSensorListener;
 import fr.upc.g5e4.model.camera.CameraModel;
-import fr.upc.g5e4.view.CharacterView;
+import fr.upc.g5e4.model.io.SaveData;
+import fr.upc.g5e4.model.io.TeamData;
+//import fr.upc.g5e4.view.CharacterView;
 import fr.upc.g5e4.view.GamePanel;
 import fr.upc.g5e4.view.ItemView;
 import fr.upc.g5e4.view.TeamView;
 import fr.upc.g5e4.view.InventoryOverlay;
+
+import java.io.*;
+import com.google.gson.*;
 
 /**
  * Cette classe servira pour instancier tout ce dont le jeu (une partie de jeu)
@@ -27,7 +33,7 @@ import fr.upc.g5e4.view.InventoryOverlay;
  */
 public class GameManager {
     private final GamePanel gamePanel;
-    private final GroundModel model;
+    private GroundModel model;
     private final PhysicsWorld physic;
     private final World world;
     private final Body water;
@@ -35,10 +41,17 @@ public class GameManager {
     private SwingInputController imputController;
     private CameraModel camera; // AJOUT RAPHAËL
     private CameraController cameraController; // AJOUT RAPHAËL
+
+    // Team Model : (on peut en mettre autant qu'on veut)
     private final TeamModel teamModel1;
     private final TeamView teamView1;
     private final TeamModel teamModel2;  
     private final TeamView teamView2;
+
+    private ArrayList<TeamModel> listTeamModel;
+
+    //private TeamModel[] teamModelsTab; // dit combien on a d'equipe
+
     private final ItemController itemController;
     private final CharacterModel[] allWorms;
     private int activeWormIndex;
@@ -49,6 +62,11 @@ public class GameManager {
     private int roundNumber = 1;
     private int currentTeamIndex = 0; // 0 = Team1, 1 = Team2
 
+    // Timer : 
+    private int roundTimeRemaining = 1800;
+    private int roundTimeSave = 1800;
+
+    
     private InventoryOverlay inventoryOverlay;
 
     /**
@@ -95,16 +113,21 @@ public class GameManager {
         this.camera = new CameraModel(1280, 720, model.getWidth(), model.getHeight(), 1);
         physic.limitPanel(model);
 
+        // Initialisation liste d'equipes : 
+        this.listTeamModel = new ArrayList<>();
+
         // création premiere equipe
         int wormNumber = 3; 
         // Team1 regarde vers la droite
         this.teamModel1 = new TeamModel(model, world, "Team1", 100, 80, wormNumber, false, true, false);
         this.teamView1 = new TeamView(wormNumber, Color.BLUE, "/worm.png", true);
+        listTeamModel.add(teamModel1);
 
         // création seconde equipe
         // Team2 regarde vers la gauche (face à Team1)
         this.teamModel2 = new TeamModel(model, world, "Team2", 2100, 50, wormNumber, false, false, false);  
         this.teamView2 = new TeamView(wormNumber, Color.RED, "/worm.png", false);
+        listTeamModel.add(teamModel2);
         
         // Créer une liste de tous les worms pour le WaterSensorListener
         ArrayList<CharacterModel> allWorms = new ArrayList<>();
@@ -237,6 +260,22 @@ public class GameManager {
     
     public TeamModel getCurrentTeam() {
         return (currentTeamIndex == 0) ? teamModel1 : teamModel2;
+    }
+
+    public ArrayList<TeamModel> getlistTeams(){
+        System.out.print(listTeamModel.toString()); // pq ca affiche [] ?
+        return listTeamModel;
+    }
+
+    public int getRoundTimeRemaining(){
+        return this.roundTimeRemaining;
+    }
+    public int getRoundTimeSave(){
+        return this.roundTimeSave;
+    }
+
+    public void setRoundTimeSave(int time){
+        this.roundTimeSave = time;
     }
 
     public String getCurrentTeamName(){
@@ -377,6 +416,72 @@ public class GameManager {
         }
     }
 
+    // SAUVEGARDE :
+
+    /**
+     * Methode appelee lorsqu'on appuie sur le bouton save
+     */
+    public void save(){
+        // creer une sauvegarde automatiquement
+        SaveData saveData = new SaveData(this);
+
+        try {
+            File dossier = new File("sauvegardes");
+            File file = new File(dossier, "sauvegarde.txt");
+            FileWriter fileWriter = new FileWriter(file);
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            gson.toJson(saveData,fileWriter);
+            System.out.println(file.getAbsolutePath());
+            System.out.println(file.getCanonicalPath());
+            System.out.println("Partie sauvegardee !");
+
+            fileWriter.close();
+        } catch (Exception e) {
+            e.getMessage();
+        }
+    }
+
+    public void loadGame(String filePath){
+        try {
+            Gson gson = new Gson();
+            FileReader fileReader = new FileReader(filePath);
+
+            SaveData saveData = gson.fromJson(fileReader, SaveData.class);
+
+            //// On remplace :
+
+            // Donnees Partie :
+            this.roundNumber = saveData.getRound();
+            this.currentTeamIndex = saveData.getCurrentTeamIndex();
+            this.activeWormIndex = saveData.getActiveWormIndex();
+            this.roundTimeRemaining = saveData.getRoundTimeRemaining();
+
+            // Terrain :
+            this.model = saveData.getGroundModel();
+
+            // Worms : 
+
+            // Comment attribuer les equipes ? -> Le code n'est pas modulable pour les equipes 
+            // A corriger Sprint 4
+
+            for (TeamData td : saveData.getListTeamData()){
+                listTeamModel.add(td.dataToModel(model, world));
+            }
+
+            // a finir 
+        } catch (Exception e) {
+            e.getMessage();
+        }
+    }
+
+    /**
+     * Sauvegarde la partie
+     * Est called dans le controller
+     */
+    public void actionPerformed(){
+        save();
+        //System.out.println("JSON Creer");
+    }
 
     /*Selection d'inventaire depuis l'inventaire*/
     public void setWeaponFromInventory(String itemName) {

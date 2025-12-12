@@ -9,6 +9,8 @@ import org.jbox2d.dynamics.BodyType;
 import org.jbox2d.dynamics.FixtureDef;
 import org.jbox2d.dynamics.World;
 
+import fr.upc.g5e4.model.io.CharacterData;
+
 /**
  * Modèle du Personnage
  * Initialise ses stats et position
@@ -362,4 +364,21 @@ public class CharacterModel{
         return bWorm;
     }
 
+    // Getter Data
+    public CharacterData toData(){
+        return new CharacterData(ID, name, xcord, ycord, health, shield, isDead);
+    }
+
+    // Setter Data
+    public void loadFromData(CharacterData characterData){
+        this.ID = characterData.getID();
+        this.name = characterData.getName();
+        this.xcord = characterData.getXcord();
+        this.ycord = characterData.getYcord();
+        this.health = characterData.getHealth();
+        this.shield = characterData.getShield();
+        this.isDead = characterData.getIsDead();
+    }
+
+    
 }
