@@ -66,7 +66,7 @@ public class TrajectoryRenderer {
         if (!isAiming || shooter == null || currentWeapon == null || g2 == null) {
             return;
         }
-
+        
         // obtenir la position du tireur
         Vec2 shooterPos = shooter.getBody().getPosition();
         double range = currentWeapon.getRange();
@@ -80,6 +80,7 @@ public class TrajectoryRenderer {
 
         trajectoryWorldX[0] = shooterPos.x;
         trajectoryWorldY[0] = shooterPos.y;
+        System.out.println("Renderer curve=" + currentWeapon.getCurveAmplitude() + " weapon=" + currentWeapon.getName());
 
         // générer les points avec trajectoire parabolique
         for (int i = 1; i <= TRAJECTORY_POINTS; i++) {

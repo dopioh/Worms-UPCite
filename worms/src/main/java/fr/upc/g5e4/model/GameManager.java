@@ -4,15 +4,14 @@ package fr.upc.g5e4.model;
 import java.awt.Color;
 import java.util.ArrayList;
 import javax.swing.Timer;
+import java.util.Random;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.World;
 
 import fr.upc.g5e4.GameLauncher;
 import fr.upc.g5e4.controller.*;
-import fr.upc.g5e4.model.weapons.Ak47;
-import fr.upc.g5e4.model.weapons.BaseballBat;
-import fr.upc.g5e4.model.weapons.Grenade;
-import fr.upc.g5e4.model.weapons.RocketLauncher;
+import fr.upc.g5e4.model.WindModel;
+import fr.upc.g5e4.model.weapons.*;
 import fr.upc.g5e4.model.PhysicsWorld.WaterSensorListener;
 import fr.upc.g5e4.model.camera.CameraModel;
 import fr.upc.g5e4.view.CharacterView;
@@ -50,6 +49,9 @@ public class GameManager {
     private int currentTeamIndex = 0; // 0 = Team1, 1 = Team2
 
     private InventoryOverlay inventoryOverlay;
+
+    private final WindModel windModel = new WindModel();
+    private final Random windRng = new Random();
 
     /**
      * Initialise le terrain du jeu.
@@ -242,6 +244,10 @@ public class GameManager {
     public String getCurrentTeamName(){
         return (currentTeamIndex == 0)? "Team1" : "Team2";
     }
+
+    public WindModel getWindModel(){
+        return this.windModel;
+    }
     /**
      * switch le worm actif vers le suivant dans l'équipe
      * saute les worms morts
@@ -339,6 +345,16 @@ public class GameManager {
             inventoryOverlay.setInventory(getCurrentTeamInventory());
         }
         System.out.println("Round " + roundNumber + " - Equipe active : " + (currentTeamIndex == 0 ? "Team1" : "Team2"));
+
+        // --- Vent : change à chaque tour (fixe pendant le tour) ---
+        WindModel.Dir[] dirs = WindModel.Dir.values();
+        windModel.setDir(dirs[windRng.nextInt(dirs.length)]);
+
+        // force entre 0.15 et 1.0 (évite vent invisible)
+        float strength = 0.15f + windRng.nextFloat() * 0.85f;
+        windModel.setStrength(strength);
+
+        System.out.println("[VENT] " + windModel.getDir().label + " | force=" + String.format("%.2f", windModel.getStrength()));
     }
 
     
