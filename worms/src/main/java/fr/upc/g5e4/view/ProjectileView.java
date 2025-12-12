@@ -22,6 +22,11 @@ public class ProjectileView {
             return;
         }
         
+        // Ne pas dessiner les projectiles de la baseball
+        if ("Baseball Bat".equals(projectile.getSourceWeapon().getName())) {
+            return;
+        }
+        
         Vec2 worldPos = projectile.getCurrentPosition();
         
         // Convertir les coordonnées monde en coordonnées écran

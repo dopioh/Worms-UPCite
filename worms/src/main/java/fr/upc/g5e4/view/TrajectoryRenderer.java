@@ -93,9 +93,11 @@ public class TrajectoryRenderer {
             float worldX = shooterPos.x + (float)(horizontalDistance * Math.cos(angleRad));
             float worldY = shooterPos.y + (float)(horizontalDistance * Math.sin(angleRad));
             
-            //ajouter un effet de chute (parabole simple)
-            float gravityEffect = 9.81f * (t * t); // effet 
-            worldY -= gravityEffect;
+            //ajouter un effet de chute (parabole simple) sauf pour la baseball
+            if (!"Baseball Bat".equals(currentWeapon.getName())) {
+                float gravityEffect = 9.81f * (t * t); // effet 
+                worldY -= gravityEffect;
+            }
             trajectoryWorldX[i] = worldX;
             trajectoryWorldY[i] = worldY;
         }
