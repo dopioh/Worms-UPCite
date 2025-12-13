@@ -70,7 +70,7 @@
 - Camera
     - Les déplacements, le zoom et le recentrage de la caméra se font maintenant avec un glissement fluide
 
-## [v.0.3 : SPRINT 3](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/3) (unreleased)
+## [v.0.3 : SPRINT 3](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/3)
 ---
 
 ### Added
@@ -79,3 +79,15 @@
 
 ### Fixed
 - `.jar` injouable
+
+-------- a compléter -----------
+
+
+## [v.0.4 : SPRINT 4](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/4) (unreleased)
+---
+
+### Added
+
+
+### Fixed
+
