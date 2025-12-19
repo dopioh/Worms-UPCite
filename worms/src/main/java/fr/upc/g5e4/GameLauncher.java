@@ -46,7 +46,7 @@ public class GameLauncher{
     }
     
     /**
-     * Constructeur pour les tests headless (sans interface graphique)
+     * Constructeur pour les tests sans interface graphique
      * @param screen true = avec interface graphique, false = mode headless pour tests
      */
     public GameLauncher(boolean screen) throws IOException {
