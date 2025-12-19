@@ -5,7 +5,16 @@ import fr.upc.g5e4.model.Weapon;
 public class Grenade extends Weapon{
 
     public Grenade() {
-        super("Grenade", 3, false, 50, 3, 5, 15);
+        super(
+            "Grenade",
+            3,
+            false,
+            50,
+            3,
+            5,
+            15,
+            5.0
+        );
     }
 
     @Override
