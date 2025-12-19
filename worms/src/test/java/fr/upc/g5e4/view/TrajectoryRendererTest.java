@@ -31,7 +31,7 @@ public class TrajectoryRendererTest {
         character = new CharacterModel(ground, world, 400, ground.getHeight() - 100, false);
         
         // Créer une arme simple pour les tests
-        weapon = new Weapon("Test Weapon", 10, false, 10, 0, 10, 30) {
+        weapon = new Weapon("Test Weapon", 10, false, 10, 0, 10, 30, 1.0) {
             @Override
             protected boolean onUse() {
                 return true;

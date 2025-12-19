@@ -33,7 +33,7 @@ public class ProjectileSystemTest {
         target = new CharacterModel(ground, world, 300, ground.getHeight() - 400, false);
         
         // Créer une arme
-        weapon = new Weapon("Test Weapon", 10, false, 10, 0, 10, 30) {
+        weapon = new Weapon("Test Weapon", 10, false, 10, 0, 10, 30, 1.0) {
             @Override
             protected boolean onUse() {
                 return true;
@@ -110,7 +110,7 @@ public class ProjectileSystemTest {
     @Test
     void testProjectileSpeedFromWeapon() {
         // Créer une arme avec une vitesse spécifique
-        Weapon fastWeapon = new Weapon("Fast Weapon", 10, false, 15, 0, 25, 40) {
+        Weapon fastWeapon = new Weapon("Fast Weapon", 10, false, 15, 0, 25, 40, 1.0) {
             @Override
             protected boolean onUse() {
                 return true;
@@ -129,7 +129,7 @@ public class ProjectileSystemTest {
 
     @Test
     void testWeaponUsageConsumption() {
-        Weapon limitedWeapon = new Weapon("Limited Weapon", 3, false, 10, 0, 10, 30) {
+        Weapon limitedWeapon = new Weapon("Limited Weapon", 3, false, 10, 0, 10, 30, 1.0) {
             @Override
             protected boolean onUse() {
                 return true;
@@ -147,7 +147,7 @@ public class ProjectileSystemTest {
 
     @Test
     void testInfiniteWeapon() {
-        Weapon infiniteWeapon = new Weapon("Infinite Weapon", 1, true, 10, 0, 10, 30) {
+        Weapon infiniteWeapon = new Weapon("Infinite Weapon", 1, true, 10, 0, 10, 30, 1.0) {
             @Override
             protected boolean onUse() {
                 return true;
