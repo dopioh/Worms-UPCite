@@ -108,7 +108,7 @@ public class CharacterModel{
         this.speed = speed;
         this.jump = jump;
         this.isDead = false;
-        this.facingRight = true;  // Par défaut, regarde vers la droite
+        this.facingRight = true;
         this.withCollision = withCollision;
 
         this.persoBody = createBody(console);
@@ -247,6 +247,28 @@ public class CharacterModel{
     }
 
     
+    public World getWorld() {
+        return this.world;
+    }
+    
+    /**
+     * Arrête complètement le mouvement horizontal du worm quand on n'appuie plus sur une touche
+     * (ça evite que le worm accumule de l'élan)
+     */
+    public void stopHorizontalMovement() {
+        Vec2 vel = persoBody.getLinearVelocity();
+        // on garde seulement la vélocité verticale si on tombe
+        float keepY = vel.y < 0 ? vel.y : 0;
+        persoBody.setLinearVelocity(new Vec2(0, keepY));
+    }
+    
+    /**
+     * Arrête complètement tout mouvement
+     */
+    public void stopAllMovement() {
+        persoBody.setLinearVelocity(new Vec2(0, 0));
+    }
+
     public void setEquippedItem(InventoryJson item){
         this.equippedItem = item;
     }
