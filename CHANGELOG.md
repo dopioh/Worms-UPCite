@@ -90,4 +90,8 @@
 
 
 ### Fixed
+- Tout le jeu est désormais en une seule fenêtre
+- Emplacement overlay vent
 
+### Modified
+- Touche full screen F11 -> F
