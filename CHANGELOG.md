@@ -87,11 +87,10 @@
 ---
 
 ### Added
-
+- Implémentation de la physique de recul sur les worms touchés
 
 ### Fixed
-- Tout le jeu est désormais en une seule fenêtre
-- Emplacement overlay vent
+- Le jeu se lance désormais dans la même fenêtre que le menu principal
 
 ### Modified
 - Touche full screen F11 -> F
