@@ -42,15 +42,33 @@ public class GameLauncher{
      * Constructeur normal : affiche le menu principal
      */
     public GameLauncher() throws IOException {
-        this(false); // Affiche le menu
+        this(true, false); // Avec écran, affiche le menu
     }
     
     /**
-     * Constructeur pour les tests : lance le jeu directement sans menu
-     * @param skipMenu true = lance le jeu directement, false = affiche le menu
+     * Constructeur pour les tests headless (sans interface graphique)
+     * @param screen true = avec interface graphique, false = mode headless pour tests
      */
-    public GameLauncher(boolean skipMenu) throws IOException {
-        this.screen = true;
+    public GameLauncher(boolean screen) throws IOException {
+        this(screen, true); // skipMenu = true si screen, sinon pas de menu en headless
+    }
+    
+    /**
+     * Constructeur complet
+     * @param screen true = avec interface graphique, false = mode headless pour tests
+     * @param skipMenu true = lance le jeu directement, false = affiche le menu (ignoré si screen=false)
+     */
+    public GameLauncher(boolean screen, boolean skipMenu) throws IOException {
+        this.screen = screen;
+        
+        if (!screen) {
+            // Mode headless pour les tests (pas d'interface graphique)
+            this.gameManager = new GameManager();
+            this.gamePanel = gameManager.getGamePanel();
+            this.gameLoop = new GameLoop(gameManager);
+            this.gameLoop.timerStart();
+            return;
+        }
         
         // Créer la fenêtre principale unique
         mainFrame = new JFrame("Worms");
@@ -303,13 +321,13 @@ public class GameLauncher{
 
     public static void main(String[] args) throws IOException{
 
-        // Lance le jeu avec le menu principal :
+        // Lance le jeu avec le menu principal
         new GameLauncher();
 
-        // Lancer le jeu directement (sans menu, pour les tests) :
-        //new GameLauncher(true);
+        // Pour lancer le jeu directement (sans menu) :
+        // new GameLauncher(true, true);
 
         // Mode console :
-        //new ConsoleLauncher();
+        // new ConsoleLauncher();
     }
 }
