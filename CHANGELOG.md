@@ -87,7 +87,14 @@
 ---
 
 ### Added
-
+- Nametag
+    - Affichage des itemes (potions...) sur le nametag
 
 ### Fixed
 
+
+### Modified
+- Nametag
+    - Affichage de HP et Shield en chiffre -> barre horizontale
+- `CONTRIBUTING.md`
+    - Guide d'utilisation sur le nametag
