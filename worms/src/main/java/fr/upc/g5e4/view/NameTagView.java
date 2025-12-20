@@ -119,7 +119,7 @@ public class NameTagView {
      * Dessine une barre de progression
      */
     private void drawProgressBar(Graphics2D g2d, int x, int y, int width, int height, 
-                                  double value, double maxValue, Color color) {
+                                  double value, double maxValue, Color color, Color borderColor) {
         int radius = height;
         
         // Fond sombre de la barre
@@ -135,6 +135,11 @@ public class NameTagView {
             g2d.setColor(color);
             g2d.fillRoundRect(x, y, fillWidth, height, radius, radius);
         }
+        
+        // Bordure
+        g2d.setColor(borderColor);
+        g2d.setStroke(new BasicStroke(1.5f));
+        g2d.drawRoundRect(x, y, width, height, radius, radius);
     }
     
     /**
@@ -168,7 +173,7 @@ public class NameTagView {
         int containerWidth = BAR_WIDTH;
         int containerHeight = itemsHeight + barsHeight;
         
-        int boxY = centerY - 30 - containerHeight;
+        int boxY = centerY - 22 - containerHeight;
         
         int currentY = boxY + padding;
         
@@ -197,13 +202,17 @@ public class NameTagView {
         animateValue(0, model.getHealth(), currentTime, ANIMATION_DURATION);
         animateValue(1, model.getShield(), currentTime, ANIMATION_DURATION);
         
+        // Couleurs de bordure
+        Color shieldBorderColor = new Color(38, 119, 140, 220);
+        Color healthBorderColor = new Color(42, 129, 67, 220);
+        
         drawProgressBar(g2d, barX, currentY, BAR_WIDTH, BAR_HEIGHT, 
-                       displayed[1], 50.0, shieldBarColor);
+                       displayed[1], 50.0, shieldBarColor, shieldBorderColor);
         currentY += BAR_HEIGHT + BAR_SPACING;
         
         // 3. Dessiner la barre de vie (verte)
         drawProgressBar(g2d, barX, currentY, BAR_WIDTH, BAR_HEIGHT, 
-                       displayed[0], 100.0, healthBarColor);
+                       displayed[0], 100.0, healthBarColor, healthBorderColor);
     }
     
     
