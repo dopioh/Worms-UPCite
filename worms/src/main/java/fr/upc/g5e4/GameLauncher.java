@@ -18,6 +18,7 @@ public class GameLauncher{
     private final GamePanel gamePanel;
     private final GameLoop gameLoop;
 
+    private WindOverlay windOverlay;
     private InventoryOverlay inventoryOverlay; 
 
     private boolean screen;
@@ -42,9 +43,8 @@ public class GameLauncher{
             this.gamePanel = gameManager.getGamePanel();
              
             //VENT
-            WindOverlay windOverlay = new WindOverlay(gameManager.getWindModel());
-            windOverlay.setBounds(0, 0, sizeX, sizeY);
-
+            this.windOverlay = new WindOverlay(gameManager.getWindModel());
+            this.windOverlay.setBounds(0, 0, sizeX, sizeY);
 
             /* ------------------------ Partie Overlay Inventaire --------------------------------- */
             //Charge l'inventaire 
@@ -64,9 +64,12 @@ public class GameLauncher{
             //placer dedans
             gamePanel.setBounds(0,0,sizeX,sizeY);
             inventoryOverlay.setBounds(0,0,sizeX,sizeY);
+            windOverlay.setBounds(0, 0, sizeX, sizeY);
+
+
 
             layered.add(gamePanel, JLayeredPane.DEFAULT_LAYER);
-            layered.add(windOverlay, JLayeredPane.PALETTE_LAYER);
+            layered.add(this.windOverlay, JLayeredPane.PALETTE_LAYER);
             layered.add(inventoryOverlay, JLayeredPane.PALETTE_LAYER);
             game.setContentPane(layered);
             
@@ -193,6 +196,12 @@ public class GameLauncher{
                 if (inventoryOverlay != null) {
                     inventoryOverlay.setBounds(0, 0, newWidth, newHeight);
                 }
+
+                // Mets à jour les bounds du overlay vent
+                if (windOverlay != null) {
+                    windOverlay.setBounds(0, 0, newWidth, newHeight);
+                }
+
                 
                 // Mettre à jour la taille de vue de la caméra
                 gameManager.getCamera().setViewSize(newWidth, newHeight);
