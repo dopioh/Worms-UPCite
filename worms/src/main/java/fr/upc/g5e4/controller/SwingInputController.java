@@ -8,8 +8,8 @@ import org.jbox2d.common.Vec2;
 
 import fr.upc.g5e4.model.GameManager;
 import fr.upc.g5e4.model.CharacterModel;
-import fr.upc.g5e4.view.InventoryOverlay;
-import fr.upc.g5e4.view.TrajectoryRenderer;
+import fr.upc.g5e4.view.*;
+
 import javax.swing.JFrame;
 
 /** 
@@ -29,6 +29,9 @@ public class SwingInputController extends JPanel{
 
     private InventoryOverlay inventoryOverlay; 
     private JFrame gameFrame;
+    private PauseOverlay pauseOverlay;
+    private HelpOverlay helpOverlay;
+
 
     /**
      * Constructeur pour gérer uniquement le personnage
@@ -101,6 +104,15 @@ public class SwingInputController extends JPanel{
      */
     public void setGameFrame(JFrame frame){
         this.gameFrame = frame;
+    }
+
+    public void setPauseOverlay(PauseOverlay overlay) {
+        this.pauseOverlay = overlay;
+    }
+ 
+    
+    public void setHelpOverlay(HelpOverlay overlay) {
+        this.helpOverlay = overlay;
     }
 
     //@Override
@@ -186,18 +198,24 @@ public class SwingInputController extends JPanel{
                         break;
                     // Touche Echap pour quitter le jeu !!!!!!!!!!!!!!!!!!!!!!!!! A modifier pour le menu plus tard
                     case KeyEvent.VK_ESCAPE:
-                        if(gameFrame != null){
-                            gameFrame.dispose();
+                        if (pauseOverlay != null) {
+                            boolean v = pauseOverlay.isPauseVisible();
+                            pauseOverlay.setPauseVisible(!v);
+
+                            // si on ferme pause, on ferme aussi help
+                            if (v && helpOverlay != null) {
+                                helpOverlay.setHelpVisible(false);
+                            }
                         }
-                        System.exit(0);
                         break;
+
                     case KeyEvent.VK_I:
                         if (inventoryOverlay != null) {
                         boolean visible = inventoryOverlay.isInventoryVisible();
                         inventoryOverlay.setInventoryVisible(!visible);
+                        }
+                        break;
                     }
-                    break;
-                }
             }
             
             @Override

@@ -10,6 +10,7 @@ import fr.upc.g5e4.view.*;
 import fr.upc.g5e4.controller.*;
 import fr.upc.g5e4.model.*; 
 
+
 /** Classe qui lance le jeu, elle set la taille de l'ecran (grace a son heritage de JFrame) */
 public class GameLauncher{
     // classe pour lancer le jeu -> elle va instancier le GamePanel
@@ -19,6 +20,9 @@ public class GameLauncher{
 
     private WindOverlay windOverlay;
     private InventoryOverlay inventoryOverlay; 
+    private PauseOverlay pauseOverlay;
+    private HelpOverlay helpOverlay;
+
 
     private boolean screen;
 
@@ -63,23 +67,36 @@ public class GameLauncher{
             //placer dedans
             gamePanel.setBounds(0,0,sizeX,sizeY);
             inventoryOverlay.setBounds(0,0,sizeX,sizeY);
-            windOverlay.setBounds(0, 0, sizeX, sizeY);
 
+            //Menu parametres 
+            this.pauseOverlay = new PauseOverlay();
+            this.pauseOverlay.setBounds(0, 0, sizeX, sizeY);
+            //How to play
+            this.helpOverlay = new HelpOverlay();
+            this.helpOverlay.setBounds(0, 0, sizeX, sizeY);
 
+            this.pauseOverlay.setHelpOverlay(this.helpOverlay);
 
             layered.add(gamePanel, JLayeredPane.DEFAULT_LAYER);
             layered.add(this.windOverlay, JLayeredPane.PALETTE_LAYER);
             layered.add(inventoryOverlay, JLayeredPane.PALETTE_LAYER);
+
+            layered.add(pauseOverlay, JLayeredPane.MODAL_LAYER);
+            layered.add(helpOverlay, JLayeredPane.DRAG_LAYER);
+
             game.setContentPane(layered);
             
             inventoryOverlay.setGameManager(gameManager);    
             inventoryOverlay.setFireListener(gameManager.getImputController());
+            
             gameManager.setInventoryOverlay(inventoryOverlay);
 
             SwingInputController input = gameManager.getImputController();
             input.setGameFrame(game);
             input.setInventoryOverlay(inventoryOverlay);
             input.setGameManager(gameManager);
+            input.setPauseOverlay(pauseOverlay);
+            input.setHelpOverlay(helpOverlay);
 
             game.getContentPane().setBackground(java.awt.Color.BLACK);
             
@@ -108,6 +125,9 @@ public class GameLauncher{
                 gamePanel.setBounds(0, 0, screenSize.width, screenSize.height);
                 gamePanel.setPreferredSize(screenSize);
                 inventoryOverlay.setBounds(0, 0, screenSize.width, screenSize.height);
+                windOverlay.setBounds(0, 0, screenSize.width, screenSize.height);
+                pauseOverlay.setBounds(0, 0, screenSize.width, screenSize.height);
+                helpOverlay.setBounds(0, 0, screenSize.width, screenSize.height);
                 gameManager.getCamera().setViewSize(screenSize.width, screenSize.height);
             }
 
@@ -199,6 +219,16 @@ public class GameLauncher{
                 // Mets à jour les bounds du overlay vent
                 if (windOverlay != null) {
                     windOverlay.setBounds(0, 0, newWidth, newHeight);
+                }
+
+                // Mets à jour les bounds du overlay pause
+                if (pauseOverlay != null) {
+                    pauseOverlay.setBounds(0, 0, newWidth, newHeight);
+                }
+
+                // Mets à jour les bounds du overlay aide
+                if (helpOverlay != null) {
+                    helpOverlay.setBounds(0, 0, newWidth, newHeight);
                 }
 
                 
