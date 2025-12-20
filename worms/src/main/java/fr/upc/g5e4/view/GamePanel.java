@@ -24,7 +24,7 @@ public class GamePanel extends JPanel {
     private final TeamView teamView1;
     private final TeamModel teamModel2;
     private final TeamView teamView2;
-    private final TrajectoryRenderer trajectoryRenderer;
+    private final TrajectoryView trajectoryRenderer;
     private ItemController itemController;
 
     private JButton saveButton;
@@ -49,7 +49,7 @@ public class GamePanel extends JPanel {
         this.teamView1 = teamView1;
         this.teamModel2 = teamModel2;
         this.teamView2 = teamView2;
-        this.trajectoryRenderer = new TrajectoryRenderer();
+        this.trajectoryRenderer = new TrajectoryView();
 
         setPreferredSize(new Dimension(model.getWidth(), model.getHeight()));
         setLayout(null);
@@ -103,7 +103,7 @@ public class GamePanel extends JPanel {
     /**
      * Retourne le renderer de trajectoire pour que d'autres composants puissent l'utiliser
      */
-    public TrajectoryRenderer getTrajectoryRenderer() {
+    public TrajectoryView getTrajectoryRenderer() {
         return trajectoryRenderer;
     }
     

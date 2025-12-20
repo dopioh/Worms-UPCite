@@ -9,7 +9,7 @@ import org.jbox2d.common.Vec2;
 import fr.upc.g5e4.model.GameManager;
 import fr.upc.g5e4.model.CharacterModel;
 import fr.upc.g5e4.view.InventoryOverlay;
-import fr.upc.g5e4.view.TrajectoryRenderer;
+import fr.upc.g5e4.view.TrajectoryView;
 import javax.swing.JFrame;
 
 /** 
@@ -23,7 +23,7 @@ public class SwingInputController extends JPanel{
     private CharacterController personnageController;
     private CameraController cameraController;
     private GameManager gameManager; 
-    private TrajectoryRenderer trajectoryRenderer;
+    private TrajectoryView trajectoryRenderer;
     private boolean isAiming = false;  // affichage de la trajectoire
     private double shootingAngle = 0;  // angle de visée en degrés
 
@@ -58,7 +58,7 @@ public class SwingInputController extends JPanel{
     /**
     * Définit le rendu de la trajectoire
     */
-    public void setTrajectoryRenderer(TrajectoryRenderer renderer) {
+    public void setTrajectoryRenderer(TrajectoryView renderer) {
         this.trajectoryRenderer = renderer;
     }
     

@@ -1,4 +1,4 @@
-﻿package fr.upc.g5e4.model;
+package fr.upc.g5e4.model;
 
 import org.jbox2d.common.Vec2;
 

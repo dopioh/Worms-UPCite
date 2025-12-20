@@ -12,7 +12,7 @@ import fr.upc.g5e4.model.TrajectoryInterface;
  * classe pour afficher la trajectoire de tir
  * système de visée 360°
  */
-public class TrajectoryRenderer {
+public class TrajectoryView {
     private CharacterModel shooter;
     private Weapon currentWeapon;
     private double shootingAngle = 0;  // angle en degrés (0-360)
@@ -22,7 +22,7 @@ public class TrajectoryRenderer {
     private static final Color TRAJECTORY_LINE_COLOR = new Color(255, 150, 0, 200); // Orange foncé
     private static final float PPM = 30f;
 
-    public TrajectoryRenderer() {
+    public TrajectoryView() {
     }
 
     /**
