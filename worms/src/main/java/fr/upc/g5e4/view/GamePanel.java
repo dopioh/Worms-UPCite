@@ -53,15 +53,17 @@ public class GamePanel extends JPanel {
 
         setPreferredSize(new Dimension(model.getWidth(), model.getHeight()));
         setLayout(null);
-        
+        /*
         // Charger la texture du ground
         try {
             groundTexture = ImageIO.read(getClass().getResourceAsStream("/ground_texture.png"));
         } catch (IOException | IllegalArgumentException e) {
             System.err.println("impossible de charger la texture du ground : " + e.getMessage());
             groundTexture = null;
+            
         }
-        
+             */
+
         // ajout: configuration du label chrono
         roundTimerLabel.setFont(new Font("Arial", Font.BOLD, 18));
         roundTimerLabel.setForeground(Color.WHITE);

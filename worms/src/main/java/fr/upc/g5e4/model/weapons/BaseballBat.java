@@ -1,6 +1,7 @@
 package fr.upc.g5e4.model.weapons;
 
 import fr.upc.g5e4.model.Weapon;
+import fr.upc.g5e4.model.trajectories.NoDropTrajectory;
 
 public class BaseballBat extends Weapon {
 
@@ -16,6 +17,8 @@ public class BaseballBat extends Weapon {
      */
     public BaseballBat() {
         super("Baseball Bat", 8, false, 30, 0, 100, 1);
+        // Batte de baseball : pas de chute, trajectoire droite
+        this.setTrajectoryCalculator(new NoDropTrajectory());
     }
 
     @Override

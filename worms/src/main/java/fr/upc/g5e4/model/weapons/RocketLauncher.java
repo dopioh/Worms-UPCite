@@ -1,6 +1,7 @@
 package fr.upc.g5e4.model.weapons;
 
 import fr.upc.g5e4.model.Weapon;
+import fr.upc.g5e4.model.trajectories.HeavyTrajectory;
 
 public class RocketLauncher extends Weapon {
 
@@ -16,6 +17,8 @@ public class RocketLauncher extends Weapon {
      */
     public RocketLauncher() {
         super("Rocket Launcher", 2, false, 100, 4, 8, 25);
+        // Lance-roquettes : projectile lourd avec beaucoup de chute
+        this.setTrajectoryCalculator(new HeavyTrajectory());
     }
 
     @Override

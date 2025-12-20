@@ -82,24 +82,32 @@ public class TrajectoryRenderer {
         trajectoryWorldY[0] = shooterPos.y;
         System.out.println(" weapon=" + currentWeapon.getName());
 
-        // générer les points avec trajectoire parabolique
+        // générer les points avec la trajectoire spécifique à l'arme
         for (int i = 1; i <= TRAJECTORY_POINTS; i++) {
             float t = (float) i / TRAJECTORY_POINTS;  // t entre 0 et 1
             
-            //la trajectoire parcourt la distance 'range' toujours horizontalement
-            float horizontalDistance = (float)(range * t);
+            Vec2 position;
             
-            //position basée sur l'angle
-            float worldX = shooterPos.x + (float)(horizontalDistance * Math.cos(angleRad));
-            float worldY = shooterPos.y + (float)(horizontalDistance * Math.sin(angleRad));
-            
-            //ajouter un effet de chute (parabole simple) sauf pour la baseball
-            if (!"Baseball Bat".equals(currentWeapon.getName())) {
-                float gravityEffect = 9.81f * (t * t); // effet 
+            // Utiliser le calculateur de trajectoire de l'arme s'il existe
+            if (currentWeapon.getTrajectoryCalculator() != null) {
+                position = currentWeapon.getTrajectoryCalculator().calculatePosition(
+                    t, shooterPos, range, angleRad
+                );
+            } else {
+                // Trajectoire par défaut (compatibilité arrière)
+                float horizontalDistance = (float)(range * t);
+                float worldX = shooterPos.x + (float)(horizontalDistance * Math.cos(angleRad));
+                float worldY = shooterPos.y + (float)(horizontalDistance * Math.sin(angleRad));
+                
+                // Ajouter un effet de chute léger par défaut
+                float gravityEffect = 5.0f * (t * t);
                 worldY -= gravityEffect;
+                
+                position = new Vec2(worldX, worldY);
             }
-            trajectoryWorldX[i] = worldX;
-            trajectoryWorldY[i] = worldY;
+            
+            trajectoryWorldX[i] = position.x;
+            trajectoryWorldY[i] = position.y;
         }
 
         //convertir en coordonnées écran pour affichage

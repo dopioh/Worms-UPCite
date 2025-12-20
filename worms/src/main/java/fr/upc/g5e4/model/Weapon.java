@@ -13,6 +13,7 @@ public abstract class Weapon extends Item {
     private final double speed;       // vitesse de projectile ou déplacement
     private final int range;          // portée de l'arme
     private double shootingAngle = 0;  // angle de tir en degrés (0-360)
+    private TrajectoryInterface trajectoryCalculator;  // calculatrice de trajectoire spécifique à l'arme
 
     protected Weapon(String name, int maxUsages, boolean isInfinite,
                      int damage, double blastRadius, double speed, int range) {
@@ -29,6 +30,20 @@ public abstract class Weapon extends Item {
     public double getBlastRadius() { return blastRadius; }
     public double getSpeed() { return speed; }
     public int getRange() { return range; }
+    
+    /**
+     * définit le calculateur de trajectoire personnalisé pour une arme
+     */
+    public void setTrajectoryCalculator(TrajectoryInterface calculator) {
+        this.trajectoryCalculator = calculator;
+    }
+    
+    /**
+     * obtient le calculateur de trajectoire de cette arme
+     */
+    public TrajectoryInterface getTrajectoryCalculator() {
+        return this.trajectoryCalculator;
+    }
     
     /**
      * Définit l'angle de tir en degrés (0-360)

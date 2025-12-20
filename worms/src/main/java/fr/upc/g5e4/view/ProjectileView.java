@@ -22,7 +22,7 @@ public class ProjectileView {
             return;
         }
         
-        // Ne pas dessiner les projectiles de la baseball
+        //permet de ne pas voir le projectile de la batte de baseball
         if ("Baseball Bat".equals(projectile.getSourceWeapon().getName())) {
             return;
         }

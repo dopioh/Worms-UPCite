@@ -42,7 +42,15 @@ public class Projectile {
      * @return Position du projectile
      */
     public Vec2 getPositionAtTime(float t) {
-        // t doit être entre 0 et 1
+        // si l'arme a un calculateur de trajectoire
+        if (sourceWeapon != null && sourceWeapon.getTrajectoryCalculator() != null) {
+            double angleRad = Math.toRadians(shootingAngle);
+            return sourceWeapon.getTrajectoryCalculator().calculatePosition(
+                t, startPosition, range, angleRad
+            );
+        }
+        
+        // sinon, utiliser la trajectoire par défaut
         t = Math.max(0, Math.min(1, t));
         
         // convertir l'angle en radians
