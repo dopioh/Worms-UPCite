@@ -76,19 +76,26 @@
 ### Added
 - Mode plein ecran
     - passage du jeu en 16:9
+- MAP Procédurale 
+    - avec bruit de perlin et amplification des bruits
+- SPRITES 
+    - les worms ont des sprites via le constucteur de leur equipe
+- Comportement worm
+    - le worm est totalement supprimé de la map quand il meurt (sprite + body physique) 
 
 ### Fixed
 - `.jar` injouable
 
--------- a compléter -----------
+--------- a completer ----------
 
-
-## [v.0.4 : SPRINT 4](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/4) (unreleased)
+## [v.0.4 : SPRINT 4](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/3) (unreleased)
 ---
 
 ### Added
 - Nametag
     - Affichage des itemes (potions...) sur le nametag
+- Nouveau systeme de map 
+    - MAP en tableau 2D remplie d'objet "block"
 
 ### Fixed
 
