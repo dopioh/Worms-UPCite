@@ -90,8 +90,7 @@
 ---
 
 ### Added
-<<<<<<< CHANGELOG.md
-
+- Implémentation de la physique de recul sur les worms touchés
 
 ### Fixed
 - Tout le jeu est désormais en une seule fenêtre

@@ -5,7 +5,16 @@ import fr.upc.g5e4.model.Weapon;
 public class Ak47 extends Weapon{
 
     public Ak47() {
-        super("AK-47", 30, false, 20, 0, 12, 100);
+        super(
+            "AK-47",
+            30,
+            false,
+            20,
+            0,
+            12,
+            100,
+            1.0
+        );
     }
 
     @Override

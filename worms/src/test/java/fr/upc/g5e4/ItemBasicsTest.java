@@ -15,7 +15,7 @@ class ItemBasicsTest {
     /** Sous-classe de test : onUse() renvoie toujours true */
     static class TestWeapon extends Weapon {
         TestWeapon(int maxUsages, boolean infinite) {
-            super("Dummy", maxUsages, infinite, 10, 0.0, 5.0, 10);
+            super("Dummy", maxUsages, infinite, 10, 0.0, 5.0, 10, 1.0);
         }
         @Override
         protected boolean onUse() { return true; }
@@ -65,7 +65,7 @@ class ItemBasicsTest {
     void invalidValues_throwException() {
         // name vide
         assertThrows(IllegalArgumentException.class,
-                () -> new Weapon("", 1, false, 1, 0, 1, 1) {
+                () -> new Weapon("", 1, false, 1, 0, 1, 1, 1.0) {
                     @Override protected boolean onUse() { return true; } 
                 }); // pas le but de tester onUse, juste les conditions abstraite de Weapon oblige
 
