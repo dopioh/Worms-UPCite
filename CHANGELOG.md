@@ -70,7 +70,7 @@
 - Camera
     - Les déplacements, le zoom et le recentrage de la caméra se font maintenant avec un glissement fluide
 
-## [v.0.3 : SPRINT 3](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/3) (unreleased)
+## [v.0.3 : SPRINT 3](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/3)
 ---
 
 ### Added
@@ -85,9 +85,11 @@
 
 ### Fixed
 - `.jar` injouable
-## [v.0.3 : SPRINT 3](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/3) (unreleased)
+
+## [v.0.4 : SPRINT 3](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/3) (unreleased)
 ---
 
 ### Added
 - Nouveau systeme de map 
     - MAP en tableau 2D remplie d'objet "block"
+
