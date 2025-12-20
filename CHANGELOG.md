@@ -88,7 +88,7 @@
 
 --------- a completer ----------
 
-## [v.0.4 : SPRINT 4](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/3) (unreleased)
+## [v.0.4 : SPRINT 4](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/4) (unreleased)
 ---
 
 ### Added
@@ -102,7 +102,8 @@
     - Affichage de HP et Shield en chiffre -> barre horizontale
 - `CONTRIBUTING.md`
     - Guide d'utilisation sur le nametag
--  Touche full screen F11 -> F
+- Touche full screen F11 -> F
+- Implémentation de la physique de recul sur les worms touchés
 
 ### Fixed
 - Tout le jeu est désormais en une seule fenêtre
