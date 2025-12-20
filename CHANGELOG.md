@@ -90,6 +90,14 @@
 ---
 
 ### Added
+<<<<<<< CHANGELOG.md
+
+
+### Fixed
+- Tout le jeu est désormais en une seule fenêtre
+- Emplacement overlay vent
 - Nouveau systeme de map 
     - MAP en tableau 2D remplie d'objet "block"
 
+### Modified
+- Touche full screen F11 -> F
