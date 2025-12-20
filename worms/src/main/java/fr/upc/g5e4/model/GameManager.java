@@ -88,7 +88,7 @@ public class GameManager {
     public GameManager() {
         int sizeX = 1280;  // Taille du terrain
         int sizeY = 720;
-        int waterLevel = 500;
+        int waterLevel = 800;
         
         // generation procédurale du terrain avec seed (le temps de la machine)
         TerrainGenerator generator = new TerrainGenerator(System.currentTimeMillis());
