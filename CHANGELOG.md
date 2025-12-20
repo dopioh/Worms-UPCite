@@ -76,6 +76,18 @@
 ### Added
 - Mode plein ecran
     - passage du jeu en 16:9
+- MAP Procédurale 
+    - avec bruit de perlin et amplification des bruits
+- SPRITES 
+    - les worms ont des sprites via le constucteur de leur equipe
+- Comportement worm
+    - le worm est totalement supprimé de la map quand il meurt (sprite + body physique) 
 
 ### Fixed
 - `.jar` injouable
+## [v.0.3 : SPRINT 3](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/3) (unreleased)
+---
+
+### Added
+- Nouveau systeme de map 
+    - MAP en tableau 2D remplie d'objet "block"
