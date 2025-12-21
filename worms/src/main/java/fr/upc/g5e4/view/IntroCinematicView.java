@@ -94,8 +94,8 @@ public class IntroCinematicView extends JPanel implements ActionListener {
     private void drawCurrentStep(Graphics2D g2d) {
         String text = cinematicTexts[currentStep];
 
-        // Police principale
-        Font titleFont = new Font("Arial", Font.BOLD, 48);
+        // Police principale plus stylisée et moderne
+        Font titleFont = new Font("Segoe UI", Font.BOLD, 52);
         g2d.setFont(titleFont);
         FontMetrics fm = g2d.getFontMetrics();
 
@@ -103,20 +103,26 @@ public class IntroCinematicView extends JPanel implements ActionListener {
         int x = (getWidth() - fm.stringWidth(text)) / 2;
         int y = getHeight() / 2;
 
-        // Ombre du texte
-        g2d.setColor(new Color(0, 0, 0, 100));
-        g2d.drawString(text, x + 2, y + 2);
+        // Effet de glow/ombre multiple pour plus d'impact
+        g2d.setColor(new Color(255, 100, 0, 150)); // Orange glow
+        g2d.drawString(text, x + 3, y + 3);
+        g2d.setColor(new Color(0, 0, 0, 120)); // Ombre noire
+        g2d.drawString(text, x + 1, y + 1);
 
-        // Texte principal
+        // Texte principal en blanc avec léger effet cyan
         g2d.setColor(Color.WHITE);
         g2d.drawString(text, x, y);
 
+        // Effet de brillance subtile
+        g2d.setColor(new Color(100, 200, 255, 80));
+        g2d.drawString(text, x, y);
+
         // Informations supplémentaires selon l'étape
-        drawStepDetails(g2d, y + 60);
+        drawStepDetails(g2d, y + 70);
     }
 
     private void drawStepDetails(Graphics2D g2d, int startY) {
-        Font detailFont = new Font("Arial", Font.PLAIN, 24);
+        Font detailFont = new Font("Segoe UI", Font.PLAIN, 26);
         g2d.setFont(detailFont);
 
         switch (currentStep) {
