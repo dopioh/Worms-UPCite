@@ -100,3 +100,9 @@
 
 ### Modified
 - Touche full screen F11 -> F
+- Support pour N équipes au lieu de 2 équipes hardcodées
+    - Refactorisation de GameManager, GameLoop et GamePanel pour utiliser des listes dynamiques
+    - Possibilité d'ajouter dynamiquement des équipes via GameManager.addTeam()
+
+## [v.0.5 : SPRINT 4](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/4) (unreleased)
+---
