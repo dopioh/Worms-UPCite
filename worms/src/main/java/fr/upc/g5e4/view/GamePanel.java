@@ -23,7 +23,7 @@ public class GamePanel extends JPanel {
     private final CameraModel camera;
     private final CameraController cameraController; // Ajouté pour le timer
 
-    // Support pour N équipes - remplace les équipes hardcodées
+    // Support pour N équipes
     private java.util.List<TeamModel> teamModels;
     private java.util.List<TeamView> teamViews;
 
@@ -44,8 +44,7 @@ public class GamePanel extends JPanel {
     private final JLabel roundTimerLabel = new JLabel("Temps restant : 30s");
 
     /**
-     * Constructeur pour N équipes (nouveau)
-     * {@code setPreferredSize()} est essentiel sinon rien ne s'affiche
+     * Constructeur pour N équipes
      */
     public GamePanel(GroundModel model,
             CameraModel camera, CameraController cameraController,
@@ -64,8 +63,7 @@ public class GamePanel extends JPanel {
     }
 
     /**
-     * Constructeur pour 2 équipes (legacy - pour compatibilité)
-     * {@code setPreferredSize()} est essentiel sinon rien ne s'affiche
+     * Constructeur pour 2 équipes (legacy)
      */
     public GamePanel(GroundModel model,
             CameraModel camera, CameraController cameraController,
@@ -161,9 +159,7 @@ public class GamePanel extends JPanel {
     }
 
     /**
-     * Ajoute une équipe au rendu (pour supporter N équipes dynamiquement)
-     * @param teamModel Le modèle de l'équipe
-     * @param teamView La vue de l'équipe
+     * Ajoute une équipe au rendu
      */
     public void addTeam(TeamModel teamModel, TeamView teamView) {
         if (teamModel != null && teamView != null) {
@@ -172,13 +168,6 @@ public class GamePanel extends JPanel {
         }
     }
 
-    /**
-     * L'ordre d'ajout pour les éléments graphiques impacte la superposition des
-     * dessins
-     * Exemple :
-     * Ciel doit etre placé avant Ground psq il doit pas cacher Ground
-     * Il apparait donc derriere et Ground est au premier plan par rapport a Ciel
-     */
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -264,7 +253,7 @@ public class GamePanel extends JPanel {
             g2.fill(path);
         }
 
-        // Équipes de worms (support N équipes)
+        // Équipes de worms
         for (int i = 0; i < teamModels.size() && i < teamViews.size(); i++) {
             teamViews.get(i).draw(g2, teamModels.get(i));
         }
