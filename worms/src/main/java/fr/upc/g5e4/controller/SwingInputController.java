@@ -2,13 +2,15 @@
 package fr.upc.g5e4.controller;
 //import java.awt.*;
 import java.awt.event.*;
-
 import javax.swing.JPanel;
+
 import org.jbox2d.common.Vec2;
 
 import fr.upc.g5e4.model.GameManager;
 import fr.upc.g5e4.model.CharacterModel;
+import fr.upc.g5e4.view.InventoryOverlay;
 import fr.upc.g5e4.view.TrajectoryRenderer;
+import javax.swing.JFrame;
 
 /** 
  * Classe pour les Entrées Clavier Souris qui reprend celle de Nassim
@@ -24,6 +26,9 @@ public class SwingInputController extends JPanel{
     private TrajectoryRenderer trajectoryRenderer;
     private boolean isAiming = false;  // affichage de la trajectoire
     private double shootingAngle = 0;  // angle de visée en degrés
+
+    private InventoryOverlay inventoryOverlay; 
+    private JFrame gameFrame;
 
     /**
      * Constructeur pour gérer uniquement le personnage
@@ -47,6 +52,55 @@ public class SwingInputController extends JPanel{
         requestFocusInWindow();
 
         addControls();
+    }
+
+    //Setters 
+    /**
+    * Définit le rendu de la trajectoire
+    */
+    public void setTrajectoryRenderer(TrajectoryRenderer renderer) {
+        this.trajectoryRenderer = renderer;
+    }
+    
+    /**
+     * Définit le GameManager pour permettre le changement de worm
+     * @param gameManager le gestionnaire de jeu
+     */
+    public void setGameManager(GameManager gameManager) {
+        this.gameManager = gameManager;
+    }
+    
+    /**
+     * Change le contrôleur de personnage actif
+     * @param controller le nouveau contrôleur de personnage
+     */
+    public void setCharacterController(CharacterController controller) {
+        this.personnageController = controller;
+    }
+    
+    /**
+     * Retourne le contrôleur de personnage actif
+     * @return le contrôleur de personnage
+     */
+    public CharacterController getCharacterController() {
+        return this.personnageController;
+    }
+
+    /**
+     * Définit l'overlay d'inventaire pour ce contrôleur.
+     * 
+     * @param overlay l'InventoryOverlay à associer à ce contrôleur
+     */
+    public void setInventoryOverlay(InventoryOverlay overlay){
+        this.inventoryOverlay = overlay;
+    }
+
+    /**
+     * Sets the game frame for this controller, allowing it to manage window operations.
+     * @param frame the JFrame instance representing the game window
+     */
+    public void setGameFrame(JFrame frame){
+        this.gameFrame = frame;
     }
 
     //@Override
@@ -118,12 +172,31 @@ public class SwingInputController extends JPanel{
                         if(gameManager != null) gameManager.switchWeapon();
                         System.out.println("switch");
                         break;
+
+                    // Ouverture de l'inventaire
+                    case KeyEvent.VK_J:
+                        gameManager.actionPerformed();
+                        System.out.println("Save Buttun Pressed");
+                        break;
                     
                     // Toggle mode vol (touche P)
                     case KeyEvent.VK_P:
                         personnageController.toggleFlyMode();
                         System.out.println("SUPERMAAAAAAAAAAAAN (todo : ajouter cape)");
                         break;
+                    // Touche Echap pour quitter le jeu !!!!!!!!!!!!!!!!!!!!!!!!! A modifier pour le menu plus tard
+                    case KeyEvent.VK_ESCAPE:
+                        if(gameFrame != null){
+                            gameFrame.dispose();
+                        }
+                        System.exit(0);
+                        break;
+                    case KeyEvent.VK_I:
+                        if (inventoryOverlay != null) {
+                        boolean visible = inventoryOverlay.isInventoryVisible();
+                        inventoryOverlay.setInventoryVisible(!visible);
+                    }
+                    break;
                 }
             }
             
@@ -156,29 +229,59 @@ public class SwingInputController extends JPanel{
             }
         });
         
-        // Listener de souris pour le tir au click gauche
+        // Tir au clic gauche -> vers la souris
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 requestFocusInWindow();  // Récupérer le focus au clic
                 if (e.getButton() == MouseEvent.BUTTON1) {
-                    if (trajectoryRenderer != null) {
-                        trajectoryRenderer.setAiming(false);
-                    }
-                    isAiming = false;
-                    
-                    // Passer l'angle au weapon avant de tirer
-                    if (personnageController != null && personnageController.getCurrentWeapon() != null) {
-                        personnageController.getCurrentWeapon().setShootingAngle(shootingAngle);
-                    }
-                    
-                    // Tirer le projectile - il suit la trajectoire dessinée
-                    if (personnageController != null) {
-                        personnageController.fireWeapon(1);  // direction par défaut (non utilisée)
-                    }
+                    handleFireAt(e.getX(), e.getY());
                 }
             }
         });
+    }
+    
+    /**
+     * Tirer vers la position écran (x, y)
+     */
+    public void handleFireAt(int x, int y) {
+        if (personnageController == null || personnageController.getModel() == null) {
+            return;
+        }
+
+        CharacterModel model = personnageController.getModel();
+        float ppm = CharacterModel.getPPM();
+        float worldHeightMeters = 24f; // 720 / 30 = 24 (hauteur du monde en mètres)
+
+        // Position du worm en coordonnées monde
+        Vec2 pos = model.getBody().getPosition();
+
+        // Position écran approximative
+        float wormScreenX = pos.x * ppm;
+        float wormScreenY = (worldHeightMeters - pos.y) * ppm;  // inversion Y
+
+        double dx = x - wormScreenX;
+        double dy = wormScreenY - y; // inversion Y
+
+        shootingAngle = Math.toDegrees(Math.atan2(dy, dx));
+        if (shootingAngle < 0) {
+            shootingAngle += 360;
+        }
+
+        isAiming = true;
+        updateTrajectory();
+
+        // désactiver la visée juste après le tir
+        if (trajectoryRenderer != null) {
+            trajectoryRenderer.setAiming(false);
+        }
+        isAiming = false;
+
+        if (personnageController.getCurrentWeapon() != null) {
+            personnageController.getCurrentWeapon().setShootingAngle(shootingAngle);
+        }
+
+        personnageController.fireWeapon(1);  // direction ignorée, l'angle est dans l'arme
     }
     
     /**
@@ -199,34 +302,5 @@ public class SwingInputController extends JPanel{
         }
     }
     
-    /**
-     * Définit le rendu de la trajectoire
-     */
-    public void setTrajectoryRenderer(TrajectoryRenderer renderer) {
-        this.trajectoryRenderer = renderer;
-    }
-    
-    /**
-     * Définit le GameManager pour permettre le changement de worm
-     * @param gameManager le gestionnaire de jeu
-     */
-    public void setGameManager(GameManager gameManager) {
-        this.gameManager = gameManager;
-    }
-    
-    /**
-     * Change le contrôleur de personnage actif
-     * @param controller le nouveau contrôleur de personnage
-     */
-    public void setCharacterController(CharacterController controller) {
-        this.personnageController = controller;
-    }
-    
-    /**
-     * Retourne le contrôleur de personnage actif
-     * @return le contrôleur de personnage
-     */
-    public CharacterController getCharacterController() {
-        return this.personnageController;
-    }
+   
 }

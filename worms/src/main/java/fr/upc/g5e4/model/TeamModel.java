@@ -1,13 +1,27 @@
 package fr.upc.g5e4.model;
 
+//import java.util.ArrayList;
+
 import org.jbox2d.dynamics.World;
+import java.util.List;
+import fr.upc.g5e4.model.InventoryModel.InventoryJson;
+
+import fr.upc.g5e4.model.io.*;
 
 /**
  * Modèle pour une équipe de worms
  */
 public class TeamModel {
-    private int number;
+    private int teamID; // ID de l'equipe, peut pas etre final sinon on peut pas load une partie
+    private String teamName;
+
+    private int number; // nbr de worms dans l'equipe
     private CharacterModel[] tabModelWorms;
+    
+
+    private static int TEAMSNUMBER = 0;
+
+    private List<InventoryJson> inventory;
     
     /**
      * Constructeur de la classe TeamModel avec initialisation automatique des worms
@@ -25,8 +39,13 @@ public class TeamModel {
         if (wormNumber < 1) {
             throw new IllegalArgumentException("Une équipe doit avoir au moins 1 worm");
         }
+        this.teamName = teamName;
         this.number = wormNumber;
         this.tabModelWorms = new CharacterModel[number];
+        this.teamName = teamName;
+
+        TEAMSNUMBER++;
+        this.teamID = TEAMSNUMBER;
         
         // Initialisation automatique des worms et position espacée
         for (int i = 0; i < number; i++) {
@@ -55,6 +74,10 @@ public class TeamModel {
     }
     
     // Getters et Setters   
+    public String getTeamName(){
+        return teamName;
+    }
+
     public CharacterModel[] getTabWorms() {
         return tabModelWorms;
     }
@@ -96,5 +119,35 @@ public class TeamModel {
             }
         }
         return aliveCount;
+    }
+
+
+    // Getter Data
+    public TeamData toData(){
+        return new TeamData(teamID, number, tabModelWorms,teamName);
+    }
+
+    // Setter Data
+    public void loadFromData(TeamData teamData){
+        this.teamID = teamData.getTeamID();
+        this.number = teamData.getWormsNumber();
+    
+    }
+
+    
+    public void setInventory(List<InventoryJson> inventory) {
+        this.inventory = inventory;
+    }
+
+    public List<InventoryJson> getInventory() {
+        return inventory;
+    }
+
+    // Remet useThisTurn = 0 pour tous les items de l'équipe (nouveau tour pour cette team)
+    public void resetInventoryTurn() {
+        if (inventory == null) return;
+        for (InventoryJson item : inventory) {
+            item.resetTurn();
+        }
     }
 }

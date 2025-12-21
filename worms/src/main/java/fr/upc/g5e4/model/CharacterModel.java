@@ -1,5 +1,6 @@
 package fr.upc.g5e4.model;
 
+import fr.upc.g5e4.model.InventoryModel.InventoryJson;
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
@@ -7,6 +8,8 @@ import org.jbox2d.dynamics.BodyDef;
 import org.jbox2d.dynamics.BodyType;
 import org.jbox2d.dynamics.FixtureDef;
 import org.jbox2d.dynamics.World;
+
+import fr.upc.g5e4.model.io.CharacterData;
 
 /**
  * Modèle du Personnage
@@ -49,6 +52,9 @@ public class CharacterModel{
     public static final int CATEGORY_WORM = 0x0002;     // Bit 2 : worms
 
     private final Body persoBody;
+
+    //Armes équipées
+    private InventoryJson equippedItem;
 
     //private static final int sizePerso = 40;
 
@@ -163,6 +169,10 @@ public class CharacterModel{
         return facingRight;
     }
 
+    public InventoryJson getEquippedItem(){
+        return equippedItem;
+    }
+
     // Setters
     public void setName(String name) {
         this.name = name;
@@ -236,6 +246,11 @@ public class CharacterModel{
         return PPM;
     }
 
+    
+    public void setEquippedItem(InventoryJson item){
+        this.equippedItem = item;
+    }
+
     /**
      * Vérifie si le personnage touche le sol
      * @return true si le personnage touche le sol, false s'il est en l'air
@@ -274,6 +289,34 @@ public class CharacterModel{
             Vec2 point = persoBody.getWorldCenter();
             persoBody.applyLinearImpulse(impulse, point);
             lastJumpTime = currentTime;  // Met à jour le timestamp du dernier saut
+        }
+    }
+
+    /**
+     * Applique un impact/recul au personnage lorsqu'il est touché
+     * @param impactDirection Direction de l'impact (vecteur normalisé)
+     * @param impactForce Force de l'impact
+     */
+    public void applyImpact(Vec2 impactDirection, float impactForce) {
+        if (persoBody == null || isDead) {
+            return;
+        }
+        
+        // Normaliser la direction si elle n'est pas déjà normalisée
+        float length = impactDirection.length();
+        if (length > 0.001f) {
+            Vec2 normalizedDirection = new Vec2(
+                impactDirection.x / length,
+                impactDirection.y / length
+            );
+            
+            // Appliquer l'impulsion au centre du personnage
+            Vec2 impulse = new Vec2(
+                normalizedDirection.x * impactForce,
+                normalizedDirection.y * impactForce
+            );
+            Vec2 point = persoBody.getWorldCenter();
+            persoBody.applyLinearImpulse(impulse, point);
         }
     }
 
@@ -347,6 +390,22 @@ public class CharacterModel{
         bWorm.createFixture(fixtureWorm);
 
         return bWorm;
+    }
+
+    // Getter Data
+    public CharacterData toData(){
+        return new CharacterData(ID, name, xcord, ycord, health, shield, isDead);
+    }
+
+    // Setter Data
+    public void loadFromData(CharacterData characterData){
+        this.ID = characterData.getID();
+        this.name = characterData.getName();
+        this.xcord = characterData.getXcord();
+        this.ycord = characterData.getYcord();
+        this.health = characterData.getHealth();
+        this.shield = characterData.getShield();
+        this.isDead = characterData.getIsDead();
     }
 
     

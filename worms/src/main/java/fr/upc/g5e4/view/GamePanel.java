@@ -7,6 +7,7 @@ import fr.upc.g5e4.model.*;
 import fr.upc.g5e4.model.camera.CameraModel;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
 import java.awt.geom.Path2D;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -17,7 +18,8 @@ import java.io.IOException;
  * Gère le rendu avec caméra et zoom
  */
 public class GamePanel extends JPanel {
-    private final GroundModel model;
+    private final GroundModel model;  // Gardé pour compatibilité
+    private BlockGridModel blockGridModel;  // système de terrain en blocs
     private final CameraModel camera;
     private final TeamModel teamModel1;
     private final TeamView teamView1;
@@ -26,10 +28,15 @@ public class GamePanel extends JPanel {
     private final TrajectoryRenderer trajectoryRenderer;
     private ItemController itemController;
 
+    private JButton saveButton;
+
     private static final float PPM = 30f;
     
     private BufferedImage groundTexture;
     private boolean blueprintMode = false; // active le background blueprint
+    
+    // Vue pour dessiner les blocs
+    private BlockGridView blockGridView;
 
     // ajout: label pour afficher le temps restant (vue)
     private final JLabel roundTimerLabel = new JLabel("Temps restant : 30s");
@@ -47,6 +54,9 @@ public class GamePanel extends JPanel {
         this.teamModel2 = teamModel2;
         this.teamView2 = teamView2;
         this.trajectoryRenderer = new TrajectoryRenderer();
+        
+        // init BlockGridView
+        this.blockGridView = new BlockGridView();
 
         setPreferredSize(new Dimension(model.getWidth(), model.getHeight()));
         setLayout(null);
@@ -65,6 +75,14 @@ public class GamePanel extends JPanel {
         roundTimerLabel.setBounds(20, 10, 220, 30);
         roundTimerLabel.setOpaque(false);
         this.add(roundTimerLabel);
+
+        /*
+        // Bouton de sauvegarde
+        this.saveButton = new JButton("Sauvegarde");
+        this.saveButton.setBounds(40, 70, 70, 30);
+        saveButton.setFocusable(false);
+        this.add(saveButton);
+        */
 
         // Timer pour update régulier de la caméra et repaint
         new javax.swing.Timer(16, e -> {
@@ -101,6 +119,14 @@ public class GamePanel extends JPanel {
      */
     public void setItemController(ItemController itemController) {
         this.itemController = itemController;
+    }
+    
+    /**
+     * Définit le BlockGridModel pour le rendu du terrain en blocs
+     * @param blockGridModel Le modèle de grille de blocs
+     */
+    public void setBlockGridModel(BlockGridModel blockGridModel) {
+        this.blockGridModel = blockGridModel;
     }
 
     /**
@@ -160,28 +186,40 @@ public class GamePanel extends JPanel {
 
         // Eau en arrière-plan quand pas en mode blueprint
         if (!blueprintMode) {
-            g2.setColor(new Color(75, 147, 240));
-            g2.fillRect(0, model.getWaterLevel(), model.getWidth(), model.getHeight() - model.getWaterLevel());
+            if (blockGridModel != null) {
+                // Utiliser BlockGridView pour dessiner l'eau
+                blockGridView.drawWater(g2, blockGridModel);
+            } else {
+                // Ancien système : eau simple
+                g2.setColor(new Color(75, 147, 240));
+                g2.fillRect(0, model.getWaterLevel(), model.getWidth(), model.getHeight() - model.getWaterLevel());
+            }
         }
 
         // Ground (au premier plan)
-        Path2D path = new Path2D.Double();
-        path.moveTo(0, model.getHeight());
-        double step = (double) model.getWidth() / (model.getGroundY().length - 1);
-        for (int i = 0; i < model.getGroundY().length; i++) {
-            path.lineTo(i * step, model.getGroundY()[i]);
-        }
-        path.lineTo(model.getWidth(), model.getHeight());
-        path.closePath();
-        
-        // Appliquer la texture ou la couleur
-        if (groundTexture != null) {
-            g2.setPaint(new TexturePaint(groundTexture, 
-                new Rectangle(0, 0, groundTexture.getWidth(), groundTexture.getHeight())));
+        if (blockGridModel != null) {
+            // Nouveau système : terrain en blocs
+            blockGridView.drawAll(g2, blockGridModel);
         } else {
-            g2.setColor(new Color(34, 139, 34));
+            // Ancien système : terrain avec Path2D (ligne continue)
+            Path2D path = new Path2D.Double();
+            path.moveTo(0, model.getHeight());
+            double step = (double) model.getWidth() / (model.getGroundY().length - 1);
+            for (int i = 0; i < model.getGroundY().length; i++) {
+                path.lineTo(i * step, model.getGroundY()[i]);
+            }
+            path.lineTo(model.getWidth(), model.getHeight());
+            path.closePath();
+            
+            // Appliquer la texture ou la couleur
+            if (groundTexture != null) {
+                g2.setPaint(new TexturePaint(groundTexture, 
+                    new Rectangle(0, 0, groundTexture.getWidth(), groundTexture.getHeight())));
+            } else {
+                g2.setColor(new Color(34, 139, 34));
+            }
+            g2.fill(path);
         }
-        g2.fill(path);
 
         // Personnage
         //personnageView.draw(g2, personnageModel);
@@ -201,4 +239,10 @@ public class GamePanel extends JPanel {
         // permet libérer les ressources graphiques
         g2.dispose();
     }
+
+    /*
+    // Pour relier le bouton avec la save ? -> Faire mtn ?
+    public void addSaveListener(ActionListener actionListener){
+        saveButton.addActionListener(actionListener);
+    }*/
 }

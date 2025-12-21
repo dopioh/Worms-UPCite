@@ -3,105 +3,166 @@ package fr.upc.g5e4.view;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.List;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.List;
 
 import fr.upc.g5e4.model.InventoryModel.InventoryJson;
 import fr.upc.g5e4.controller.SwingInputController;
+import fr.upc.g5e4.model.GameManager;
 
-public class InventoryOverlay extends JComponent{       //S'integre dans une interface Swing (JFrame)
-    private final List<InventoryJson> inventory;
+public class InventoryOverlay extends JComponent {
+    private List<InventoryJson> inventory;
     private boolean visible = false;
-    private MouseAdapter fireListener; // Listener pour le tir
+    private MouseAdapter fireListener; // pour déléguer le tir
 
-    //Icone image png
+    // icône du sac
     private BufferedImage icon;
-    private Rectangle iconBounds; 
-    
-    //Zone Cliquable de l'inventaire
-    private final java.util.List<Rectangle> itemBounds = new ArrayList<>();
+    private Rectangle iconBounds;
+
+    // liste des items
+    private final List<Rectangle> itemBounds = new ArrayList<>();
     private int selectedIndex = -1;
     private InventoryJson equippedItem = null;
 
-    //
-    private Rectangle useButtonBounds;
+    // zone du panneau inventaire
+    private Rectangle panelBounds;
 
-    public InventoryOverlay(List<InventoryJson> inventory){
+    private GameManager gameManager;
+
+    public InventoryOverlay(List<InventoryJson> inventory) {
         this.inventory = inventory;
-        setOpaque(false);                   // transparent
+        setOpaque(false);
 
-        //Chargement d'icon
-        try{
+        try {
             icon = javax.imageio.ImageIO.read(
                 getClass().getResource("/backpack.png")
             );
-        } catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
-        //Clic souris
-        addMouseListener(new MouseAdapter(){
+        addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(MouseEvent e){
+            public void mouseClicked(MouseEvent e) {
                 handleClick(e.getX(), e.getY());
             }
-            
+
             @Override
-            public void mousePressed(MouseEvent e){
-                // Si l'inventaire n'est pas visible, laisser le tir passer
-                if(!visible && fireListener != null){
+            public void mousePressed(MouseEvent e) {
+                // inventaire fermé -> on laisse le tir passer normalement
+                if (!visible && fireListener != null) {
                     fireListener.mousePressed(e);
                 }
             }
         });
     }
 
-    /**
-     * Enregistre le listener pour le tir (pour le transférer si inventaire non visible)
-     */
-    public void setFireListener(MouseAdapter listener){
-        this.fireListener = listener;
+    public void setGameManager(GameManager gameManager) {
+        this.gameManager = gameManager;
     }
-    
+
     /**
-     * Enregistre le controller d'input pour le tir
+     * FireListener basé sur le SwingInputController (tir vers la souris)
      */
     public void setFireListener(SwingInputController inputController){
         this.fireListener = new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON1) {
-                    inputController.getCharacterController().fireWeapon(e.getX(), e.getY());
+                    inputController.handleFireAt(e.getX(), e.getY());
                 }
             }
         };
     }
 
-    private void handleClick(int x, int y){             //Si clic faire :
-        if(iconBounds != null && iconBounds.contains(x,y)){
-            setInventoryVisible(!visible);
-            return;
-        }
-        if(!visible){
-            return;
-        }
+    public void setFireListener(MouseAdapter listener){
+        this.fireListener = listener;
+    }
 
-        for(int i=0;i< itemBounds.size();i++){
-            Rectangle r = itemBounds.get(i);
-            if(r.contains(x,y)){
-                selectedIndex= i;
-                equippedItem = inventory.get(i);
-                repaint();
-                return;
+    private void handleClick(int x, int y) {
+        // inventaire fermé -> clic = tir normal
+        if (!visible) {
+            if (fireListener != null) {
+                MouseEvent fake = new MouseEvent(
+                        this,
+                        MouseEvent.MOUSE_PRESSED,
+                        System.currentTimeMillis(),
+                        0,
+                        x, y,
+                        1,
+                        false,
+                        MouseEvent.BUTTON1
+                );
+                fireListener.mousePressed(fake);
             }
+            return;
         }
 
-        // clic sur le bouton Utiliser
-        if (useButtonBounds != null && useButtonBounds.contains(x, y)) {
-            handleUse();
+        // inventaire ouvert
+        // 1) clic dans le panneau -> sélection / équipement
+        if (panelBounds != null && panelBounds.contains(x, y)) {
+            for (int i = 0; i < itemBounds.size(); i++) {
+                Rectangle r = itemBounds.get(i);
+                if (r.contains(x, y)) {
+                    selectedIndex = i;
+                    equippedItem = inventory.get(i);
+
+                    if (gameManager != null) {
+                        gameManager.setWeaponFromInventory(equippedItem.name);
+                    }
+
+                    System.out.println("[Inventaire] " +
+                        (gameManager != null ? gameManager.getCurrentTeamName() : "?") +
+                        " équipe " + equippedItem.name);
+
+                    repaint();
+                    return;
+                }
+            }
+            return; // clic dans le panneau mais pas sur un item -> rien
+        }
+
+        // 2) clic en dehors du panneau -> tir avec l'item équipé
+        if (equippedItem == null) {
+            System.out.println("[Inventaire] Aucun objet équipé, tir ignoré.");
             return;
+        }
+
+        boolean ok = equippedItem.registerUseThisTurn();
+        if (!ok) {
+            System.out.println("[Inventaire] Plus d'utilisation possible pour " + equippedItem.name);
+            return;
+        }
+
+        int restantesTour = equippedItem.getRemainingUseThisTurn();
+        if (equippedItem.remainingUses == null) {
+            System.out.println("[" +
+                (gameManager != null ? gameManager.getCurrentTeamName() : "?") +
+                "] tire avec " + equippedItem.name +
+                " → " + restantesTour + " utilisation(s) restante(s) ce tour, munitions : infinies");
+        } else {
+            System.out.println("[" +
+                (gameManager != null ? gameManager.getCurrentTeamName() : "?") +
+                "] tire avec " + equippedItem.name +
+                " → " + restantesTour + " utilisation(s) ce tour, " +
+                equippedItem.remainingUses + " munition(s) restante(s)");
+        }
+
+        // déléguer le tir au listener (SwingInputController -> handleFireAt)
+        if (fireListener != null) {
+            MouseEvent fake = new MouseEvent(
+                    this,
+                    MouseEvent.MOUSE_PRESSED,
+                    System.currentTimeMillis(),
+                    0,
+                    x, y,
+                    1,
+                    false,
+                    MouseEvent.BUTTON1
+            );
+            fireListener.mousePressed(fake);
         }
     }
 
@@ -112,14 +173,14 @@ public class InventoryOverlay extends JComponent{       //S'integre dans une int
         int h = getHeight();
 
         Graphics2D g2 = (Graphics2D) g;
-        
-        /* Image + Inventaire */
+
+        // icône sac
         int iconSize = 80;
-        int iconX = w - iconSize -16;
+        int iconX = w - iconSize - 16;
         int iconY = 16;
 
         iconBounds = new Rectangle(iconX, iconY, iconSize, iconSize);
-               
+
         if(icon != null){
             g2.drawImage(icon,iconX,iconY,iconSize,iconSize,null);
         } else {
@@ -128,74 +189,65 @@ public class InventoryOverlay extends JComponent{       //S'integre dans une int
             g2.setColor(Color.WHITE);
             g2.drawString("INV", iconX + 10, iconY + 28);
         }
-        
-        // Si on ne clique pas 
+
         if(!visible){
             return;
         }
 
-        /* FOND SOMBRE */
-        g2.setColor(new Color(0,0,0,150));
-        g2.fillRect(0, 0, w, h);
+        // panneau inventaire à gauche
+        int panelW = 250;
+        int panelH = 400;
+        int panelX = 20;
+        int panelY = (h - panelH) / 2;
 
-        /* Overlay */
-        int panelW = 300;
-        int panelH = 250;
-        int panelX = (w - panelW) /2;
-        int panelY = (h - panelH) /2;
+        panelBounds = new Rectangle(panelX, panelY, panelW, panelH);
 
         g2.setColor(new Color(40,40,40));
         g2.fillRoundRect(panelX, panelY, panelW, panelH, 20, 20);
 
         g2.setColor(Color.WHITE);
-        g2.drawString("INVENTAIRE", panelX +20, panelY +30);
+        g2.drawString("INVENTAIRE", panelX + 20, panelY + 30);
 
-        /* liste Item */
-        int listX = panelX +20;
+        int listX = panelX + 20;
         int listY = panelY + 50;
         int itemHeight = 30;
-        
+
         itemBounds.clear();
 
-        for(int i=0; i< inventory.size();i++){
+        for (int i = 0; i < inventory.size(); i++) {
             int y = listY + i * itemHeight;
 
-            Rectangle r = new Rectangle(listX, y-20, panelW -40, itemHeight);
+            Rectangle r = new Rectangle(listX, y - 20, panelW - 40, itemHeight);
             itemBounds.add(r);
 
-            if(i == selectedIndex){
+            if (i == selectedIndex) {
                 g2.setColor(new Color(80,80,120));
                 g2.fill(r);
                 g2.setColor(Color.WHITE);
             } else {
                 g2.setColor(Color.WHITE);
             }
+
             InventoryJson item = inventory.get(i);
             String label = item.name + " (" + item.objectType + ") ";
 
-            g2.drawString(label, listX+5, y);
+            g2.drawString(label, listX + 5, y);
         }
 
-        /*Affiche l'item équipé*/
-        if(equippedItem != null){
-            g2.drawString("Equipé : "+ equippedItem.name, panelX +20, panelY + panelH-20);
+        if (equippedItem != null) {
+            g2.drawString("Equipé : " + equippedItem.name,
+                          panelX + 20,
+                          panelY + panelH - 20);
         }
-
-        /* Bouton Utiliser*/
-        int btnW = 80;
-        int btnH = 30;
-        int btnY = panelY + panelH - btnH - 10;
-
-        useButtonBounds = new Rectangle(panelX + panelW - btnW - 20, btnY, btnW, btnH);
-
-        // bouton Utiliser
-        g2.setColor(new Color(100, 160, 100));
-        g2.fillRect(useButtonBounds.x, useButtonBounds.y, useButtonBounds.width, useButtonBounds.height);
-        g2.setColor(Color.WHITE);
-        g2.drawString("Utiliser", useButtonBounds.x + 20, useButtonBounds.y + 20);
-
     }
 
+    public void setInventory(List<InventoryJson> inventory){
+        this.inventory = inventory;
+        selectedIndex = -1;
+        equippedItem = null;
+        itemBounds.clear();
+        repaint();
+    }
     public void setInventoryVisible(boolean visible){
         this.visible = visible;
         repaint();
@@ -204,42 +256,4 @@ public class InventoryOverlay extends JComponent{       //S'integre dans une int
     public boolean isInventoryVisible(){
         return visible;
     }
-
-    private void handleUse() {
-        if(selectedIndex < 0 || selectedIndex >= inventory.size()) {
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Aucun objet sélectionné",
-                    "Inventaire",
-                    JOptionPane.INFORMATION_MESSAGE
-            );
-            return;
-        }
-
-        InventoryJson selected = inventory.get(selectedIndex);
-
-        boolean ok = selected.registerUseThisTurn();
-        if(!ok) {
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Action impossible (plus d'utilisation ce tour ou plus de munitions)",
-                    "Inventaire",
-                    JOptionPane.INFORMATION_MESSAGE
-            );
-            return;
-        }
-
-        //Log dans le terminal
-        int restantesTour = selected.getRemainingUseThisTurn();
-        if(selected.remainingUses == null){
-            System.out.println("[Inventaire] " + selected.name + " : " + restantesTour + " utilisation(s) restante(s) ce tour, munitions globales : infinite");
-        } else {
-            System.out.println("[Inventaire] " + selected.name + " : " + restantesTour + " utilisation(s) restante(s) ce tour, "+ selected.remainingUses + " munition(s) globale(s) restante(s)");
-        }
-
-        //Met à jour l'affichage
-        equippedItem = selected;
-        repaint();
-    }
-
 }

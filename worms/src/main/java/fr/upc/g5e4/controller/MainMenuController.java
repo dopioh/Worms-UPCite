@@ -14,9 +14,11 @@ import fr.upc.g5e4.view.MainMenuView;
 public class MainMenuController {
         
     private MainMenuView view;
+    private GameLauncher gameLauncher;
 
-    public MainMenuController(MainMenuView view) {
+    public MainMenuController(MainMenuView view, GameLauncher gameLauncher) {
         this.view = view;
+        this.gameLauncher = gameLauncher;
         addListeners();
     }
 
@@ -36,14 +38,13 @@ public class MainMenuController {
     }
 
     private void startNewGame() throws IOException {
-        boolean wasFullScreen = view.isFullScreen();
-        view.dispose(); // Ferme la fenêtre d'accueil
-        new GameLauncher(true, wasFullScreen); // Lance le jeu
+        // Utilise le GameLauncher existant pour basculer vers le jeu
+        gameLauncher.startGame();
     }
 
     private void resumeGame() {
         // Pour l'instant juste un message
-        JOptionPane.showMessageDialog(view, 
+        JOptionPane.showMessageDialog(gameLauncher.getMainFrame(), 
             "Fonctionnalité à venir", 
             "Poursuivre", 
             JOptionPane.INFORMATION_MESSAGE); //determine l'icône qui s'affiche à gauche du texte
@@ -51,7 +52,7 @@ public class MainMenuController {
 
     private void openConfig() {
         // Pour l'instant juste un message
-        JOptionPane.showMessageDialog(view, 
+        JOptionPane.showMessageDialog(gameLauncher.getMainFrame(), 
             "Fonctionnalité à venir", 
             "Réglages", 
             JOptionPane.INFORMATION_MESSAGE);
