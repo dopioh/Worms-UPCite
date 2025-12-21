@@ -21,20 +21,22 @@ public class GamePanel extends JPanel {
     private final GroundModel model;  // Gardé pour compatibilité
     private BlockGridModel blockGridModel;  // système de terrain en blocs
     private final CameraModel camera;
-    private final TeamModel teamModel1;
-    private final TeamView teamView1;
-    private final TeamModel teamModel2;
-    private final TeamView teamView2;
+    private final CameraController cameraController; // Ajouté pour le timer
+
+    // Support pour N équipes - remplace les équipes hardcodées
+    private java.util.List<TeamModel> teamModels;
+    private java.util.List<TeamView> teamViews;
+
     private final TrajectoryRenderer trajectoryRenderer;
     private ItemController itemController;
 
     private JButton saveButton;
 
     private static final float PPM = 30f;
-    
+
     private BufferedImage groundTexture;
     private boolean blueprintMode = false; // active le background blueprint
-    
+
     // Vue pour dessiner les blocs
     private BlockGridView blockGridView;
 
@@ -42,21 +44,50 @@ public class GamePanel extends JPanel {
     private final JLabel roundTimerLabel = new JLabel("Temps restant : 30s");
 
     /**
+     * Constructeur pour N équipes (nouveau)
      * {@code setPreferredSize()} est essentiel sinon rien ne s'affiche
      */
     public GamePanel(GroundModel model,
-            CameraModel camera, CameraController cameraController, 
+            CameraModel camera, CameraController cameraController,
+            java.util.List<TeamModel> teamModels, java.util.List<TeamView> teamViews) {
+        this.model = model;
+        this.camera = camera;
+        this.cameraController = cameraController;
+        this.teamModels = new java.util.ArrayList<>(teamModels);
+        this.teamViews = new java.util.ArrayList<>(teamViews);
+        this.trajectoryRenderer = new TrajectoryRenderer();
+
+        // init BlockGridView
+        this.blockGridView = new BlockGridView();
+
+        initializePanel();
+    }
+
+    /**
+     * Constructeur pour 2 équipes (legacy - pour compatibilité)
+     * {@code setPreferredSize()} est essentiel sinon rien ne s'affiche
+     */
+    public GamePanel(GroundModel model,
+            CameraModel camera, CameraController cameraController,
             TeamModel teamModel1, TeamView teamView1, TeamModel teamModel2, TeamView teamView2) {
         this.model = model;
         this.camera = camera;
-        this.teamModel1 = teamModel1;
-        this.teamView1 = teamView1;
-        this.teamModel2 = teamModel2;
-        this.teamView2 = teamView2;
+        this.cameraController = cameraController;
+        this.teamViews.add(teamView1);
+        this.teamModels.add(teamModel2);
+        this.teamViews.add(teamView2);
         this.trajectoryRenderer = new TrajectoryRenderer();
-        
+
         // init BlockGridView
         this.blockGridView = new BlockGridView();
+
+        initializePanel();
+    }
+
+    /**
+     * Initialisation commune des composants du panel
+     */
+    private void initializePanel() {
 
         setPreferredSize(new Dimension(model.getWidth(), model.getHeight()));
         setLayout(null);
@@ -127,6 +158,18 @@ public class GamePanel extends JPanel {
      */
     public void setBlockGridModel(BlockGridModel blockGridModel) {
         this.blockGridModel = blockGridModel;
+    }
+
+    /**
+     * Ajoute une équipe au rendu (pour supporter N équipes dynamiquement)
+     * @param teamModel Le modèle de l'équipe
+     * @param teamView La vue de l'équipe
+     */
+    public void addTeam(TeamModel teamModel, TeamView teamView) {
+        if (teamModel != null && teamView != null) {
+            this.teamModels.add(teamModel);
+            this.teamViews.add(teamView);
+        }
     }
 
     /**
@@ -221,12 +264,10 @@ public class GamePanel extends JPanel {
             g2.fill(path);
         }
 
-        // Personnage
-        //personnageView.draw(g2, personnageModel);
-        
-        // Team de worms
-        teamView1.draw(g2, teamModel1);
-        teamView2.draw(g2, teamModel2);
+        // Équipes de worms (support N équipes)
+        for (int i = 0; i < teamModels.size() && i < teamViews.size(); i++) {
+            teamViews.get(i).draw(g2, teamModels.get(i));
+        }
 
         // Trajectoire de tir (Angry Birds style)
         trajectoryRenderer.draw(g2, null);

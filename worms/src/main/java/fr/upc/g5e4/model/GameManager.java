@@ -182,9 +182,17 @@ public class GameManager {
         // Contrôleur fusionné avec le worm actif
         this.imputController = new SwingInputController(activeWormController, cameraController);
 
-        // GamePanel avec tout ce qui est nécessaire
-        this.gamePanel = new GamePanel(model, camera, cameraController, teamModel1, teamView1, teamModel2, teamView2); 
-        
+        // Créer les listes d'équipes pour GamePanel (support N équipes)
+        java.util.List<TeamModel> teamModels = new java.util.ArrayList<>();
+        java.util.List<TeamView> teamViews = new java.util.ArrayList<>();
+        teamModels.add(teamModel1);
+        teamViews.add(teamView1);
+        teamModels.add(teamModel2);
+        teamViews.add(teamView2);
+
+        // GamePanel avec tout ce qui est nécessaire (support N équipes)
+        this.gamePanel = new GamePanel(model, camera, cameraController, teamModels, teamViews);
+
         // Passer le BlockGridModel au GamePanel pour le rendu en blocs
         this.gamePanel.setBlockGridModel(this.blockGridModel);
         
@@ -312,15 +320,17 @@ public class GameManager {
     /**
      * Ajoute une nouvelle équipe au jeu (pour supporter N équipes)
      * IMPORTANT: À appeler AVANT le démarrage du jeu
-     * 
+     *
      * @param team L'équipe à ajouter
      * @param view La vue correspondante de l'équipe
      */
     public void addTeam(TeamModel team, TeamView view) {
         if (team != null && view != null) {
             listTeamModel.add(team);
-            // Remarque: Les vues des équipes doivent être ajoutées manuellement au GamePanel
-            // car GamePanel a actuellement une structure codée en dur pour 2 équipes
+            // Ajouter aussi au GamePanel pour le rendu
+            if (gamePanel != null) {
+                gamePanel.addTeam(team, view);
+            }
             System.out.println("Équipe ajoutée: " + team.getTeamName() + " (Total: " + listTeamModel.size() + " équipes)");
         }
     }
