@@ -106,3 +106,9 @@
 
 ## [v.0.5 : SPRINT 4](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/4) (unreleased)
 ---
+
+### Added
+- DIAGRAMME.md : Diagramme d'architecture complet du projet
+    - Structure MVC détaillée avec interactions entre classes
+    - Flux de données expliqué simplement
+    - Documentation des 50+ classes principales
