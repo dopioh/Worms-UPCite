@@ -98,6 +98,14 @@
 - Nouveau systeme de map 
     - MAP en tableau 2D remplie d'objet "block"
 
+### Added
+- **Cinématique d'introduction** : Animation de présentation avant le début du combat
+    - Affichage des équipes participantes avec nombre de worms
+    - Présentation du terrain généré procéduralement
+    - Affichage des conditions météorologiques (vent)
+    - Animation avec effets de fade et transitions fluides
+    - Durée de 5 secondes avant lancement automatique du jeu
+
 ### Modified
 - Touche full screen F11 -> F
 - Support pour N équipes au lieu de 2 équipes hardcodées
