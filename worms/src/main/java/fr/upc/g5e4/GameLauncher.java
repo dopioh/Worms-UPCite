@@ -36,6 +36,7 @@ public class GameLauncher{
     private static final int DEFAULT_HEIGHT = 720;
     
     public static final String MENU_CARD = "menu";
+    public static final String CINEMATIC_CARD = "cinematic";
     public static final String GAME_CARD = "game";
 
     /**
@@ -122,21 +123,47 @@ public class GameLauncher{
     }
     
     /**
-     * Lance le jeu (initialise si nécessaire)
+     * Lance le jeu avec une cinématique d'introduction
      */
     public void startGame() throws IOException {
         // Initialiser le jeu si pas encore fait
         if (gameManager == null) {
             initializeGame();
         }
-        
+
+        // Lancer la cinématique d'introduction
+        startIntroCinematic();
+    }
+
+    /**
+     * Lance la cinématique d'introduction
+     */
+    private void startIntroCinematic() {
+        // Créer la vue de cinématique
+        IntroCinematicView cinematicView = new IntroCinematicView(
+            gameManager.getlistTeams(),
+            this::onCinematicEnd
+        );
+
+        // Ajouter la cinématique au card panel
+        cardPanel.add(cinematicView, CINEMATIC_CARD);
+
+        // Afficher la cinématique
+        cardLayout.show(cardPanel, CINEMATIC_CARD);
+    }
+
+    /**
+     * Callback appelée à la fin de la cinématique
+     */
+    private void onCinematicEnd() {
+        // Basculer vers le jeu
         cardLayout.show(cardPanel, GAME_CARD);
-        
+
         // Démarrer la game loop
         if (gameLoop != null) {
             gameLoop.timerStart();
         }
-        
+
         // Focus sur l'input controller
         if (gameManager != null && gameManager.getImputController() != null) {
             gameManager.getImputController().requestFocusInWindow();
