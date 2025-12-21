@@ -18,14 +18,18 @@ Ce document présente un diagramme complet des classes principales et leurs inte
 │   GameLauncher  │
 └─────────────────┘
          ↓
-┌─────────────────┐ ◄───► ┌─────────────────┐
-│   GameManager   │       │    GameLoop     │
-└─────────────────┘       └─────────────────┘
+┌─────────────────┐ ←─── ┌─────────────────┐
+│   GameManager   │      │    GameLoop     │
+└─────────────────┘      └─────────────────┘
          ↓
-    ┌─────────────┐
-    │ Controllers │ ◄───► │    Models     │ ◄───► │    Views     │
-    └─────────────┘       └─────────────┘       └─────────────┘
+    ┌─────────────┐ ──→ ┌─────────────┐ ←── ┌─────────────┐
+    │ Controllers │     │    Models  │     │    Views    │
+    └─────────────┘     └─────────────┘     └─────────────┘
 ```
+
+* GameLoop → GameManager : GameLoop appelle les updates de GameManager
+* Controllers → Models : Controllers modifient l'etat des Models  
+* Models → Views : Views lisent les donnees des Models pour l'affichage
 
 ---
 
@@ -88,24 +92,28 @@ Ce document présente un diagramme complet des classes principales et leurs inte
 
 ## Flux de Donnees Typique
 
+Imagine que tu appuies sur la fleche droite pour bouger ton worm. Voici ce qui se passe :
+
 ```mermaid
 graph TD
-    A[Entree utilisateur] --> B[Controller]
-    B --> C[GameManager]
-    C --> D[Models]
-    D --> E[PhysicsWorld]
-    E --> F[Views]
-    F --> G[GamePanel repaint]
-    G --> H[Affichage ecran]
+    A[Tu appuies fleche droite] --> B[Controller capte la touche]
+    B --> C[GameManager calcule le mouvement]
+    C --> D[Models changent la position]
+    D --> E[Physique applique gravite]
+    E --> F[Views preparent le dessin]
+    F --> G[GamePanel redessine l'ecran]
+    G --> H[Tu vois le worm bouger]
 ```
 
-### Sequence detaillee :
-1. **Entree** → SwingInputController detecte l'evenement
-2. **Controller** → Transmet a GameManager
-3. **Logique** → GameManager met a jour les Models
-4. **Physique** → GameLoop appelle PhysicsWorld.step()
-5. **Rendu** → GamePanel.paintComponent() dessine tout
-6. **Affichage** → Swing met a jour l'ecran
+### Exemple concret :
+1. **Tu appuies** sur une touche (ex: fleche droite)
+2. **Controller** detecte et dit "le joueur veut aller a droite"
+3. **GameManager** decide "OK, bouger le worm de 5 pixels a droite"
+4. **Models** mettent a jour la position du worm dans le code
+5. **Physique** verifie les collisions et applique la gravite
+6. **Views** calculent comment dessiner le worm a sa nouvelle position
+7. **GamePanel** efface l'ancien dessin et redessine tout
+8. **Ecran** affiche le worm a sa nouvelle position - tu le vois bouger !
 
 ## Architecture MVC Implementee
 
@@ -144,5 +152,5 @@ graph TD
 
 ---
 
-*Ce diagramme montre comment les 50+ classes du projet Worms s'articulent pour creer une experience de jeu coherente et extensible.*</content>
+*Ce diagramme montre comment les classes du projet Worms s'articulent pour creer une experience de jeu coherente et extensible.*</content>
 <parameter name="filePath">c:\Users\rilil\ECOLE\projet-worms\DIAGRAMME.md
