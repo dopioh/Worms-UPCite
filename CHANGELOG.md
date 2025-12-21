@@ -86,10 +86,23 @@
 ### Fixed
 - `.jar` injouable
 
-## [v.0.4 : SPRINT 3](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/3) (unreleased)
+--------- a completer ----------
+
+## [v.0.4 : SPRINT 4](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/4) (unreleased)
 ---
 
 ### Added
+- Nametag
+    - Affichage des itemes (potions...) sur le nametag
+- Nouveau systeme de map 
+    - MAP en tableau 2D remplie d'objet "block"
+
+### Modified
+- Nametag
+    - Affichage de HP et Shield en chiffre -> barre horizontale
+- `CONTRIBUTING.md`
+    - Guide d'utilisation sur le nametag
+- Touche full screen F11 -> F
 - Implémentation de la physique de recul sur les worms touchés
 
 ### Fixed
@@ -97,6 +110,3 @@
 - Emplacement overlay vent
 - Nouveau systeme de map 
     - MAP en tableau 2D remplie d'objet "block"
-
-### Modified
-- Touche full screen F11 -> F

@@ -267,6 +267,14 @@ public class GameManager {
         return this.teamModel2;
     }
     
+    public TeamView getTeamView1() {
+        return this.teamView1;
+    }
+    
+    public TeamView getTeamView2() {
+        return this.teamView2;
+    }
+    
     public int getActiveWormIndex() {
         return this.activeWormIndex;
     }

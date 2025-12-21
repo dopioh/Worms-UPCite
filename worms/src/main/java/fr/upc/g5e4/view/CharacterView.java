@@ -139,13 +139,8 @@ public class CharacterView {
         // Afficher le NameTag si le personnage est vivant
         nameTagView.setVisible(true);
         
-        String[] stats = {
-            model.getName(),
-            "HP: " + (int)model.getHealth() + "/100",
-            "Shield: " + (int)model.getShield(),
-        };
-        
-        nameTagView.drawMultiLine(g2d, model, stats);
+        // Utiliser le nouveau style de nametag
+        nameTagView.drawNewStyle(g2d, model);
     }
     
     // Getters et Setters
