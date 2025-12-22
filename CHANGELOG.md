@@ -98,8 +98,7 @@
 ### Added
 - Nametag
     - Affichage des itemes (potions...) sur le nametag
-
-Nouveau systeme de map 
+- Nouveau systeme de map 
     - MAP en tableau 2D remplie d'objet "block"
 **Diagramme de classes** : Ajout et documentation du diagramme de classes du projet (GameManager, GameLoop, GamePanel, etc.)
 
@@ -116,7 +115,6 @@ Nouveau systeme de map
 - Emplacement overlay vent
 - Nouveau systeme de map 
     - MAP en tableau 2D remplie d'objet "block"
-<<<<<<< HEAD
 
 ### Modified
 - Nametag
@@ -133,6 +131,4 @@ Nouveau systeme de map
     - MAP en tableau 2D remplie d'objet "block"
     - Structure MVC détaillée avec interactions entre classes
     - Flux de données expliqué simplement
-    - Documentation des 50+ classes principales
-=======
->>>>>>> origin/dev
+    - Documentation des classes principales
