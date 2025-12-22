@@ -41,6 +41,30 @@ public class GameLoop{
                 if (gameManager.getActiveWormController() != null) {
                     gameManager.getActiveWormController().update();
                 }
+                
+                // stopper le mouvement horizontal des worms non-actifs pour qu'ils ne glissent pas
+                // a modifier pour n-equipe
+                TeamModel team1 = gameManager.getTeamModel1();
+                TeamModel team2 = gameManager.getTeamModel2();
+                int activeWormIndex = gameManager.getActiveWormIndex();
+                TeamModel activeTeam = (gameManager.getCurrentTeamIndex() == 0) ? team1 : team2;
+                
+                // Parcourir tous les worms des deux équipes
+                for (int i = 0; i < team1.getWormNumberAtStart(); i++) {
+                    CharacterModel worm = team1.getWorm(i);
+                    // stopper le mouvement horizontal si ce n'est pas le worm actif
+                    if (worm != null && !worm.isDead() && !(activeTeam == team1 && i == activeWormIndex)) {
+                        worm.stopHorizontalMovement();
+                    }
+                }
+                for (int i = 0; i < team2.getWormNumberAtStart(); i++) {
+                    CharacterModel worm = team2.getWorm(i);
+                    // stopper le mouvement horizontal si ce n'est pas le worm actif
+                    if (worm != null && !worm.isDead() && !(activeTeam == team2 && i == activeWormIndex)) {
+                        worm.stopHorizontalMovement();
+                    }
+                }
+                
                 gameManager.getWorld().step(FIXHZ,8,3);
                 gamePanel.repaint();
 

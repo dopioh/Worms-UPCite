@@ -257,9 +257,8 @@ public class CharacterModel{
      */
     public void stopHorizontalMovement() {
         Vec2 vel = persoBody.getLinearVelocity();
-        // on garde seulement la vélocité verticale si on tombe
-        float keepY = vel.y < 0 ? vel.y : 0;
-        persoBody.setLinearVelocity(new Vec2(0, keepY));
+        // on garde toute la vélocité verticale (saut et chute)
+        persoBody.setLinearVelocity(new Vec2(0, vel.y));
     }
     
     /**

@@ -121,13 +121,13 @@ public class GameManager {
         int wormNumber = 3; 
         // Team1 regarde vers la droite
         this.teamModel1 = new TeamModel(model, world, "Team1", 100, 80, wormNumber, false, true, false);
-        this.teamView1 = new TeamView(wormNumber, Color.BLUE, "/worm.png", true);
+        this.teamView1 = new TeamView(wormNumber, Color.BLUE, "/worm222.png", true);
         listTeamModel.add(teamModel1);
 
         // création seconde equipe
         // Team2 regarde vers la gauche (face à Team1)
         this.teamModel2 = new TeamModel(model, world, "Team2", 2100, 50, wormNumber, false, false, false);  
-        this.teamView2 = new TeamView(wormNumber, Color.RED, "/worm.png", false);
+        this.teamView2 = new TeamView(wormNumber, Color.RED, "/worm222.png", false);
         listTeamModel.add(teamModel2);
         
         // Créer une liste de tous les worms pour le WaterSensorListener
