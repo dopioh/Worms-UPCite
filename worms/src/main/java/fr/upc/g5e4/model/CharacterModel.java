@@ -260,13 +260,6 @@ public class CharacterModel{
         // on garde toute la vélocité verticale (saut et chute)
         persoBody.setLinearVelocity(new Vec2(0, vel.y));
     }
-    
-    /**
-     * Arrête complètement tout mouvement
-     */
-    public void stopAllMovement() {
-        persoBody.setLinearVelocity(new Vec2(0, 0));
-    }
 
     public void setEquippedItem(InventoryJson item){
         this.equippedItem = item;
