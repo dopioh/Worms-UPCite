@@ -113,6 +113,8 @@
 - Nouveau systeme de map 
     - MAP en tableau 2D remplie d'objet "block"
 - **N equipes** fonctionnelles desormais (2 auparavant)
+- Retour aux mouvements originaux
+- Retour du saut (avec Z)
 
 ### Optimisation
 - **Performance**

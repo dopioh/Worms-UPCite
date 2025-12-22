@@ -41,6 +41,22 @@ public class GameLoop{
                 if (gameManager.getActiveWormController() != null) {
                     gameManager.getActiveWormController().update();
                 }
+                
+                // stopper le mouvement horizontal des worms non-actifs pour qu'ils ne glissent pas
+                int activeWormIndex = gameManager.getActiveWormIndex();
+                TeamModel activeTeam = gameManager.getCurrentTeam();
+                
+                ArrayList<TeamModel> allTeams = gameManager.getlistTeams();
+                for (TeamModel team : allTeams) {
+                    for (int i = 0; i < team.getWormNumberAtStart(); i++) {
+                        CharacterModel worm = team.getWorm(i);
+                        // stopper le mouvement horizontal si ce n'est pas le worm actif
+                        if (worm != null && !worm.isDead() && !(activeTeam == team && i == activeWormIndex)) {
+                            worm.stopHorizontalMovement();
+                        }
+                    }
+                }
+                
                 gameManager.getWorld().step(FIXHZ,8,3);
 
                 /* -> Pas une javadoc puisque javadoc peut pas documenter des variables locale 
