@@ -6,8 +6,8 @@ import fr.upc.g5e4.view.*;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.util.ArrayList;
-import java.util.Random;
+//import java.util.ArrayList;
+//import java.util.Random;
 
 import org.jbox2d.dynamics.*;
 
@@ -21,8 +21,6 @@ public class TeamInitialisation {
 
     private TeamView teamView;
 
-    private int direction = 0;
-
     private Color color;
 
     private static int COLORTEAM = 0;
@@ -30,18 +28,28 @@ public class TeamInitialisation {
     private String name;
 
     
-    private static int SPACING = 50;
+    private static int SPACING = 30;
     public static int[] alreadyUsed = new int[5];
     
     // Prendre le minimum de data necessaire en parametre
     // le reste sera initialise avec Random
     // creer un constructeur sans startX plus tard
+    /**
+     * Initialise une instance qui creer un teamModel et TeamView ensemble
+     * @param groundModel terrain model
+     * @param world physique du jeu
+     * @param teamName // nom de l'equipe
+     * @param teamNumber nombre de worms par equipe (doit etre le meme pour toutes les equipes)
+     * @param startX // position d'initialisation
+     */
     public TeamInitialisation(GroundModel groundModel,World world,String teamName, int teamNumber, int startX){
+        //System.out.println("Nombre de worms pour " + teamName + "est de : " + teamNumber);
         boolean facingRight = (startX < groundModel.getWidth() / 2);
         this.name = teamName;
         colorGiving();
         teamModel = new TeamModel(groundModel, world, name, startX, SPACING, teamNumber, false, facingRight, false);
         teamView = new TeamView(teamNumber,color, "/worm.png", facingRight);
+        SPACING += 5; // pour que si il y'a plus de 2 equipes, les worms ne se superposent pas
     }
 
     public TeamModel getTeamModel(){
@@ -55,17 +63,6 @@ public class TeamInitialisation {
     public String getName(){
         return this.name;
     }
-    
-    /*
-    public boolean directionTeam(){
-        if (direction%2 == 0){  // Nombre Pair = Droite
-            direction++;
-            return true;
-        }
-        direction++;
-        return false;
-    }
-     */
 
     public void colorGiving(){
 

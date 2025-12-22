@@ -40,7 +40,7 @@ public class GameLauncher{
             game.setTitle("Prototype");
             game.setSize(sizeX,sizeY);         
 
-            this.gameManager = new GameManager(10);
+            this.gameManager = new GameManager(4);
             this.gamePanel = gameManager.getGamePanel();
 
             /* ------------------------ Partie Overlay Inventaire --------------------------------- */
@@ -113,7 +113,7 @@ public class GameLauncher{
             this.gameLoop.timerStart();
         }
         else{
-            this.gameManager = new GameManager(10);
+            this.gameManager = new GameManager(4);
             this.gamePanel = gameManager.getGamePanel();
             this.gameLoop = new GameLoop(gameManager);
             this.gameLoop.timerStart();
