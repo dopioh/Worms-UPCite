@@ -104,6 +104,8 @@
   - Particules et effets visuels
   - Bouton retour au menu
   - Support du plein écran
+  - Support du N equipe
+  - Stat box glissable avec scroll
 - Système de statistiques pour tracker des actions pendant la partie
 - Endroit pour stocker les paramètres du jeu
     - `current_skin`
