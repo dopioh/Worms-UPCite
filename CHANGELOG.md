@@ -96,6 +96,15 @@
     - Affichage des itemes (potions...) sur le nametag
 - Nouveau systeme de map 
     - MAP en tableau 2D remplie d'objet "block"
+- Écran de fin de partie avec animation
+  - Animation des worms gagnants marchant vers le trophée
+  - Affichage des statistiques de jeu (dégâts, précision de tir, éliminations, rounds joué)
+  - Particules et effets visuels
+  - Bouton retour au menu
+  - Support du plein écran
+- Système de statistiques pour tracker des actions pendant la partie
+- Endroit pour stocker les paramètres du jeu
+    - `current_skin`
 
 ### Modified
 - Nametag
