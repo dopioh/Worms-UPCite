@@ -60,7 +60,7 @@ public class GameLoop{
 
                 // si le worm actif est mort -> passer immédiatement au round suivant
                 try {
-                    TeamModel currentTeam = (gameManager.getCurrentTeamIndex() == 0) ? gameManager.getTeamModel1() : gameManager.getTeamModel2();
+                    TeamModel currentTeam = gameManager.getCurrentTeam();
                     int activeIndex = gameManager.getActiveWormIndex();
                     if (activeIndex >= 0 && activeIndex < currentTeam.getWormNumberAtStart()) {
                         CharacterModel activeWorm = currentTeam.getWorm(activeIndex);
@@ -86,6 +86,7 @@ public class GameLoop{
                     roundTimeRemaining = 1800;      // reset
                     gamePanel.setRoundTimer(30);    // reset affichage
                 }
+                
                 
                 gamePanel.repaint();
             }

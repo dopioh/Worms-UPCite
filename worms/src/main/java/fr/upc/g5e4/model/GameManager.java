@@ -41,25 +41,31 @@ public class GameManager {
     private CameraModel camera; // AJOUT RAPHAËL
     private CameraController cameraController; // AJOUT RAPHAËL
 
-    // Team Model : (on peut en mettre autant qu'on veut)
-    private final TeamModel teamModel1;
-    private final TeamView teamView1;
-    private final TeamModel teamModel2;  
-    private final TeamView teamView2;
+    // Team Initialisation = Team Model + Team View
+    private ArrayList<TeamInitialisation> listTeamInital;
+
+    private int currentTeamIndex;
 
     private ArrayList<TeamModel> listTeamModel;
+
+    private int nbrTeams = 0;
 
     //private TeamModel[] teamModelsTab; // dit combien on a d'equipe
 
     private final ItemController itemController;
     private final CharacterModel[] allWorms;
+
     private int activeWormIndex;
     private CharacterController activeWormController;
+    private int[] teamCursor; // stock l'index du dernier worm jouee pour chaque equipe 
+
+    private TeamModel currentTeam;
+
     private int currentWeaponIndex = 0;  // 0=AK47, 1=Baseball, 2=Grenade, 3=Rocket    
 
     // ajout minimal: gestion des rounds
     private int roundNumber = 1;
-    private int currentTeamIndex = 0; // 0 = Team1, 1 = Team2
+    //private int currentTeamIndex = 0; // 0 = Team1, 1 = Team2
 
     // Timer : 
     private int roundTimeRemaining = 1800;
@@ -79,7 +85,7 @@ public class GameManager {
      * @see GameLauncher
      * @see PhysicsWorld#createGroundFromModel()
      */
-    public GameManager() {
+    public GameManager(int nbrEquipe) {
         int sizeX = 2400;  // Taille du terrain
         int sizeY = 720;
         
@@ -110,44 +116,69 @@ public class GameManager {
         physic.limitPanel(model);
 
         // Initialisation liste d'equipes : 
-        this.listTeamModel = new ArrayList<>();
+        //this.listTeamModel = new ArrayList<>();
+        //this.listTeamInital = new ArrayList<>();
 
         // création premiere equipe
-        int wormNumber = 3; 
+        //int wormNumber = 3; 
         // Team1 regarde vers la droite
+        this.listTeamModel = new ArrayList<>();
+        this.listTeamInital = new ArrayList<>();
+        createTeam(nbrEquipe);
+        currentTeamIndex = 0;
+
+        this.currentTeam = listTeamInital.get(currentTeamIndex).getTeamModel();
+
+        this.teamCursor = new int[nbrEquipe];
+
+        /* 
+
+        -> Creation d'equipe individuelle 
+
         this.teamModel1 = new TeamModel(model, world, "Team1", 100, 80, wormNumber, false, true, false);
         this.teamView1 = new TeamView(wormNumber, Color.BLUE, "/worm.png", true);
         listTeamModel.add(teamModel1);
+
+
 
         // création seconde equipe
         // Team2 regarde vers la gauche (face à Team1)
         this.teamModel2 = new TeamModel(model, world, "Team2", 2100, 50, wormNumber, false, false, false);  
         this.teamView2 = new TeamView(wormNumber, Color.RED, "/worm.png", false);
         listTeamModel.add(teamModel2);
+
+        */
         
         // Créer une liste de tous les worms pour le WaterSensorListener
         ArrayList<CharacterModel> allWorms = new ArrayList<>();
-        for (int i = 0; i < wormNumber; i++) {
-            allWorms.add(teamModel1.getWorm(i));
-            allWorms.add(teamModel2.getWorm(i));
+        for (int i = 0; i < listTeamInital.size(); i++) {
+            for (int j = 0 ; j < listTeamInital.get(i).getTeamModel().getTabWorms().length; j++){
+                allWorms.add(listTeamInital.get(i).getTeamModel().getTabWorms()[j]);
+            }
         }
         
         this.wSL = physic.new WaterSensorListener(water, allWorms, new ArrayList<CharacterModel>());
         world.setContactListener(wSL);
         
-        // ON JOUE LES BLEUS PAR DEFAUT
-        // Le premier worm du tableau est le worm qu'on controle au debut
+        // N equipe modif
         this.activeWormIndex = 0;
-        this.activeWormController = new CharacterController(teamModel1.getWorm(activeWormIndex));
+        this.activeWormController = new CharacterController(listTeamInital.get(currentTeamIndex).getTeamModel().getWorm(activeWormIndex));
         
         // Initialisation du système de tir
         this.itemController = new ItemController(new ItemView());
         this.itemController.setWorld(world);
         
-        // Créer un tableau de tous les worms (équipe 1 + équipe 2)
+        // Créer un tableau de tous les worms (N equipes)
+        this.allWorms = new CharacterModel[allWorms.size()];
+        for (int i = 0 ; i < this.allWorms.length ; i++){
+            this.allWorms[i] = allWorms.get(i);
+        }
+
+        /*
         this.allWorms = new CharacterModel[teamModel1.getTabWorms().length + teamModel2.getTabWorms().length];
         System.arraycopy(teamModel1.getTabWorms(), 0, this.allWorms, 0, teamModel1.getTabWorms().length);
         System.arraycopy(teamModel2.getTabWorms(), 0, this.allWorms, teamModel1.getTabWorms().length, teamModel2.getTabWorms().length);
+        */
         
         this.itemController.setAllWorms(this.allWorms);
         activeWormController.setItemController(this.itemController);
@@ -158,7 +189,7 @@ public class GameManager {
         activeWormController.setCurrentWeapon(new Ak47());
         
         // Initialisation caméra avec le worm actif (fenêtre 1280x720, terrain 6000x720)
-        this.cameraController = new CameraController(camera, teamModel1.getWorm(activeWormIndex));
+        this.cameraController = new CameraController(camera,listTeamInital.get(currentTeamIndex).getTeamModel().getWorm(activeWormIndex));
         
         // Centrer la caméra sur le worm actif au démarrage
         this.cameraController.centerOnCharacter();
@@ -167,7 +198,7 @@ public class GameManager {
         this.imputController = new SwingInputController(activeWormController, cameraController);
 
         // GamePanel avec tout ce qui est nécessaire
-        this.gamePanel = new GamePanel(model, camera, cameraController, teamModel1, teamView1, teamModel2, teamView2); 
+        this.gamePanel = new GamePanel(model, camera, cameraController, listTeamInital); 
         
         // Passer l'ItemController au GamePanel pour dessiner les projectiles
         this.gamePanel.setItemController(this.itemController);
@@ -230,14 +261,6 @@ public class GameManager {
         return this.camera;
     }
     
-    public TeamModel getTeamModel1() {
-        return this.teamModel1;
-    }
-
-    public TeamModel getTeamModel2() {
-        return this.teamModel2;
-    }
-    
     public int getActiveWormIndex() {
         return this.activeWormIndex;
     }
@@ -255,8 +278,12 @@ public class GameManager {
     }
 
     public ArrayList<TeamModel> getlistTeams(){
-        System.out.print(listTeamModel.toString()); // pq ca affiche [] ?
+        System.out.print(listTeamModel.toString()); 
         return listTeamModel;
+    }
+
+    public ArrayList<TeamInitialisation> getListTeamInit(){
+        return listTeamInital;
     }
 
     public int getRoundTimeRemaining(){
@@ -270,95 +297,60 @@ public class GameManager {
         this.roundTimeSave = time;
     }
 
-    /**
-     * switch le worm actif vers le suivant dans l'équipe
-     * saute les worms morts
-     * TOUT CE PASSE SUR TEAM 1 POUR LE MOMENT (a rendre dynamique avec l'ajout des rounds)
-     */
-    public void switchToNextWorm() {
-        int startIndex = activeWormIndex;
-        do {
-            activeWormIndex++;
-            if (activeWormIndex >= teamModel1.getWormNumberAtStart()) {
-                activeWormIndex = 0; // Retour au début
-            }
-            CharacterModel worm = teamModel1.getWorm(activeWormIndex);
-            
-            if (worm != null && !worm.isDead()) {
-                // si le nouveau worm existe et n'est pas mort alors c'est le nouveau actif
-                // => on attache le worm a la camera et a son controller
-                activeWormController = new CharacterController(worm);
-                
-                // Initialiser le système de tir pour le nouveau worm
-                activeWormController.setItemController(this.itemController);
-                activeWormController.setWorld(world);
-                activeWormController.setAllWorms(this.allWorms);
-                activeWormController.setCurrentWeapon(new Ak47());
-                
-                imputController.setCharacterController(activeWormController);
-                cameraController.setTargetCharacter(worm);
-                cameraController.centerOnCharacter();
-                
-                // mettre à jour la trajectoire avec le nouveau worm et son arme
-                gamePanel.getTrajectoryRenderer().setShooter(worm);
-                gamePanel.getTrajectoryRenderer().setWeapon(activeWormController.getCurrentWeapon());
-                
-                // Réappliquer les listeners de souris pour le nouveau worm
-                //gamePanel.addMouseListeners(activeWormController);
-                return;
-            }
-            
-            // si on est revenu au worm de départ alors il n'y a plus de worm vivant donc on ne peut plus controller
-            if (activeWormIndex == startIndex) {
-                System.out.println("Aucun worm vivant disponible...");
-                return;
-            }
-        } while (true);
+    public TeamModel getCurrentTeam(){
+        return this.currentTeam;
     }
-    
+
+
     // switch généralisé pour une équipe donnée
     public void switchToNextWorm(TeamModel team) {
-        int startIndex = activeWormIndex;
-        do {
-            activeWormIndex++;
-            if (activeWormIndex >= team.getWormNumberAtStart()) {
-                activeWormIndex = 0; // Retour au début dans l'équipe passée en paramètre
-            }
-            CharacterModel worm = team.getWorm(activeWormIndex);
+    int cursor = teamCursor[currentTeamIndex];
+    int startIndex = cursor;
+    int wormCount = team.getWormNumberAtStart();
+    
+    do {
+        cursor = (cursor + 1) % wormCount; // Boucle correctement
+        
+        CharacterModel worm = team.getWorm(cursor);
+        
+        if (worm != null && !worm.isDead()) {
+            // Sauvegarder le nouveau curseur pour cette équipe
+            teamCursor[currentTeamIndex] = cursor;
+            this.activeWormIndex = cursor;
+            
+            activeWormController = new CharacterController(worm);
+            activeWormController.setItemController(this.itemController);
+            activeWormController.setWorld(world);
+            activeWormController.setAllWorms(this.allWorms);
+            activeWormController. setCurrentWeapon(new Ak47());
 
-            if (worm != null && !worm.isDead()) {
-                activeWormController = new CharacterController(worm);
-                activeWormController.setItemController(this.itemController);
-                activeWormController.setWorld(world);
-                activeWormController.setAllWorms(this.allWorms);
-                activeWormController.setCurrentWeapon(new Ak47());
-
-                imputController.setCharacterController(activeWormController);
-                cameraController.setTargetCharacter(worm);
-                cameraController.centerOnCharacter();
-                
-                // mettre à jour la trajectoire avec le nouveau worm et son arme
-                gamePanel.getTrajectoryRenderer().setShooter(worm);
-                gamePanel.getTrajectoryRenderer().setWeapon(activeWormController.getCurrentWeapon());
-                
-                return;
-            }
-
-            if (activeWormIndex == startIndex) {
-                System.out.println("Aucun worm vivant disponible...");
-                return;
-            }
-        } while (true);
-    }
+            imputController.setCharacterController(activeWormController);
+            cameraController.setTargetCharacter(worm);
+            cameraController.centerOnCharacter();
+            
+            gamePanel.getTrajectoryRenderer().setShooter(worm);
+            gamePanel. getTrajectoryRenderer().setWeapon(activeWormController.getCurrentWeapon());
+            
+            return;
+        }
+        
+        if (cursor == startIndex) {
+            System.out.println("Aucun worm vivant disponible dans cette équipe.. .");
+            return;
+        }
+    } while (true);
+}
 
     // passe au round suivant et alterne les équipes
     public void nextRound() {
-        roundNumber++;
-        currentTeamIndex = (currentTeamIndex + 1) % 2;
-        TeamModel currentTeam = (currentTeamIndex == 0) ? teamModel1 : teamModel2;
-        switchToNextWorm(currentTeam);
-        System.out.println("Round " + roundNumber + " - Equipe active : " + (currentTeamIndex == 0 ? "Team1" : "Team2"));
+    roundNumber++;
+    currentTeamIndex = (currentTeamIndex + 1) % listTeamInital. size(); // Plus simple et clair
+    currentTeam = listTeamInital.get(currentTeamIndex).getTeamModel();
+    
+    switchToNextWorm(currentTeam);
+    System.out.println("Round " + roundNumber + " - Equipe active :  Team " + (currentTeamIndex + 1));
     }
+
     
     /**
      * Change l'arme équipée du worm actif (cycliquement)
@@ -394,6 +386,28 @@ public class GameManager {
             gamePanel.getTrajectoryRenderer().setWeapon(newWeapon);
         }
     }
+
+    // Initialiser un nombre N d'equipes
+    public void createTeam(int number){
+    int mapWidth = model.getWidth();
+    int margin = 100; // Marge pour ne pas spawner au bord
+    int usableWidth = mapWidth - (2 * margin); // Espace utilisable
+    int sectionWidth = usableWidth / (number + 1); // +1 pour répartir uniformément
+
+    for (int i = 0; i < number; i++){
+        this.nbrTeams++;
+
+        // Répartir les équipes uniformément sur la map
+        int startX = margin + sectionWidth * (i + 1);
+
+        String name = "Team " + this.nbrTeams;
+
+        TeamInitialisation temp = new TeamInitialisation(model, world, name, this.nbrTeams, startX);
+    
+        listTeamInital.add(temp);
+        listTeamModel.add(temp.getTeamModel());
+    }
+}
 
     // SAUVEGARDE :
 
@@ -460,5 +474,9 @@ public class GameManager {
     public void actionPerformed(){
         save();
         //System.out.println("JSON Creer");
+    }
+
+    public int teamIndex(int i){
+        return i % listTeamInital.size();
     }
 }

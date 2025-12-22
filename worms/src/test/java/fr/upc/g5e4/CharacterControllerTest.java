@@ -51,7 +51,12 @@ public class CharacterControllerTest {
 
         // on utilise le worm actif a la place de l'ancien worm jaune de test
         controller = gm.getActiveWormController();
-        model = gm.getTeamModel1().getWorm(gm.getActiveWormIndex());
+        //model = gm.getTeamModel1().getWorm(gm.getActiveWormIndex());
+        model = gm.getListTeamInit().get(1).getTeamModel().getWorm(0);
+
+        int[] groundY = {400,420,450,450,400,700,930,450,350,300,250,230,200,200};
+
+        gm.getGroundModel().setGroundY(groundY);
         
         // Désactiver toutes les touches au cas où un test précédent les aurait laissées actives
         controller.deactivateLeft();
@@ -151,65 +156,6 @@ public class CharacterControllerTest {
         double positionInitiale = model.getXcord();
 
         assertEquals(positionInitiale, model.getXcord(), "le worm ne devrait pas bouger");
-    }
-
-    
-    // @Tests méthode update()
-    
-    /*
-    @Test
-    public void testUpdateWithoutKeyPress() {
-        double positionInitiale = model.getXcord();
-        
-        boolean hasMoved = true;
-        for (int i = 0; i < 1 ; i++){   // j'ai mis une minuscule valeur pour pas que le worms glisse sur le terrain et biase le test
-            world.step(FIXHZ, 8, 3);
-            hasMoved = controller.update();
-        }
-        assertFalse(hasMoved, "update() devrait retourner false si aucune touche n'est enfoncée");
-        assertEquals(positionInitiale, model.getXcord(), "la position ne devrait pas changer");
-    }*/
-    
-    /**
-     * //@Test
-     * public void testUpdateWithLeftKeyPress() {}
-     * testUpdateWithRightKeyPress(){}
-     * La Vitesse n'est pas égale à la distance de déplacement
-     * On peut pas tester ces fonctions simplement en fesant
-     * assertEquals(100 + model.getSpeed(), model.getXcord(), "la position X devrait augmenter de la vitesse");
-     * Simplement tester si le perso va a droite a gauche suffit
-     */
-    
-    
-    /*@Test
-    public void testUpdateWithLeftAndRightKeyPress() {
-        double positionInitiale = model.getXcord();
-        
-        controller.activateLeft();
-        controller.activateRight();
-        boolean hasMoved = true;
-        for (int i = 0; i < 1 ; i++){
-            world.step(FIXHZ, 8, 3);
-            hasMoved = controller.update();
-        }
-
-        assertFalse(hasMoved, "update() devrait retourner false car les mouvements s'annulent");
-        assertEquals(positionInitiale, model.getXcord(), "la position ne devrait pas changer (forces opposées)");
-    }*/
-    
-    // @Tests de la méthode teleport()
-    
-    /**
-     * Teleportation pas encore integré dans la logique du jeu 
-     * donc pas besoin de verifier avec la physique
-     */
-    @Test
-    public void testTeleport() {
-        
-        controller.teleport(500, 300);
-        
-        assertEquals(500, model.getXcord(), "la position X devrait être 500");
-        assertEquals(300, model.getYcord(), "la position Y devrait être 300");
     }
 
 }

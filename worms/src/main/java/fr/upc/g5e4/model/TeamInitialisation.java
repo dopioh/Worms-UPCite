@@ -5,6 +5,7 @@ import fr.upc.g5e4.view.*;
 //import fr.upc.g5e4.model.*;
 
 import java.awt.Color;
+import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -24,21 +25,31 @@ public class TeamInitialisation {
 
     private Color color;
 
+    private static int COLORTEAM = 0;
+
     
     private static int SPACING = 50;
-    public static ArrayList<Integer> alreadyUsed;
+    public static int[] alreadyUsed = new int[5];
     
     // Prendre le minimum de data necessaire en parametre
     // le reste sera initialise avec Random
     // creer un constructeur sans startX plus tard
-    public TeamInitialisation(GroundModel groundModel,World world,String teamName, int startX, int teamNumber){
-        boolean d = directionTeam();
-        int s = this.startX(groundModel);
-        RandomColor();
-        teamModel = new TeamModel(groundModel, world, teamName, s, SPACING, teamNumber, false, d, false);
-        teamView = new TeamView(teamNumber,color , "/worm.png", d);
+    public TeamInitialisation(GroundModel groundModel,World world,String teamName, int teamNumber, int startX){
+        boolean facingRight = (startX < groundModel.getWidth() / 2);
+        colorGiving();
+        teamModel = new TeamModel(groundModel, world, teamName, startX, SPACING, teamNumber, false, facingRight, false);
+        teamView = new TeamView(teamNumber,color, "/worm.png", facingRight);
     }
 
+    public TeamModel getTeamModel(){
+        return teamModel;
+    }
+
+    public TeamView getTeamView(){
+        return teamView;
+    }
+    
+    /*
     public boolean directionTeam(){
         if (direction%2 == 0){  // Nombre Pair = Droite
             direction++;
@@ -47,25 +58,15 @@ public class TeamInitialisation {
         direction++;
         return false;
     }
+     */
 
-    public int startX(GroundModel groundModel){
-        if (directionTeam()){
-            return groundModel.getWidth()/4;
+    public void colorGiving(){
+
+        if (COLORTEAM >= 5){
+            COLORTEAM = 0;
         }
-        return groundModel.getWidth() - 100;
-    }
 
-    public void RandomColor(){
-        Integer nbr;
-    
-        do {
-            Random random = new Random(5); // 0,1,2,3,4 Normalement
-            nbr = random.nextInt();
-            System.out.println("nbr random : " + nbr);
-
-        } while (alreadyUsed.contains(nbr));
-
-        switch (nbr) {
+        switch (COLORTEAM) {
             case 0:
                 this.color = Color.RED;
                 break;
@@ -82,5 +83,10 @@ public class TeamInitialisation {
                 this.color = Color.YELLOW;
                 break;
         }
+        COLORTEAM++;
+    }
+
+    public void draw(Graphics2D gd){
+        teamView.draw(gd, teamModel);
     }
 }

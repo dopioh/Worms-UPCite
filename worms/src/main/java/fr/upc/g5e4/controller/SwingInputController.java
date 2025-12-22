@@ -112,7 +112,7 @@ public class SwingInputController extends JPanel{
                     case KeyEvent.VK_A:
                         if(gameManager != null) gameManager.nextRound();
                         break;
-                    
+
                     // Changement d'arme (touche E)
                     case KeyEvent.VK_E:
                         if(gameManager != null) gameManager.switchWeapon();
