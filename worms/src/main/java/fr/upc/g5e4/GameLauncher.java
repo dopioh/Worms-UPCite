@@ -193,8 +193,21 @@ public class GameLauncher{
             gameManager.getCamera().setViewSize(width, height);
         }
         
-        // Créer la game loop
+        // Créer et démarrer la game loop
         this.gameLoop = new GameLoop(gameManager);
+        this.gameLoop.timerStart();
+        
+        // Timer pour vérifier la fin de partie
+        Timer checkGameOverTimer = new Timer(1000, e -> {
+            if (gameLoop != null && gameLoop.isGameOver()) {
+                String winner = gameLoop.getWinner();
+                if (winner != null) {
+                    ((Timer)e.getSource()).stop();
+                    showEndGameScreen(winner);
+                }
+            }
+        });
+        checkGameOverTimer.start();
     }
 
     private java.util.List<InventoryModel.InventoryJson> copyInventory(java.util.List<InventoryModel.InventoryJson> src) {
@@ -309,6 +322,10 @@ public class GameLauncher{
     public JFrame getMainFrame() {
         return mainFrame;
     }
+    
+    public JPanel getCardPanel() {
+        return cardPanel;
+    }
 
     
     public GameManager getGameManager(){
@@ -317,6 +334,47 @@ public class GameLauncher{
 
     public GameLoop getGameLoop(){
         return this.gameLoop;
+    }
+    
+    /**
+     * Affiche l'écran de fin de partie avec animation
+     */
+    private void showEndGameScreen(String winnerName) {
+        SwingUtilities.invokeLater(() -> {
+            TeamModel winningTeam;
+            TeamView winningTeamView;
+            
+            if (winnerName.equals("Team1")) {
+                winningTeam = gameManager.getTeamModel1();
+                winningTeamView = gameManager.getTeamView1();
+            } else {
+                winningTeam = gameManager.getTeamModel2();
+                winningTeamView = gameManager.getTeamView2();
+            }
+            
+            EndGameController endGameController = new EndGameController(this);
+            endGameController.showEndGameScreen(
+                winningTeam, 
+                winningTeamView, 
+                winnerName,
+                gameManager.getAllTeamStats()
+            );
+        });
+    }
+
+    public void resetGame() {
+        if (gameLoop != null) {
+            gameLoop.timerStop();
+        }
+        this.gameManager = null;
+        this.gamePanel = null;
+        this.gameLoop = null;
+        this.inventoryOverlay = null;
+        this.windOverlay = null;
+        if (gameLayeredPane != null) {
+            gameLayeredPane.removeAll();
+            gameLayeredPane.repaint();
+        }
     }
 
     public static void main(String[] args) throws IOException{
