@@ -110,3 +110,9 @@
 - Emplacement overlay vent
 - Nouveau systeme de map 
     - MAP en tableau 2D remplie d'objet "block"
+
+### Optimisation
+- **Performance**
+    - Suppression du double `repaint()` et pré-création d'objets graphiques réutilisables (couleurs, strokes) pour réduire les allocations mémoire
+    - Pré-création d'objets graphiques réutilisables
+- **Lag Audio** : Système de cache avec pré-chargement des sons en mémoire et lecture asynchrone pour éliminer le lag au premier tir
