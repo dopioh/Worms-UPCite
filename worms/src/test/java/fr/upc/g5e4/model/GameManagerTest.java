@@ -21,7 +21,7 @@ public class GameManagerTest {
     
     @BeforeEach
     void setUp() {
-        gameManager = new GameManager(10);
+        gameManager = new GameManager(2); // on test pour 2 equipes ici
         // Create a mock inventory list for testing
         List<InventoryModel.InventoryJson> mockInventory = new ArrayList<>();
         mockInventoryOverlay = new InventoryOverlay(mockInventory);

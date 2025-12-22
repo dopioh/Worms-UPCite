@@ -7,7 +7,7 @@ import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 
 import fr.upc.g5e4.model.InventoryModel.*;
-import fr.upc.g5e4.model.console.ConsoleLauncher;
+//import fr.upc.g5e4.model.console.ConsoleLauncher;
 import fr.upc.g5e4.view.*;
 import fr.upc.g5e4.controller.*;
 import fr.upc.g5e4.model.*; 
