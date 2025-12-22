@@ -286,7 +286,6 @@ public class GameManager {
 
 
     public ArrayList<TeamModel> getlistTeams(){
-        System.out.print(listTeamModel.toString()); 
         return listTeamModel;
     }
 

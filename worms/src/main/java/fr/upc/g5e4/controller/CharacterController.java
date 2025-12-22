@@ -112,6 +112,8 @@ public class CharacterController {
         SpaceKeyPressed = false;
     }
     
+    // Vitesse maximale horizontale (en m/s)
+    private static final float MAX_HORIZONTAL_SPEED = 3.3f;
     
     /**
      * @return true si le worm a bougé, false sinon
@@ -120,46 +122,44 @@ public class CharacterController {
      * On le syncro ensuite avec son model
      */
     public boolean update() {
-        //System.out.println("update called");
         Body body = model.getBody();
+        boolean isMoving = false;
         
-        
-        if (model.isFlyMode()) { // deplacements flymod
-            Vec2 velocity = new Vec2(0, 0);
+        if (model.isFlyMode()) {
+            // Mode vol : déplacement direct sans accumulation d'élan
+            float velX = 0;
+            float velY = 0;
             
-            if (LeftKeyPressed) {
-                velocity.x = (float)-MOVE_FORCE*3;
-            }
-            if (RightKeyPressed) {
-                velocity.x = (float)MOVE_FORCE*3;
-            }
-            if (SpaceKeyPressed) {
-                velocity.y = (float)MOVE_FORCE*3;  // monter
-            }
+            if (LeftKeyPressed) velX = -MAX_HORIZONTAL_SPEED * 2;
+            if (RightKeyPressed) velX = MAX_HORIZONTAL_SPEED * 2;
+            if (SpaceKeyPressed) velY = MAX_HORIZONTAL_SPEED * 2;
             
-            body.setLinearVelocity(velocity);
+            body.setLinearVelocity(new Vec2(velX, velY));
+            isMoving = LeftKeyPressed || RightKeyPressed;
         } else {
-            // Mode normal : appliquer une force horizontale
-            if (LeftKeyPressed) {
-                model.setFacingRight(false);
-                body.applyForceToCenter(new Vec2((float)-MOVE_FORCE, 0));
+            // Mode normal (on sait quelle face du sprite afficher)
+            if (LeftKeyPressed || RightKeyPressed) {
+                int direction = RightKeyPressed ? 1 : -1;
+                model.setFacingRight(RightKeyPressed);
                 
-            }
-            if (RightKeyPressed) {
-                model.setFacingRight(true);
-                body.applyForceToCenter(new Vec2((float)MOVE_FORCE, 0));
+                float currentVelY = body.getLinearVelocity().y;
+                body.setLinearVelocity(new Vec2(direction * MAX_HORIZONTAL_SPEED, currentVelY));
                 
+                isMoving = true;
+            } else {
+                // Aucune touche pressée : on arrête complètement le mouvement horizontal
+                model.stopHorizontalMovement();
             }
         }
         
         // Synchroniser les coordonnées du modèle avec le corps physique
         Vec2 position = body.getPosition();
-        model.setXcord(position.x * 30f);  // Conversion mètres → pixels
-        model.setYcord((10 - position.y) * 30f);  // Inversion Y + conversion
+        model.setXcord(position.x * 30f); // Conversion mètres -> pixels
+        model.setYcord((10 - position.y) * 30f); //  // Inversion Y + conversion
         
-        return LeftKeyPressed ^ RightKeyPressed;
+        return isMoving;
     }
-    
+
     /**
      * Active/désactive le mode vol pour ce worm
      */
