@@ -32,8 +32,8 @@ public class TrajectoryViewTest {
         
         character = new CharacterModel(ground, world, 400, ground.getHeight() - 100, false);
         
-        // Créer une arme simple pour les tests
-        weapon = new Weapon("Test Weapon", 10, false, 10, 0, 10, 30) {
+        //créer une arme simple pour les tests
+        weapon = new Weapon("Test Weapon", 10, false, 10, 0, 10, 30, 1.0) {
             @Override
             protected boolean onUse() {
                 return true;
@@ -240,7 +240,7 @@ public class TrajectoryViewTest {
         trajectoryView.setShooter(character);
         trajectoryView.setAiming(true);
         
-        Weapon weapon2 = new Weapon("Second Weapon", 10, false, 15, 5, 20, 40) {
+        Weapon weapon2 = new Weapon("Second Weapon", 10, false, 15, 5, 20, 40, 1.0) {
             @Override
             protected boolean onUse() {
                 return true;

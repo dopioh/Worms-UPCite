@@ -14,11 +14,23 @@ public class RocketLauncher extends Weapon {
      * @blastRadius 4
      * @speed 8
      * @range 25
+     * @knockbackMultiplier 8.0
      */
     public RocketLauncher() {
-        super("Rocket Launcher", 2, false, 100, 4, 8, 25);
+        super(
+            "Rocket Launcher",
+            2,
+            false,
+            100,
+            4,
+            8,
+            25,
+            8.0
+        );
+
         // Lance-roquettes : projectile lourd avec beaucoup de chute
         this.setTrajectoryCalculator(new HeavyTrajectory());
+        
     }
 
     @Override

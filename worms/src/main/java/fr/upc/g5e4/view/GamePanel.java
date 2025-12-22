@@ -18,13 +18,14 @@ import java.io.IOException;
  * Gère le rendu avec caméra et zoom
  */
 public class GamePanel extends JPanel {
-    private final GroundModel model;
+    private final GroundModel model;  // Gardé pour compatibilité
+    private BlockGridModel blockGridModel;  // système de terrain en blocs
     private final CameraModel camera;
     private final TeamModel teamModel1;
     private final TeamView teamView1;
     private final TeamModel teamModel2;
     private final TeamView teamView2;
-    private final TrajectoryView trajectoryRenderer;
+    private final TrajectoryView trajectoryView;
     private ItemController itemController;
 
     private JButton saveButton;
@@ -33,6 +34,9 @@ public class GamePanel extends JPanel {
     
     private BufferedImage groundTexture;
     private boolean blueprintMode = false; // active le background blueprint
+    
+    // Vue pour dessiner les blocs
+    private BlockGridView blockGridView;
 
     // ajout: label pour afficher le temps restant (vue)
     private final JLabel roundTimerLabel = new JLabel("Temps restant : 30s");
@@ -49,7 +53,10 @@ public class GamePanel extends JPanel {
         this.teamView1 = teamView1;
         this.teamModel2 = teamModel2;
         this.teamView2 = teamView2;
-        this.trajectoryRenderer = new TrajectoryView();
+        this.trajectoryView = new TrajectoryView();
+        
+        // init BlockGridView
+        this.blockGridView = new BlockGridView();
 
         setPreferredSize(new Dimension(model.getWidth(), model.getHeight()));
         setLayout(null);
@@ -103,8 +110,8 @@ public class GamePanel extends JPanel {
     /**
      * Retourne le renderer de trajectoire pour que d'autres composants puissent l'utiliser
      */
-    public TrajectoryView getTrajectoryRenderer() {
-        return trajectoryRenderer;
+    public TrajectoryView getTrajectoryView() {
+        return trajectoryView;
     }
     
     
@@ -114,6 +121,14 @@ public class GamePanel extends JPanel {
      */
     public void setItemController(ItemController itemController) {
         this.itemController = itemController;
+    }
+    
+    /**
+     * Définit le BlockGridModel pour le rendu du terrain en blocs
+     * @param blockGridModel Le modèle de grille de blocs
+     */
+    public void setBlockGridModel(BlockGridModel blockGridModel) {
+        this.blockGridModel = blockGridModel;
     }
 
     /**
@@ -173,28 +188,40 @@ public class GamePanel extends JPanel {
 
         // Eau en arrière-plan quand pas en mode blueprint
         if (!blueprintMode) {
-            g2.setColor(new Color(75, 147, 240));
-            g2.fillRect(0, model.getWaterLevel(), model.getWidth(), model.getHeight() - model.getWaterLevel());
+            if (blockGridModel != null) {
+                // Utiliser BlockGridView pour dessiner l'eau
+                blockGridView.drawWater(g2, blockGridModel);
+            } else {
+                // Ancien système : eau simple
+                g2.setColor(new Color(75, 147, 240));
+                g2.fillRect(0, model.getWaterLevel(), model.getWidth(), model.getHeight() - model.getWaterLevel());
+            }
         }
 
         // Ground (au premier plan)
-        Path2D path = new Path2D.Double();
-        path.moveTo(0, model.getHeight());
-        double step = (double) model.getWidth() / (model.getGroundY().length - 1);
-        for (int i = 0; i < model.getGroundY().length; i++) {
-            path.lineTo(i * step, model.getGroundY()[i]);
-        }
-        path.lineTo(model.getWidth(), model.getHeight());
-        path.closePath();
-        
-        // Appliquer la texture ou la couleur
-        if (groundTexture != null) {
-            g2.setPaint(new TexturePaint(groundTexture, 
-                new Rectangle(0, 0, groundTexture.getWidth(), groundTexture.getHeight())));
+        if (blockGridModel != null) {
+            // Nouveau système : terrain en blocs
+            blockGridView.drawAll(g2, blockGridModel);
         } else {
-            g2.setColor(new Color(34, 139, 34));
+            // Ancien système : terrain avec Path2D (ligne continue)
+            Path2D path = new Path2D.Double();
+            path.moveTo(0, model.getHeight());
+            double step = (double) model.getWidth() / (model.getGroundY().length - 1);
+            for (int i = 0; i < model.getGroundY().length; i++) {
+                path.lineTo(i * step, model.getGroundY()[i]);
+            }
+            path.lineTo(model.getWidth(), model.getHeight());
+            path.closePath();
+            
+            // Appliquer la texture ou la couleur
+            if (groundTexture != null) {
+                g2.setPaint(new TexturePaint(groundTexture, 
+                    new Rectangle(0, 0, groundTexture.getWidth(), groundTexture.getHeight())));
+            } else {
+                g2.setColor(new Color(34, 139, 34));
+            }
+            g2.fill(path);
         }
-        g2.fill(path);
 
         // Personnage
         //personnageView.draw(g2, personnageModel);
@@ -204,7 +231,7 @@ public class GamePanel extends JPanel {
         teamView2.draw(g2, teamModel2);
 
         // Trajectoire de tir (Angry Birds style)
-        trajectoryRenderer.draw(g2, null);
+        trajectoryView.draw(g2, null);
         
         // Projectiles en vol
         if (itemController != null) {

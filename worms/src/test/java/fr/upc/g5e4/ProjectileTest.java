@@ -35,7 +35,7 @@ public class ProjectileTest {
         shooter = new CharacterModel(ground, world, 100, ground.getHeight() - 400, false);
         
         // Créer une arme simple
-        weapon = new Weapon("Test Weapon", 10, false, 10, 0, 10, 30) {
+        weapon = new Weapon("Test Weapon", 10, false, 10, 0, 10, 30, 1.0) {
             @Override
             protected boolean onUse() {
                 return true;

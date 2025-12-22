@@ -31,7 +31,8 @@ import com.google.gson.*;
  */
 public class GameManager {
     private final GamePanel gamePanel;
-    private GroundModel model;
+    private GroundModel model;  // Gardé pour compatibilité avec TeamModel
+    private BlockGridModel blockGridModel;  // Nouveau système de terrain en blocs
     private final PhysicsWorld physic;
     private final World world;
     private final Body water;
@@ -85,13 +86,19 @@ public class GameManager {
      * @see PhysicsWorld#createGroundFromModel()
      */
     public GameManager() {
-        int sizeX = 2400;  // Taille du terrain
+        int sizeX = 1280;  // Taille du terrain
         int sizeY = 720;
+        int waterLevel = 800;
         
         // generation procédurale du terrain avec seed (le temps de la machine)
         TerrainGenerator generator = new TerrainGenerator(System.currentTimeMillis());
-        int[] groundY = generator.generateTerrainWithPlatforms(400, 70, 900, 200, 30);
-
+        int[] groundY = generator.generateTerrainWithPlatforms(
+            200,          // nombre de points pour la génération
+            250,          // hauteur minimale (depuis le haut)
+            650,          // hauteur maximale
+            280,          // hauteur des plateformes aux bords
+            15            // largeur des plateformes en %
+        );
         /*
          * Ancienne méthode : terrain manuel
          * int[] groundY = {470,450,430,420,410,400,390,370,340,300,280,250,230,200};
@@ -103,11 +110,21 @@ public class GameManager {
          * int[] groundY = {400,420,450,450,400,700,930,450,350,300,250,230,200,200};
          */
 
-        this.model = new GroundModel(groundY, sizeX, sizeY, 500);
+        // création du BlockGridModel (système de terrain en blocs)
+        this.blockGridModel = new BlockGridModel(sizeX, sizeY, waterLevel);
+        blockGridModel.generateWithGroundY(groundY);
+        
+        // on garde le GroundModel pour compatibilité avec TeamModel
+        this.model = new GroundModel(groundY, sizeX, sizeY, waterLevel);
 
         this.physic = new PhysicsWorld();
         this.world = physic.getWorld();
-        physic.createGroundFromModel(model);
+        
+        // nouveau sol
+        physic.createGroundFromBlockGrid(blockGridModel);
+        physic.limitPanel(blockGridModel);
+        
+        // création de l'eau
         this.water = physic.createBodyWater(model);
 
         // initialisation caméra et contrôleur (ON PREND LES COORDONNEES DE LA FENETRE)
@@ -121,13 +138,13 @@ public class GameManager {
         int wormNumber = 3; 
         // Team1 regarde vers la droite
         this.teamModel1 = new TeamModel(model, world, "Team1", 100, 80, wormNumber, false, true, false);
-        this.teamView1 = new TeamView(wormNumber, Color.BLUE, "/worm.png", true);
+        this.teamView1 = new TeamView(wormNumber, Color.BLUE, "/worm222.png", true);
         listTeamModel.add(teamModel1);
 
         // création seconde equipe
         // Team2 regarde vers la gauche (face à Team1)
-        this.teamModel2 = new TeamModel(model, world, "Team2", 2100, 50, wormNumber, false, false, false);  
-        this.teamView2 = new TeamView(wormNumber, Color.RED, "/worm.png", false);
+        this.teamModel2 = new TeamModel(model, world, "Team2", 950, 50, wormNumber, false, false, false);  
+        this.teamView2 = new TeamView(wormNumber, Color.RED, "/worm222.png", false);
         listTeamModel.add(teamModel2);
         
         // Créer une liste de tous les worms pour le WaterSensorListener
@@ -175,6 +192,9 @@ public class GameManager {
         // GamePanel avec tout ce qui est nécessaire
         this.gamePanel = new GamePanel(model, camera, cameraController, teamModel1, teamView1, teamModel2, teamView2); 
         
+        // Passer le BlockGridModel au GamePanel pour le rendu en blocs
+        this.gamePanel.setBlockGridModel(this.blockGridModel);
+        
         // Passer l'ItemController au GamePanel pour dessiner les projectiles
         this.gamePanel.setItemController(this.itemController);
 
@@ -184,9 +204,9 @@ public class GameManager {
                                              //  pour que inputController puisse appeler switchToNextWorm()
         
         // Connecter le renderer de trajectoire
-        imputController.setTrajectoryRenderer(gamePanel.getTrajectoryRenderer());
-        gamePanel.getTrajectoryRenderer().setShooter(activeWormController.getModel());
-        gamePanel.getTrajectoryRenderer().setWeapon(activeWormController.getCurrentWeapon());
+        imputController.setTrajectoryRenderer(gamePanel.getTrajectoryView());
+        gamePanel.getTrajectoryView().setShooter(activeWormController.getModel());
+        gamePanel.getTrajectoryView().setWeapon(activeWormController.getCurrentWeapon());
         
         // pour ne pas que gamePanel et imputController se disputent le focus
         // en lancant le jeu, certaines fois rien n'était controllable mais c'est fix maintenant
@@ -219,6 +239,10 @@ public class GameManager {
     public GroundModel getGroundModel() {
         return this.model;
     }
+    
+    public BlockGridModel getBlockGridModel() {
+        return this.blockGridModel;
+    }
 
     public GamePanel getGamePanel() {
         return this.gamePanel;
@@ -242,6 +266,14 @@ public class GameManager {
 
     public TeamModel getTeamModel2() {
         return this.teamModel2;
+    }
+    
+    public TeamView getTeamView1() {
+        return this.teamView1;
+    }
+    
+    public TeamView getTeamView2() {
+        return this.teamView2;
     }
     
     public int getActiveWormIndex() {
@@ -317,8 +349,8 @@ public class GameManager {
                 cameraController.centerOnCharacter();
                 
                 // mettre à jour la trajectoire avec le nouveau worm et son arme
-                gamePanel.getTrajectoryRenderer().setShooter(worm);
-                gamePanel.getTrajectoryRenderer().setWeapon(activeWormController.getCurrentWeapon());
+                gamePanel.getTrajectoryView().setShooter(worm);
+                gamePanel.getTrajectoryView().setWeapon(activeWormController.getCurrentWeapon());
                 
                 // Réappliquer les listeners de souris pour le nouveau worm
                 //gamePanel.addMouseListeners(activeWormController);
@@ -355,8 +387,8 @@ public class GameManager {
                 cameraController.centerOnCharacter();
                 
                 // mettre à jour la trajectoire avec le nouveau worm et son arme
-                gamePanel.getTrajectoryRenderer().setShooter(worm);
-                gamePanel.getTrajectoryRenderer().setWeapon(activeWormController.getCurrentWeapon());
+                gamePanel.getTrajectoryView().setShooter(worm);
+                gamePanel.getTrajectoryView().setWeapon(activeWormController.getCurrentWeapon());
                 
                 return;
             }
@@ -428,7 +460,7 @@ public class GameManager {
         if (newWeapon != null && activeWormController != null) {
             activeWormController.setCurrentWeapon(newWeapon);
             // mettre à jour la trajectoire avec la nouvelle arme
-            gamePanel.getTrajectoryRenderer().setWeapon(newWeapon);
+            gamePanel.getTrajectoryView().setWeapon(newWeapon);
         }
     }
 
@@ -529,7 +561,7 @@ public class GameManager {
         if (newWeapon != null && activeWormController != null) {
             activeWormController.setCurrentWeapon(newWeapon);
             // Met à jour la trajectoire
-            gamePanel.getTrajectoryRenderer().setWeapon(newWeapon);
+            gamePanel.getTrajectoryView().setWeapon(newWeapon);
         }
     }
 

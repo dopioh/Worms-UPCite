@@ -14,11 +14,13 @@ public class BaseballBat extends Weapon {
      * @blastRadius 0
      * @speed 100
      * @range 0.5
+     * @knockbackMultiplier 10.0
      */
     public BaseballBat() {
-        super("Baseball Bat", 8, false, 30, 0, 100, 1);
+        super("Baseball Bat", 8, false, 30, 0, 100, 1, 10.0);
         // Batte de baseball : pas de chute, trajectoire droite
         this.setTrajectoryCalculator(new NoDropTrajectory());
+        
     }
 
     @Override

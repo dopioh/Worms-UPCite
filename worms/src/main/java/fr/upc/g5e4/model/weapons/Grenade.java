@@ -14,12 +14,23 @@ public class Grenade extends Weapon{
      * @blastRadius 3
      * @speed 5
      * @range 15
+     * @knockbackMultiplier 5.0
      */
     
     public Grenade() {
-        super("Grenade", 3, false, 50, 3, 5, 15);
+        super(
+            "Grenade",
+            3,
+            false,
+            50,
+            3,
+            5,
+            15,
+            5.0
+        );
         // Grenade : trajectoire parabolique standard
         this.setTrajectoryCalculator(new StandardTrajectory());
+        
     }
 
     @Override

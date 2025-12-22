@@ -14,11 +14,22 @@ public class Ak47 extends Weapon{
      * @blastRadius 0
      * @speed 12
      * @range 100
+     * @knockbackMultiplier 1.0
      */
     public Ak47() {
-        super("AK-47", 30, false, 20, 0, 12, 100);
+        super(
+            "AK-47",
+            30,
+            false,
+            20,
+            0,
+            12,
+            100,
+            1.0
+        );
         // AK-47 : balles rapides avec peu de chute
         this.setTrajectoryCalculator(new FastTrajectory());
+        
     }
 
     @Override

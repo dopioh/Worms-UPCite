@@ -5,7 +5,12 @@ import fr.upc.g5e4.model.Gadget;
 public class Bumper extends Gadget {
 
     public Bumper() {
-        super("Bumper", Integer.MAX_VALUE, true);}
+        super(
+            "Bumper",
+            Integer.MAX_VALUE,
+            true
+        );
+    }
 
     @Override
     protected boolean onUse() {
