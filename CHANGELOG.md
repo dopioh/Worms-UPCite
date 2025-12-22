@@ -108,9 +108,13 @@
 ### Fixed
 - Tout le jeu est désormais en une seule fenêtre
     - MAP en tableau 2D remplie d'objet "block"
-<<<<<<< HEAD
 
 ### Added
+- Nametag
+    - Affichage des itemes (potions...) sur le nametag
+- Nouveau systeme de map 
+    - MAP en tableau 2D remplie d'objet "block"
+- **Cinématique d'introduction** : Animation de présentation avant le début du combat
     - Affichage des équipes participantes avec nombre de worms
     - Présentation du terrain généré procéduralement
     - Affichage des conditions météorologiques (vent)
@@ -118,12 +122,21 @@
     - Durée de 5 secondes avant lancement automatique du jeu
 
 ### Modified
+- Nametag
+    - Affichage de HP et Shield en chiffre -> barre horizontale
+- `CONTRIBUTING.md`
+    - Guide d'utilisation sur le nametag
+- Touche full screen F11 -> F
+- Implémentation de la physique de recul sur les worms touchés
+- Support pour N équipes au lieu de 2 équipes hardcodées
     - Refactorisation de GameManager, GameLoop et GamePanel pour utiliser des listes dynamiques
     - Possibilité d'ajouter dynamiquement des équipes via GameManager.addTeam()
 
-## [v.0.5 : SPRINT 4](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/4) (unreleased)
-=======
->>>>>>> origin/dev
+### Fixed
+- Tout le jeu est désormais en une seule fenêtre
+- Emplacement overlay vent
+- Nouveau systeme de map 
+    - MAP en tableau 2D remplie d'objet "block"
 
 Emplacement overlay vent
 Nouveau systeme de map 
