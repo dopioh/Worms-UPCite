@@ -12,6 +12,7 @@ import java.awt.geom.Path2D;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * Classe qui sert pour tous les graphismes du monde
@@ -21,12 +22,10 @@ public class GamePanel extends JPanel {
     private final GroundModel model;  // Gardé pour compatibilité
     private BlockGridModel blockGridModel;  // système de terrain en blocs
     private final CameraModel camera;
-    private final TeamModel teamModel1;
-    private final TeamView teamView1;
-    private final TeamModel teamModel2;
-    private final TeamView teamView2;
     private final TrajectoryRenderer trajectoryRenderer;
     private ItemController itemController;
+
+    private ArrayList<TeamInitialisation> listTeamInitialisation;
 
     private JButton saveButton;
 
@@ -54,15 +53,10 @@ public class GamePanel extends JPanel {
     /**
      * {@code setPreferredSize()} est essentiel sinon rien ne s'affiche
      */
-    public GamePanel(GroundModel model,
-            CameraModel camera, CameraController cameraController, 
-            TeamModel teamModel1, TeamView teamView1, TeamModel teamModel2, TeamView teamView2) {
+    public GamePanel(GroundModel model, CameraModel camera, CameraController cameraController, ArrayList<TeamInitialisation> listTeamInitialisation) {
         this.model = model;
         this.camera = camera;
-        this.teamModel1 = teamModel1;
-        this.teamView1 = teamView1;
-        this.teamModel2 = teamModel2;
-        this.teamView2 = teamView2;
+        this.listTeamInitialisation = listTeamInitialisation;
         this.trajectoryRenderer = new TrajectoryRenderer();
         
         // init BlockGridView
@@ -234,8 +228,9 @@ public class GamePanel extends JPanel {
         //personnageView.draw(g2, personnageModel);
         
         // Team de worms
-        teamView1.draw(g2, teamModel1);
-        teamView2.draw(g2, teamModel2);
+        for (TeamInitialisation t : listTeamInitialisation){
+            t.draw(g2);
+        }
 
         // Trajectoire de tir (Angry Birds style)
         trajectoryRenderer.draw(g2, null);

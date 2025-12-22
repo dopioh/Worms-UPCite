@@ -19,8 +19,17 @@ public class CharacterData {
 
     private boolean isDead;
 
-    public CharacterData(int ID, String name, double xcord, 
-        double ycord, double health, double shield, boolean isDead){
+    /**
+     * 
+     * @param ID ID du CharaModel
+     * @param name nom du CharaModel
+     * @param xcord sa position X de depart
+     * @param ycord sa position Y de depart
+     * @param health ses points de vie
+     * @param shield ses points de bouclier
+     * @param isDead son statut (mort ou vivant)
+     */
+    public CharacterData(int ID, String name, double xcord, double ycord, double health, double shield, boolean isDead){
             this.ID = ID;
             this.name = name;
             this.xcord =xcord;

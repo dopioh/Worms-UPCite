@@ -5,8 +5,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
+import java.util.ArrayList;
+
 import fr.upc.g5e4.model.InventoryModel.*;
-import fr.upc.g5e4.model.console.ConsoleLauncher;
+//import fr.upc.g5e4.model.console.ConsoleLauncher;
 import fr.upc.g5e4.view.*;
 import fr.upc.g5e4.controller.*;
 import fr.upc.g5e4.model.*; 
@@ -63,7 +65,7 @@ public class GameLauncher{
         
         if (!screen) {
             // Mode headless pour les tests (pas d'interface graphique)
-            this.gameManager = new GameManager();
+            this.gameManager = new GameManager(2);
             this.gamePanel = gameManager.getGamePanel();
             this.gameLoop = new GameLoop(gameManager);
             this.gameLoop.timerStart();
@@ -153,7 +155,7 @@ public class GameLauncher{
         // Mettre à jour la taille du layered pane
         gameLayeredPane.setPreferredSize(new Dimension(width, height));
         
-        this.gameManager = new GameManager();
+        this.gameManager = new GameManager(2);
         this.gamePanel = gameManager.getGamePanel();
         
         // VENT
@@ -162,14 +164,19 @@ public class GameLauncher{
 
         /* ---------------------- Partie Overlay Inventaire ---------------------- */
         // Charge l'inventaire 
-        InventoryRoot root = InventoryModel.load("/inventory.json");
-        java.util.List<InventoryJson> team1Inventory = copyInventory(root.inventory);
-        java.util.List<InventoryJson> team2Inventory = copyInventory(root.inventory);
-        // Attacher les inventaires aux teams
-        gameManager.getTeamModel1().setInventory(team1Inventory);
-        gameManager.getTeamModel2().setInventory(team2Inventory);
-        // Créer l'overlay
-        this.inventoryOverlay = new InventoryOverlay(gameManager.getTeamModel1().getInventory());
+        
+            ArrayList<TeamInitialisation> tmList = gameManager.getListTeamInit();
+            InventoryRoot root = InventoryModel.load("/inventory.json");
+            int index = 0;
+
+            for (TeamInitialisation tm : tmList){
+                java.util.List<InventoryJson> teamInventory = copyInventory(root.inventory);
+                tmList.get(index).getTeamModel().setInventory(teamInventory);
+                index++;
+            }
+            //Créer l'overlay
+            this.inventoryOverlay = new InventoryOverlay(tmList.get(0).getTeamModel().getInventory());  
+
         
         // Placer les composants dans le layered pane
         gamePanel.setBounds(0, 0, width, height);
