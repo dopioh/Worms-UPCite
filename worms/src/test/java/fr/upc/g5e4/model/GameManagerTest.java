@@ -21,7 +21,7 @@ public class GameManagerTest {
     
     @BeforeEach
     void setUp() {
-        gameManager = new GameManager();
+        gameManager = new GameManager(2); // on test pour 2 equipes ici
         // Create a mock inventory list for testing
         List<InventoryModel.InventoryJson> mockInventory = new ArrayList<>();
         mockInventoryOverlay = new InventoryOverlay(mockInventory);
@@ -29,6 +29,8 @@ public class GameManagerTest {
     
     /* ---------- getCurrentTeam() ---------- */
     
+    // Je masque tous ces tests psq on a N Team et plus seulement 2 desormais
+    /*
     @Test
     void testGetCurrentTeamReturnsTeam1WhenIndexZero() {
         // Assuming currentTeamIndex starts at 0 (Team1)
@@ -49,8 +51,11 @@ public class GameManagerTest {
         assertEquals(team, gameManager.getTeamModel2(), "Should return Team2 when currentTeamIndex is 1");
     }
     
+
+    */
     /* ---------- getCurrentTeamName() ---------- */
     
+    /*
     @Test
     void testGetCurrentTeamNameReturnsTeam1() {
         String name = gameManager.getCurrentTeamName();
@@ -66,6 +71,8 @@ public class GameManagerTest {
         
         assertEquals("Team2", name, "Should return 'Team2' when currentTeamIndex is 1");
     }
+
+    */
 
     /* ---------- setInventoryOverlay() ---------- */
     
@@ -178,7 +185,7 @@ public class GameManagerTest {
     @Test
     void testInventoryOverlayFieldStartsAsNull() {
         // Create a new GameManager instance
-        GameManager newGameManager = new GameManager();
+        GameManager newGameManager = new GameManager(3);
         
         // The inventory overlay should initially be null or unset
         // (We can't directly check private fields, but we can test behavior)
