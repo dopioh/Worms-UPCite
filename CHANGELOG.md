@@ -70,12 +70,46 @@
 - Camera
     - Les déplacements, le zoom et le recentrage de la caméra se font maintenant avec un glissement fluide
 
-## [v.0.3 : SPRINT 3](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/3) (unreleased)
+## [v.0.3 : SPRINT 3](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/3)
 ---
 
 ### Added
 - Mode plein ecran
     - passage du jeu en 16:9
+- MAP Procédurale 
+    - avec bruit de perlin et amplification des bruits
+- SPRITES 
+    - les worms ont des sprites via le constucteur de leur equipe
+- Comportement worm
+    - le worm est totalement supprimé de la map quand il meurt (sprite + body physique) 
+- Sauvegarde
+    - une partie peut etre enregistree dans un fichier `sauvegarde.txt` en json avec la touche **_J_**
 
 ### Fixed
 - `.jar` injouable
+
+--------- a completer ----------
+
+## [v.0.4 : SPRINT 4](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/4) (unreleased)
+---
+
+### Added
+- Nametag
+    - Affichage des itemes (potions...) sur le nametag
+- Nouveau systeme de map 
+    - MAP en tableau 2D remplie d'objet "block"
+
+### Modified
+- Nametag
+    - Affichage de HP et Shield en chiffre -> barre horizontale
+- `CONTRIBUTING.md`
+    - Guide d'utilisation sur le nametag
+- Touche full screen F11 -> F
+- Implémentation de la physique de recul sur les worms touchés
+
+### Fixed
+- Tout le jeu est désormais en une seule fenêtre
+- Emplacement overlay vent
+- Nouveau systeme de map 
+    - MAP en tableau 2D remplie d'objet "block"
+- **N equipes** fonctionnelles desormais (2 auparavant)

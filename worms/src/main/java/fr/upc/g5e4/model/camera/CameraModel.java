@@ -188,6 +188,12 @@ public class CameraModel {
     }
 
     public void setViewSize(int newViewWidth, int newViewHeight) {
+        // Synchroniser immédiatement la position avec la cible pour éviter le glissement
+        // lors du changement de taille de vue (passage en plein écran)
+        this.x = this.targetX;
+        this.y = this.targetY;
+        this.zoomFactor = this.targetZoom;
+        
         double zoomRatio = zoomFactor / minZoom;
         double centerX = x + (viewWidth / zoomFactor) / 2.0;
         double centerY = y + (viewHeight / zoomFactor) / 2.0;
@@ -204,10 +210,39 @@ public class CameraModel {
         this.x = centerX - (viewWidth / zoomFactor) / 2.0;
         this.y = centerY - (viewHeight / zoomFactor) / 2.0;
 
+        clamp();
+        
+        // Synchroniser les targets avec les nouvelles positions APRÈS le clamp
+        // pour éviter le glissement causé par centerTargetOn dans update()
         this.targetX = this.x;
         this.targetY = this.y;
         this.targetZoom = this.zoomFactor;
-
+        
+        clampTarget();
+    }
+    
+    /**
+     * Force la synchronisation immédiate des positions avec les targets.
+     * Utile après un changement de taille de vue pour éviter le smooth.
+     */
+    public void syncPositions() {
+        this.x = this.targetX;
+        this.y = this.targetY;
+        this.zoomFactor = this.targetZoom;
         clamp();
+    }
+    
+    /**
+     * Retourne la position X de la target (pour debug ou synchronisation)
+     */
+    public double getTargetX() {
+        return targetX;
+    }
+    
+    /**
+     * Retourne la position Y de la target (pour debug ou synchronisation)
+     */
+    public double getTargetY() {
+        return targetY;
     }
 }

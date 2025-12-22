@@ -1,8 +1,8 @@
 // File: fr/upc/g5e4/model/GameLoop.java
 package fr.upc.g5e4.model;
 
-import fr.upc.g5e4.controller.*;
-import fr.upc.g5e4.model.*;
+//import fr.upc.g5e4.controller.*;
+//import fr.upc.g5e4.model.*;
 //import fr.upc.g5e4.view.*;
 import fr.upc.g5e4.view.GamePanel;
 
@@ -43,25 +43,17 @@ public class GameLoop{
                 }
                 
                 // stopper le mouvement horizontal des worms non-actifs pour qu'ils ne glissent pas
-                // a modifier pour n-equipe
-                TeamModel team1 = gameManager.getTeamModel1();
-                TeamModel team2 = gameManager.getTeamModel2();
                 int activeWormIndex = gameManager.getActiveWormIndex();
-                TeamModel activeTeam = (gameManager.getCurrentTeamIndex() == 0) ? team1 : team2;
+                TeamModel activeTeam = gameManager.getCurrentTeam();
                 
-                // Parcourir tous les worms des deux équipes
-                for (int i = 0; i < team1.getWormNumberAtStart(); i++) {
-                    CharacterModel worm = team1.getWorm(i);
-                    // stopper le mouvement horizontal si ce n'est pas le worm actif
-                    if (worm != null && !worm.isDead() && !(activeTeam == team1 && i == activeWormIndex)) {
-                        worm.stopHorizontalMovement();
-                    }
-                }
-                for (int i = 0; i < team2.getWormNumberAtStart(); i++) {
-                    CharacterModel worm = team2.getWorm(i);
-                    // stopper le mouvement horizontal si ce n'est pas le worm actif
-                    if (worm != null && !worm.isDead() && !(activeTeam == team2 && i == activeWormIndex)) {
-                        worm.stopHorizontalMovement();
+                ArrayList<TeamModel> allTeams = gameManager.getlistTeams();
+                for (TeamModel team : allTeams) {
+                    for (int i = 0; i < team.getWormNumberAtStart(); i++) {
+                        CharacterModel worm = team.getWorm(i);
+                        // stopper le mouvement horizontal si ce n'est pas le worm actif
+                        if (worm != null && !worm.isDead() && !(activeTeam == team && i == activeWormIndex)) {
+                            worm.stopHorizontalMovement();
+                        }
                     }
                 }
                 
@@ -84,7 +76,7 @@ public class GameLoop{
 
                 // si le worm actif est mort -> passer immédiatement au round suivant
                 try {
-                    TeamModel currentTeam = (gameManager.getCurrentTeamIndex() == 0) ? gameManager.getTeamModel1() : gameManager.getTeamModel2();
+                    TeamModel currentTeam = gameManager.getCurrentTeam();
                     int activeIndex = gameManager.getActiveWormIndex();
                     if (activeIndex >= 0 && activeIndex < currentTeam.getWormNumberAtStart()) {
                         CharacterModel activeWorm = currentTeam.getWorm(activeIndex);
@@ -110,6 +102,7 @@ public class GameLoop{
                     roundTimeRemaining = 1800;      // reset
                     gamePanel.setRoundTimer(30);    // reset affichage
                 }
+                
                 
                 gamePanel.repaint();
             }

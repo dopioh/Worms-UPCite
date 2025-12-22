@@ -11,7 +11,7 @@ import fr.upc.g5e4.view.GamePanel;
  * @see GamePanel#paintComponent
  */
 public class GroundModel{
-    private final int[] groundY;
+    private int[] groundY;
     private final int width;
     private final int height;
     private final int waterLevel;
@@ -29,6 +29,10 @@ public class GroundModel{
     public int getWaterLevel() { return waterLevel; }
 
     public int[] getGroundY() { return groundY; }
+
+    public void setGroundY(int[] groundY){
+        this.groundY = groundY;
+    }
 
 
     /**

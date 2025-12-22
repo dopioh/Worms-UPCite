@@ -314,6 +314,34 @@ public class CharacterModel{
     }
 
     /**
+     * Applique un impact/recul au personnage lorsqu'il est touché
+     * @param impactDirection Direction de l'impact (vecteur normalisé)
+     * @param impactForce Force de l'impact
+     */
+    public void applyImpact(Vec2 impactDirection, float impactForce) {
+        if (persoBody == null || isDead) {
+            return;
+        }
+        
+        // Normaliser la direction si elle n'est pas déjà normalisée
+        float length = impactDirection.length();
+        if (length > 0.001f) {
+            Vec2 normalizedDirection = new Vec2(
+                impactDirection.x / length,
+                impactDirection.y / length
+            );
+            
+            // Appliquer l'impulsion au centre du personnage
+            Vec2 impulse = new Vec2(
+                normalizedDirection.x * impactForce,
+                normalizedDirection.y * impactForce
+            );
+            Vec2 point = persoBody.getWorldCenter();
+            persoBody.applyLinearImpulse(impulse, point);
+        }
+    }
+
+    /**
      * Inflige des dégâts au worm
      * Les dégâts sont d'abord sur le shield, puis au PV
      * @param damageAmount Le montant des dégâts
