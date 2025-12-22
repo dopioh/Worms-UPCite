@@ -116,4 +116,15 @@ public class CameraController {
             camera.updateSmoothPosition();
         }
     }
+    
+    /**
+     * Appelé après un changement de taille de vue (ex: passage en plein écran).
+     * Centre immédiatement la caméra sur le personnage pour éviter le glissement.
+     */
+    public void onViewSizeChanged() {
+        if (personnage != null) {
+            camera.centerOn(personnage);
+            camera.syncPositions();
+        }
+    }
 }

@@ -9,6 +9,7 @@ import fr.upc.g5e4.model.Projectile;
 import fr.upc.g5e4.view.ItemView;
 import java.util.ArrayList;
 import java.util.List;
+import fr.upc.g5e4.model.SoundPlayer;
 
 public class ItemController {
     private final ItemView view;
@@ -59,6 +60,8 @@ public class ItemController {
         }
 
         if (weapon.use()) {
+            SoundPlayer.play("/sfx/gunshot.wav");
+
             Projectile projectile = weapon.fire(shooter, world, allWorms, direction);
             if (projectile != null) {
                 activeProjectiles.add(projectile);
@@ -99,8 +102,21 @@ public class ItemController {
                     // Si le projectile est proche du worm 
                     if (distance < 0.7f) {
                         worm.dealDamage(projectile.getSourceWeapon().getDamage(), projectile.getShooter());
+                        
+                        // Calculer la direction de l'impact (du projectile vers le worm)
+                        Vec2 impactDirection = new Vec2(
+                            wormPos.x - projectilePos.x,
+                            wormPos.y - projectilePos.y
+                        );
+                        
+                        float impactForce = (float)(projectile.getSourceWeapon().getKnockbackMultiplier());
+                        
+                        // Appliquer l'impact au worm
+                        worm.applyImpact(impactDirection, impactForce);
+                        
                         System.out.println("Cible " + worm.getName() + " touchée avec " + 
-                                         projectile.getSourceWeapon().getDamage() + " damage.");
+                                         projectile.getSourceWeapon().getDamage() + " damage (impact: " + 
+                                         String.format("%.2f", impactForce) + ")");
                         toRemove.add(projectile);
                         break;
                     }

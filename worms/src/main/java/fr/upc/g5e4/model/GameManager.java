@@ -4,16 +4,14 @@ package fr.upc.g5e4.model;
 //import java.awt.Color;
 import java.util.ArrayList;
 import javax.swing.Timer;
+import java.util.Random;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.World;
 
 import fr.upc.g5e4.GameLauncher;
 import fr.upc.g5e4.controller.*;
-//import fr.upc.g5e4.model.*;
-import fr.upc.g5e4.model.weapons.Ak47;
-import fr.upc.g5e4.model.weapons.BaseballBat;
-import fr.upc.g5e4.model.weapons.Grenade;
-import fr.upc.g5e4.model.weapons.RocketLauncher;
+//import fr.upc.g5e4.model.WindModel;
+import fr.upc.g5e4.model.weapons.*;
 import fr.upc.g5e4.model.PhysicsWorld.WaterSensorListener;
 import fr.upc.g5e4.model.camera.CameraModel;
 import fr.upc.g5e4.model.io.SaveData;
@@ -33,7 +31,8 @@ import com.google.gson.*;
  */
 public class GameManager {
     private final GamePanel gamePanel;
-    private GroundModel model;
+    private GroundModel model;  // Gardé pour compatibilité avec TeamModel
+    private BlockGridModel blockGridModel;  // Nouveau système de terrain en blocs
     private final PhysicsWorld physic;
     private final World world;
     private final Body water;
@@ -76,6 +75,9 @@ public class GameManager {
     
     private InventoryOverlay inventoryOverlay;
 
+    private final WindModel windModel = new WindModel();
+    private final Random windRng = new Random();
+
     /**
      * Initialise le terrain du jeu.
      * <p>
@@ -91,13 +93,19 @@ public class GameManager {
      * @see PhysicsWorld#createGroundFromModel()
      */
     public GameManager(int nbrEquipe) {
-        int sizeX = 2400;  // Taille du terrain
+        int sizeX = 1280;  // Taille du terrain
         int sizeY = 720;
+        int waterLevel = 800;
         
         // generation procédurale du terrain avec seed (le temps de la machine)
         TerrainGenerator generator = new TerrainGenerator(System.currentTimeMillis());
-        int[] groundY = generator.generateTerrainWithPlatforms(400, 70, 900, 200, 30);
-
+        int[] groundY = generator.generateTerrainWithPlatforms(
+            200,          // nombre de points pour la génération
+            250,          // hauteur minimale (depuis le haut)
+            650,          // hauteur maximale
+            280,          // hauteur des plateformes aux bords
+            15            // largeur des plateformes en %
+        );
         /*
          * Ancienne méthode : terrain manuel
          * int[] groundY = {470,450,430,420,410,400,390,370,340,300,280,250,230,200};
@@ -109,11 +117,21 @@ public class GameManager {
          * int[] groundY = {400,420,450,450,400,700,930,450,350,300,250,230,200,200};
          */
 
-        this.model = new GroundModel(groundY, sizeX, sizeY, 500);
+        // création du BlockGridModel (système de terrain en blocs)
+        this.blockGridModel = new BlockGridModel(sizeX, sizeY, waterLevel);
+        blockGridModel.generateWithGroundY(groundY);
+        
+        // on garde le GroundModel pour compatibilité avec TeamModel
+        this.model = new GroundModel(groundY, sizeX, sizeY, waterLevel);
 
         this.physic = new PhysicsWorld();
         this.world = physic.getWorld();
-        physic.createGroundFromModel(model);
+        
+        // nouveau sol
+        physic.createGroundFromBlockGrid(blockGridModel);
+        physic.limitPanel(blockGridModel);
+        
+        // création de l'eau
         this.water = physic.createBodyWater(model);
 
         // initialisation caméra et contrôleur (ON PREND LES COORDONNEES DE LA FENETRE)
@@ -137,7 +155,6 @@ public class GameManager {
 
         this.activeWormIndex = 0;
         this.activeWormController = new CharacterController(listTeamInital.get(currentTeamIndex).getTeamModel().getWorm(activeWormIndex));
-
 
         
         // Créer une liste de tous les worms pour le WaterSensorListener
@@ -183,6 +200,9 @@ public class GameManager {
         // GamePanel avec tout ce qui est nécessaire
         this.gamePanel = new GamePanel(model, camera, cameraController, listTeamInital); 
         
+        // Passer le BlockGridModel au GamePanel pour le rendu en blocs
+        this.gamePanel.setBlockGridModel(this.blockGridModel);
+        
         // Passer l'ItemController au GamePanel pour dessiner les projectiles
         this.gamePanel.setItemController(this.itemController);
 
@@ -226,6 +246,10 @@ public class GameManager {
 
     public GroundModel getGroundModel() {
         return this.model;
+    }
+    
+    public BlockGridModel getBlockGridModel() {
+        return this.blockGridModel;
     }
 
     public GamePanel getGamePanel() {
@@ -289,6 +313,9 @@ public class GameManager {
         return listTeamInital.get(currentTeamIndex).getName();
     }
 
+    public WindModel getWindModel(){
+        return this.windModel;
+    }
 
     // switch généralisé pour une équipe donnée 
     // adaptation de la methode pour N equipe avec un tableau
@@ -334,12 +361,33 @@ public class GameManager {
      * passe au round suivant et alterne les équipes
      */
     public void nextRound() {
-    roundNumber++;
-    currentTeamIndex = (currentTeamIndex + 1) % listTeamInital.size(); 
-    currentTeam = listTeamInital.get(currentTeamIndex).getTeamModel();
+
+        roundNumber++;
+        currentTeamIndex = (currentTeamIndex + 1) % listTeamInital.size(); 
+        currentTeam = listTeamInital.get(currentTeamIndex).getTeamModel();
     
-    switchToNextWorm(currentTeam);
-    System.out.println("Round " + roundNumber + " - Equipe active :  Team " + (currentTeamIndex + 1));
+
+        if (currentTeam != null) {
+            currentTeam.resetInventoryTurn();
+        }
+        //switch worm dans cette équipe
+        switchToNextWorm(currentTeam);
+        System.out.println("Round " + roundNumber + " - Equipe active :  Team " + (currentTeamIndex + 1));
+        //mettre à jour l'inventaire affiché dans l'overlay
+        if (inventoryOverlay != null) {
+            inventoryOverlay.setInventory(getCurrentTeamInventory());
+        }
+
+        // --- Vent : change à chaque tour (fixe pendant le tour) ---
+        WindModel.Dir[] dirs = WindModel.Dir.values();
+        windModel.setDir(dirs[windRng.nextInt(dirs.length)]);
+
+        // force entre 0.15 et 1.0 (évite vent invisible)
+        float strength = 0.15f + windRng.nextFloat() * 0.85f;
+        windModel.setStrength(strength);
+
+        System.out.println("[VENT] " + windModel.getDir().label + " | force=" + String.format("%.2f", windModel.getStrength()));
+
     }
 
     

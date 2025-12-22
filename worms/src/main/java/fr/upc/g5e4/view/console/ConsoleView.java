@@ -1,7 +1,7 @@
 package fr.upc.g5e4.view.console;
 
 import java.io.IOException;
-import java.util.Random;
+//import java.util.Random;
 
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextColor;
