@@ -15,6 +15,8 @@ import org.jbox2d.dynamics.*;
  * Transfert de l'initialisation des teams (et worms) du GameManager
  * Pour des questions de modularite 
  * @see GameManager
+ * 
+ * @author Mei
  */
 public class TeamInitialisation {
     private TeamModel teamModel;
@@ -38,9 +40,9 @@ public class TeamInitialisation {
      * Initialise une instance qui creer un teamModel et TeamView ensemble
      * @param groundModel terrain model
      * @param world physique du jeu
-     * @param teamName // nom de l'equipe
+     * @param teamName nom de l'equipe
      * @param teamNumber nombre de worms par equipe (doit etre le meme pour toutes les equipes)
-     * @param startX // position d'initialisation
+     * @param startX position d'initialisation
      */
     public TeamInitialisation(GroundModel groundModel,World world,String teamName, int teamNumber, int startX){
         //System.out.println("Nombre de worms pour " + teamName + "est de : " + teamNumber);
@@ -64,7 +66,11 @@ public class TeamInitialisation {
         return this.name;
     }
 
-    public void colorGiving(){
+    /**
+     * Methode interne pour attribuer une couleur a une equipe
+     * Au bout de 5 couleurs diff, on reprends des couleurs deja attribuees 
+     */
+    private void colorGiving(){
 
         if (COLORTEAM >= 5){
             COLORTEAM = 0;
