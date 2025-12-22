@@ -5,6 +5,8 @@ import java.awt.Color;
 import java.util.ArrayList;
 import javax.swing.Timer;
 import java.util.Random;
+import java.util.HashMap;
+import java.util.Map;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.World;
 
@@ -70,6 +72,9 @@ public class GameManager {
 
     private final WindModel windModel = new WindModel();
     private final Random windRng = new Random();
+    
+    // Statistiques de jeu - support pour un nombre variable d'équipes
+    private Map<String, GameStats> teamStats = new HashMap<>();
 
     /**
      * Initialise le terrain du jeu.
@@ -136,16 +141,20 @@ public class GameManager {
 
         // création premiere equipe
         int wormNumber = 3; 
+        // Utiliser le skin sélectionné dans les paramètres
+        String selectedSkin = SettingsModel.getCurrentSkin();
         // Team1 regarde vers la droite
         this.teamModel1 = new TeamModel(model, world, "Team1", 100, 80, wormNumber, false, true, false);
-        this.teamView1 = new TeamView(wormNumber, Color.BLUE, "/worm222.png", true);
+        this.teamView1 = new TeamView(wormNumber, Color.BLUE, selectedSkin, true);
         listTeamModel.add(teamModel1);
+        teamStats.put("Team1", new GameStats());
 
         // création seconde equipe
         // Team2 regarde vers la gauche (face à Team1)
         this.teamModel2 = new TeamModel(model, world, "Team2", 950, 50, wormNumber, false, false, false);  
-        this.teamView2 = new TeamView(wormNumber, Color.RED, "/worm222.png", false);
+        this.teamView2 = new TeamView(wormNumber, Color.RED, selectedSkin, false);
         listTeamModel.add(teamModel2);
+        teamStats.put("Team2", new GameStats());
         
         // Créer une liste de tous les worms pour le WaterSensorListener
         ArrayList<CharacterModel> allWorms = new ArrayList<>();
@@ -165,6 +174,7 @@ public class GameManager {
         // Initialisation du système de tir
         this.itemController = new ItemController(new ItemView());
         this.itemController.setWorld(world);
+        this.itemController.setGameManager(this);  // Pour le tracking des stats
         
         // Créer un tableau de tous les worms (équipe 1 + équipe 2)
         this.allWorms = new CharacterModel[teamModel1.getTabWorms().length + teamModel2.getTabWorms().length];
@@ -317,6 +327,35 @@ public class GameManager {
 
     public WindModel getWindModel(){
         return this.windModel;
+    }
+    
+    public Map<String, GameStats> getAllTeamStats() {
+        return teamStats;
+    }
+    
+    public GameStats getTeamStats(String teamName) {
+        return teamStats.get(teamName);
+    }
+    
+    public GameStats getCurrentTeamStats() {
+        String currentTeamName = getCurrentTeamName();
+        return teamStats.get(currentTeamName);
+    }
+    
+    /**
+     * Vérifie si une équipe a gagné (tous les worms de l'autre équipe sont morts)
+     * @return Le nom de l'équipe gagnante ou null si le jeu continue
+     */
+    public String checkGameOver() {
+        int team1Alive = teamModel1.getAliveWormNumber();
+        int team2Alive = teamModel2.getAliveWormNumber();
+        
+        if (team1Alive == 0 && team2Alive > 0) {
+            return "Team2";
+        } else if (team2Alive == 0 && team1Alive > 0) {
+            return "Team1";
+        }
+        return null;  // Le jeu continue
     }
     /**
      * switch le worm actif vers le suivant dans l'équipe
