@@ -197,6 +197,29 @@ public class SwingInputController extends JPanel{
                         inventoryOverlay.setInventoryVisible(!visible);
                     }
                     break;
+                    
+                    // Touche H pour ajouter un item de test au nametag
+                    case KeyEvent.VK_H:
+                        if (gameManager != null && personnageController != null) {
+                            // Récupérer le worm actif et son index
+                            CharacterModel activeWorm = personnageController.getModel();
+                            int wormIndex = gameManager.getActiveWormIndex();
+                            int teamIndex = gameManager.getCurrentTeamIndex();
+                            
+                            // Récupérer le CharacterView correspondant
+                            fr.upc.g5e4.view.CharacterView charView = null;
+                            if (teamIndex == 0) {
+                                charView = gameManager.getTeamView1().getCharacterView(wormIndex);
+                            } else {
+                                charView = gameManager.getTeamView2().getCharacterView(wormIndex);
+                            }
+                            
+                            if (charView != null) {
+                                charView.getNameTagView().addItemFromResource("/worm.png", "test_item");
+                                System.out.println("Item ajouté au nametag");
+                            }
+                        }
+                        break;
                 }
             }
             
