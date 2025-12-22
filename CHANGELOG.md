@@ -2,6 +2,10 @@
 
 ## v.0.0 Configuration : (Avant le premier sprint)
 ---
+# Changelog
+
+## v.0.0 Configuration : (Avant le premier sprint)
+---
 
 - Création de la base Maven
 
@@ -86,10 +90,24 @@
 ### Fixed
 - `.jar` injouable
 
-## [v.0.4 : SPRINT 3](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/3) (unreleased)
+--------- a completer ----------
+
+## [v.0.4 : SPRINT 4](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/4) (unreleased)
 ---
 
 ### Added
+- Nametag
+    - Affichage des itemes (potions...) sur le nametag
+- Nouveau systeme de map 
+    - MAP en tableau 2D remplie d'objet "block"
+- **Diagramme de classes** : Ajout et documentation du diagramme de classes du projet (GameManager, GameLoop, GamePanel, etc.)
+
+### Modified
+- Nametag
+    - Affichage de HP et Shield en chiffre -> barre horizontale
+- `CONTRIBUTING.md`
+    - Guide d'utilisation sur le nametag
+- Touche full screen F11 -> F
 - Implémentation de la physique de recul sur les worms touchés
 
 ### Fixed
@@ -99,16 +117,18 @@
     - MAP en tableau 2D remplie d'objet "block"
 
 ### Modified
+- Nametag
+    - Affichage de HP et Shield en chiffre -> barre horizontale
+- `CONTRIBUTING.md`
+    - Guide d'utilisation sur le nametag
 - Touche full screen F11 -> F
-- Support pour N équipes au lieu de 2 équipes hardcodées
-    - Refactorisation de GameManager, GameLoop et GamePanel pour utiliser des listes dynamiques
-    - Possibilité d'ajouter dynamiquement des équipes via GameManager.addTeam()
+- Implémentation de la physique de recul sur les worms touchés
 
-## [v.0.5 : SPRINT 4](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/4) (unreleased)
----
-
-### Added
-- DIAGRAMME.md : Diagramme d'architecture complet du projet
+### Fixed
+- Tout le jeu est désormais en une seule fenêtre
+- Emplacement overlay vent
+- Nouveau systeme de map 
+    - MAP en tableau 2D remplie d'objet "block"
     - Structure MVC détaillée avec interactions entre classes
     - Flux de données expliqué simplement
     - Documentation des 50+ classes principales
