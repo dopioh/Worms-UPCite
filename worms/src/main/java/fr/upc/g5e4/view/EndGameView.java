@@ -26,6 +26,7 @@ public class EndGameView extends JPanel {
     
     private BufferedImage trophyImage;
     private BufferedImage sparkleImage;
+    private BufferedImage miniTrophyImage;  // Petite icône de trophée pour les stats
     private BufferedImage backgroundSnapshot;
     private Font customFont;
     private Font statsFont;
@@ -87,6 +88,10 @@ public class EndGameView extends JPanel {
     // Phase de l'animation
     private AnimationPhase currentPhase = AnimationPhase.WORMS_WALKING;
     private int phaseTimer = 0;
+    
+    // Scroll pour les statistiques
+    private int statsScrollOffset = 0;
+    private static final int SCROLL_SPEED = 30;
     
     enum AnimationPhase {
         WORMS_WALKING,      // Les worms marchent vers le trophée
@@ -174,12 +179,38 @@ public class EndGameView extends JPanel {
         loadImages();
         initializeWormStates();
         startAnimation();
+        
+        // Ajouter le listener de scroll pour les stats
+        addMouseWheelListener(e -> {
+            statsScrollOffset -= e.getWheelRotation() * SCROLL_SPEED;
+            
+            // Calculer les limites de scroll
+            float scale = getScale();
+            int baseRectHeight = (int)(180 * scale);
+            int spacing = (int)(20 * scale);
+            int totalStatsHeight = allTeamStats.size() * (baseRectHeight + spacing);
+            int visibleHeight = getHeight() - (int)(300 * scale) - (int)(50 * scale);
+            
+            // Limite haute : ne pas scroller au-dessus de la position initiale
+            if (statsScrollOffset > 0) {
+                statsScrollOffset = 0;
+            }
+            
+            // Limite basse : ne pas scroller plus bas que nécessaire
+            int maxScrollDown = Math.min(0, -(totalStatsHeight - visibleHeight));
+            if (statsScrollOffset < maxScrollDown) {
+                statsScrollOffset = maxScrollDown;
+            }
+            
+            repaint();
+        });
     }
     
     private void loadImages() {
         try {
             trophyImage = ImageIO.read(getClass().getResourceAsStream("/Trophee.png"));
             sparkleImage = ImageIO.read(getClass().getResourceAsStream("/Sparkle.png"));
+            miniTrophyImage = ImageIO.read(getClass().getResourceAsStream("/Trophee.png"));
             
             // Charger la police bbH Bartle
             Font baseFont = Font.createFont(Font.TRUETYPE_FONT, 
@@ -550,8 +581,6 @@ public class EndGameView extends JPanel {
     }
     
     private void drawStatistics(Graphics2D g2d) {
-        GameStats winningStats = allTeamStats.get(winningTeamName);
-        
         // Calculer l'offset pour centrer le contenu
         int offsetX = getOffsetX();
         int offsetY = getOffsetY();
@@ -570,36 +599,83 @@ public class EndGameView extends JPanel {
             slideOffset = (int)((1.0f - animProgress) * -100 * scale);  // Glisse depuis la gauche avec scaling
         }
         
-        // Rectangle pour les statistiques à gauche
-        int rectX = (int)(100 * scale) + offsetX + slideOffset;
-        int rectY = (int)(300 * scale) + offsetY;
-        int rectWidth = (int)(350 * scale);
-        int rectHeight = (int)(240 * scale);
-        
         // Appliquer la transparence de l'animation
         Composite originalComposite = g2d.getComposite();
         g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, animProgress));
         
-        // Fond du rectangle semi-transparent
-        g2d.setColor(new Color(0, 0, 0, 180));
-        g2d.fillRoundRect(rectX, rectY, rectWidth, rectHeight, (int)(20 * scale), (int)(20 * scale));
+        // Afficher les statistiques de toutes les équipes
+        int teamCount = allTeamStats.size();
+        int rectWidth = (int)(350 * scale);
+        int baseRectHeight = (int)(180 * scale);  // Hauteur de base pour chaque équipe
+        int spacing = (int)(20 * scale);  // Espacement entre les rectangles
+        int startY = (int)(300 * scale) + offsetY + (int)(statsScrollOffset * scale);
         
-        // Statistiques
-        g2d.setColor(Color.WHITE);
-        g2d.setFont(statsFont.deriveFont((float)(20 * scale)));
+        int index = 0;
+        // Trier pour afficher l'équipe gagnante en premier
+        java.util.List<String> sortedTeams = new java.util.ArrayList<>(allTeamStats.keySet());
+        sortedTeams.sort((a, b) -> {
+            if (a.equals(winningTeamName)) return -1;
+            if (b.equals(winningTeamName)) return 1;
+            return a.compareTo(b);
+        });
         
-        int startY = rectY + (int)(40 * scale);
-        int lineHeight = (int)(35 * scale);
-        
-        String[] stats = {
-            "Dégâts infligés: " + winningStats.getDamageDealt(),
-            "Précision: " + winningStats.getAccuracy() + "%",
-            "Eliminations: " + winningStats.getKills(),
-            "Rounds joués: " + winningStats.getRoundsPlayed()
-        };
-        
-        for (int i = 0; i < stats.length; i++) {
-            g2d.drawString(stats[i], rectX + (int)(20 * scale), startY + i * lineHeight);
+        for (String teamName : sortedTeams) {
+            GameStats stats = allTeamStats.get(teamName);
+            boolean isWinner = teamName.equals(winningTeamName);
+            
+            int rectX = (int)(100 * scale) + offsetX + slideOffset;
+            int rectY = startY + index * (baseRectHeight + spacing);
+            
+            // Fond du rectangle - doré pour le gagnant, noir pour les autres
+            if (isWinner) {
+                g2d.setColor(new Color(255, 215, 0, 200));  // Or semi-transparent
+                g2d.fillRoundRect(rectX, rectY, rectWidth, baseRectHeight, (int)(20 * scale), (int)(20 * scale));
+                // Bordure dorée plus épaisse
+                g2d.setStroke(new BasicStroke((float)(3 * scale)));
+                g2d.setColor(new Color(255, 215, 0));
+                g2d.drawRoundRect(rectX, rectY, rectWidth, baseRectHeight, (int)(20 * scale), (int)(20 * scale));
+            } else {
+                g2d.setColor(new Color(0, 0, 0, 180));
+                g2d.fillRoundRect(rectX, rectY, rectWidth, baseRectHeight, (int)(20 * scale), (int)(20 * scale));
+            }
+            
+            // Nom de l'équipe
+            g2d.setFont(statsFont.deriveFont(Font.BOLD, (float)(24 * scale)));
+            g2d.setColor(isWinner ? new Color(139, 69, 19) : Color.WHITE);  // Brun foncé pour le gagnant, blanc pour les autres
+            String displayName = teamName;
+            g2d.drawString(displayName, 
+                          rectX + (int)(20 * scale), 
+                          rectY + (int)(35 * scale));
+            
+            // Dessiner l'icône du trophée pour le gagnant
+            if (isWinner && miniTrophyImage != null) {
+                int trophySize = (int)(24 * scale);
+                int trophyX = rectX + (int)(20 * scale) + g2d.getFontMetrics().stringWidth(displayName) + (int)(10 * scale);
+                int trophyY = rectY + (int)(35 * scale) - (int)(20 * scale);
+                g2d.drawImage(miniTrophyImage, trophyX, trophyY, trophySize, trophySize, null);
+            }
+            
+            // Statistiques
+            g2d.setFont(statsFont.deriveFont((float)(18 * scale)));
+            g2d.setColor(isWinner ? new Color(80, 40, 10) : Color.WHITE);
+            
+            int statStartY = rectY + (int)(65 * scale);
+            int lineHeight = (int)(30 * scale);
+            
+            String[] statLines = {
+                "Dégâts: " + stats.getDamageDealt(),
+                "Précision: " + stats.getAccuracy() + "%",
+                "Eliminations: " + stats.getKills(),
+                "Rounds: " + stats.getRoundsPlayed()
+            };
+            
+            for (int i = 0; i < statLines.length; i++) {
+                g2d.drawString(statLines[i], 
+                              rectX + (int)(20 * scale), 
+                              statStartY + i * lineHeight);
+            }
+            
+            index++;
         }
         
         // Restaurer la transparence originale

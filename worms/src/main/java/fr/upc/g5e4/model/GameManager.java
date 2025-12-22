@@ -344,11 +344,11 @@ public class GameManager {
         int teamsAlive = 0;
         String winningTeam = null;
         
-        for (TeamWithView team : listTeamInital) {
+        for (TeamInitialisation team : listTeamInital) {
             int aliveWorms = team.getTeamModel().getAliveWormNumber();
             if (aliveWorms > 0) {
                 teamsAlive++;
-                winningTeam = team.getTeamModel().getName();
+                winningTeam = team.getName();
             }
         }
         
@@ -401,7 +401,7 @@ public class GameManager {
             
             // si on est revenu au worm de départ alors il n'y a plus de worm vivant
             if (teamCursor[currentTeamIndex] == startIndex) {
-                System.out.println("Aucun worm vivant disponible dans l'équipe " + currentTeamModel.getName());
+                System.out.println("Aucun worm vivant disponible dans cette équipe");
                 return;
             }
         } while (true);
@@ -518,6 +518,11 @@ public class GameManager {
 
     // Initialiser un nombre N d'equipes
     public void createTeam(int number){
+        createTeam(number, "/worm.png"); // Utilise le skin par défaut
+    }
+    
+    // Initialiser un nombre N d'equipes avec un skin spécifique
+    public void createTeam(int number, String skinPath){
         int mapWidth = model.getWidth();
         int margin = 100; // Marge pour ne pas spawner au bord
         int usableWidth = mapWidth - (2 * margin); // Espace utilisable
@@ -542,10 +547,13 @@ public class GameManager {
 
             String name = "Team " + this.nbrTeams;
 
-            TeamInitialisation temp = new TeamInitialisation(model, world, name, this.nbrWormsByTeam, startX);
+            TeamInitialisation temp = new TeamInitialisation(model, world, name, this.nbrWormsByTeam, startX, skinPath);
     
             listTeamInital.add(temp);
             listTeamModel.add(temp.getTeamModel());
+            
+            // Initialiser les statistiques pour cette équipe
+            teamStats.put(name, new GameStats());
         }
     }
 

@@ -113,9 +113,9 @@ public class EndGameController {
             fr.upc.g5e4.view.RoundedButton returnButton = new fr.upc.g5e4.view.RoundedButton("Retour au Menu", (int)(24 * scale));
             returnButton.setFont(googleSansFont.deriveFont((float)(20 * scale)));
             
-            // Positionner le bouton avec offset et scaling - centré horizontalement
-            int buttonBaseY = 600;
-            int buttonX = (int)(490 * scale) + offsetX;
+            // Positionner le bouton avec offset et scaling - centré sous le trophée
+            int buttonBaseY = 630;
+            int buttonX = (int)(700 * scale) + offsetX;  // Centré sous le trophée
             int buttonY = (int)(buttonBaseY * scale) + offsetY;
             int buttonWidth = (int)(300 * scale);
             int buttonHeight = (int)(60 * scale);
@@ -150,7 +150,7 @@ public class EndGameController {
                     int offsetX = (endGameView.getWidth() - scaledWidth) / 2;
                     int offsetY = (endGameView.getHeight() - scaledHeight) / 2;
                     
-                    int buttonX = (int)(490 * scale) + offsetX;
+                    int buttonX = (int)(700 * scale) + offsetX;  // Centré sous le trophée
                     int buttonY = (int)(buttonBaseY * scale) + offsetY;
                     int buttonWidth = (int)(300 * scale);
                     int buttonHeight = (int)(60 * scale);

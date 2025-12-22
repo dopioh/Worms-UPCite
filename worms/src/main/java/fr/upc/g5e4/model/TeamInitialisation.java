@@ -45,12 +45,25 @@ public class TeamInitialisation {
      * @param startX position d'initialisation
      */
     public TeamInitialisation(GroundModel groundModel,World world,String teamName, int teamNumber, int startX){
+        this(groundModel, world, teamName, teamNumber, startX, "/worm.png");
+    }
+    
+    /**
+     * Initialise une instance qui creer un teamModel et TeamView ensemble avec un skin personnalisé
+     * @param groundModel terrain model
+     * @param world physique du jeu
+     * @param teamName nom de l'equipe
+     * @param teamNumber nombre de worms par equipe (doit etre le meme pour toutes les equipes)
+     * @param startX position d'initialisation
+     * @param skinPath chemin vers le sprite du worm
+     */
+    public TeamInitialisation(GroundModel groundModel,World world,String teamName, int teamNumber, int startX, String skinPath){
         //System.out.println("Nombre de worms pour " + teamName + "est de : " + teamNumber);
         boolean facingRight = (startX < groundModel.getWidth() / 2);
         this.name = teamName;
         colorGiving();
         teamModel = new TeamModel(groundModel, world, name, startX, SPACING, teamNumber, false, facingRight, false);
-        teamView = new TeamView(teamNumber,color, "/worm.png", facingRight);
+        teamView = new TeamView(teamNumber,color, skinPath, facingRight);
         SPACING += 5; // pour que si il y'a plus de 2 equipes, les worms ne se superposent pas
     }
 

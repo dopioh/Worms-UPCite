@@ -155,7 +155,7 @@ public class GameLauncher{
         // Mettre à jour la taille du layered pane
         gameLayeredPane.setPreferredSize(new Dimension(width, height));
         
-        this.gameManager = new GameManager(2);
+        this.gameManager = new GameManager(3);  // 3 équipes pour tester le scroll
         this.gamePanel = gameManager.getGamePanel();
         
         // VENT
@@ -348,15 +348,21 @@ public class GameLauncher{
      */
     private void showEndGameScreen(String winnerName) {
         SwingUtilities.invokeLater(() -> {
-            TeamModel winningTeam;
-            TeamView winningTeamView;
+            // Trouver l'équipe gagnante dans la liste des équipes
+            TeamModel winningTeam = null;
+            TeamView winningTeamView = null;
             
-            if (winnerName.equals("Team1")) {
-                winningTeam = gameManager.getTeamModel1();
-                winningTeamView = gameManager.getTeamView1();
-            } else {
-                winningTeam = gameManager.getTeamModel2();
-                winningTeamView = gameManager.getTeamView2();
+            for (TeamInitialisation teamInit : gameManager.getListTeamInit()) {
+                if (teamInit.getName().equals(winnerName)) {
+                    winningTeam = teamInit.getTeamModel();
+                    winningTeamView = teamInit.getTeamView();
+                    break;
+                }
+            }
+            
+            if (winningTeam == null || winningTeamView == null) {
+                System.err.println("Erreur: Équipe gagnante non trouvée: " + winnerName);
+                return;
             }
             
             EndGameController endGameController = new EndGameController(this);
