@@ -22,6 +22,7 @@ import fr.upc.g5e4.model.io.TeamData;
 import fr.upc.g5e4.view.GamePanel;
 import fr.upc.g5e4.view.ItemView;
 import fr.upc.g5e4.view.TeamView;
+import fr.upc.g5e4.view.InventoryOverlay;
 
 import java.io.*;
 import com.google.gson.*;
@@ -70,6 +71,9 @@ public class GameManager {
     // Timer : 
     private int roundTimeRemaining = 1800;
     private int roundTimeSave = 1800;
+
+    
+    private InventoryOverlay inventoryOverlay;
 
     /**
      * Initialise le terrain du jeu.
@@ -277,6 +281,7 @@ public class GameManager {
         return this.currentTeamIndex;
     }
 
+
     public ArrayList<TeamModel> getlistTeams(){
         System.out.print(listTeamModel.toString()); 
         return listTeamModel;
@@ -299,6 +304,10 @@ public class GameManager {
 
     public TeamModel getCurrentTeam(){
         return this.currentTeam;
+    }
+
+    public String getCurrentTeamName(){
+        return listTeamInital.get(currentTeamIndex).getName();
     }
 
 
@@ -476,7 +485,54 @@ public class GameManager {
         //System.out.println("JSON Creer");
     }
 
-    public int teamIndex(int i){
-        return i % listTeamInital.size();
+    /*Selection d'inventaire depuis l'inventaire*/
+    public void setWeaponFromInventory(String itemName) {
+        Weapon newWeapon = null;
+
+        switch (itemName) {
+            case "Ak47":
+            case "AK47":
+                newWeapon = new Ak47();
+                System.out.println("[Inventaire] Arme équipée depuis inventaire : AK-47");
+                break;
+            case "BaseballBat":
+                newWeapon = new BaseballBat();
+                System.out.println("[Inventaire] Arme équipée depuis inventaire : Baseball Bat");
+                break;
+            case "Grenade":
+                newWeapon = new Grenade();
+                System.out.println("[Inventaire] Arme équipée depuis inventaire : Grenade");
+                break;
+            case "RocketLauncher":
+                newWeapon = new RocketLauncher();
+                System.out.println("[Inventaire] Arme équipée depuis inventaire : Rocket Launcher");
+                break;
+            default:
+                System.out.println("[Inventaire] Aucun mapping d’arme pour : " + itemName);
+                break;
+        }
+
+        if (newWeapon != null && activeWormController != null) {
+            activeWormController.setCurrentWeapon(newWeapon);
+            // Met à jour la trajectoire
+            gamePanel.getTrajectoryRenderer().setWeapon(newWeapon);
+        }
     }
+
+    public java.util.List<InventoryModel.InventoryJson> getCurrentTeamInventory() {
+        TeamModel team = getCurrentTeam();
+        return (team != null) ? team.getInventory() : null;
+    }
+
+    public void setInventoryOverlay(InventoryOverlay overlay){
+        this.inventoryOverlay = overlay;
+    }
+
+    private void resetCurrentTeamInventoryTurn() {
+        TeamModel team = getCurrentTeam();
+        if (team != null) {
+            team.resetInventoryTurn();
+        }
+    }
+
 }

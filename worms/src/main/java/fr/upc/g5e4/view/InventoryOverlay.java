@@ -10,9 +10,11 @@ import java.util.ArrayList;
 
 import fr.upc.g5e4.model.InventoryModel.InventoryJson;
 import fr.upc.g5e4.controller.SwingInputController;
+import fr.upc.g5e4.model.CharacterModel;
+import fr.upc.g5e4.model.GameManager;
 
 public class InventoryOverlay extends JComponent{       //S'integre dans une interface Swing (JFrame)
-    private final List<InventoryJson> inventory;
+    private List<InventoryJson> inventory;
     private boolean visible = false;
     private MouseAdapter fireListener; // Listener pour le tir
 
@@ -28,8 +30,17 @@ public class InventoryOverlay extends JComponent{       //S'integre dans une int
     //
     private Rectangle useButtonBounds;
 
+    private final CharacterModel currentWorm;
+
+    private GameManager gameManager;
+
     public InventoryOverlay(List<InventoryJson> inventory){
+        this(inventory, null);
+    }
+
+    public InventoryOverlay(List<InventoryJson> inventory, CharacterModel currentWorm){
         this.inventory = inventory;
+        this.currentWorm = currentWorm;
         setOpaque(false);                   // transparent
 
         //Chargement d'icon
@@ -58,6 +69,10 @@ public class InventoryOverlay extends JComponent{       //S'integre dans une int
         });
     }
 
+    public void setGameManager(GameManager gameManager){
+        this.gameManager = gameManager;
+    }
+    
     /**
      * Enregistre le listener pour le tir (pour le transférer si inventaire non visible)
      */
@@ -134,14 +149,14 @@ public class InventoryOverlay extends JComponent{       //S'integre dans une int
             return;
         }
 
-        /* FOND SOMBRE */
-        g2.setColor(new Color(0,0,0,150));
-        g2.fillRect(0, 0, w, h);
+        // /* FOND SOMBRE */
+        // g2.setColor(new Color(0,0,0,150));
+        // g2.fillRect(0, 0, w, h);
 
         /* Overlay */
-        int panelW = 300;
-        int panelH = 250;
-        int panelX = (w - panelW) /2;
+        int panelW = 250;
+        int panelH = 400;
+        int panelX = 20;
         int panelY = (h - panelH) /2;
 
         g2.setColor(new Color(40,40,40));
@@ -196,6 +211,13 @@ public class InventoryOverlay extends JComponent{       //S'integre dans une int
 
     }
 
+    public void setInventory(List<InventoryJson> inventory){
+        this.inventory = inventory;
+        selectedIndex = -1;
+        equippedItem = null;
+        itemBounds.clear();
+        repaint();
+    }
     public void setInventoryVisible(boolean visible){
         this.visible = visible;
         repaint();
@@ -229,17 +251,27 @@ public class InventoryOverlay extends JComponent{       //S'integre dans une int
             return;
         }
 
-        //Log dans le terminal
-        int restantesTour = selected.getRemainingUseThisTurn();
-        if(selected.remainingUses == null){
-            System.out.println("[Inventaire] " + selected.name + " : " + restantesTour + " utilisation(s) restante(s) ce tour, munitions globales : infinite");
-        } else {
-            System.out.println("[Inventaire] " + selected.name + " : " + restantesTour + " utilisation(s) restante(s) ce tour, "+ selected.remainingUses + " munition(s) globale(s) restante(s)");
+        // Récupérer le nom de l'équipe active depuis GameManager
+        String teamName = "???";
+        if (gameManager != null) {
+            teamName = gameManager.getCurrentTeamName();
         }
 
-        //Met à jour l'affichage
+        // Log dans le terminal
+        int restantesTour = selected.getRemainingUseThisTurn();
+        if(selected.remainingUses == null){
+            System.out.println("[" + teamName + "] utilise " + selected.name + " " + restantesTour + " utilisation(s) ce tour, munitions : infinies");
+        } else {
+            System.out.println("[" + teamName + "] utilise " + selected.name + " " + restantesTour + " utilisation(s) ce tour, " + selected.remainingUses + " munition(s) restantes");
+        }
+
+        // Attacher l'arme au worm actif
+        if (gameManager != null) {
+            gameManager.setWeaponFromInventory(selected.name);
+        }
+
+        // Mise à jour affichage
         equippedItem = selected;
         repaint();
     }
-
 }

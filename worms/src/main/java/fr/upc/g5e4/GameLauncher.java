@@ -4,7 +4,9 @@ import java.io.IOException;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 
-import fr.upc.g5e4.model.InventoryModel.InventoryRoot;
+import java.util.ArrayList;
+
+import fr.upc.g5e4.model.InventoryModel.*;
 import fr.upc.g5e4.model.console.ConsoleLauncher;
 import fr.upc.g5e4.view.*;
 import fr.upc.g5e4.controller.*;
@@ -43,9 +45,18 @@ public class GameLauncher{
 
             /* ------------------------ Partie Overlay Inventaire --------------------------------- */
             //Charge l'inventaire 
+
+            ArrayList<TeamInitialisation> tmList = gameManager.getListTeamInit();
             InventoryRoot root = InventoryModel.load("/inventory.json");
+            int index = 0;
+
+            for (TeamInitialisation tm : tmList){
+                java.util.List<InventoryJson> teamInventory = copyInventory(root.inventory);
+                tmList.get(index).getTeamModel().setInventory(teamInventory);
+                index++;
+            }
             //Créer l'overlay
-            this.inventoryOverlay = new InventoryOverlay((root.inventory));
+            this.inventoryOverlay = new InventoryOverlay(tmList.get(0).getTeamModel().getInventory());  
             //Créer un layeredPane
             JLayeredPane layered = new JLayeredPane();
             layered.setPreferredSize(new java.awt.Dimension(sizeX,sizeY));
@@ -59,10 +70,12 @@ public class GameLauncher{
             layered.add(inventoryOverlay, JLayeredPane.PALETTE_LAYER);
             game.setContentPane(layered);
             
+            inventoryOverlay.setGameManager(gameManager);    
             inventoryOverlay.setFireListener(gameManager.getImputController());
+            gameManager.setInventoryOverlay(inventoryOverlay);
 
             game.getContentPane().setBackground(java.awt.Color.BLACK);
-
+            
             /* Fin de partie */
 
             //Touches raccourcies
@@ -105,6 +118,21 @@ public class GameLauncher{
             this.gameLoop = new GameLoop(gameManager);
             this.gameLoop.timerStart();
         }
+    }
+
+    private java.util.List<InventoryModel.InventoryJson> copyInventory(java.util.List<InventoryModel.InventoryJson> src) {
+                java.util.List<InventoryModel.InventoryJson> res = new java.util.ArrayList<>();
+                for (InventoryModel.InventoryJson it : src) {
+                    InventoryModel.InventoryJson c = new InventoryModel.InventoryJson();
+                    c.objectType = it.objectType;
+                    c.name = it.name;
+                    c.maxUsages = it.maxUsages;
+                    c.isInfinite = it.isInfinite;
+                    c.remainingUses = it.remainingUses;
+                    // useThisTurn reste à 0
+                    res.add(c);
+                }
+                return res;
     }
 
     private void setupKeyBindings(JComponent root, JFrame game, boolean initialFullScreen) {

@@ -27,6 +27,8 @@ public class TeamInitialisation {
 
     private static int COLORTEAM = 0;
 
+    private String name;
+
     
     private static int SPACING = 50;
     public static int[] alreadyUsed = new int[5];
@@ -36,8 +38,9 @@ public class TeamInitialisation {
     // creer un constructeur sans startX plus tard
     public TeamInitialisation(GroundModel groundModel,World world,String teamName, int teamNumber, int startX){
         boolean facingRight = (startX < groundModel.getWidth() / 2);
+        this.name = teamName;
         colorGiving();
-        teamModel = new TeamModel(groundModel, world, teamName, startX, SPACING, teamNumber, false, facingRight, false);
+        teamModel = new TeamModel(groundModel, world, name, startX, SPACING, teamNumber, false, facingRight, false);
         teamView = new TeamView(teamNumber,color, "/worm.png", facingRight);
     }
 
@@ -47,6 +50,10 @@ public class TeamInitialisation {
 
     public TeamView getTeamView(){
         return teamView;
+    }
+
+    public String getName(){
+        return this.name;
     }
     
     /*
