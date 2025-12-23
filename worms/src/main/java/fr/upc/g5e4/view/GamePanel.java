@@ -7,11 +7,11 @@ import fr.upc.g5e4.model.*;
 import fr.upc.g5e4.model.camera.CameraModel;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.awt.geom.Path2D;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * Classe qui sert pour tous les graphismes du monde
@@ -22,74 +22,44 @@ public class GamePanel extends JPanel {
     private BlockGridModel blockGridModel;  // système de terrain en blocs
     private final CameraModel camera;
     private final CameraController cameraController; // Ajouté pour le timer
-
-    // Support pour N équipes
-    private java.util.List<TeamModel> teamModels;
-    private java.util.List<TeamView> teamViews;
-
+    private ArrayList<TeamInitialisation> listTeamInitialisation;
+    private boolean blueprintMode = false;
     private final TrajectoryRenderer trajectoryRenderer;
     private ItemController itemController;
-
     private JButton saveButton;
-
     private static final float PPM = 30f;
-
     private BufferedImage groundTexture;
-    private boolean blueprintMode = false; // active le background blueprint
-
     // Vue pour dessiner les blocs
     private BlockGridView blockGridView;
-
     // ajout: label pour afficher le temps restant (vue)
     private final JLabel roundTimerLabel = new JLabel("Temps restant : 30s");
+    
+    // Pré-création des objets graphiques pour éviter les allocations à chaque frame + access facile aux couleurs
+    private static final Color SKY_COLOR = new Color(135, 206, 235);
+    private static final Color BLUEPRINT_BG = new Color(20, 40, 80);
+    private static final Color BLUEPRINT_GRID = new Color(60, 100, 150, 180);
+    private static final Color BLUEPRINT_THICK = new Color(100, 140, 200, 220);
+    private static final Color WATER_COLOR = new Color(75, 147, 240);
+    private static final Color GROUND_COLOR = new Color(34, 139, 34);
+    private static final BasicStroke GRID_STROKE_THIN = new BasicStroke(1);
+    private static final BasicStroke GRID_STROKE_THICK = new BasicStroke(2);
 
     /**
      * Constructeur pour N équipes
      */
-    public GamePanel(GroundModel model,
-            CameraModel camera, CameraController cameraController,
-            java.util.List<TeamModel> teamModels, java.util.List<TeamView> teamViews) {
+    public GamePanel(GroundModel model, CameraModel camera, CameraController cameraController, ArrayList<TeamInitialisation> listTeamInitialisation) {
         this.model = model;
         this.camera = camera;
         this.cameraController = cameraController;
-        this.teamModels = new java.util.ArrayList<>(teamModels);
-        this.teamViews = new java.util.ArrayList<>(teamViews);
+        this.listTeamInitialisation = listTeamInitialisation;
         this.trajectoryRenderer = new TrajectoryRenderer();
-
-        // init BlockGridView
         this.blockGridView = new BlockGridView();
-
         initializePanel();
     }
 
-    /**
-     * Constructeur pour 2 équipes (legacy)
-     */
-    public GamePanel(GroundModel model,
-            CameraModel camera, CameraController cameraController,
-            TeamModel teamModel1, TeamView teamView1, TeamModel teamModel2, TeamView teamView2) {
-        this.model = model;
-        this.camera = camera;
-        this.cameraController = cameraController;
-        this.teamViews.add(teamView1);
-        this.teamModels.add(teamModel2);
-        this.teamViews.add(teamView2);
-        this.trajectoryRenderer = new TrajectoryRenderer();
-
-        // init BlockGridView
-        this.blockGridView = new BlockGridView();
-
-        initializePanel();
-    }
-
-    /**
-     * Initialisation commune des composants du panel
-     */
     private void initializePanel() {
-
         setPreferredSize(new Dimension(model.getWidth(), model.getHeight()));
         setLayout(null);
-        
         // Charger la texture du ground
         try {
             groundTexture = ImageIO.read(getClass().getResourceAsStream("/ground_texture.png"));
@@ -97,7 +67,6 @@ public class GamePanel extends JPanel {
             System.err.println("impossible de charger la texture du ground : " + e.getMessage());
             groundTexture = null;
         }
-
         // ajout: configuration du label chrono
         roundTimerLabel.setFont(new Font("Arial", Font.BOLD, 18));
         roundTimerLabel.setForeground(Color.WHITE);
@@ -113,10 +82,9 @@ public class GamePanel extends JPanel {
         this.add(saveButton);
         */
 
-        // Timer pour update régulier de la caméra et repaint
+        // Timer pour update régulier de la caméra (repaint géré par GameLoop)
         new javax.swing.Timer(16, e -> {
             cameraController.update();
-            repaint();
         }).start();
     }
 
@@ -141,7 +109,6 @@ public class GamePanel extends JPanel {
         return trajectoryRenderer;
     }
     
-    
     /**
      * Définit l'ItemController pour dessiner les projectiles
      * @param itemController Le contrôleur d'items
@@ -158,16 +125,6 @@ public class GamePanel extends JPanel {
         this.blockGridModel = blockGridModel;
     }
 
-    /**
-     * Ajoute une équipe au rendu
-     */
-    public void addTeam(TeamModel teamModel, TeamView teamView) {
-        if (teamModel != null && teamView != null) {
-            this.teamModels.add(teamModel);
-            this.teamViews.add(teamView);
-        }
-    }
-
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -182,37 +139,33 @@ public class GamePanel extends JPanel {
         // Ciel (ou fond blueprint)
         if (blueprintMode) {
             // Fond bleu foncé
-            g2.setColor(new Color(20, 40, 80));
+            g2.setColor(BLUEPRINT_BG);
             g2.fillRect(0, 0, model.getWidth(), model.getHeight());
-            
             // Quadrillage blueprint
-            g2.setColor(new Color(60, 100, 150, 180)); // Bleu plus clair semi-transparent
-            g2.setStroke(new BasicStroke(1));
+            g2.setColor(BLUEPRINT_GRID);
+            g2.setStroke(GRID_STROKE_THIN);
             
             // Lignes verticales (tous les 50 pixels)
             for (int x = 0; x < model.getWidth(); x += 50) {
                 g2.drawLine(x, 0, x, model.getHeight());
             }
-            
             // Lignes horizontales (tous les 50 pixels)
             for (int y = 0; y < model.getHeight(); y += 50) {
                 g2.drawLine(0, y, model.getWidth(), y);
             }
-            
             // Lignes plus épaisses tous les 200 pixels
-            g2.setColor(new Color(100, 140, 200, 220));
-            g2.setStroke(new BasicStroke(2));
+            g2.setColor(BLUEPRINT_THICK);
+            g2.setStroke(GRID_STROKE_THICK);
             for (int x = 0; x < model.getWidth(); x += 200) {
                 g2.drawLine(x, 0, x, model.getHeight());
             }
             for (int y = 0; y < model.getHeight(); y += 200) {
                 g2.drawLine(0, y, model.getWidth(), y);
             }
-            
             // Rétablir le stroke normal
-            g2.setStroke(new BasicStroke(1));
+            g2.setStroke(GRID_STROKE_THIN);
         } else {
-            g2.setColor(new Color(135, 206, 235)); // Ciel normal
+            g2.setColor(SKY_COLOR);
             g2.fillRect(0, 0, model.getWidth(), model.getHeight());
         }
 
@@ -223,7 +176,7 @@ public class GamePanel extends JPanel {
                 blockGridView.drawWater(g2, blockGridModel);
             } else {
                 // Ancien système : eau simple
-                g2.setColor(new Color(75, 147, 240));
+                g2.setColor(WATER_COLOR);
                 g2.fillRect(0, model.getWaterLevel(), model.getWidth(), model.getHeight() - model.getWaterLevel());
             }
         }
@@ -242,37 +195,28 @@ public class GamePanel extends JPanel {
             }
             path.lineTo(model.getWidth(), model.getHeight());
             path.closePath();
-            
             // Appliquer la texture ou la couleur
             if (groundTexture != null) {
                 g2.setPaint(new TexturePaint(groundTexture, 
                     new Rectangle(0, 0, groundTexture.getWidth(), groundTexture.getHeight())));
             } else {
-                g2.setColor(new Color(34, 139, 34));
+                g2.setColor(GROUND_COLOR);
             }
             g2.fill(path);
         }
 
         // Équipes de worms
-        for (int i = 0; i < teamModels.size() && i < teamViews.size(); i++) {
-            teamViews.get(i).draw(g2, teamModels.get(i));
+        for (TeamInitialisation t : listTeamInitialisation){
+            t.draw(g2);
         }
 
         // Trajectoire de tir (Angry Birds style)
         trajectoryRenderer.draw(g2, null);
-        
         // Projectiles en vol
         if (itemController != null) {
             ProjectileView.drawProjectiles(g2, itemController.getActiveProjectiles());
         }
-
         // permet libérer les ressources graphiques
         g2.dispose();
     }
-
-    /*
-    // Pour relier le bouton avec la save ? -> Faire mtn ?
-    public void addSaveListener(ActionListener actionListener){
-        saveButton.addActionListener(actionListener);
-    }*/
 }

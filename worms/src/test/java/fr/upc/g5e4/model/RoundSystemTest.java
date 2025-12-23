@@ -13,8 +13,8 @@ public class RoundSystemTest {
 
     @BeforeEach
     void setUp() {
-        // Utilise le GameManager par défaut qui a déjà 2 équipes initialisées
-        gameManager = new GameManager();
+        // Utilise le GameManager avec 2 équipes par défaut
+        gameManager = new GameManager(2);
     }
 
     @Test

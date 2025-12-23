@@ -19,6 +19,10 @@ public class BlockGridView {
     private BufferedImage groundTexture;  // Texture générale (fallback)
     private boolean useTextures = false;
     
+    // Couleur pré-créée pour les bordures
+    private static final Color BORDER_COLOR = new Color(0, 0, 0, 30);
+    private static final Color WATER_COLOR = new Color(75, 147, 240, 150);
+    
     /**
      * Constructeur pour la vue de terrain en grille de blocs
      */
@@ -102,7 +106,7 @@ public class BlockGridView {
         
         // option : dessiner une bordure pour distinguer les blocs solides
         if (block.isSolid()) {
-            g2d.setColor(new Color(0, 0, 0, 30));
+            g2d.setColor(BORDER_COLOR);
             g2d.drawRect(x, y, size - 1, size - 1);
         }
     }
@@ -121,7 +125,7 @@ public class BlockGridView {
         int height = model.getPixelHeight();
 
         if (waterLevel < height) {
-            g2d.setColor(new Color(75, 147, 240, 150));
+            g2d.setColor(WATER_COLOR);
             g2d.fillRect(0, waterLevel, width, height - waterLevel); // on remplit l'eau en faisant un gros rectangle
         }
     }

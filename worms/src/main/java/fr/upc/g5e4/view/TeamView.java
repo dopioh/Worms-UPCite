@@ -98,4 +98,12 @@ public class TeamView {
     public CharacterView getCharacterView(int index) {
         return tabViewWorms[index];
     }
+    
+    /**
+     * Retourne le tableau complet des vues de personnages
+     * @return Le tableau des CharacterView
+     */
+    public CharacterView[] getViews() {
+        return tabViewWorms;
+    }
 }
