@@ -397,11 +397,32 @@ public class GameManager {
      */
     public void addTeam(TeamModel team,TeamView view) {
         if (team != null && view != null) {
-            listTeamModel.add(team);
-            // Ajouter aussi au GamePanel pour le rendu
-            if (gamePanel != null) {
-                gamePanel.addTeam(team, view);
+            // Extraction des paramètres nécessaires
+            String teamName = team.getTeamName();
+            int teamNumber = team.getWormNumberAtStart();
+            // Position de départ : on prend la position X du premier worm
+            int startX = 100; // Valeur par défaut
+            try {
+                if (team.getTabWorms() != null && team.getTabWorms().length > 0) {
+                    startX = (int) team.getTabWorms()[0].getXcord();
+                }
+            } catch (Exception e) {
+                // fallback sur la valeur par défaut
             }
+            String skinPath = "/worm.png";
+            // Si la TeamView possède un sprite personnalisé, on peut tenter de le récupérer
+            // (à adapter si TeamView expose ce champ)
+            // Construction de TeamInitialisation
+            TeamInitialisation teamInit = new TeamInitialisation(
+                this.model, // GroundModel
+                this.world, // World
+                teamName,
+                teamNumber,
+                startX,
+                skinPath
+            );
+            listTeamInital.add(teamInit);
+            listTeamModel.add(team);
             System.out.println("Équipe ajoutée: " + team.getTeamName() + " (Total: " + listTeamModel.size() + " équipes)");
         }
     }
