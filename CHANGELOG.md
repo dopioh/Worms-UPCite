@@ -126,3 +126,9 @@
 - **N equipes** fonctionnelles desormais (2 auparavant)
 - Retour aux mouvements originaux
 - Retour du saut (avec Z)
+
+### Optimisation
+- **Performance**
+    - Suppression du double `repaint()`
+    - pré-création d'objets graphiques réutilisables (couleurs, strokes) pour réduire les allocations mémoire
+- **Lag Audio** : Système de cache avec pré-chargement des sons en mémoire pour éliminer le lag au premier tir

@@ -58,7 +58,6 @@ public class GameLoop{
                 }
                 
                 gameManager.getWorld().step(FIXHZ,8,3);
-                gamePanel.repaint();
 
                 /* -> Pas une javadoc puisque javadoc peut pas documenter des variables locale 
                  * @see WaterSensorListener.java
