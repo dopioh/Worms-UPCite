@@ -3,7 +3,6 @@ package fr.upc.g5e4.model;
 
 //import java.awt.Color;
 import java.util.ArrayList;
-import javax.swing.Timer;
 import java.util.Random;
 import java.util.HashMap;
 import java.util.Map;
@@ -77,6 +76,7 @@ public class GameManager {
 
     
     private InventoryOverlay inventoryOverlay;
+    private fr.upc.g5e4.view.WindOverlay windOverlay;
 
     private final WindModel windModel = new WindModel();
     private final Random windRng = new Random();
@@ -215,13 +215,7 @@ public class GameManager {
         this.gamePanel.setFocusable(false);  // le panel ne prend pas le focus
         imputController.setFocusable(true);   // l'inputController prend le focus    
         
-
-        // Timer pour update régulier de la caméra et projectiles (repaint géré par GameLoop)
-        new Timer(16, e -> {
-            cameraController.update();
-            // mettre à jour les projectiles (16ms = 0.016s par frame)
-            itemController.updateProjectiles(0.016f);
-        }).start();
+        // La mise à jour de la caméra et des projectiles est maintenant gérée dans GameLoop
     }
 
     /**
@@ -259,6 +253,10 @@ public class GameManager {
     
     public CameraModel getCamera() {
         return this.camera;
+    }
+    
+    public ItemController getItemController() {
+        return this.itemController;
     }
     
     public int getActiveWormIndex() {
@@ -686,6 +684,14 @@ public class GameManager {
 
     public void setInventoryOverlay(InventoryOverlay overlay){
         this.inventoryOverlay = overlay;
+    }
+    
+    public void setWindOverlay(fr.upc.g5e4.view.WindOverlay overlay) {
+        this.windOverlay = overlay;
+    }
+    
+    public fr.upc.g5e4.view.WindOverlay getWindOverlay() {
+        return this.windOverlay;
     }
 
     private void resetCurrentTeamInventoryTurn() {

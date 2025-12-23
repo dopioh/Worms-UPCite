@@ -188,6 +188,7 @@ public class GameLauncher{
         // VENT
         windOverlay = new WindOverlay(gameManager.getWindModel());
         windOverlay.setBounds(0, 0, width, height);
+        gameManager.setWindOverlay(windOverlay);
 
         /* ---------------------- Partie Overlay Inventaire ---------------------- */
         // Charge l'inventaire 

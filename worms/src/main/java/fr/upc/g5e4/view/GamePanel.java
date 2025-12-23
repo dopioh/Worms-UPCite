@@ -82,10 +82,8 @@ public class GamePanel extends JPanel {
         this.add(saveButton);
         */
 
-        // Timer pour update régulier de la caméra (repaint géré par GameLoop)
-        new javax.swing.Timer(16, e -> {
-            cameraController.update();
-        }).start();
+        // La mise à jour de la caméra est maintenant gérée directement dans GameLoop
+        // Pas besoin de Timer supplémentaire ici
     }
 
     public static float getPPM() {
