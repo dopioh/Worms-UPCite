@@ -115,6 +115,7 @@
 - Système de statistiques pour tracker des actions pendant la partie
 - Endroit pour stocker les paramètres du jeu
     - `current_skin`
+ **Diagramme de classes** : Ajout et documentation du diagramme de classes du projet (GameManager, GameLoop, GamePanel, etc.)
 
 ### Modified
 - Support pour N équipes au lieu de 2 équipes hardcodées
