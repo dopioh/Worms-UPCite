@@ -7,7 +7,6 @@ import fr.upc.g5e4.model.*;
 import fr.upc.g5e4.model.camera.CameraModel;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.awt.geom.Path2D;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -88,10 +87,8 @@ public class GamePanel extends JPanel {
         this.add(saveButton);
         */
 
-        // Timer pour update régulier de la caméra (repaint géré par GameLoop)
-        new javax.swing.Timer(16, e -> {
-            cameraController.update();
-        }).start();
+        // La mise à jour de la caméra est maintenant gérée directement dans GameLoop
+        // Pas besoin de Timer supplémentaire ici
     }
 
     public static float getPPM() {
