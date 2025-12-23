@@ -155,4 +155,3 @@ graph TD
 ---
 
 *Ce diagramme montre comment les classes du projet Worms s'articulent pour creer une experience de jeu coherente et extensible.*</content>
-<parameter name="filePath">c:\Users\rilil\ECOLE\projet-worms\DIAGRAMME.md
