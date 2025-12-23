@@ -21,6 +21,7 @@ import fr.upc.g5e4.model.io.TeamData;
 //import fr.upc.g5e4.view.CharacterView;
 import fr.upc.g5e4.view.GamePanel;
 import fr.upc.g5e4.view.ItemView;
+import fr.upc.g5e4.view.TeamView;
 //import fr.upc.g5e4.view.TeamView;
 import fr.upc.g5e4.view.InventoryOverlay;
 
@@ -173,11 +174,8 @@ public class GameManager {
                 allWorms.add(listTeamInital.get(i).getTeamModel().getTabWorms()[j]);
             }
         }
-        
         this.wSL = physic.new WaterSensorListener(water, allWorms, new ArrayList<CharacterModel>());
         world.setContactListener(wSL);
-        
-        
         // Initialisation du système de tir
         this.itemController = new ItemController(new ItemView());
         this.itemController.setWorld(world);
@@ -188,46 +186,32 @@ public class GameManager {
         for (int i = 0 ; i < this.allWorms.length ; i++){
             this.allWorms[i] = allWorms.get(i);
         }
-
-        
         this.itemController.setAllWorms(this.allWorms);
         activeWormController.setItemController(this.itemController);
         activeWormController.setWorld(world);
         activeWormController.setAllWorms(this.allWorms);
-        
         // Équiper une arme par défaut (AK-47)
         activeWormController.setCurrentWeapon(new Ak47());
-        
         // Initialisation caméra avec le worm actif (fenêtre 1280x720, terrain 6000x720)
         this.cameraController = new CameraController(camera,listTeamInital.get(currentTeamIndex).getTeamModel().getWorm(activeWormIndex));
-        
         // Centrer la caméra sur le worm actif au démarrage
         this.cameraController.centerOnCharacter();
-        
         // Contrôleur fusionné avec le worm actif
         this.imputController = new SwingInputController(activeWormController, cameraController);
-
         // GamePanel avec tout ce qui est nécessaire
         this.gamePanel = new GamePanel(model, camera, cameraController, listTeamInital); 
-        
         // Passer le BlockGridModel au GamePanel pour le rendu en blocs
         this.gamePanel.setBlockGridModel(this.blockGridModel);
-        
         // Passer l'ItemController au GamePanel pour dessiner les projectiles
         this.gamePanel.setItemController(this.itemController);
-
         // Ajoute le contrôleur pour capter les touches
         this.gamePanel.add(imputController);
         imputController.setGameManager(this); // connecte inputController au GameManager
-                                             //  pour que inputController puisse appeler switchToNextWorm()
-        
         // Connecter le renderer de trajectoire
         imputController.setTrajectoryRenderer(gamePanel.getTrajectoryRenderer());
         gamePanel.getTrajectoryRenderer().setShooter(activeWormController.getModel());
         gamePanel.getTrajectoryRenderer().setWeapon(activeWormController.getCurrentWeapon());
-        
         // pour ne pas que gamePanel et imputController se disputent le focus
-        // en lancant le jeu, certaines fois rien n'était controllable mais c'est fix maintenant
         this.gamePanel.setFocusable(false);  // le panel ne prend pas le focus
         imputController.setFocusable(true);   // l'inputController prend le focus    
         
@@ -292,7 +276,7 @@ public class GameManager {
     public int getCurrentTeamIndex() {
         return this.currentTeamIndex;
     }
-
+    
 
     public ArrayList<TeamModel> getlistTeams(){
         return listTeamModel;
@@ -408,7 +392,53 @@ public class GameManager {
         } while (true);
     }
 
-    // switch généralisé pour une équipe donnée 
+    /**
+     * Ajoute une nouvelle équipe au jeu (pour supporter N équipes)
+     * IMPORTANT: À appeler AVANT le démarrage du jeu
+     *
+     * @param team L'équipe à ajouter
+     * @param view La vue correspondante de l'équipe
+     */
+    public void addTeam(TeamModel team,TeamView view) {
+        if (team != null && view != null) {
+            // Extraction des paramètres nécessaires
+            String teamName = team.getTeamName();
+            int teamNumber = team.getWormNumberAtStart();
+            // Position de départ : on prend la position X du premier worm
+            int startX = 100; // Valeur par défaut
+            try {
+                if (team.getTabWorms() != null && team.getTabWorms().length > 0) {
+                    startX = (int) team.getTabWorms()[0].getXcord();
+                }
+            } catch (Exception e) {
+                // fallback sur la valeur par défaut
+            }
+            String skinPath = "/worm.png";
+            // Si la TeamView possède un sprite personnalisé, on peut tenter de le récupérer
+            // (à adapter si TeamView expose ce champ)
+            // Construction de TeamInitialisation
+            TeamInitialisation teamInit = new TeamInitialisation(
+                this.model, // GroundModel
+                this.world, // World
+                teamName,
+                teamNumber,
+                startX,
+                skinPath
+            );
+            listTeamInital.add(teamInit);
+            listTeamModel.add(team);
+            System.out.println("Équipe ajoutée: " + team.getTeamName() + " (Total: " + listTeamModel.size() + " équipes)");
+        }
+    }
+
+    /**
+     * Retourne le nombre total d'équipes
+     */
+    public int getTeamCount() {
+        return listTeamModel.size();
+    }
+    
+    // switch généralisé pour une équipe donnée
     // adaptation de la methode pour N equipe avec un tableau
     public void switchToNextWorm(TeamModel team) {
         // au lieu de pointer sur activeWormIndex, pointe sur un tableau
@@ -452,12 +482,9 @@ public class GameManager {
      * passe au round suivant et alterne les équipes
      */
     public void nextRound() {
-
         roundNumber++;
         currentTeamIndex = (currentTeamIndex + 1) % listTeamInital.size(); 
         currentTeam = listTeamInital.get(currentTeamIndex).getTeamModel();
-    
-
         if (currentTeam != null) {
             currentTeam.resetInventoryTurn();
         }
@@ -468,17 +495,6 @@ public class GameManager {
         if (inventoryOverlay != null) {
             inventoryOverlay.setInventory(getCurrentTeamInventory());
         }
-
-        // --- Vent : change à chaque tour (fixe pendant le tour) ---
-        WindModel.Dir[] dirs = WindModel.Dir.values();
-        windModel.setDir(dirs[windRng.nextInt(dirs.length)]);
-
-        // force entre 0.15 et 1.0 (évite vent invisible)
-        float strength = 0.15f + windRng.nextFloat() * 0.85f;
-        windModel.setStrength(strength);
-
-        System.out.println("[VENT] " + windModel.getDir().label + " | force=" + String.format("%.2f", windModel.getStrength()));
-
     }
 
     
@@ -679,4 +695,31 @@ public class GameManager {
         }
     }
 
+    /**
+     * Construit une ArrayList de tous les vers de toutes les équipes
+     * Utile pour le WaterSensorListener et autres systèmes globaux
+     */
+    private ArrayList<CharacterModel> buildAllWormsList() {
+        ArrayList<CharacterModel> allWorms = new ArrayList<>();
+        for (TeamModel team : listTeamModel) {
+            for (int i = 0; i < team.getWormNumberAtStart(); i++) {
+                CharacterModel worm = team.getWorm(i);
+                if (worm != null) {
+                    allWorms.add(worm);
+                }
+            }
+        }
+        return allWorms;
+    }
+
+    /**
+     * Construit un tableau de tous les vers de toutes les équipes
+     * Utile pour l'ItemController et autres systèmes qui ont besoin d'un tableau
+     */
+    private CharacterModel[] buildAllWormsArray() {
+        ArrayList<CharacterModel> wormsList = buildAllWormsList();
+        return wormsList.toArray(new CharacterModel[0]);
+    }
+
 }
+

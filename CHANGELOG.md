@@ -94,6 +94,12 @@
 ---
 
 ### Added
+- **Cinématique d'introduction** : Animation de présentation avant le début du combat
+    - Affichage des équipes participantes avec nombre de worms
+    - Présentation du terrain généré procéduralement
+    - Affichage des conditions météorologiques (vent)
+    - Animation avec effets de fade et transitions fluides
+    - Durée de 5 secondes avant lancement automatique du jeu
 - Nametag
     - Affichage des itemes (potions...) sur le nametag
 - Nouveau systeme de map 
@@ -111,6 +117,9 @@
     - `current_skin`
 
 ### Modified
+- Support pour N équipes au lieu de 2 équipes hardcodées
+    - Refactorisation de GameManager, GameLoop et GamePanel pour utiliser des listes dynamiques
+    - Possibilité d'ajouter dynamiquement des équipes via GameManager.addTeam()
 - Nametag
     - Affichage de HP et Shield en chiffre -> barre horizontale
 - `CONTRIBUTING.md`
