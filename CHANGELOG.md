@@ -2,10 +2,6 @@
 
 ## v.0.0 Configuration : (Avant le premier sprint)
 ---
-# Changelog
-
-## v.0.0 Configuration : (Avant le premier sprint)
----
 
 - Création de la base Maven
 
