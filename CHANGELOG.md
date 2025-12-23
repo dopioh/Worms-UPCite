@@ -82,6 +82,8 @@
     - les worms ont des sprites via le constucteur de leur equipe
 - Comportement worm
     - le worm est totalement supprimé de la map quand il meurt (sprite + body physique) 
+- Sauvegarde
+    - une partie peut etre enregistree dans un fichier `sauvegarde.txt` en json avec la touche **_J_**
 
 ### Fixed
 - `.jar` injouable
@@ -113,11 +115,10 @@
     - Guide d'utilisation sur le nametag
 - Touche full screen F11 -> F
 - Implémentation de la physique de recul sur les worms touchés
+- **N équipes** fonctionnelles désormais (2 auparavant)
 
 ### Fixed
 - Tout le jeu est désormais en une seule fenêtre
 - Emplacement overlay vent
 - Nouveau systeme de map 
     - MAP en tableau 2D remplie d'objet "block"
-
-

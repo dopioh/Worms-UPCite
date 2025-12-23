@@ -1,8 +1,8 @@
 // File: fr/upc/g5e4/model/GameLoop.java
 package fr.upc.g5e4.model;
 
-import fr.upc.g5e4.controller.*;
-import fr.upc.g5e4.model.*;
+//import fr.upc.g5e4.controller.*;
+//import fr.upc.g5e4.model.*;
 //import fr.upc.g5e4.view.*;
 import fr.upc.g5e4.view.GamePanel;
 
@@ -86,6 +86,7 @@ public class GameLoop{
                     roundTimeRemaining = 1800;      // reset
                     gamePanel.setRoundTimer(30);    // reset affichage
                 }
+                
                 
                 gamePanel.repaint();
             }

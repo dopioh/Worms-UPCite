@@ -1,6 +1,9 @@
 package fr.upc.g5e4;
 
+
 import java.awt.Color;
+import java.util.ArrayList;
+
 import javax.swing.*;
 import org.jbox2d.dynamics.World;
 
@@ -9,9 +12,12 @@ import fr.upc.g5e4.model.*;
 import fr.upc.g5e4.model.camera.CameraModel;
 import fr.upc.g5e4.view.*;
 
+
 /**
  * Lanceur de test des terrains générés par Perlin
  */
+
+
 public class PerlinGameLauncher {
     
     public static void main(String[] args) {
@@ -55,9 +61,13 @@ public class PerlinGameLauncher {
         
         CharacterController wormController = new CharacterController(team1.getWorm(0));
         SwingInputController inputController = new SwingInputController(wormController, cameraController);
+
+        ArrayList<TeamInitialisation> tm = new ArrayList<>();
+        tm.add(new TeamInitialisation(groundModel, world, "team1", 3, sizeX));
+        tm.add(new TeamInitialisation(groundModel, world, "team2", 3, sizeX));
         
-        GamePanel gamePanel = new GamePanel(groundModel, camera, cameraController, 
-                                           team1, teamView1, team2, teamView2);
+        GamePanel gamePanel = new GamePanel(groundModel, camera, cameraController, tm);
+        
         gamePanel.setPreferredSize(new java.awt.Dimension(1280, 720));
         // ajout du controller
         gamePanel.add(inputController);
@@ -90,3 +100,4 @@ public class PerlinGameLauncher {
         System.out.println("Contrôles : Q/D = gauche/droite, Z = sauter, Flèches = caméra");
     }
 }
+
