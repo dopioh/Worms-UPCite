@@ -129,7 +129,6 @@
 
 ### Optimisation
 - **Performance**
-    - Centralisation de repaint dans un seul Timer (gameLoop) donc un seul repaint()
-        - Caméra, Projectilles, animation du vent, personnages, physique
+    - Centralisation de repaint dans un seul Timer (gameLoop) pour avoir un seul repaint()
     - pré-création d'objets graphiques réutilisables (couleurs, strokes) pour réduire les allocations mémoire pour chaque cube
 - **Lag Audio** : Système de cache avec pré-chargement des sons en mémoire pour éliminer le lag au premier tir
