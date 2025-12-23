@@ -99,6 +99,9 @@ public class GameManager {
      * @see PhysicsWorld#createGroundFromModel()
      */
     public GameManager(int nbrEquipe) {
+        // Initialiser le système audio en arrière-plan pour éviter le lag au premier tir
+        SoundPlayer.initialize();
+
         int sizeX = 1280;  // Taille du terrain
         int sizeY = 720;
         int waterLevel = 800;
@@ -211,12 +214,13 @@ public class GameManager {
         // pour ne pas que gamePanel et imputController se disputent le focus
         this.gamePanel.setFocusable(false);  // le panel ne prend pas le focus
         imputController.setFocusable(true);   // l'inputController prend le focus    
-        // Timer pour update régulier de la caméra, projectiles et repaint
+        
+
+        // Timer pour update régulier de la caméra et projectiles (repaint géré par GameLoop)
         new Timer(16, e -> {
             cameraController.update();
             // mettre à jour les projectiles (16ms = 0.016s par frame)
             itemController.updateProjectiles(0.016f);
-            gamePanel.repaint();
         }).start();
     }
 

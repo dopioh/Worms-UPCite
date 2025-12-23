@@ -33,6 +33,16 @@ public class GamePanel extends JPanel {
     private BlockGridView blockGridView;
     // ajout: label pour afficher le temps restant (vue)
     private final JLabel roundTimerLabel = new JLabel("Temps restant : 30s");
+    
+    // Pré-création des objets graphiques pour éviter les allocations à chaque frame + access facile aux couleurs
+    private static final Color SKY_COLOR = new Color(135, 206, 235);
+    private static final Color BLUEPRINT_BG = new Color(20, 40, 80);
+    private static final Color BLUEPRINT_GRID = new Color(60, 100, 150, 180);
+    private static final Color BLUEPRINT_THICK = new Color(100, 140, 200, 220);
+    private static final Color WATER_COLOR = new Color(75, 147, 240);
+    private static final Color GROUND_COLOR = new Color(34, 139, 34);
+    private static final BasicStroke GRID_STROKE_THIN = new BasicStroke(1);
+    private static final BasicStroke GRID_STROKE_THICK = new BasicStroke(2);
 
     /**
      * Constructeur pour N équipes
@@ -63,10 +73,18 @@ public class GamePanel extends JPanel {
         roundTimerLabel.setBounds(20, 10, 220, 30);
         roundTimerLabel.setOpaque(false);
         this.add(roundTimerLabel);
-        // Timer pour update régulier de la caméra et repaint
+
+        /*
+        // Bouton de sauvegarde
+        this.saveButton = new JButton("Sauvegarde");
+        this.saveButton.setBounds(40, 70, 70, 30);
+        saveButton.setFocusable(false);
+        this.add(saveButton);
+        */
+
+        // Timer pour update régulier de la caméra (repaint géré par GameLoop)
         new javax.swing.Timer(16, e -> {
             cameraController.update();
-            repaint();
         }).start();
     }
 
@@ -121,11 +139,12 @@ public class GamePanel extends JPanel {
         // Ciel (ou fond blueprint)
         if (blueprintMode) {
             // Fond bleu foncé
-            g2.setColor(new Color(20, 40, 80));
+            g2.setColor(BLUEPRINT_BG);
             g2.fillRect(0, 0, model.getWidth(), model.getHeight());
             // Quadrillage blueprint
-            g2.setColor(new Color(60, 100, 150, 180)); // Bleu plus clair semi-transparent
-            g2.setStroke(new BasicStroke(1));
+            g2.setColor(BLUEPRINT_GRID);
+            g2.setStroke(GRID_STROKE_THIN);
+            
             // Lignes verticales (tous les 50 pixels)
             for (int x = 0; x < model.getWidth(); x += 50) {
                 g2.drawLine(x, 0, x, model.getHeight());
@@ -135,8 +154,8 @@ public class GamePanel extends JPanel {
                 g2.drawLine(0, y, model.getWidth(), y);
             }
             // Lignes plus épaisses tous les 200 pixels
-            g2.setColor(new Color(100, 140, 200, 220));
-            g2.setStroke(new BasicStroke(2));
+            g2.setColor(BLUEPRINT_THICK);
+            g2.setStroke(GRID_STROKE_THICK);
             for (int x = 0; x < model.getWidth(); x += 200) {
                 g2.drawLine(x, 0, x, model.getHeight());
             }
@@ -144,9 +163,9 @@ public class GamePanel extends JPanel {
                 g2.drawLine(0, y, model.getWidth(), y);
             }
             // Rétablir le stroke normal
-            g2.setStroke(new BasicStroke(1));
+            g2.setStroke(GRID_STROKE_THIN);
         } else {
-            g2.setColor(new Color(135, 206, 235)); // Ciel normal
+            g2.setColor(SKY_COLOR);
             g2.fillRect(0, 0, model.getWidth(), model.getHeight());
         }
 
@@ -157,7 +176,7 @@ public class GamePanel extends JPanel {
                 blockGridView.drawWater(g2, blockGridModel);
             } else {
                 // Ancien système : eau simple
-                g2.setColor(new Color(75, 147, 240));
+                g2.setColor(WATER_COLOR);
                 g2.fillRect(0, model.getWaterLevel(), model.getWidth(), model.getHeight() - model.getWaterLevel());
             }
         }
@@ -181,7 +200,7 @@ public class GamePanel extends JPanel {
                 g2.setPaint(new TexturePaint(groundTexture, 
                     new Rectangle(0, 0, groundTexture.getWidth(), groundTexture.getHeight())));
             } else {
-                g2.setColor(new Color(34, 139, 34));
+                g2.setColor(GROUND_COLOR);
             }
             g2.fill(path);
         }
