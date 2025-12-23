@@ -1,3 +1,4 @@
+
 # Changelog
 
 ## v.0.0 Configuration : (Avant le premier sprint)
@@ -104,6 +105,12 @@
     - Affichage des itemes (potions...) sur le nametag
 - Nouveau systeme de map 
     - MAP en tableau 2D remplie d'objet "block"
+- **Cinématique d'introduction** : Animation de présentation avant le début du combat
+    - Affichage des équipes participantes avec nombre de worms
+    - Présentation du terrain généré procéduralement
+    - Affichage des conditions météorologiques (vent)
+    - Animation avec effets de fade et transitions fluides
+    - Durée de 5 secondes avant lancement automatique du jeu
 - Écran de fin de partie avec animation
   - Animation des worms gagnants marchant vers le trophée
   - Affichage des statistiques de jeu (dégâts, précision de tir, éliminations, rounds joué)
@@ -127,6 +134,9 @@
     - Guide d'utilisation sur le nametag
 - Touche full screen F11 -> F
 - Implémentation de la physique de recul sur les worms touchés
+- Support pour N équipes au lieu de 2 équipes hardcodées
+    - Refactorisation de GameManager, GameLoop et GamePanel pour utiliser des listes dynamiques
+    - Possibilité d'ajouter dynamiquement des équipes via GameManager.addTeam()
 
 ### Fixed
 - Tout le jeu est désormais en une seule fenêtre
