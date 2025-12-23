@@ -41,6 +41,22 @@ public class GameLoop{
                 if (gameManager.getActiveWormController() != null) {
                     gameManager.getActiveWormController().update();
                 }
+                
+                // stopper le mouvement horizontal des worms non-actifs pour qu'ils ne glissent pas
+                int activeWormIndex = gameManager.getActiveWormIndex();
+                TeamModel activeTeam = gameManager.getCurrentTeam();
+                
+                ArrayList<TeamModel> allTeams = gameManager.getlistTeams();
+                for (TeamModel team : allTeams) {
+                    for (int i = 0; i < team.getWormNumberAtStart(); i++) {
+                        CharacterModel worm = team.getWorm(i);
+                        // stopper le mouvement horizontal si ce n'est pas le worm actif
+                        if (worm != null && !worm.isDead() && !(activeTeam == team && i == activeWormIndex)) {
+                            worm.stopHorizontalMovement();
+                        }
+                    }
+                }
+                
                 gameManager.getWorld().step(FIXHZ,8,3);
                 gamePanel.repaint();
 
@@ -87,6 +103,13 @@ public class GameLoop{
                     gamePanel.setRoundTimer(30);    // reset affichage
                 }
                 
+                // Vérifier si une équipe a gagné
+                String winner = gameManager.checkGameOver();
+                if (winner != null) {
+                    timer.stop();  // Arrêter le jeu
+                    System.out.println("Fin de partie! " + winner + " a gagné!");
+                    // Le GameLauncher déclenchera l'écran de fin
+                }
                 
                 gamePanel.repaint();
             }
@@ -99,5 +122,13 @@ public class GameLoop{
 
     public void timerStop(){
         this.timer.stop();
+    }
+    
+    public boolean isGameOver() {
+        return gameManager.checkGameOver() != null;
+    }
+    
+    public String getWinner() {
+        return gameManager.checkGameOver();
     }
 }

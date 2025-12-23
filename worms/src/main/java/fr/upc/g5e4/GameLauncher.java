@@ -182,7 +182,7 @@ public class GameLauncher{
         // Mettre à jour la taille du layered pane
         gameLayeredPane.setPreferredSize(new Dimension(width, height));
         
-        this.gameManager = new GameManager(2);
+        this.gameManager = new GameManager(3);  // 3 équipes pour tester le scroll
         this.gamePanel = gameManager.getGamePanel();
         
         // VENT
@@ -227,8 +227,21 @@ public class GameLauncher{
             gameManager.getCamera().setViewSize(width, height);
         }
         
-        // Créer la game loop
+        // Créer et démarrer la game loop
         this.gameLoop = new GameLoop(gameManager);
+        this.gameLoop.timerStart();
+        
+        // Timer pour vérifier la fin de partie
+        Timer checkGameOverTimer = new Timer(1000, e -> {
+            if (gameLoop != null && gameLoop.isGameOver()) {
+                String winner = gameLoop.getWinner();
+                if (winner != null) {
+                    ((Timer)e.getSource()).stop();
+                    showEndGameScreen(winner);
+                }
+            }
+        });
+        checkGameOverTimer.start();
     }
 
     private java.util.List<InventoryModel.InventoryJson> copyInventory(java.util.List<InventoryModel.InventoryJson> src) {
@@ -343,6 +356,10 @@ public class GameLauncher{
     public JFrame getMainFrame() {
         return mainFrame;
     }
+    
+    public JPanel getCardPanel() {
+        return cardPanel;
+    }
 
     
     public GameManager getGameManager(){
@@ -351,6 +368,53 @@ public class GameLauncher{
 
     public GameLoop getGameLoop(){
         return this.gameLoop;
+    }
+    
+    /**
+     * Affiche l'écran de fin de partie avec animation
+     */
+    private void showEndGameScreen(String winnerName) {
+        SwingUtilities.invokeLater(() -> {
+            // Trouver l'équipe gagnante dans la liste des équipes
+            TeamModel winningTeam = null;
+            TeamView winningTeamView = null;
+            
+            for (TeamInitialisation teamInit : gameManager.getListTeamInit()) {
+                if (teamInit.getName().equals(winnerName)) {
+                    winningTeam = teamInit.getTeamModel();
+                    winningTeamView = teamInit.getTeamView();
+                    break;
+                }
+            }
+            
+            if (winningTeam == null || winningTeamView == null) {
+                System.err.println("Erreur: Équipe gagnante non trouvée: " + winnerName);
+                return;
+            }
+            
+            EndGameController endGameController = new EndGameController(this);
+            endGameController.showEndGameScreen(
+                winningTeam, 
+                winningTeamView, 
+                winnerName,
+                gameManager.getAllTeamStats()
+            );
+        });
+    }
+
+    public void resetGame() {
+        if (gameLoop != null) {
+            gameLoop.timerStop();
+        }
+        this.gameManager = null;
+        this.gamePanel = null;
+        this.gameLoop = null;
+        this.inventoryOverlay = null;
+        this.windOverlay = null;
+        if (gameLayeredPane != null) {
+            gameLayeredPane.removeAll();
+            gameLayeredPane.repaint();
+        }
     }
 
     public static void main(String[] args) throws IOException{

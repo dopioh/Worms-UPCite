@@ -104,6 +104,17 @@
     - Affichage des itemes (potions...) sur le nametag
 - Nouveau systeme de map 
     - MAP en tableau 2D remplie d'objet "block"
+- Écran de fin de partie avec animation
+  - Animation des worms gagnants marchant vers le trophée
+  - Affichage des statistiques de jeu (dégâts, précision de tir, éliminations, rounds joué)
+  - Particules et effets visuels
+  - Bouton retour au menu
+  - Support du plein écran
+  - Support du N equipe
+  - Stat box glissable avec scroll
+- Système de statistiques pour tracker des actions pendant la partie
+- Endroit pour stocker les paramètres du jeu
+    - `current_skin`
 
 ### Modified
 - Support pour N équipes au lieu de 2 équipes hardcodées
@@ -115,10 +126,12 @@
     - Guide d'utilisation sur le nametag
 - Touche full screen F11 -> F
 - Implémentation de la physique de recul sur les worms touchés
-- **N équipes** fonctionnelles désormais (2 auparavant)
 
 ### Fixed
 - Tout le jeu est désormais en une seule fenêtre
 - Emplacement overlay vent
 - Nouveau systeme de map 
     - MAP en tableau 2D remplie d'objet "block"
+- **N equipes** fonctionnelles desormais (2 auparavant)
+- Retour aux mouvements originaux
+- Retour du saut (avec Z)
