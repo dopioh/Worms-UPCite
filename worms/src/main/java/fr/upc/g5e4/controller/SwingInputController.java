@@ -211,7 +211,7 @@ public class SwingInputController extends JPanel{
                             charView = gameManager.getListTeamInit().get(teamIndex).getTeamView().getCharacterView(wormIndex);
                             
                             if (charView != null) {
-                                charView.getNameTagView().addItemFromResource("/worm.png", "test_item");
+                                charView.getNameTagView().addItemFromResource("/wormPixel.png", "test_item");
                                 System.out.println("Item ajouté au nametag");
                             }
                         }
