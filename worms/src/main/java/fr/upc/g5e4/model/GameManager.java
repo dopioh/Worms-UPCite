@@ -5,6 +5,8 @@ package fr.upc.g5e4.model;
 import java.util.ArrayList;
 import javax.swing.Timer;
 import java.util.Random;
+import java.util.HashMap;
+import java.util.Map;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.World;
 
@@ -77,6 +79,9 @@ public class GameManager {
 
     private final WindModel windModel = new WindModel();
     private final Random windRng = new Random();
+    
+    // Statistiques de jeu - support pour un nombre variable d'équipes
+    private Map<String, GameStats> teamStats = new HashMap<>();
 
     /**
      * Initialise le terrain du jeu.
@@ -145,17 +150,18 @@ public class GameManager {
         // initialise le nbr de worm par equipe
         this.nbrWormsByTeam = 3;
 
+        // Récupérer le skin sélectionné dans les paramètres
+        String selectedSkin = SettingsModel.getCurrentSkin();
+
         // creation des equipes selon le nombre que on veut
-        createTeam(nbrEquipe);
+        createTeam(nbrEquipe, selectedSkin);
 
         // initialisation des index 
         currentTeamIndex = 0;
         this.currentTeam = listTeamInital.get(currentTeamIndex).getTeamModel();
         this.teamCursor = new int[nbrEquipe];
-
         this.activeWormIndex = 0;
         this.activeWormController = new CharacterController(listTeamInital.get(currentTeamIndex).getTeamModel().getWorm(activeWormIndex));
-
         
         // Créer une liste de tous les worms pour le WaterSensorListener
         ArrayList<CharacterModel> allWorms = new ArrayList<>();
@@ -172,6 +178,7 @@ public class GameManager {
         // Initialisation du système de tir
         this.itemController = new ItemController(new ItemView());
         this.itemController.setWorld(world);
+        this.itemController.setGameManager(this);  // Pour le tracking des stats
         
         // Créer un tableau de tous les worms (N equipes)
         this.allWorms = new CharacterModel[allWorms.size()];
@@ -315,6 +322,89 @@ public class GameManager {
     public WindModel getWindModel(){
         return this.windModel;
     }
+    public Map<String, GameStats> getAllTeamStats() {
+        return teamStats;
+    }
+
+    public GameStats getTeamStats(String teamName) {
+        return teamStats.get(teamName);
+    }
+
+    public GameStats getCurrentTeamStats() {
+        String currentTeamName = getCurrentTeamName();
+        return teamStats.get(currentTeamName);
+    }
+
+    /**
+    * Vérifie si une équipe a gagné (tous les worms des autres équipes sont morts)
+    * @return Le nom de l'équipe gagnante ou null si le jeu continue
+    */
+    public String checkGameOver() {
+        int teamsAlive = 0;
+        String winningTeam = null;
+        
+        for (TeamInitialisation team : listTeamInital) {
+            int aliveWorms = team.getTeamModel().getAliveWormNumber();
+            if (aliveWorms > 0) {
+                teamsAlive++;
+                winningTeam = team.getName();
+            }
+        }
+        
+        // Si une seule équipe reste en vie, elle gagne
+        if (teamsAlive == 1) {
+            return winningTeam;
+        }
+        
+        return null;  // Le jeu continue
+    }
+
+    /**
+    * switch le worm actif vers le suivant dans l'équipe
+    * saute les worms morts
+    * Version généralisée pour N équipes
+    */
+    public void switchToNextWorm() {
+        TeamModel currentTeamModel = listTeamInital.get(currentTeamIndex).getTeamModel();
+        int startIndex = teamCursor[currentTeamIndex];
+        
+        do {
+            teamCursor[currentTeamIndex]++;
+            if (teamCursor[currentTeamIndex] >= currentTeamModel.getWormNumberAtStart()) {
+                teamCursor[currentTeamIndex] = 0; // Retour au début
+            }
+            
+            CharacterModel worm = currentTeamModel.getWorm(teamCursor[currentTeamIndex]);
+            
+            if (worm != null && !worm.isDead()) {
+                // si le nouveau worm existe et n'est pas mort alors c'est le nouveau actif
+                // => on attache le worm a la camera et a son controller
+                activeWormController = new CharacterController(worm);
+                
+                // Initialiser le système de tir pour le nouveau worm
+                activeWormController.setItemController(this.itemController);
+                activeWormController.setWorld(world);
+                activeWormController.setAllWorms(this.allWorms);
+                activeWormController.setCurrentWeapon(new Ak47());
+                
+                imputController.setCharacterController(activeWormController);
+                cameraController.setTargetCharacter(worm);
+                cameraController.centerOnCharacter();
+                
+                // mettre à jour la trajectoire avec le nouveau worm et son arme
+                gamePanel.getTrajectoryRenderer().setShooter(worm);
+                gamePanel.getTrajectoryRenderer().setWeapon(activeWormController.getCurrentWeapon());
+                
+                return;
+            }
+            
+            // si on est revenu au worm de départ alors il n'y a plus de worm vivant
+            if (teamCursor[currentTeamIndex] == startIndex) {
+                System.out.println("Aucun worm vivant disponible dans cette équipe");
+                return;
+            }
+        } while (true);
+    }
 
     // switch généralisé pour une équipe donnée 
     // adaptation de la methode pour N equipe avec un tableau
@@ -427,6 +517,11 @@ public class GameManager {
 
     // Initialiser un nombre N d'equipes
     public void createTeam(int number){
+        createTeam(number, "/worm.png"); // Utilise le skin par défaut
+    }
+    
+    // Initialiser un nombre N d'equipes avec un skin spécifique
+    public void createTeam(int number, String skinPath){
         int mapWidth = model.getWidth();
         int margin = 100; // Marge pour ne pas spawner au bord
         int usableWidth = mapWidth - (2 * margin); // Espace utilisable
@@ -451,10 +546,13 @@ public class GameManager {
 
             String name = "Team " + this.nbrTeams;
 
-            TeamInitialisation temp = new TeamInitialisation(model, world, name, this.nbrWormsByTeam, startX);
+            TeamInitialisation temp = new TeamInitialisation(model, world, name, this.nbrWormsByTeam, startX, skinPath);
     
             listTeamInital.add(temp);
             listTeamModel.add(temp.getTeamModel());
+            
+            // Initialiser les statistiques pour cette équipe
+            teamStats.put(name, new GameStats());
         }
     }
 
