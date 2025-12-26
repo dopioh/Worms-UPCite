@@ -81,12 +81,12 @@ public class GameLauncher{
 
             this.pauseOverlay.setHelpOverlay(this.helpOverlay);
 
-            layered.add(gamePanel, JLayeredPane.DEFAULT_LAYER);
-            layered.add(this.windOverlay, JLayeredPane.PALETTE_LAYER);
-            
-            layered.add(this.hudOverlay, JLayeredPane.DRAG_LAYER);
-            layered.add(inventoryOverlay, JLayeredPane.PALETTE_LAYER);
 
+            //Ajout des éléments aux LayeredPane
+            layered.add(gamePanel, JLayeredPane.DEFAULT_LAYER);
+            layered.add(windOverlay, JLayeredPane.PALETTE_LAYER);
+            layered.add(hudOverlay, JLayeredPane.DRAG_LAYER);
+            layered.add(inventoryOverlay, JLayeredPane.PALETTE_LAYER);
             layered.add(pauseOverlay, JLayeredPane.MODAL_LAYER);
             layered.add(helpOverlay, JLayeredPane.DRAG_LAYER);
 

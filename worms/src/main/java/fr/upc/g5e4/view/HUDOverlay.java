@@ -48,7 +48,7 @@ public class HUDOverlay extends JComponent {
     }
 
 
-    // Timer
+    // Timer    ----------------------------------------------------------------------------------REMPLACER PLUS TARD PAR LE TIMER DU ROUND
     private int timerRemaining = 30;
     private int timerTotal = 30;
 
@@ -74,12 +74,12 @@ public class HUDOverlay extends JComponent {
         this.inventoryOverlay = inv;
     }
 
-    // appelé par GameLoop
-    public void setTimer(int remainingSeconds, int totalSeconds) {
-        this.timerRemaining = Math.max(0, remainingSeconds);
-        this.timerTotal = Math.max(1, totalSeconds);
-        repaint();
-    }
+    // appelé par GameLoop chaque frame mais ne marche pas pour le moment
+    // public void setTimer(int remainingSeconds, int totalSeconds) {
+    //     this.timerRemaining = Math.max(0, remainingSeconds);
+    //     this.timerTotal = Math.max(1, totalSeconds);
+    //     repaint();
+    // }
 
     @Override
     protected void paintComponent(Graphics g) {
@@ -136,7 +136,7 @@ public class HUDOverlay extends JComponent {
                 hp = worm.getHealth();
                 shield = worm.getShield();
             } catch (Exception ignored) {
-
+                // worm null ou autre erreur
             }
         }
 
@@ -179,10 +179,10 @@ public class HUDOverlay extends JComponent {
             weaponName = gameManager.getActiveWormController().getCurrentWeapon().getName();
         }
 
-        // icône
+        // icône + nom + munitions
         if (weaponName != null) {
-            String key = weaponName.toLowerCase();
-            BufferedImage wi = weaponImages.get(key);
+            String key = weaponName.toLowerCase();  // clé pour les images
+            BufferedImage wi = weaponImages.get(key); 
 
             if (wi != null) {
                 g2.drawImage(wi, weaponBoxX + 8, weaponBoxY + 8, 44, 44, null);
@@ -232,8 +232,7 @@ public class HUDOverlay extends JComponent {
         } 
     }
 
-    private void drawBar(Graphics2D g2, int x, int y, int w, int h,
-                         double value, double max, String label) {
+    private void drawBar(Graphics2D g2, int x, int y, int w, int h, double value, double max, String label) { // Dessine une barre (PV, bouclier, etc)
         float t = (max <= 0) ? 0f : (float)(value / max);
         t = Math.max(0f, Math.min(1f, t));
 
@@ -248,7 +247,7 @@ public class HUDOverlay extends JComponent {
         g2.drawString(label + " : " + (int)value, x + w + 15, y + 13);
     }
 
-    private void handleMousePressed(MouseEvent e) {
+    private void handleMousePressed(MouseEvent e) { // Clic sur le sac à dos
         computeLayout();
         if (bagBounds != null && bagBounds.contains(e.getPoint())) {
             if (inventoryOverlay != null) {
@@ -258,7 +257,7 @@ public class HUDOverlay extends JComponent {
         }
     }
 
-    private void computeLayout() {
+    private void computeLayout() { // Calcule les positions des éléments HUD
         int w = getWidth();
         int h = getHeight();
 
@@ -275,8 +274,8 @@ public class HUDOverlay extends JComponent {
     }
 
     @Override
-    public boolean contains(int x, int y) {
-        computeLayout();
+    public boolean contains(int x, int y) { // Clics uniquement si sur le sac à dos
+        computeLayout();  //met à jour les positions des éléments
         return bagBounds != null && bagBounds.contains(x, y);
     }
 }

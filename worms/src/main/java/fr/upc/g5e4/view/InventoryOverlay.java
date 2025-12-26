@@ -96,7 +96,7 @@ public class InventoryOverlay extends JComponent {
             }
         });
 
-        // HOVER (survol)
+        // HOVER 
         addMouseMotionListener(new MouseAdapter() {
             @Override
             public void mouseMoved(MouseEvent e) {
@@ -142,7 +142,7 @@ public class InventoryOverlay extends JComponent {
     /**
      * FireListener basé sur le SwingInputController (tir vers la souris)
      */
-    public void setFireListener(SwingInputController inputController){
+    public void setFireListener(SwingInputController inputController){      // Listener par défaut
         this.fireListener = new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -153,7 +153,7 @@ public class InventoryOverlay extends JComponent {
         };
     }
 
-    public void setFireListener(MouseAdapter listener){
+    public void setFireListener(MouseAdapter listener){        
         this.fireListener = listener;
     }
 
@@ -404,11 +404,9 @@ public class InventoryOverlay extends JComponent {
         this.visible = visible;
 
         if (visible) {
-            computeLayout();     // IMPORTANT : tabs + grid prêts avant le 1er clic
+            computeLayout();    
         } else {
-            // optionnel : reset sélection quand on ferme
             selectedIndex = -1;
-            // equippedItem = null; // si tu veux aussi oublier l'arme équipée
         }
         repaint();
     }

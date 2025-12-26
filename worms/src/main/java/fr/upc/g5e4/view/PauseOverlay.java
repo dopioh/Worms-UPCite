@@ -25,7 +25,7 @@ public class PauseOverlay extends JComponent {
                         boolean v = helpOverlay.isHelpVisible();
                         helpOverlay.setHelpVisible(!v);
 
-                        // Remonter Help au-dessus (super important)
+                        // Remonter Help au-dessus 
                         Container parent = helpOverlay.getParent();
                         if (parent instanceof JLayeredPane lp) {
                             lp.moveToFront(helpOverlay);
@@ -33,7 +33,7 @@ public class PauseOverlay extends JComponent {
                         }
                     }
                 }
-                if (ventButtonBounds != null && ventButtonBounds.contains(e.getPoint())) {  // A changer par l'activation du vent
+                if (ventButtonBounds != null && ventButtonBounds.contains(e.getPoint())) {                       // A changer par l'activation du vent
                     System.out.println("[PauseOverlay] Bouton placeholder cliqué !");
                     return; 
                 }

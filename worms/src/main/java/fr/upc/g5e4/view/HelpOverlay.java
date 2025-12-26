@@ -6,13 +6,13 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class HelpOverlay extends JComponent {
-    private Rectangle closeButtonBounds;
+    private Rectangle closeButtonBounds;    // bouton FERMER
 
-    public HelpOverlay() {
+    public HelpOverlay() { // Constructeur
         setOpaque(false);
         setVisible(false); 
 
-        addMouseListener(new MouseAdapter() {
+        addMouseListener(new MouseAdapter() {       // Gestion des clics souris
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (!isVisible()) return;
@@ -35,10 +35,10 @@ public class HelpOverlay extends JComponent {
     }
 
     @Override
-    protected void paintComponent(Graphics g) {
+    protected void paintComponent(Graphics g) {    // Dessin de l'overlay d'aide
         super.paintComponent(g);
         if (!isVisible()) return;
-        if (!(g instanceof Graphics2D g2)) return;
+        if (!(g instanceof Graphics2D g2)) return; 
 
         int w = getWidth();
         int h = getHeight();
@@ -46,11 +46,13 @@ public class HelpOverlay extends JComponent {
         g2.setColor(new Color(0, 0, 0, 220));
         g2.fillRect(0, 0, w, h);
 
-        int panelW = 620;
+        // Dimension du panneau
+        int panelW = 620;       
         int panelH = 420;
         int x = (w - panelW) / 2;
         int y = (h - panelH) / 2;
 
+        // Couleur et style du panneau
         g2.setColor(new Color(25, 25, 25, 235));
         g2.fillRoundRect(x, y, panelW, panelH, 18, 18);
 
@@ -86,7 +88,8 @@ public class HelpOverlay extends JComponent {
         int btnY = y + panelH - btnH - 20;
 
         closeButtonBounds = new Rectangle(btnX, btnY, btnW, btnH);
-
+        
+        // Style du bouton FERMER
         g2.setColor(new Color(180, 60, 60));
         g2.fillRoundRect(btnX, btnY, btnW, btnH, 12, 12);
 
@@ -97,7 +100,7 @@ public class HelpOverlay extends JComponent {
     }
 
     @Override
-    public boolean contains(int x, int y) {
+    public boolean contains(int x, int y) { // Clics uniquement si l'overlay est visible
         return isHelpVisible() && super.contains(x, y);
     }  
 }
