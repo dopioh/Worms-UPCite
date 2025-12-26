@@ -109,6 +109,8 @@
 - Système de statistiques pour tracker des actions pendant la partie
 - Endroit pour stocker les paramètres du jeu
     - `current_skin`
+- Une sauvegarde peut desormais etre lancer depuis le menu d'acceuil en cliquant sur "Poursuivre une partie"
+- Possibilitee de tirer/faire des degats/tuer un worm dans la version Console du jeu (tire assez limiter)
 
 ### Modified
 - Nametag
@@ -126,6 +128,7 @@
 - **N equipes** fonctionnelles desormais (2 auparavant)
 - Retour aux mouvements originaux
 - Retour du saut (avec Z)
+- Initialisation de l'overlay Inventaire decaler dans GameManager (precedemment GameLauncher)
 
 ### Optimisation
 - **Performance**
