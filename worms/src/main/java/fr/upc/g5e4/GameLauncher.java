@@ -227,9 +227,9 @@ public class GameLauncher{
             gameManager.getCamera().setViewSize(width, height);
         }
         
-        // Créer et démarrer la game loop
+        // Créer la game loop (ne pas démarrer ici)
         this.gameLoop = new GameLoop(gameManager);
-        this.gameLoop.timerStart();
+        gameManager.setGameLoop(gameLoop);
         
         // Timer pour vérifier la fin de partie
         Timer checkGameOverTimer = new Timer(1000, e -> {
