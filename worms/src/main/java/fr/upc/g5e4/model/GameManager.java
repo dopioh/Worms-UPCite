@@ -343,7 +343,7 @@ public class GameManager {
                 activeWormController.setItemController(this.itemController);
                 activeWormController.setWorld(world);
                 activeWormController.setAllWorms(this.allWorms);
-                activeWormController.setCurrentWeapon(new Ak47());
+                activeWormController.setCurrentWeapon(null);
                 
                 imputController.setCharacterController(activeWormController);
                 cameraController.setTargetCharacter(worm);
