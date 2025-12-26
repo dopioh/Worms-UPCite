@@ -70,6 +70,21 @@ public class InventoryOverlay extends JComponent {
         }
     }
 
+    // --- HOVER ---
+    private Category hoveredTab = null;   // onglet survolé
+    private int hoveredIndex = -1;        // case survolée (index dans lastFiltered)
+
+    // --- DESCRIPTIONS ---
+    private final java.util.Map<String, String> itemDescriptions = new java.util.HashMap<>();
+
+    private void loadDescriptions() {
+        itemDescriptions.put("ak47", "rafales rapides, bonne portée");
+        itemDescriptions.put("grenade", "Boom! Gros dégâts de zone");
+        itemDescriptions.put("bazooka", "Gros dégâts");
+        itemDescriptions.put("baseballbat", "Cogne sauvagement tes ennemis");
+        itemDescriptions.put("bumper", "Rebondis");
+    }
+
 
     public InventoryOverlay(List<InventoryJson> inventory) {
         this.inventory = inventory;
@@ -82,13 +97,53 @@ public class InventoryOverlay extends JComponent {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        
+        loadDescriptions();
+        ToolTipManager.sharedInstance().registerComponent(this); // optionnel (tooltips Swing)
 
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                handleClick(e.getPoint());
+                handleClick(e.getX(), e.getY());
             }
         });
+
+        // HOVER (survol)
+        addMouseMotionListener(new MouseAdapter() {
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                if (!visible) return;
+
+                computeLayout();
+                int x = e.getX();
+                int y = e.getY();
+
+                Category newHoveredTab = null;
+                int newHoveredIndex = -1;
+
+                // Tabs
+                if (armesTab != null && armesTab.contains(x, y)) newHoveredTab = Category.ARMES;
+                else if (gadgetTab != null && gadgetTab.contains(x, y)) newHoveredTab = Category.GADGET;
+                else if (craftTab != null && craftTab.contains(x, y)) newHoveredTab = Category.CRAFT;
+
+                // Cases
+                if (newHoveredTab == null) {
+                    for (int i = 0; i < itemBounds.size(); i++) {
+                        if (itemBounds.get(i).contains(x, y)) {
+                            newHoveredIndex = i;
+                            break;
+                        }
+                    }
+                }
+
+                boolean changed = (newHoveredTab != hoveredTab) || (newHoveredIndex != hoveredIndex);
+                hoveredTab = newHoveredTab;
+                hoveredIndex = newHoveredIndex;
+
+                if (changed) repaint();
+            }
+        });
+
 
     }
 
@@ -115,9 +170,7 @@ public class InventoryOverlay extends JComponent {
     }
 
     
-    private void handleClick(Point p) {
-        int x = p.x;
-        int y = p.y;
+    private void handleClick(int x, int y) {
         // inventaire fermé -> clic = tir normal
         if (!visible) {
             if (fireListener != null) {
@@ -276,9 +329,9 @@ public class InventoryOverlay extends JComponent {
         gadgetTab = new Rectangle(panelX + 120, tabY, tabW, tabH);
         craftTab  = new Rectangle(panelX + 220, tabY, tabW, tabH);
 
-        drawTab(g2, armesTab, "ARMES", currentCategory == Category.ARMES);
-        drawTab(g2, gadgetTab, "GADGET", currentCategory == Category.GADGET);
-        drawTab(g2, craftTab, "CRAFT", currentCategory == Category.CRAFT);
+        drawTab(g2, armesTab,  "ARMES",  currentCategory == Category.ARMES,  hoveredTab == Category.ARMES);
+        drawTab(g2, gadgetTab, "GADGET", currentCategory == Category.GADGET, hoveredTab == Category.GADGET);
+        drawTab(g2, craftTab,  "CRAFT",  currentCategory == Category.CRAFT,  hoveredTab == Category.CRAFT);
 
         itemBounds.clear();
 
@@ -338,6 +391,33 @@ public class InventoryOverlay extends JComponent {
             }
         }
 
+        // --- Description (hover > équipé) ---
+        InventoryJson infoItem = null;
+        if (hoveredIndex >= 0 && hoveredIndex < lastFiltered.size()) {
+            infoItem = lastFiltered.get(hoveredIndex);
+        } else if (equippedItem != null) {
+            infoItem = equippedItem;
+        }
+
+        if (infoItem != null) {
+            String key = infoItem.name.toLowerCase();
+            String desc = itemDescriptions.getOrDefault(key, ""); 
+
+            int boxX = panelX + 20;
+            int boxW = panelW - 40;
+            int boxH = 60;
+            int boxY = panelY + panelH - boxH - 15;
+
+            g2.setColor(new Color(0,0,0,120));
+            g2.fillRoundRect(boxX, boxY, boxW, boxH, 12, 12);
+
+            g2.setColor(Color.WHITE);
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 12f));
+            g2.drawString(infoItem.name, boxX + 10, boxY + 20);
+
+            g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 11f));
+            g2.drawString(desc, boxX + 10, boxY + 40);
+        }
 
         if (equippedItem != null) {
             g2.drawString("Equipé : " + equippedItem.name,
@@ -390,8 +470,15 @@ public class InventoryOverlay extends JComponent {
         return res;
     }
 
-    private void drawTab(Graphics2D g2, Rectangle r, String label, boolean active) {
-        g2.setColor(active ? new Color(90,90,140) : new Color(70,70,70));
+    private void drawTab(Graphics2D g2, Rectangle r, String label, boolean active, boolean hovered) {
+        Color base = new Color(70,70,70);
+        Color on   = new Color(90,90,140);
+        Color hov  = new Color(95,95,95);
+
+        if (active) g2.setColor(on);
+        else if (hovered) g2.setColor(hov);
+        else g2.setColor(base);
+
         g2.fillRoundRect(r.x, r.y, r.width, r.height, 10, 10);
 
         g2.setColor(Color.WHITE);
@@ -402,6 +489,7 @@ public class InventoryOverlay extends JComponent {
         int ty = r.y + r.height - 7;
         g2.drawString(label, tx, ty);
     }
+
 
 
     private void computeLayout() {

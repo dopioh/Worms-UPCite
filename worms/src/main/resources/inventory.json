@@ -3,7 +3,7 @@
         {
             "objectType" : "WEAPON",
             "name" : "baseballbat",
-            "maxUsages" : 2,
+            "maxUsages" : 1,
             "isInfinite" : true
         },
         {
@@ -22,7 +22,7 @@
         {
             "objectType" : "WEAPON",
             "name" : "ak47",
-            "maxUsages" : 1,
+            "maxUsages" : 3,
             "isInfinite" : false,
             "remainingUses" : 30
         },
