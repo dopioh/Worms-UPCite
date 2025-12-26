@@ -102,18 +102,20 @@ public class GameManager {
         // Initialiser le système audio en arrière-plan pour éviter le lag au premier tir
         SoundPlayer.initialize();
 
-        int sizeX = 1280;  // Taille du terrain
-        int sizeY = 720;
-        int waterLevel = 800;
+        // ========== CONFIGURATION DU TERRAIN ==========
+        // Pour changer le type de terrain et la taille, voir MapConfig.java
+        int sizeX = MapConfig.getMapWidth();
+        int sizeY = MapConfig.getMapHeight();
+        // Eau uniquement pour le mode ISLANDS
+        int waterLevel = (MapConfig.getMapType() == MapConfig.MapType.ISLANDS) ? 480 : sizeY + 100;
+        // =============================================
         
         // generation procédurale du terrain avec seed (le temps de la machine)
         TerrainGenerator generator = new TerrainGenerator(System.currentTimeMillis());
-        int[] groundY = generator.generateTerrainWithPlatforms(
+        int[] groundY = generator.generateTerrainByType(
             200,          // nombre de points pour la génération
             250,          // hauteur minimale (depuis le haut)
-            650,          // hauteur maximale
-            280,          // hauteur des plateformes aux bords
-            15            // largeur des plateformes en %
+            650           // hauteur maximale
         );
         /*
          * Ancienne méthode : terrain manuel
