@@ -2,6 +2,8 @@ package fr.upc.g5e4;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.awt.Color;
+
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.World;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,7 +27,7 @@ public class TeamModelTest {
     
     @Test
     void testConstructorWithValidWormNumber() {
-        team = new TeamModel(groundModel, world, "Team1", 100, 50, 5,false, true, false);
+        team = new TeamModel(groundModel, world, "Team1", 100, 50, 5,false, true, false,1);
         
         assertNotNull(team);
         assertEquals(5, team.getWormNumberAtStart());
@@ -36,7 +38,7 @@ public class TeamModelTest {
     
     @Test
     void testWormsInitialization() {
-        team = new TeamModel(groundModel, world, "Team1", 100, 50, 3,false, true, false);
+        team = new TeamModel(groundModel, world, "Team1", 100, 50, 3,false, true, false,1);
         
         CharacterModel[] worms = team.getTabWorms();
         
@@ -54,7 +56,7 @@ public class TeamModelTest {
      * Teste getWorm avec des index valides
      */
     void testGetWormWithValidIndex() {
-        team = new TeamModel(groundModel, world, "Team1", 100, 50, 5,false, true, false);
+        team = new TeamModel(groundModel, world, "Team1", 100, 50, 5,false, true, false,1);
         
         CharacterModel worm = team.getWorm(0);
         assertNotNull(worm);
@@ -68,7 +70,7 @@ public class TeamModelTest {
      * Teste getWorm avec des index invalides
      */
     void testGetWormWithInvalidIndex() {
-        team = new TeamModel(groundModel, world, "Team1", 100, 50, 5,false, true, false);
+        team = new TeamModel(groundModel, world, "Team1", 100, 50, 5,false, true, false,1);
         
         assertThrows(IndexOutOfBoundsException.class, () -> {
             team.getWorm(-1);
@@ -85,7 +87,7 @@ public class TeamModelTest {
     
     @Test
     void testRemoveWorm() {
-        team = new TeamModel(groundModel, world, "Team1", 100, 50, 5,false, true, false);
+        team = new TeamModel(groundModel, world, "Team1", 100, 50, 5,false, true, false,1);
         
         assertNotNull(team.getWorm(2));
         team.removeWorm(2);
@@ -94,7 +96,7 @@ public class TeamModelTest {
     
     @Test
     void testRemoveWormWithInvalidIndex() {
-        team = new TeamModel(groundModel, world, "Team1", 100, 50, 5,false, true, false);
+        team = new TeamModel(groundModel, world, "Team1", 100, 50, 5,false, true, false,1);
         
         assertThrows(IndexOutOfBoundsException.class, () -> {
             team.removeWorm(-1);
@@ -110,7 +112,7 @@ public class TeamModelTest {
      * Teste l'ajout d'un worm a une position qui vient de se libérer
      */
     void testAddWorm() {
-        team = new TeamModel(groundModel, world, "Team1", 100, 50, 5,false, true, false);
+        team = new TeamModel(groundModel, world, "Team1", 100, 50, 5,false, true, false,1);
         
         // on libère la place en supprimant le worm à l'index 2
         team.removeWorm(2);
@@ -129,7 +131,7 @@ public class TeamModelTest {
      * Teste l'ajout d'un worm à une position prise par un autre worm
      */
     void testAddWormToUsedSlot() {
-        team = new TeamModel(groundModel, world, "Team1", 100, 50, 5,false, true, false);
+        team = new TeamModel(groundModel, world, "Team1", 100, 50, 5,false, true, false,1);
         
         CharacterModel newWorm = new CharacterModel(groundModel, world, 300, 200,false);
         
@@ -140,7 +142,7 @@ public class TeamModelTest {
     
     @Test
     void testAddWormWithInvalidIndex() {
-        team = new TeamModel(groundModel, world, "Team1", 100, 50, 5,false, true, false);
+        team = new TeamModel(groundModel, world, "Team1", 100, 50, 5,false, true, false,1);
         CharacterModel newWorm = new CharacterModel(groundModel, world, 300, 200,false);
         
         assertThrows(IndexOutOfBoundsException.class, () -> {
@@ -154,7 +156,7 @@ public class TeamModelTest {
     
     @Test
     void testGetAliveWormNumber() {
-        team = new TeamModel(groundModel, world, "Team1", 100, 50, 5,false, true, false);
+        team = new TeamModel(groundModel, world, "Team1", 100, 50, 5,false, true, false,1);
         
         assertEquals(5, team.getAliveWormNumber());
         

@@ -28,7 +28,11 @@ public class WindModel {
     public float getStrength() { return strength; }
 
     public void setDir(Dir dir) { this.dir = dir; }
-    public void setStrength(float strength) {
-        this.strength = Math.max(0f, Math.min(1f, strength));
+    public void setStrength(float strength, boolean save) {
+        if (!save){
+            this.strength = Math.max(0f, Math.min(1f, strength));
+        } else {
+            this.strength = strength;
+        }
     }
 }

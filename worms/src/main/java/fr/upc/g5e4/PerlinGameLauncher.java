@@ -47,11 +47,11 @@ public class PerlinGameLauncher {
         physic.limitPanel(groundModel);
         
         int wormNumber = 1;
-        TeamModel team1 = new TeamModel(groundModel, world, "Team Perlin", 300, 300, wormNumber, false, true, true);
+        TeamModel team1 = new TeamModel(groundModel, world, "Team Perlin", 300, 300, wormNumber, false, true, true,1);
         TeamView teamView1 = new TeamView(wormNumber, Color.ORANGE);
         
         // créer une deuxième équipe vide pour éviter les NullPointerException
-        TeamModel team2 = new TeamModel(groundModel, world, "Team 2", 5000, 300, 1, false, false, true);
+        TeamModel team2 = new TeamModel(groundModel, world, "Team 2", 5000, 300, 1, false, false, true,2);
         TeamView teamView2 = new TeamView(1, Color.BLUE);
         
         // init camera (utiliser la taille de la fenêtre, pas du terrain)

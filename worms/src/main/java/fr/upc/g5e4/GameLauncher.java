@@ -5,9 +5,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
-import java.util.ArrayList;
+//import java.util.ArrayList;
 
-import fr.upc.g5e4.model.InventoryModel.*;
+//import fr.upc.g5e4.model.InventoryModel.*;
+import fr.upc.g5e4.model.io.SaveData;
+//import fr.upc.g5e4.model.io.SaveLoad;
 //import fr.upc.g5e4.model.console.ConsoleLauncher;
 import fr.upc.g5e4.view.*;
 import fr.upc.g5e4.controller.*;
@@ -39,6 +41,8 @@ public class GameLauncher{
     
     public static final String MENU_CARD = "menu";
     public static final String GAME_CARD = "game";
+
+    private SaveData saveData; // si il y'a un fichier de sauvegarde
 
     /**
      * Constructeur normal : affiche le menu principal
@@ -127,11 +131,11 @@ public class GameLauncher{
      * Lance le jeu (initialise si nécessaire)
      */
     public void startGame() throws IOException {
-        // Initialiser le jeu si pas encore fait
+
         if (gameManager == null) {
-            initializeGame();
-        }
-        
+                initializeGame(false);
+            } 
+
         cardLayout.show(cardPanel, GAME_CARD);
         
         // Démarrer la game loop
@@ -144,38 +148,58 @@ public class GameLauncher{
             gameManager.getImputController().requestFocusInWindow();
         }
     }
+
+    /**
+     * Pour lancer SUR LA MEME FENETRE resumeGame
+     * @param saveData une saveData load depuis sauvegarde.txt
+     * 
+     * @see SaveLoad
+     * @see SaveData
+     */
+    public void startFromGameSave(SaveData saveData) throws IOException{
+        this.saveData = saveData;
+
+        resetGame(); // au cas ou 
+
+        initializeGame(true);
+
+        cardLayout.show(cardPanel, GAME_CARD); // afficher le jeu 
+
+        if (gameLoop != null) { // demarrer la gameLoop
+            gameLoop.timerStart();
+        }
+
+        if (gameManager != null && gameManager.getImputController() != null) {
+            gameManager.getImputController().requestFocusInWindow(); // focus l'inputController
+        }
+
+    }
     
     /**
      * Initialise tous les composants du jeu
      */
-    private void initializeGame() throws IOException {
+    private void initializeGame(boolean save) throws IOException {
         int width = cardPanel.getWidth();
         int height = cardPanel.getHeight();
         
         // Mettre à jour la taille du layered pane
         gameLayeredPane.setPreferredSize(new Dimension(width, height));
-        
-        this.gameManager = new GameManager(3);  // 3 équipes pour tester le scroll
+        if (save){
+            this.gameManager = new GameManager(saveData);
+        } else {
+            this.gameManager = new GameManager(3);  // 3 équipes pour tester le scroll
+        }
+
         this.gamePanel = gameManager.getGamePanel();
         
         // VENT
         windOverlay = new WindOverlay(gameManager.getWindModel());
         windOverlay.setBounds(0, 0, width, height);
 
-        /* ---------------------- Partie Overlay Inventaire ---------------------- */
-        // Charge l'inventaire 
-        
-            ArrayList<TeamInitialisation> tmList = gameManager.getListTeamInit();
-            InventoryRoot root = InventoryModel.load("/inventory.json");
-            int index = 0;
+        // Inventaire Initialisation -> GameManager
 
-            for (TeamInitialisation tm : tmList){
-                java.util.List<InventoryJson> teamInventory = copyInventory(root.inventory);
-                tmList.get(index).getTeamModel().setInventory(teamInventory);
-                index++;
-            }
-            //Créer l'overlay
-            this.inventoryOverlay = new InventoryOverlay(tmList.get(0).getTeamModel().getInventory());  
+        //Créer l'overlay
+        this.inventoryOverlay = new InventoryOverlay(gameManager.getListTeamInit().get(0).getTeamModel().getInventory());  
 
         
         // Placer les composants dans le layered pane
@@ -215,21 +239,6 @@ public class GameLauncher{
             }
         });
         checkGameOverTimer.start();
-    }
-
-    private java.util.List<InventoryModel.InventoryJson> copyInventory(java.util.List<InventoryModel.InventoryJson> src) {
-                java.util.List<InventoryModel.InventoryJson> res = new java.util.ArrayList<>();
-                for (InventoryModel.InventoryJson it : src) {
-                    InventoryModel.InventoryJson c = new InventoryModel.InventoryJson();
-                    c.objectType = it.objectType;
-                    c.name = it.name;
-                    c.maxUsages = it.maxUsages;
-                    c.isInfinite = it.isInfinite;
-                    c.remainingUses = it.remainingUses;
-                    // useThisTurn reste à 0
-                    res.add(c);
-                }
-                return res;
     }
 
     private void setupGlobalKeyBindings() {
@@ -399,6 +408,6 @@ public class GameLauncher{
         // new GameLauncher(true, true);
 
         // Mode console :
-        // new ConsoleLauncher();
+        //new ConsoleLauncher();
     }
 }

@@ -108,7 +108,7 @@ public class ConsoleInputController {
         switch (key.getCharacter()) {
             case 'z':
                 this.personnageController.activateJump();
-                System.out.println("Z pressed");
+                //System.out.println("Z pressed");
 
                 break;
             case 'd':
@@ -118,13 +118,23 @@ public class ConsoleInputController {
                 break;
             case 'q':
                 personnageController.activateLeft();
-                System.out.println("Q pressed");
+                //System.out.println("Q pressed");
 
                 break;
             case 'a':
                 consoleGameManager.nextRound();
                 break;
-            default:
+            case 'e':
+                //System.out.println("Tir - Model ID: " + personnageController.getModel().getID() + " - facingRight: " + personnageController.getModel().isFacingRight());
+                int direction;
+                if (personnageController.getModel().isFacingRight()){
+                    direction = 1;
+                } else {
+                    direction = -1;
+                    //System.out.println("[Direction Gauche Called]");
+                }
+                personnageController.fireWeapon(direction);
+                System.out.println("TIREEEE");
                 break;
         }
     }

@@ -115,6 +115,41 @@ public class CharacterModel{
     }
 
     /**
+     * Constructeur pour le chargement d'une sauvegarde (parametres adapte)
+     * @param model GroundModel (terrain donnes)
+     * @param world Physique du jeu
+     * @param ID ID unique du Worm
+     * @param name nom du worm
+     * @param xcord position x actuelle
+     * @param ycord position y actuelle
+     * @param health vie actuelle 
+     * @param shield shield actuelle 
+     * @param isDead true si le worm est mort
+     * @param facingRight true si il regarde a droite
+     */
+    public CharacterModel(GroundModel model, World world,int ID, String name, double xcord, double ycord, double health, double shield, boolean isDead, boolean facingRight){
+        this.model = model;
+        this.world = world;
+        this.ID = ID;
+        this.name = name;
+        this.xcord = xcord;
+        this.ycord = ycord;
+        this.health = health;
+        this.shield = shield;
+        this.speed = 15.0;
+        this.jump = 5.0;
+        this.withCollision = false;
+        this.isDead = isDead;
+        this.facingRight = facingRight;
+
+        if (isDead){
+            this.persoBody = null;
+        } else {
+            this.persoBody = createBody(false);
+        }
+    }
+
+    /**
      * methode toString de la classe PersonnageModel
      * 
      * @return Un String avec affichage des attributs du worm
@@ -228,6 +263,10 @@ public class CharacterModel{
     
     public void setFacingRight(boolean facingRight) {
         this.facingRight = facingRight;
+    }
+
+    public boolean getFacingRight(){
+        return facingRight;
     }
 
         public Body getBody(){
@@ -406,21 +445,30 @@ public class CharacterModel{
         return bWorm;
     }
 
-    // Getter Data
-    public CharacterData toData(){
-        return new CharacterData(ID, name, xcord, ycord, health, shield, isDead);
-    }
+    /**
+     * Transforme un CharacterModel en CharacterData
+     * Pour sauvegarder les donnees d'un CharacterModel
+     * 
+     * Agit comme un Getter
+     * 
+     * @return un CharacterData stockable dans sauvegarde.txt grace a Gson
+     */
+    public CharacterData toData() {
+        double currentX = this.xcord;
+        double currentY = this.ycord;
+    
+        if (persoBody != null) {
 
-    // Setter Data
-    public void loadFromData(CharacterData characterData){
-        this.ID = characterData.getID();
-        this.name = characterData.getName();
-        this.xcord = characterData.getXcord();
-        this.ycord = characterData.getYcord();
-        this.health = characterData.getHealth();
-        this.shield = characterData.getShield();
-        this.isDead = characterData.getIsDead();
-    }
+            // Obliger de re convertir puisque xcord et ycord ne sont pas actualiser apres que les CharacterM soient initialises
+            // -> il faut recup la position du Body en metres qui lui est tjr actualisee
+            // et ensuite le convertir en pixel
+            currentX = persoBody.getPosition().x * PPM; 
+            currentY = model.getHeight() - (persoBody.getPosition().y * PPM);
+        }
+        System.out.println("[SAVE] " + name + " -> x=" + currentX + ", y=" + currentY);
+        System.out.println("[SAVE] " + name + " -> xcord=" + xcord + ", ycord=" + ycord);
 
+        return new CharacterData(ID, name, currentX, currentY, health, shield, isDead, this.facingRight);
+    }
     
 }
