@@ -12,7 +12,8 @@ public class FastTrajectory implements TrajectoryInterface {
     
     @Override
     public Vec2 calculatePosition(float t, Vec2 startPos, double range, double angle) {
-        t = Math.max(0, Math.min(1, t));
+        // permet de continuer au-delà de 1 pour les projectiles de continuer leurs trajectoires plus loin que la portée
+        t = Math.max(0, t);
         
         double angleRad = angle;
         float horizontalDistance = (float)(range * t);
