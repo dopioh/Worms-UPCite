@@ -40,6 +40,7 @@ public class PauseOverlay extends JComponent {
         repaint();
     }
 
+
     public void setHelpOverlay(HelpOverlay helpOverlay) {
         this.helpOverlay = helpOverlay;
     }
@@ -103,5 +104,11 @@ public class PauseOverlay extends JComponent {
         g2.setColor(Color.WHITE);
         g2.setFont(g2.getFont().deriveFont(Font.BOLD, 14f));
         g2.drawString("HELP", btnX + 45, btnY + 22);
+    }
+
+    @Override
+    public boolean contains(int x, int y) {
+        // Quand la pause n'est pas visible, on laisse passer la souris aux overlays dessous
+        return visible && super.contains(x, y);
     }
 }

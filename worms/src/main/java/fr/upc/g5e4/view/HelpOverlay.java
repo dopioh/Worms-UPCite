@@ -6,6 +6,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class HelpOverlay extends JComponent {
+    private Rectangle closeButtonBounds;
 
     public HelpOverlay() {
         setOpaque(false);
@@ -14,8 +15,12 @@ public class HelpOverlay extends JComponent {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                // clic n'importe où pour fermer
-                setHelpVisible(false);
+                if (!isVisible()) return;
+
+                if (closeButtonBounds != null && closeButtonBounds.contains(e.getPoint())) {
+                    setHelpVisible(false);
+                }
+                // aucun autre clic ne fait rien
             }
         });
     }
@@ -73,5 +78,27 @@ public class HelpOverlay extends JComponent {
         g2.drawString("A = fin de tour / nextRound", x + 40, ty); ty += 18;
         g2.drawString("I = inventaire", x + 40, ty); ty += 18;
         g2.drawString("ESC = pause/paramètres", x + 40, ty); ty += 18;
+
+        // ----- Bouton FERMER -----
+        int btnW = 120;
+        int btnH = 34;
+        int btnX = x + panelW - btnW - 20;
+        int btnY = y + panelH - btnH - 20;
+
+        closeButtonBounds = new Rectangle(btnX, btnY, btnW, btnH);
+
+        g2.setColor(new Color(180, 60, 60));
+        g2.fillRoundRect(btnX, btnY, btnW, btnH, 12, 12);
+
+        g2.setColor(Color.WHITE);
+        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 14f));
+        g2.drawString("FERMER", btnX + 28, btnY + 22);
+
     }
+
+    @Override
+    public boolean contains(int x, int y) {
+        // Quand le help n'est pas visible, on laisse passer la souris
+        return isHelpVisible() && super.contains(x, y);
+    }  
 }
