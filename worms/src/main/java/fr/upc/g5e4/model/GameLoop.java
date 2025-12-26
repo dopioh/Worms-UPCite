@@ -41,6 +41,21 @@ public class GameLoop{
         this.timer = new Timer((int)(FIXHZ*1000),new ActionListener() {         
             @Override
             public void actionPerformed(ActionEvent e){
+                // met a jour la caméra
+                if (gameManager.getCameraController() != null) {
+                    gameManager.getCameraController().update();
+                }
+                
+                // met a jour les projectiles
+                if (gameManager.getItemController() != null) {
+                    gameManager.getItemController().updateProjectiles(FIXHZ);
+                }
+                
+                // met a jour l'animation du vent
+                if (gameManager.getWindOverlay() != null) {
+                    gameManager.getWindOverlay().update(FIXHZ);
+                }
+                
                 // met a jour le worm actif
                 if (gameManager.getActiveWormController() != null) {
                     gameManager.getActiveWormController().update();
