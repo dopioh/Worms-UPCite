@@ -381,7 +381,7 @@ public class GameManager {
                 activeWormController.setItemController(this.itemController);
                 activeWormController.setWorld(world);
                 activeWormController.setAllWorms(this.allWorms);
-                activeWormController.setCurrentWeapon(new Ak47());
+                activeWormController.setCurrentWeapon(null);
 
                 imputController.setCharacterController(activeWormController);
                 cameraController.setTargetCharacter(worm);
@@ -555,7 +555,6 @@ public class GameManager {
                 System.out.println("[Inventaire] Arme équipée depuis inventaire : Rocket Launcher");
                 break;
             default:
-                System.out.println("[Inventaire] Aucun mapping d’arme pour : " + itemName);
                 break;
         }
 
