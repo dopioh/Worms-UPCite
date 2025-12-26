@@ -10,7 +10,7 @@ public class HelpOverlay extends JComponent {
 
     public HelpOverlay() {
         setOpaque(false);
-        setVisible(false); // IMPORTANT : invisible Swing => ne capte plus les clics
+        setVisible(false); 
 
         addMouseListener(new MouseAdapter() {
             @Override
@@ -26,7 +26,7 @@ public class HelpOverlay extends JComponent {
     }
 
     public void setHelpVisible(boolean v) {
-        setVisible(v);     // IMPORTANT
+        setVisible(v);  
         repaint();
     }
 
@@ -98,7 +98,6 @@ public class HelpOverlay extends JComponent {
 
     @Override
     public boolean contains(int x, int y) {
-        // Quand le help n'est pas visible, on laisse passer la souris
         return isHelpVisible() && super.contains(x, y);
     }  
 }
