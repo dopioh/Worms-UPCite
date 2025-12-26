@@ -10,6 +10,8 @@ public class PauseOverlay extends JComponent {
     private Rectangle helpButtonBounds;
     private HelpOverlay helpOverlay;
 
+    private Rectangle ventButtonBounds; // bouton placeholder
+
     public PauseOverlay() {
         setOpaque(false);
         addMouseListener(new MouseAdapter() {
@@ -30,6 +32,10 @@ public class PauseOverlay extends JComponent {
                             lp.repaint();
                         }
                     }
+                }
+                if (ventButtonBounds != null && ventButtonBounds.contains(e.getPoint())) {  // A changer par l'activation du vent
+                    System.out.println("[PauseOverlay] Bouton placeholder cliqué !");
+                    return; 
                 }
             }
         });
@@ -104,6 +110,22 @@ public class PauseOverlay extends JComponent {
         g2.setColor(Color.WHITE);
         g2.setFont(g2.getFont().deriveFont(Font.BOLD, 14f));
         g2.drawString("HELP", btnX + 45, btnY + 22);
+        
+        // bouton placeholder (à droite du HELP)
+        int ventX = btnX + btnW + 16;
+        int ventY = btnY;
+
+        ventButtonBounds = new Rectangle(ventX, ventY, btnW, btnH);
+
+        g2.setColor(new Color(90, 90, 90)); // gris
+        g2.fillRoundRect(ventX, ventY, btnW, btnH, 12, 12);
+
+        g2.setColor(Color.WHITE);
+        g2.drawRoundRect(ventX, ventY, btnW, btnH, 12, 12);
+
+        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 14f));
+        g2.drawString("Vent", ventX + 35, ventY + 22);
+
     }
 
     @Override

@@ -21,6 +21,7 @@ import fr.upc.g5e4.view.GamePanel;
 import fr.upc.g5e4.view.ItemView;
 import fr.upc.g5e4.view.TeamView;
 import fr.upc.g5e4.view.InventoryOverlay;
+import fr.upc.g5e4.view.HUDOverlay;
 
 import java.io.*;
 import com.google.gson.*;
@@ -67,6 +68,7 @@ public class GameManager {
 
     
     private InventoryOverlay inventoryOverlay;
+    private HUDOverlay hudOverlay;
 
     private final WindModel windModel = new WindModel();
     private final Random windRng = new Random();
@@ -176,8 +178,7 @@ public class GameManager {
         activeWormController.setWorld(world);
         activeWormController.setAllWorms(this.allWorms);
         
-        // Équiper une arme par défaut (AK-47)
-        activeWormController.setCurrentWeapon(new Ak47());
+        activeWormController.setCurrentWeapon(null);
         
         // Initialisation caméra avec le worm actif (fenêtre 1280x720, terrain 6000x720)
         this.cameraController = new CameraController(camera, teamModel1.getWorm(activeWormIndex));
@@ -310,6 +311,15 @@ public class GameManager {
     public WindModel getWindModel(){
         return this.windModel;
     }
+
+    public void setHudOverlay(HUDOverlay hud) {
+        this.hudOverlay = hud;
+    }
+
+    public HUDOverlay getHudOverlay() {
+        return hudOverlay;
+    }
+
     /**
      * switch le worm actif vers le suivant dans l'équipe
      * saute les worms morts

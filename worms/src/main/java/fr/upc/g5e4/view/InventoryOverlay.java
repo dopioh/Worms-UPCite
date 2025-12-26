@@ -24,11 +24,6 @@ public class InventoryOverlay extends JComponent {
     private MouseAdapter fireListener; 
     private List<InventoryJson> lastFiltered = new ArrayList<>();
 
-
-    // icône du sac
-    private BufferedImage icon;
-    private Rectangle iconBounds;
-
     // liste des items
     private final List<Rectangle> itemBounds = new ArrayList<>();
     private int selectedIndex = -1;
@@ -90,13 +85,6 @@ public class InventoryOverlay extends JComponent {
         this.inventory = inventory;
         setOpaque(false);
         loadItemImages(); //Pour les icones des armes/gadgets
-        try {
-            icon = javax.imageio.ImageIO.read(
-                getClass().getResource("/backpack.png")
-            );
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         
         loadDescriptions();
         ToolTipManager.sharedInstance().registerComponent(this); // optionnel (tooltips Swing)
@@ -189,7 +177,7 @@ public class InventoryOverlay extends JComponent {
         if (armesTab != null && armesTab.contains(x, y)) {
             currentCategory = Category.ARMES;
             selectedIndex = -1;
-            computeLayout();   // regen lastFiltered + itemBounds
+            computeLayout();  
             repaint();
             return;
         }
@@ -284,22 +272,6 @@ public class InventoryOverlay extends JComponent {
         int h = getHeight();
 
         Graphics2D g2 = (Graphics2D) g;
-
-        // icône sac
-        int iconSize = 80;
-        int iconX = w - iconSize - 16;
-        int iconY = 16;
-
-        iconBounds = new Rectangle(iconX, iconY, iconSize, iconSize);
-
-        if(icon != null){
-            g2.drawImage(icon,iconX,iconY,iconSize,iconSize,null);
-        } else {
-            g2.setColor(Color.GRAY);
-            g2.fillRect(iconX,iconY, iconSize, iconSize);
-            g2.setColor(Color.WHITE);
-            g2.drawString("INV", iconX + 10, iconY + 28);
-        }
 
         if(!visible){
             return;
@@ -418,12 +390,6 @@ public class InventoryOverlay extends JComponent {
             g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 11f));
             g2.drawString(desc, boxX + 10, boxY + 40);
         }
-
-        if (equippedItem != null) {
-            g2.drawString("Equipé : " + equippedItem.name,
-                          panelX + 20,
-                          panelY + panelH - 20);
-        }
     }
 
     public void setInventory(List<InventoryJson> inventory){
@@ -493,47 +459,51 @@ public class InventoryOverlay extends JComponent {
 
 
     private void computeLayout() {
-    int w = getWidth();
-    int h = getHeight();
+        int w = getWidth();
+        int h = getHeight();
 
-    // panneau inventaire à gauche
-    int panelW = 360;
-    int panelH = 520;
-    int panelX = 20;
-    int panelY = (h - panelH) / 2;
+        // panneau inventaire à gauche
+        int panelW = 360;
+        int panelH = 520;
+        int panelX = 20;
+        int panelY = (h - panelH) / 2;
 
-    panelBounds = new Rectangle(panelX, panelY, panelW, panelH);
+        panelBounds = new Rectangle(panelX, panelY, panelW, panelH);
 
-    int tabY = panelY + 35;
-    int tabW = 90;
-    int tabH = 24;
+        int tabY = panelY + 35;
+        int tabW = 90;
+        int tabH = 24;
 
-    armesTab  = new Rectangle(panelX + 20,  tabY, tabW, tabH);
-    gadgetTab = new Rectangle(panelX + 120, tabY, tabW, tabH);
-    craftTab  = new Rectangle(panelX + 220, tabY, tabW, tabH);
+        armesTab  = new Rectangle(panelX + 20,  tabY, tabW, tabH);
+        gadgetTab = new Rectangle(panelX + 120, tabY, tabW, tabH);
+        craftTab  = new Rectangle(panelX + 220, tabY, tabW, tabH);
 
-    // grille
-    int startX = panelX + 20;
-    int startY = panelY + 80;
+        // grille
+        int startX = panelX + 20;
+        int startY = panelY + 80;
 
-    itemBounds.clear();
-    lastFiltered = getFilteredInventory();
+        itemBounds.clear();
+        lastFiltered = getFilteredInventory();
 
-    int col = 0;
-    int row = 0;
+        int col = 0;
+        int row = 0;
 
-    for (int i = 0; i < lastFiltered.size(); i++) {
-        int x = startX + col * (CELL_SIZE + CELL_GAP);
-        int y = startY + row * (CELL_SIZE + CELL_GAP);
+        for (int i = 0; i < lastFiltered.size(); i++) {
+            int x = startX + col * (CELL_SIZE + CELL_GAP);
+            int y = startY + row * (CELL_SIZE + CELL_GAP);
 
-        itemBounds.add(new Rectangle(x, y, CELL_SIZE, CELL_SIZE));
+            itemBounds.add(new Rectangle(x, y, CELL_SIZE, CELL_SIZE));
 
-        col++;
-        if (col >= GRID_COLS) {
-            col = 0;
-            row++;
+            col++;
+            if (col >= GRID_COLS) {
+                col = 0;
+                row++;
+            }
         }
     }
-}
+
+    public InventoryJson getEquippedItem() {
+        return equippedItem;
+    }
 
 }

@@ -22,6 +22,7 @@ public class GameLauncher{
     private InventoryOverlay inventoryOverlay; 
     private PauseOverlay pauseOverlay;
     private HelpOverlay helpOverlay;
+    private HUDOverlay hudOverlay;
 
 
     private boolean screen;
@@ -67,7 +68,10 @@ public class GameLauncher{
             //placer dedans
             gamePanel.setBounds(0,0,sizeX,sizeY);
             inventoryOverlay.setBounds(0,0,sizeX,sizeY);
-
+            //HUD
+            this.hudOverlay = new HUDOverlay(gameManager);
+            this.hudOverlay.setBounds(0, 0, sizeX, sizeY);
+            this.hudOverlay.setInventoryOverlay(inventoryOverlay);
             //Menu parametres 
             this.pauseOverlay = new PauseOverlay();
             this.pauseOverlay.setBounds(0, 0, sizeX, sizeY);
@@ -79,6 +83,8 @@ public class GameLauncher{
 
             layered.add(gamePanel, JLayeredPane.DEFAULT_LAYER);
             layered.add(this.windOverlay, JLayeredPane.PALETTE_LAYER);
+            
+            layered.add(this.hudOverlay, JLayeredPane.DRAG_LAYER);
             layered.add(inventoryOverlay, JLayeredPane.PALETTE_LAYER);
 
             layered.add(pauseOverlay, JLayeredPane.MODAL_LAYER);
@@ -90,6 +96,7 @@ public class GameLauncher{
             inventoryOverlay.setFireListener(gameManager.getImputController());
             
             gameManager.setInventoryOverlay(inventoryOverlay);
+            gameManager.setHudOverlay(this.hudOverlay); 
 
             SwingInputController input = gameManager.getImputController();
             input.setGameFrame(game);
@@ -231,6 +238,10 @@ public class GameLauncher{
                     helpOverlay.setBounds(0, 0, newWidth, newHeight);
                 }
 
+                // Mets à jour les bounds du overlay HUD
+                if (hudOverlay != null) {
+                    hudOverlay.setBounds(0, 0, newWidth, newHeight);
+                }
                 
                 // Mettre à jour la taille de vue de la caméra
                 gameManager.getCamera().setViewSize(newWidth, newHeight);
