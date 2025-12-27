@@ -227,7 +227,7 @@ public class GameLauncher{
             gameManager.getCamera().setViewSize(width, height);
         }
         
-        // Créer la game loop (ne pas démarrer ici)
+        // Créer et démarrer la game loop
         this.gameLoop = new GameLoop(gameManager);
         gameManager.setGameLoop(gameLoop);
         
