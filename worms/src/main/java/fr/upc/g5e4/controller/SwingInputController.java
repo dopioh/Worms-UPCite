@@ -198,7 +198,7 @@ public class SwingInputController extends JPanel{
                         personnageController.toggleFlyMode();
                         System.out.println("SUPERMAAAAAAAAAAAAN (todo : ajouter cape)");
                         break;
-                    // Touche Echap pour quitter le jeu !!!!!!!!!!!!!!!!!!!!!!!!! A modifier pour le menu plus tard
+                    // Touche Echap pour ouvrir les parametres
                     case KeyEvent.VK_ESCAPE:
                         if (pauseOverlay != null) {
                             boolean v = pauseOverlay.isPauseVisible();
