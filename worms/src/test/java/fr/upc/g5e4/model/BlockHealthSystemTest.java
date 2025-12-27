@@ -144,8 +144,8 @@ public class BlockHealthSystemTest {
         initializeHealth();
         
         // appliquer des dégâts en zone (centre 5,5, rayon 2)
-        // au centre, la distance = 0, donc damageMultiplier = 1.0, dégâts = 6 * 1.0 = 6
-        model.damageBlocksInRadius(5, 5, 2.0, 6);
+        // au centre, la distance = 0, donc damageMultiplier = 1.0, dégâts = 10 * 1.0 = 10
+        model.damageBlocksInRadius(5, 5, 2.0, 10);
         
         // vérifier que les blocs au centre sont détruits
         assertEquals(BlockType.AIR, model.getBlock(5, 5));
@@ -154,8 +154,9 @@ public class BlockHealthSystemTest {
         assertEquals(BlockType.AIR, model.getBlock(6, 5));
         assertEquals(BlockType.AIR, model.getBlock(5, 6));
         
-        // Les blocs aux coins de la zone doivent être endommagés
-        assertTrue(healthGrid.getHealth(3, 3) < BlockType.GRASS.getMaxHealth());
+        // Les blocs en diagonale proche (distance √2 ≈ 1.41) doivent être endommagés
+        // à distance 1.41: damageMultiplier = 1.0 - (1.41/2) = 0.295, dégâts = 10 * 0.295 = 2.95 → 2
+        assertTrue(healthGrid.getHealth(4, 4) < BlockType.GRASS.getMaxHealth());
     }
 
     @Test
