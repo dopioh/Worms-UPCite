@@ -517,7 +517,7 @@ public class GameManager {
 
     // Initialiser un nombre N d'equipes
     public void createTeam(int number){
-        createTeam(number, "/worm.png"); // Utilise le skin par défaut
+        createTeam(number, "/wormPixel.png"); // Utilise le skin par défaut
     }
     
     // Initialiser un nombre N d'equipes avec un skin spécifique

@@ -45,7 +45,7 @@ public class TeamInitialisation {
      * @param startX position d'initialisation
      */
     public TeamInitialisation(GroundModel groundModel,World world,String teamName, int teamNumber, int startX){
-        this(groundModel, world, teamName, teamNumber, startX, "/worm.png");
+        this(groundModel, world, teamName, teamNumber, startX, "/wormPixel.png");
     }
     
     /**
