@@ -1,6 +1,8 @@
 package fr.upc.g5e4.model;
 
 import fr.upc.g5e4.model.InventoryModel.InventoryJson;
+
+import org.jbox2d.collision.shapes.CircleShape;
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
@@ -413,8 +415,13 @@ public class CharacterModel{
 
         FixtureDef fixtureWorm = new FixtureDef();
 
-        PolygonShape square = new PolygonShape();
-        square.setAsBox(m_WidthPerso/2, m_HeightPerso/2);   
+        //PolygonShape square = new PolygonShape();
+        //square.setAsBox(m_WidthPerso/2, m_HeightPerso/2);
+        
+        CircleShape square = new CircleShape();
+        square.setRadius(m_WidthPerso/2);
+
+        //square.m_p.set(0, -0.1f);
 
         if (console){
             //System.out.println("Console Version");
