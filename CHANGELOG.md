@@ -115,10 +115,6 @@
 - Système de statistiques pour tracker des actions pendant la partie
 - Endroit pour stocker les paramètres du jeu
     - `current_skin`
-<<<<<<< HEAD
-
- **Diagramme de classes** : Ajout et documentation du diagramme de classes du projet (GameManager, GameLoop, GamePanel, etc.)
-=======
 - **Diagramme de classes** : Ajout et documentation du diagramme de classes du projet (GameManager, GameLoop, GamePanel, etc.)
 - **Système de configuration de terrains** : Nouvelle classe MapConfig pour gérer les types et tailles de maps
     - 4 types de terrains disponibles :
@@ -129,7 +125,8 @@
     - 3 tailles de maps : SMALL (800x720), MEDIUM (1280x720), LARGE (1700x720)
 - Une sauvegarde peut desormais etre lancer depuis le menu d'acceuil en cliquant sur "Poursuivre une partie"
 - Possibilitee de tirer/faire des degats/tuer un worm dans la version Console du jeu (tire assez limiter)
->>>>>>> dev
+- Ajout de la dégradation de la map
+- Ajout d'une courbe pour la trajectoire de la map
 
 ### Modified
 - Support pour N équipes au lieu de 2 équipes hardcodées
@@ -150,6 +147,10 @@
 - Emplacement overlay vent
 - Nouveau systeme de map 
     - MAP en tableau 2D remplie d'objet "block"
+- Vent augmente la portée du projectile (dans le sens du vent) ou réduit la porté (sens opposé du vent)
+- Focus lors du tir
+- Projectile qui se stop en l'air
+- Tir qui rebondit (batte de baseball)
 
 - **N equipes** fonctionnelles desormais (2 auparavant)
 - Retour aux mouvements originaux
@@ -161,13 +162,3 @@
     - Centralisation de repaint dans un seul Timer (gameLoop) pour avoir un seul repaint()
     - pré-création d'objets graphiques réutilisables (couleurs, strokes) pour réduire les allocations mémoire pour chaque cube
 - **Lag Audio** : Système de cache avec pré-chargement des sons en mémoire pour éliminer le lag au premier tir
-
-### Added
-- Ajout de la dégradation de la map
-- Ajout d'une courbe pour la trajectoire de la map
-
-### Fixed
-- Vent augmente la portée du projectile (dans le sens du vent) ou réduit la porté (sens opposé du vent)
-- Focus lors du tir
-- Projectile qui se stop en l'air
-- Tir qui rebondit (batte de baseball)
