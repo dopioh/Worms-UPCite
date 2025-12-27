@@ -109,6 +109,7 @@
 - Système de statistiques pour tracker des actions pendant la partie
 - Endroit pour stocker les paramètres du jeu
     - `current_skin`
+- Ajout Sprite `wormPixel.png` dans `ressources`
 
 ### Modified
 - Nametag
@@ -126,3 +127,4 @@
 - **N equipes** fonctionnelles desormais (2 auparavant)
 - Retour aux mouvements originaux
 - Retour du saut (avec Z)
+- HitBox du Sprite fixed, il n'ya pas plus de decalage lorsque le sprite monte une colline en allant vers la gauche
