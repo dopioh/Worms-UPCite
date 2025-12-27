@@ -124,6 +124,10 @@
     - `current_skin`
 - Ajout Sprite `wormPixel.png` dans `ressources`
 - **Diagramme de classes** : Ajout et documentation du diagramme de classes du projet (GameManager, GameLoop, GamePanel, etc.)
+- Une sauvegarde peut desormais etre lancer depuis le menu d'acceuil en cliquant sur "Poursuivre une partie"
+- Possibilitee de tirer/faire des degats/tuer un worm dans la version Console du jeu (tire assez limiter)
+
+
 
 ### Modified
 - Support pour N équipes au lieu de 2 équipes hardcodées
@@ -148,6 +152,7 @@
 - Retour aux mouvements originaux
 - Retour du saut (avec Z)
 - HitBox du Sprite fixed, il n'ya pas plus de decalage lorsque le sprite monte une colline en allant vers la gauche
+- Initialisation de l'overlay Inventaire decaler dans GameManager (precedemment GameLauncher)
 
 ### Optimisation
 - **Performance**

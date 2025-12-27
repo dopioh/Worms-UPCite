@@ -46,11 +46,11 @@ public class TutorialGameLauncher {
         physic.createGroundFromModel(groundModel);
         physic.limitPanel(groundModel);
         
-        TeamModel team = new TeamModel(groundModel, world, "Tuto", 300, 300, 1, false , true, true);
+        TeamModel team = new TeamModel(groundModel, world, "Tuto", 300, 300, 1, false , true, true,1);
         TeamView teamView = new TeamView(1, Color.GREEN, "/worm.png", true    );
         teamView.setShowAllNameTags(true);
 
-        TeamModel teamTest = new TeamModel(groundModel, world, "Tuto", 500, 0, 5, false , true, true);
+        TeamModel teamTest = new TeamModel(groundModel, world, "Tuto", 500, 0, 5, false , true, true,2);
         TeamView teamViewTest = new TeamView(5, Color.WHITE, "/box.png"    );
         teamViewTest.setShowAllNameTags(false);
         

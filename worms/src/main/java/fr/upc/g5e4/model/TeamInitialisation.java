@@ -1,13 +1,17 @@
 package fr.upc.g5e4.model;
 
 import fr.upc.g5e4.view.*;
+import fr.upc.g5e4.model.InventoryModel.InventoryJson;
+import fr.upc.g5e4.model.InventoryModel.InventoryRoot;
 //import fr.upc.g5e4.controller.*;
-//import fr.upc.g5e4.model.*;
+import fr.upc.g5e4.model.io.*;
+import fr.upc.g5e4.model.io.CharacterData;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
 //import java.util.ArrayList;
 //import java.util.Random;
+import java.util.List;
 
 import org.jbox2d.dynamics.*;
 
@@ -32,6 +36,7 @@ public class TeamInitialisation {
     
     private static int SPACING = 30;
     public static int[] alreadyUsed = new int[5];
+    
     
     // Prendre le minimum de data necessaire en parametre
     // le reste sera initialise avec Random
@@ -62,9 +67,43 @@ public class TeamInitialisation {
         boolean facingRight = (startX < groundModel.getWidth() / 2);
         this.name = teamName;
         colorGiving();
-        teamModel = new TeamModel(groundModel, world, name, startX, SPACING, teamNumber, false, facingRight, false);
+        teamModel = new TeamModel(groundModel, world, name, startX, SPACING, teamNumber, false, facingRight, false,COLORTEAM);
         teamView = new TeamView(teamNumber,color, skinPath, facingRight);
         SPACING += 5; // pour que si il y'a plus de 2 equipes, les worms ne se superposent pas
+    }
+
+    /**
+     * Constructeur pour load une sauvegarde
+     * @param groundModel
+     * @param world
+     * @param teamName
+     * @param teamNumber
+     * @param characterData tableau des data des worms
+     */
+    public TeamInitialisation(GroundModel groundModel,World world,int TeamID ,String teamName, int teamNumber,CharacterData[] characterData, Color color, String skinPath, List<InventoryJson> inventory){
+        this.name = teamName;
+        this.color = color;
+        teamModel = new TeamModel(groundModel, world, teamName, teamNumber, TeamID, characterData,COLORTEAM, inventory);
+        teamView = new TeamView(teamNumber,color, skinPath, true); // facingRight a changer apres
+    }
+
+    /**
+     * Constructeur pour load une save avec int COLOR et un skin
+     * @param groundModel
+     * @param world
+     * @param TeamID
+     * @param teamName
+     * @param teamNumber
+     * @param characterData
+     * @param COLOR
+     * @param skinPath
+     */
+    public TeamInitialisation(GroundModel groundModel,World world,int TeamID ,String teamName, int teamNumber,CharacterData[] characterData, int COLOR, String skinPath,List<InventoryJson> inventory){
+        this.name = teamName;
+        COLORTEAM = COLOR;
+        colorGiving();
+        teamModel = new TeamModel(groundModel, world, teamName, teamNumber, TeamID, characterData,COLORTEAM,inventory);
+        teamView = new TeamView(teamNumber,color, skinPath, true); // facingRight a changer apres
     }
 
     public TeamModel getTeamModel(){
@@ -78,6 +117,7 @@ public class TeamInitialisation {
     public String getName(){
         return this.name;
     }
+    
 
     /**
      * Methode interne pour attribuer une couleur a une equipe
@@ -112,4 +152,5 @@ public class TeamInitialisation {
     public void draw(Graphics2D gd){
         teamView.draw(gd, teamModel);
     }
+
 }

@@ -91,7 +91,7 @@ public class TestGameLauncher {
         // init equipe de worms
         int wormCount = 1;
         int spawnX = 2;
-        TeamModel team = new TeamModel(dummyGroundModel, world, "Test Team", spawnX, 100, wormCount, false, true, true);
+        TeamModel team = new TeamModel(dummyGroundModel, world, "Test Team", spawnX, 100, wormCount, false, true, true,2);
         TeamView teamView = new TeamView(wormCount, Color.ORANGE, "/worm222.png", true);
         this.worm = team.getWorm(0);
         

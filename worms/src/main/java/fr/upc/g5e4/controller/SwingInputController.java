@@ -173,7 +173,7 @@ public class SwingInputController extends JPanel{
                         System.out.println("switch");
                         break;
 
-                    // Ouverture de l'inventaire
+                    // Sauvegarde de la partie actuel
                     case KeyEvent.VK_J:
                         gameManager.actionPerformed();
                         System.out.println("Save Buttun Pressed");

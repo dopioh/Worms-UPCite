@@ -1,5 +1,6 @@
 package fr.upc.g5e4.model.console;
 
+//import java.awt.Color;
 import java.util.ArrayList;
 
 
@@ -62,6 +63,9 @@ public class ConsoleGameManager {
     public static final int pixelX = 1280;
     public static final int pixelY = 720;
 
+    // Pour l'arme par defaut :
+    private final ItemController itemController; // gere les projectiles et applique les degats
+
     // Conversion de Pixel en Case :
     // public static final int echelleConsole = 10; // on divise toute valeur en
     // pixel par 10
@@ -104,10 +108,10 @@ public class ConsoleGameManager {
 
         // création premiere equipe
         int wormNumber = 3;
-        this.teamModel1 = new TeamModel(model, world, "Team1", 100, 98, wormNumber, true, true, false);
+        this.teamModel1 = new TeamModel(model, world, "Team1", 100, 98, wormNumber, true, true, false,1);
 
         // création seconde equipe
-        this.teamModel2 = new TeamModel(model, world, "Team2", 400, 158, wormNumber, true, true, false);
+        this.teamModel2 = new TeamModel(model, world, "Team2", 400, 158, wormNumber, true, false, false,2);
 
         // les noms des arraylist et du tableau de CharacterModel des worms sont les memes dans le GameMangager
         // j'ai change le nom du tableau ici pour plus de visibilite
@@ -126,8 +130,18 @@ public class ConsoleGameManager {
         System.arraycopy(teamModel1.getTabWorms(), 0, this.allWormsCharacter, 0, teamModel1.getTabWorms().length);
         System.arraycopy(teamModel2.getTabWorms(), 0, this.allWormsCharacter, teamModel1.getTabWorms().length,teamModel2.getTabWorms().length);
 
+        // Item view affiche que dans le terminal et rien avec Swing pour le moment donc ca passe ici
+        this.itemController = new ItemController(new ItemView());
+        this.itemController.setWorld(world);
+        this.itemController.setAllWorms(this.allWormsCharacter);
+        activeWormController.setItemController(this.itemController);
+
+        activeWormController.setCurrentWeapon(new Ak47());
+
         activeWormController.setWorld(world);
         activeWormController.setAllWorms(this.allWormsCharacter);
+        //System.out.println("[AciveWormsController facingRight ?] = "+ activeWormController.getModel().isFacingRight());
+
 
 
         // on initialise l'eau
@@ -175,6 +189,10 @@ public class ConsoleGameManager {
         return this.activeWormController;
     }
 
+    public ItemController getItemController(){
+        return this.itemController;
+    }
+
     /**
      * Switch generalisee pour une equipe donnee 
      * J'ai enlever les elements liee a la camera
@@ -193,10 +211,10 @@ public class ConsoleGameManager {
 
             if (worm != null && !worm.isDead()) {
                 activeWormController = new CharacterController(worm);
-                // activeWormController.setItemController(this.itemController);
+                activeWormController.setItemController(this.itemController);
                 activeWormController.setWorld(world);
                 activeWormController.setAllWorms(this.allWormsCharacter);
-                // activeWormController.setCurrentWeapon(new Ak47());
+                activeWormController.setCurrentWeapon(new Ak47());
 
                 consoleInputController.setCharacterController(activeWormController);
                 // cameraController.setTargetCharacter(worm);
