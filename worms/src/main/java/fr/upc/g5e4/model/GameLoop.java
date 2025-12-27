@@ -30,6 +30,10 @@ public class GameLoop{
         this.gamePanel = this.gameManager.getGamePanel();
         this.roundTimeRemaining = gameManager.getRoundTimeRemaining();
 
+        // pour pas que 30 passe par dessus le temps sauvegardee dans le cas de resumeGame()
+        int initialSeconds = roundTimeRemaining / 60;
+        this.gamePanel.setRoundTimer(initialSeconds);
+
         // Initialiser l'affichage du chrono dans la vue -> Ca sert a rien ? 
         //this.gamePanel.setRoundTimer(30);
 

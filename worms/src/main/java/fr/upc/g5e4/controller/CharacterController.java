@@ -87,6 +87,7 @@ public class CharacterController {
     // Activation & Desactivation des touches
     public void activateLeft() {
         LeftKeyPressed = true;
+
     }
     
     public void deactivateLeft() {

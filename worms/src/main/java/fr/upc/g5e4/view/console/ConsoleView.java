@@ -140,6 +140,7 @@ public class ConsoleView {
         text.putString(1,1, "Round " + round + " - Equipe active : " + team);
         text.putString(1,2,"Worms actif numero : " + indexWActif);  // pas d'utiliter dans le terminal mais on pourrait print le nom du characterModel a la place
         text.putString(1,3, "PV = " + characterModel.getHealth());
+        text.putString(1,4,"SHIELD= : " + characterModel.getShield());
         //screen.refresh();
     }
 

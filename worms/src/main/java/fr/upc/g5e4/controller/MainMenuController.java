@@ -5,6 +5,7 @@ import java.io.IOException;
 import javax.swing.JOptionPane;
 
 import fr.upc.g5e4.GameLauncher;
+import fr.upc.g5e4.model.io.SaveLoad;
 import fr.upc.g5e4.view.MainMenuView;
 
 /**
@@ -39,15 +40,32 @@ public class MainMenuController {
 
     private void startNewGame() throws IOException {
         // Utilise le GameLauncher existant pour basculer vers le jeu
+        if (gameLauncher == null){
+            this.gameLauncher = new GameLauncher();
+        }
         gameLauncher.startGame();
     }
 
-    private void resumeGame() {
+    /**
+     * Methode pour lancer une sauvegarde
+     */
+    private void resumeGame(){ 
         // Pour l'instant juste un message
+        /*
         JOptionPane.showMessageDialog(gameLauncher.getMainFrame(), 
             "Fonctionnalité à venir", 
             "Poursuivre", 
             JOptionPane.INFORMATION_MESSAGE); //determine l'icône qui s'affiche à gauche du texte
+        */
+
+        try {
+            SaveLoad sv = new SaveLoad();
+            this.gameLauncher.startFromGameSave(sv.getSaveData());
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+
+
     }
 
     private void openConfig() {

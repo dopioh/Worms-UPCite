@@ -13,7 +13,10 @@ import fr.upc.g5e4.GameLauncher;
 import fr.upc.g5e4.controller.*;
 //import fr.upc.g5e4.model.WindModel;
 import fr.upc.g5e4.model.weapons.*;
+import fr.upc.g5e4.model.InventoryModel.InventoryJson;
+import fr.upc.g5e4.model.InventoryModel.InventoryRoot;
 import fr.upc.g5e4.model.PhysicsWorld.WaterSensorListener;
+//import fr.upc.g5e4.model.WindModel.Dir;
 import fr.upc.g5e4.model.camera.CameraModel;
 import fr.upc.g5e4.model.io.SaveData;
 import fr.upc.g5e4.model.io.TeamData;
@@ -84,6 +87,9 @@ public class GameManager {
     // Statistiques de jeu - support pour un nombre variable d'équipes
     private Map<String, GameStats> teamStats = new HashMap<>();
 
+    //private boolean saveDataBool;
+    //private SaveData saveData;
+
     /**
      * Initialise le terrain du jeu.
      * <p>
@@ -100,6 +106,7 @@ public class GameManager {
      */
     public GameManager(int nbrEquipe) {
         // Initialiser le système audio en arrière-plan pour éviter le lag au premier tir
+        //this.saveDataBool = false;
         SoundPlayer.initialize();
 
         // ========== CONFIGURATION DU TERRAIN ==========
@@ -216,8 +223,152 @@ public class GameManager {
         // pour ne pas que gamePanel et imputController se disputent le focus
         this.gamePanel.setFocusable(false);  // le panel ne prend pas le focus
         imputController.setFocusable(true);   // l'inputController prend le focus    
+
+        initialiseInventory();
         
         // La mise à jour de la caméra et des projectiles est maintenant gérée dans GameLoop
+    }
+
+    /**
+     * Constructeur pour lancer a partir d'un fichier json sauvegarde
+     * On part du principe que elle sera tjr appele si saveData est vrai 
+     * Et jamais appele si saveData est faux
+     * 
+     * Initialise les donnees de la partie depuis saveData au lieu d'en creer
+     * 
+     * @param saveData donnees minimal qui viennent d'un sauvegarde.txt
+     * 
+     * @see GameManager#GameManager(int nbrEquipe) pour plus de precision sur comment fonctionne le constructeur
+     */
+    public GameManager(SaveData saveData){
+        //this.saveDataBool = true;
+        //this.saveData = saveData;
+
+        // On part du principe que la taille du terrain ne changera jamais 
+        int sizeX = 1280;  // Taille du terrain
+        int sizeY = 720;
+        int waterLevel = 800;
+
+        System.out.println("Ca marche ?"); // oui, ca casse a la ligne de en dessous
+
+        int[] groundY = saveData.getGroundModel().getGroundY();
+        this.blockGridModel = new BlockGridModel(sizeX, sizeY, waterLevel);
+        blockGridModel.generateWithGroundY(groundY);
+
+        this.model = saveData.getGroundModel();
+
+        this.physic = new PhysicsWorld();
+        this.world = physic.getWorld();
+
+        physic.createGroundFromBlockGrid(blockGridModel);
+        physic.limitPanel(blockGridModel);
+
+        this.water = physic.createBodyWater(model);
+
+        SoundPlayer.initialize();
+
+        this.roundTimeRemaining = saveData.getRoundTimeRemaining();
+
+        this.camera = new CameraModel(1280, 720, model.getWidth(), model.getHeight(), 1);
+        physic.limitPanel(model);
+
+        // Au lieu de creer des nouvelles equipes, on prend celle de la save
+        this.listTeamInital = new ArrayList<>();
+        this.listTeamModel = new ArrayList<>();
+
+            for (TeamData td : saveData.getListTeamData()){
+                TeamInitialisation tm = td.dataToInit(model, world);
+                this.listTeamInital.add(tm);
+                listTeamModel.add(tm.getTeamModel());
+
+                // c'est pas grave de le reecrire plusieurs fois, toutes les equipes auront le meme nbr de worms
+                this.nbrWormsByTeam = td.getWormsNumber();
+            }
+        this.currentTeamIndex = saveData.getCurrentTeamIndex();
+        this.currentTeam = listTeamInital.get(currentTeamIndex).getTeamModel();
+
+        // Pour avoir la pos de chaque worm qui a jouee pour la derniere fois dans chaque equipe
+        this.teamCursor = saveData.getTeamCursor();
+
+        this.activeWormIndex = saveData.getActiveWormIndex();
+        this.activeWormController =  new CharacterController(listTeamInital.get(currentTeamIndex).getTeamModel().getWorm(activeWormIndex));
+
+        // GameStats : 
+        this.teamStats = saveData.getAllTeamStats();
+        
+        // pour le WaterSensorListener
+        ArrayList<CharacterModel> allWorms = new ArrayList<>();
+        for (int i = 0; i < listTeamInital.size(); i++) {
+            for (int j = 0 ; j < listTeamInital.get(i).getTeamModel().getTabWorms().length; j++){
+                allWorms.add(listTeamInital.get(i).getTeamModel().getTabWorms()[j]);
+            }
+        }
+
+        this.wSL = physic.new WaterSensorListener(water, allWorms, new ArrayList<CharacterModel>());
+        world.setContactListener(wSL);
+
+        // initialisation des rounds
+        this.roundNumber = saveData.getRound();
+
+        // Initialisation du système de tir
+        this.itemController = new ItemController(new ItemView());
+        this.itemController.setWorld(world);
+        this.itemController.setGameManager(this);  // Pour le tracking des stats
+        
+        // Créer un tableau de tous les worms (N equipes)
+        this.allWorms = new CharacterModel[allWorms.size()];
+        for (int i = 0 ; i < this.allWorms.length ; i++){
+            this.allWorms[i] = allWorms.get(i);
+        }
+
+        
+        this.itemController.setAllWorms(this.allWorms);
+        activeWormController.setItemController(this.itemController);
+        activeWormController.setWorld(world);
+        activeWormController.setAllWorms(this.allWorms);
+
+        // Équiper une arme par défaut (AK-47)
+        activeWormController.setCurrentWeapon(new Ak47());
+
+        // Initialisation caméra avec le worm actif (fenêtre 1280x720, terrain 6000x720)
+        this.cameraController = new CameraController(camera,listTeamInital.get(currentTeamIndex).getTeamModel().getWorm(activeWormIndex));
+        
+        // Centrer la caméra sur le worm actif au démarrage
+        this.cameraController.centerOnCharacter();
+        
+        // Contrôleur fusionné avec le worm actif
+        this.imputController = new SwingInputController(activeWormController, cameraController);
+
+        // GamePanel avec tout ce qui est nécessaire
+        this.gamePanel = new GamePanel(model, camera, cameraController, listTeamInital); 
+        
+        // Passer le BlockGridModel au GamePanel pour le rendu en blocs
+        this.gamePanel.setBlockGridModel(this.blockGridModel);
+        
+        // Passer l'ItemController au GamePanel pour dessiner les projectiles
+        this.gamePanel.setItemController(this.itemController);
+
+        // Ajoute le contrôleur pour capter les touches
+        this.gamePanel.add(imputController);
+        imputController.setGameManager(this); // connecte inputController au GameManager
+                                             //  pour que inputController puisse appeler switchToNextWorm()
+        
+        // Connecter le renderer de trajectoire
+        imputController.setTrajectoryRenderer(gamePanel.getTrajectoryRenderer());
+        gamePanel.getTrajectoryRenderer().setShooter(activeWormController.getModel());
+        gamePanel.getTrajectoryRenderer().setWeapon(activeWormController.getCurrentWeapon());
+        
+        // pour ne pas que gamePanel et imputController se disputent le focus
+        // en lancant le jeu, certaines fois rien n'était controllable mais c'est fix maintenant
+        this.gamePanel.setFocusable(false);  // le panel ne prend pas le focus
+        imputController.setFocusable(true);   // l'inputController prend le focus    
+
+        //initialiseInventory();
+
+        if (saveData.getWindData() != null) {
+            saveData.getWindData().applyToWindModel(this.windModel);
+        }
+
     }
 
     /**
@@ -319,6 +470,10 @@ public class GameManager {
     public GameStats getCurrentTeamStats() {
         String currentTeamName = getCurrentTeamName();
         return teamStats.get(currentTeamName);
+    }
+
+    public int[] getTeamCursor(){
+        return this.teamCursor;
     }
 
     /**
@@ -495,6 +650,17 @@ public class GameManager {
         if (inventoryOverlay != null) {
             inventoryOverlay.setInventory(getCurrentTeamInventory());
         }
+
+        // --- Vent : change à chaque tour (fixe pendant le tour) ---
+        WindModel.Dir[] dirs = WindModel.Dir.values();
+        windModel.setDir(dirs[windRng.nextInt(dirs.length)]);
+
+        // force entre 0.15 et 1.0 (évite vent invisible)
+        float strength = 0.15f + windRng.nextFloat() * 0.85f;
+        windModel.setStrength(strength,false);
+
+        System.out.println("[VENT] " + windModel.getDir().label + " | force=" + String.format("%.2f", windModel.getStrength()));
+
     }
 
     
@@ -582,6 +748,7 @@ public class GameManager {
     public void save(){
         // creer une sauvegarde automatiquement
         SaveData saveData = new SaveData(this);
+        System.out.println("coucou"); 
 
         try {
             File dossier = new File("sauvegardes");
@@ -595,54 +762,19 @@ public class GameManager {
 
             fileWriter.close();
         } catch (Exception e) {
-            e.getMessage();
-        }
-    }
-
-    /**
-     * Charge la game a partir d'un fichier json (.txt lu en json)
-     * @param filePath chemin du fichier json
-     */
-    public void loadGame(String filePath){
-        try {
-            Gson gson = new Gson();
-            FileReader fileReader = new FileReader(filePath);
-
-            SaveData saveData = gson.fromJson(fileReader, SaveData.class);
-
-            //// On remplace :
-
-            // Donnees Partie :
-            this.roundNumber = saveData.getRound();
-            this.currentTeamIndex = saveData.getCurrentTeamIndex();
-            this.activeWormIndex = saveData.getActiveWormIndex();
-            this.roundTimeRemaining = saveData.getRoundTimeRemaining();
-
-            // Terrain :
-            this.model = saveData.getGroundModel();
-
-            // Worms : 
-
-            // Comment attribuer les equipes ? -> Le code n'est pas modulable pour les equipes 
-            // A corriger Sprint 4
-
-            for (TeamData td : saveData.getListTeamData()){
-                listTeamModel.add(td.dataToModel(model, world));
-            }
-
-            // a finir 
-        } catch (Exception e) {
-            e.getMessage();
+            System.out.println(e.getMessage()); 
+            //"Failed making field 'java.awt.Color#value' accessible; either increase its visibility or write a custom TypeAdapter for its declaring type."
         }
     }
 
     /**
      * Sauvegarde la partie
      * Est called dans le controller
+     * Pourquoi ne pas juste appeler save() dans le controller ?
      */
     public void actionPerformed(){
         save();
-        //System.out.println("JSON Creer");
+        System.out.println("JSON Creer");
     }
 
     /*Selection d'inventaire depuis l'inventaire*/
@@ -703,6 +835,38 @@ public class GameManager {
         }
     }
 
+    // On passe la partie inventaire overlay ici (precedemment dans Gamelauncher)
+    public void initialiseInventory(){
+
+            try {
+                InventoryRoot root = InventoryModel.load("/inventory.json");
+                int index = 0;
+
+                for (TeamInitialisation tm : listTeamInital){
+                    java.util.List<InventoryJson> teamInventory = copyInventory(root.inventory);
+                    listTeamInital.get(index).getTeamModel().setInventory(teamInventory);
+                    index++;
+                }
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+            }
+        
+    }
+
+    private java.util.List<InventoryModel.InventoryJson> copyInventory(java.util.List<InventoryModel.InventoryJson> src) {
+                java.util.List<InventoryModel.InventoryJson> res = new java.util.ArrayList<>();
+                for (InventoryModel.InventoryJson it : src) {
+                    InventoryModel.InventoryJson c = new InventoryModel.InventoryJson();
+                    c.objectType = it.objectType;
+                    c.name = it.name;
+                    c.maxUsages = it.maxUsages;
+                    c.isInfinite = it.isInfinite;
+                    c.remainingUses = it.remainingUses;
+                    // useThisTurn reste à 0
+                    res.add(c);
+                }
+                return res;
+            }
     /**
      * Construit une ArrayList de tous les vers de toutes les équipes
      * Utile pour le WaterSensorListener et autres systèmes globaux
