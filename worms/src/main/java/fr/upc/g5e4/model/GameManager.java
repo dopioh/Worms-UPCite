@@ -636,12 +636,24 @@ public class GameManager {
     /**
      * passe au round suivant et alterne les équipes
      */
+    // Ajout d'une référence à GameLoop pour synchroniser le timer
+    private GameLoop gameLoop;
+
+    public void setGameLoop(GameLoop loop) {
+        this.gameLoop = loop;
+    }
+
     public void nextRound() {
         roundNumber++;
         currentTeamIndex = (currentTeamIndex + 1) % listTeamInital.size(); 
         currentTeam = listTeamInital.get(currentTeamIndex).getTeamModel();
         if (currentTeam != null) {
             currentTeam.resetInventoryTurn();
+        }
+        // Réinitialise le timer à 30 secondes
+        roundTimeRemaining = roundTimeSave; // ou 1800
+        if (gameLoop != null) {
+            gameLoop.resetRoundTimer();
         }
         //switch worm dans cette équipe
         switchToNextWorm(currentTeam);
