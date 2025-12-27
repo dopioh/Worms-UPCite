@@ -6,7 +6,7 @@ import fr.upc.g5e4.model.CharacterModel;
 import fr.upc.g5e4.model.Item;
 import fr.upc.g5e4.model.Weapon;
 import fr.upc.g5e4.model.Projectile;
-import fr.upc.g5e4.model.GroundModel;
+import fr.upc.g5e4.model.BlockGridModel;
 import fr.upc.g5e4.view.ItemView;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +16,7 @@ public class ItemController {
     private final ItemView view;
     private World world;
     private CharacterModel[] allWorms;
-    private GroundModel groundModel;
+    private BlockGridModel blockGridModel;
     private List<Projectile> activeProjectiles;
 
     public ItemController(ItemView view) {
@@ -41,11 +41,11 @@ public class ItemController {
     }
     
     /**
-     * définit le modèle du sol pour la détection de collision ( a utilisé pour la dégradation du sol)
-     * @param groundModel Le modèle du terrain
+     * définit le BlockGridModel pour les dégâts au terrain
+     * @param blockGridModel Le modèle de grille de blocs
      */
-    public void setGroundModel(GroundModel groundModel) {
-        this.groundModel = groundModel;
+    public void setBlockGridModel(BlockGridModel blockGridModel) {
+        this.blockGridModel = blockGridModel;
     }
 
     /**
@@ -91,13 +91,15 @@ public class ItemController {
         List<Projectile> toRemove = new ArrayList<>();
         // met à jour chaque projectile
         for (Projectile projectile : activeProjectiles) {
-            if (!projectile.update(deltaTime)) {
+            if (!projectile.update(deltaTime)) { // retourne faux si le projectile a dépassé sa portée
+                applyTerrainDamage(projectile); 
                 toRemove.add(projectile);
                 continue;
             }
             
             // permet de détecter le sol
-            if (groundModel != null && hitGround(projectile)) {
+            if (hitGround(projectile)) {
+                applyTerrainDamage(projectile);
                 toRemove.add(projectile);
                 continue;
             }
@@ -133,6 +135,7 @@ public class ItemController {
                         System.out.println("Cible " + worm.getName() + " touchée avec " + 
                                          projectile.getSourceWeapon().getDamage() + " damage (impact: " + 
                                          String.format("%.2f", impactForce) + ")");
+                        applyTerrainDamage(projectile);
                         toRemove.add(projectile);
                         break;
                     }
@@ -150,20 +153,59 @@ public class ItemController {
      * @return true si le projectile a touché le sol
      */
     private boolean hitGround(Projectile projectile) {
+        if (blockGridModel == null) {
+            return false;
+        }
+        
         Vec2 pos = projectile.getCurrentPosition();
+        float PPM = 30f; // pixel par mètre
         
-        //convertit la position monde en position écran pour vérifier la hauteur du terrain
+        //convertit la position monde en pixels
+        int pixelX = (int)(pos.x * PPM);
+        int pixelY = (int)(blockGridModel.getPixelHeight() - pos.y * PPM);
+        
+        // verifie si le projectile touche un bloc solide de la grille
+        return blockGridModel.isSolidAt(pixelX, pixelY);
+    }
+    
+    /**
+     * applique les degats au terrain quand le projectile touche le sol
+     * @param projectile Le projectile qui impacte le terrain
+     */
+    private void applyTerrainDamage(Projectile projectile) {
+        if (blockGridModel == null) {
+            return;
+        }
+        
+        Weapon weapon = projectile.getSourceWeapon(); // arme qui a tiré le projectile
+        if (weapon == null || weapon.getTerrainDamage() == 0) {
+            return;
+        }
+        
+        Vec2 projectilePos = projectile.getCurrentPosition();
+        
+        // convertit la position du monde (JBox2D en mètres) en coordonnées de grille
         float PPM = 30f;
-        int heightPx = 720;  // hauteur de l'écran en pixels
         
-        // position écran du projectile
-        float screenY = (heightPx - (pos.y * PPM));
+        // convertir de metres en pixels
+        int pixelX = (int)(projectilePos.x * PPM);
+        // Y est inversé entre JBox2D (Y augmente vers le haut) et pixels (Y augmente vers le bas)
+        int pixelY = (int)(blockGridModel.getPixelHeight() - projectilePos.y * PPM);
         
-        //obtenir la hauteur du sol à la position X du projectile
-        float groundHeightPx = groundModel.getGroundHeightAt(pos.x * PPM);
+        // convertir de pixels en coordonnées de grille
+        int centerGridX = blockGridModel.pixelToGridX(pixelX);
+        int centerGridY = blockGridModel.pixelToGridY(pixelY);
         
-        // le projectile a touché le sol si screenY >= groundHeightPx
-        return screenY >= groundHeightPx;
+        // appliquer les degats au terrain
+        if (weapon.getTerrainBlastRadius() > 0) {
+            // dégats en zone 
+            blockGridModel.damageBlocksInRadius(centerGridX, centerGridY, weapon.getTerrainBlastRadius(), weapon.getTerrainDamage());
+            System.out.println("[" + weapon.getName() + "] Dégâts terrain en zone : " + weapon.getTerrainDamage() + " PV, rayon " + weapon.getTerrainBlastRadius());
+        } else {
+            // dégats ponctuels
+            blockGridModel.damageBlock(centerGridX, centerGridY, weapon.getTerrainDamage());
+            System.out.println("[" + weapon.getName() + "] Dégâts terrain ponctuels : " + weapon.getTerrainDamage() + " PV");
+        }
     }
     
     /**

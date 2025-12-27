@@ -12,7 +12,7 @@ public class NoDropTrajectory implements TrajectoryInterface {
     
     @Override
     public Vec2 calculatePosition(float t, Vec2 startPos, double range, double angle) {
-        t = Math.max(0, Math.min(1, t));
+        t = Math.max(0, Math.min(1, t)); //reste dans la limite de portée pour les armes de mêlée
         
         double angleRad = angle;
         float horizontalDistance = (float)(range * t);

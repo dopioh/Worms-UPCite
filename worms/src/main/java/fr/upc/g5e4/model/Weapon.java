@@ -11,8 +11,10 @@ public abstract class Weapon extends Item {
     private final int damage;         
     private final double blastRadius; // rayon d'explosion (0 si aucun)
     private final double speed;       // vitesse de projectile ou déplacement
-    private final double range;          // portée de l'arme
+    private final double range;    // portée de l'arme
     private final double knockbackMultiplier; // multiplicateur de recul
+    private int terrainDamage = 0;    // dégâts causés au terrain (en PV de blocs)
+    private double terrainBlastRadius = 0.0; // rayon de dégâts au terrain en blocs
     private double shootingAngle = 0;  // angle de tir en degrés (0-360)
     private TrajectoryInterface trajectoryCalculator;  // calculatrice de trajectoire spécifique à l'arme
 
@@ -35,6 +37,24 @@ public abstract class Weapon extends Item {
     public double getSpeed() { return speed; }
     public double getRange() { return range; }
     public double getKnockbackMultiplier() { return knockbackMultiplier; }
+    public int getTerrainDamage() { return terrainDamage; }
+    public double getTerrainBlastRadius() { return terrainBlastRadius; }
+    
+    /**
+     * définit les dégats causés au terrain
+     * @param terrainDamage dégats au terrain (PV de blocs)
+     */
+    public void setTerrainDamage(int terrainDamage) {
+        this.terrainDamage = Math.max(0, terrainDamage);
+    }
+    
+    /**
+     * définit le rayon de dégats au terrain
+     * @param terrainBlastRadius rayon en nombre de blocs
+     */
+    public void setTerrainBlastRadius(double terrainBlastRadius) {
+        this.terrainBlastRadius = Math.max(0, terrainBlastRadius);
+    }
     
     /**
      * définit le calculateur de trajectoire personnalisé pour une arme

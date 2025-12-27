@@ -21,6 +21,9 @@ public class BaseballBat extends Weapon {
         // Batte de baseball : pas de chute, trajectoire droite
         this.setTrajectoryCalculator(new NoDropTrajectory());
         
+        // Dégâts au terrain : 1 PV par bloc, pas de blast radius
+        this.setTerrainDamage(1);
+        this.setTerrainBlastRadius(0.5);
     }
 
     @Override

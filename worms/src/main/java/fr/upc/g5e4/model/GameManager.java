@@ -165,7 +165,7 @@ public class GameManager {
         // Initialisation du système de tir
         this.itemController = new ItemController(new ItemView());
         this.itemController.setWorld(world);
-        this.itemController.setGroundModel(this.model);
+        this.itemController.setBlockGridModel(this.blockGridModel);
         
         // Créer un tableau de tous les worms (équipe 1 + équipe 2)
         this.allWorms = new CharacterModel[teamModel1.getTabWorms().length + teamModel2.getTabWorms().length];
@@ -219,6 +219,13 @@ public class GameManager {
             cameraController.update();
             // mettre à jour les projectiles (16ms = 0.016s par frame)
             itemController.updateProjectiles(0.016f);
+            
+            // recréer le terrain physique si la grille a changé (blocs détruits)
+            if (blockGridModel.isDirty()) {
+                physic.recreateTerrainFromBlockGrid(blockGridModel);
+                blockGridModel.clearDirty();
+            }
+            
             gamePanel.repaint();
         }).start();
     }
