@@ -15,6 +15,15 @@ public class WindOverlay extends JComponent {
 
     // animation
     private float animPhase = 0f;
+    
+    // Pré-création des objets graphiques pour éviter les allocations à chaque frame + access facile aux couleurs
+    private static final Color BG_COLOR = new Color(0, 0, 0, 120);
+    private static final Color TEXT_COLOR = new Color(255, 255, 255, 220);
+    private static final Color ARROW_COLOR_BASE = new Color(200, 230, 255);
+    private static final Color BAR_BG = new Color(255, 255, 255, 60);
+    private static final Color BAR_FG = new Color(120, 200, 255, 200);
+    private static final BasicStroke ARROW_STROKE = new BasicStroke(3.0f);
+    private final Rectangle clipRect = new Rectangle();
 
     public WindOverlay(WindModel wind) {
         this.wind = wind;
@@ -25,11 +34,8 @@ public class WindOverlay extends JComponent {
             particles.add(spawnParticle());
         }
 
-        // timer d’animation (discret)
-        new Timer(16, e -> {
-            tick(0.016f);
-            repaint();
-        }).start();
+        // L'animation est maintenant gérée via un appel externe depuis GameLoop
+        // pour synchroniser avec le reste du jeu et éviter les repaints excessifs
     }
 
     private Particle spawnParticle() {
@@ -40,6 +46,14 @@ public class WindOverlay extends JComponent {
         p.size = 1.5f + rng.nextFloat() * 2.5f;
         p.alpha = 0.2f + rng.nextFloat() * 0.35f;
         return p;
+    }
+    
+    /**
+     * Méthode publique pour animer le vent depuis GameLoop
+     * @param dt delta time en secondes
+     */
+    public void update(float dt) {
+        tick(dt);
     }
 
     private void tick(float dt) {
@@ -86,11 +100,11 @@ public class WindOverlay extends JComponent {
         int y = getHeight() - boxH - margin;
 
         // fond semi-transparent
-        g2.setColor(new Color(0, 0, 0, 120));
+        g2.setColor(BG_COLOR);
         g2.fillRoundRect(x, y, boxW, boxH, 16, 16);
 
         // titre
-        g2.setColor(new Color(255, 255, 255, 220));
+        g2.setColor(TEXT_COLOR);
         g2.drawString("VENT", x + 12, y + 18);
 
         // flèche + label direction
@@ -116,15 +130,16 @@ public class WindOverlay extends JComponent {
 
         // petite animation “pulse” très discrète
         float pulse = 0.85f + 0.15f * (float)Math.sin(animPhase * 4.0);
-        g2.setStroke(new BasicStroke(3.0f));
-        g2.setColor(new Color(200, 230, 255, (int)(200 * pulse)));
+        g2.setStroke(ARROW_STROKE);
+        g2.setColor(new Color(ARROW_COLOR_BASE.getRed(), ARROW_COLOR_BASE.getGreen(), 
+                              ARROW_COLOR_BASE.getBlue(), (int)(200 * pulse)));
         g2.drawLine(cx, cy, x2, y2);
 
         // tête de flèche
         drawArrowHead(g2, cx, cy, x2, y2);
 
         // label direction (NE / SO / ...)
-        g2.setColor(new Color(255, 255, 255, 220));
+        g2.setColor(TEXT_COLOR);
         g2.drawString(dir.label, x + 120, y + 40);
 
         // barre de force
@@ -133,21 +148,23 @@ public class WindOverlay extends JComponent {
         int barW = 70;
         int barH = 8;
 
-        g2.setColor(new Color(255, 255, 255, 60));
+        g2.setColor(BAR_BG);
         g2.fillRoundRect(barX, barY, barW, barH, 8, 8);
-        g2.setColor(new Color(120, 200, 255, 200));
+        g2.setColor(BAR_FG);
         g2.fillRoundRect(barX, barY, (int)(barW * strength), barH, 8, 8);
 
         // particules animées (dans le petit widget uniquement)
         Shape oldClip = g2.getClip();
-        g2.setClip(new Rectangle(x + 6, y + 22, boxW - 12, boxH - 28));
+        clipRect.setBounds(x + 6, y + 22, boxW - 12, boxH - 28);
+        g2.setClip(clipRect);
 
         for (Particle p : particles) {
             // ne dessine que dans le widget (coordonnées normalisées => widget)
             int px = x + 6 + (int)((boxW - 12) * p.x);
             int py = y + 22 + (int)((boxH - 28) * p.y);
 
-            g2.setColor(new Color(255, 255, 255, (int)(255 * p.alpha)));
+            int alpha = (int)(255 * p.alpha);
+            g2.setColor(new Color(255, 255, 255, alpha));
             g2.fillOval(px, py, (int)p.size, (int)p.size);
         }
 
