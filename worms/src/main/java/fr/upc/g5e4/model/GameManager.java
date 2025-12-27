@@ -166,6 +166,7 @@ public class GameManager {
         this.itemController = new ItemController(new ItemView());
         this.itemController.setWorld(world);
         this.itemController.setBlockGridModel(this.blockGridModel);
+        this.itemController.setWindModel(this.windModel);
         
         // Créer un tableau de tous les worms (équipe 1 + équipe 2)
         this.allWorms = new CharacterModel[teamModel1.getTabWorms().length + teamModel2.getTabWorms().length];

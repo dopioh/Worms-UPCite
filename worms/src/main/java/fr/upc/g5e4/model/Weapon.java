@@ -86,20 +86,106 @@ public abstract class Weapon extends Item {
     
 
     /**
-     * Tire un projectile avec une trajectoire 
+     * tire un projectile avec une trajectoire (sans vent)
      * @param shooter Le worm qui tire
+     * @param world Le monde physique
      * @param allWorms Tableau de tous les worms du jeu
+     * @param direction direction du tir (1 pour droite, -1 pour gauche)
      */
     public Projectile fire(CharacterModel shooter, org.jbox2d.dynamics.World world, 
         CharacterModel[] allWorms, int direction) {
+        return fire(shooter, world, allWorms, direction, null);
+    }
+
+    /**
+     * tire un projectile avec une trajectoire 
+     * @param shooter le worm qui tire
+     * @param world le monde physique
+     * @param allWorms tableau de tous les worms du jeu
+     * @param direction direction du tir (1 pour droite, -1 pour gauche)
+     * @param windModel le modele du vent (peut être null)
+     */
+    public Projectile fire(CharacterModel shooter, org.jbox2d.dynamics.World world, 
+        CharacterModel[] allWorms, int direction, WindModel windModel) {
         Vec2 shooterPos = shooter.getBody().getPosition();
         
-        // créer le projectile avec l'angle de tir
-        Projectile projectile = new Projectile(this, shooter, shooterPos, this.range, this.speed, this.shootingAngle);
+        // calculer la portée modifiée par le vent
+        double adjustedRange = this.range;
+        if (windModel != null) {
+            // appliquer l'effet du vent sur la portée
+            adjustedRange = applyWindEffect(this.range, this.shootingAngle, windModel, direction);
+        }
+        
+        // créer le projectile avec la portée ajustée
+        Projectile projectile = new Projectile(this, shooter, shooterPos, adjustedRange, this.speed, this.shootingAngle);
+        String windInfo = windModel != null ? String.format(" (vent: %s %.0f%% -> portée ajustée: %.1f)", 
+            windModel.getDir().label, windModel.getStrength() * 100, adjustedRange) : "";
         System.out.println("[" + this.getName() + "] Tir à angle " + String.format("%.0f°", shootingAngle) + 
-                         " portée=" + this.range);
+                         " portée=" + this.range + windInfo);
         
         return projectile;
+    }
+
+    /**
+     * applique l'effet du vent sur la portée du projectile
+     * @param baseRange portée de base
+     * @param shootingAngle angle de tir en degrés
+     * @param windModel modele du vent
+     * @param shooterDirection direction du tireur (1 pour droite, -1 pour gauche)
+     * @return portée ajustée par le vent
+     */
+    private double applyWindEffect(double baseRange, double shootingAngle, WindModel windModel, int shooterDirection) {
+        if (windModel == null || windModel.getStrength() == 0) {
+            return baseRange;
+        }
+        
+        // direction du vent en angles (0 = Est, 90 = Nord, etc.)
+        WindModel.Dir windDir = windModel.getDir();
+        float windStrength = windModel.getStrength();
+        
+        // calculer l'angle du vent
+        float windAngle = getWindAngleInDegrees(windDir);
+        
+        // convertir les angles de tir en angle de direction (0 = Est)
+        // l'angle de tir est relatif au tireur (shootingAngle = 45 peut être vers haut-droit ou haut-gauche)
+        double trajectoryAngle = shootingAngle;
+        if (shooterDirection < 0) {
+            // si le tireur regarde à gauche, inverser l'angle
+            trajectoryAngle = 180 - shootingAngle;
+        }
+        
+        // calculer la composante horizontale (qui affecte la portée)
+        double projectileX = Math.cos(Math.toRadians(trajectoryAngle));
+        double windX = Math.cos(Math.toRadians(windAngle));
+        
+        // calcul du produit scalaire pour déterminer l'alignement
+        // 1.0 = vent exactement dans la même direction
+        // -1.0 = vent exactement contraire
+        // 0.0 = vent perpendiculaire
+        double alignment = projectileX * windX;
+        
+        // appliquer l'effet du vent
+        // effet positif (vent dans le même sens) : augmente la portée
+        // effet négatif (vent contraire) : diminue la portée
+        double windEffect = 1.0 + (alignment * windStrength * 0.3); // 0.3 = facteur d'effet max
+        
+        return baseRange * windEffect;
+    }
+
+    /**
+     * convertit une direction du vent en angle en degrés (0 = Est, 90 = Nord)
+     */
+    private float getWindAngleInDegrees(WindModel.Dir dir) {
+        return switch (dir) {
+            case E -> 0f;      // Est
+            case NE -> 45f;    // Nord-Est
+            case N -> 90f;     // Nord
+            case NO -> 135f;   // Nord-Ouest
+            case O -> 180f;    // Ouest
+            case SO -> 225f;   // Sud-Ouest
+            case S -> 270f;    // Sud
+            case SE -> 315f;   // Sud-Est
+        };
     }
 
 }

@@ -7,6 +7,7 @@ import fr.upc.g5e4.model.Item;
 import fr.upc.g5e4.model.Weapon;
 import fr.upc.g5e4.model.Projectile;
 import fr.upc.g5e4.model.BlockGridModel;
+import fr.upc.g5e4.model.WindModel;
 import fr.upc.g5e4.view.ItemView;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +18,7 @@ public class ItemController {
     private World world;
     private CharacterModel[] allWorms;
     private BlockGridModel blockGridModel;
+    private WindModel windModel;
     private List<Projectile> activeProjectiles;
 
     public ItemController(ItemView view) {
@@ -30,6 +32,14 @@ public class ItemController {
      */
     public void setWorld(World world) {
         this.world = world;
+    }
+
+    /**
+     * définit le modele du vent
+     * @param windModel le modele du vent
+     */
+    public void setWindModel(WindModel windModel) {
+        this.windModel = windModel;
     }
 
     /**
@@ -72,7 +82,7 @@ public class ItemController {
         if (weapon.use()) {
             SoundPlayer.play("/sfx/gunshot.wav");
 
-            Projectile projectile = weapon.fire(shooter, world, allWorms, direction);
+            Projectile projectile = weapon.fire(shooter, world, allWorms, direction, windModel);
             if (projectile != null) {
                 activeProjectiles.add(projectile);
                 System.out.println("Projectile lancé à l'angle: " + String.format("%.0f°", projectile.getShootingAngle()));
