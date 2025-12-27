@@ -115,6 +115,9 @@
 - Système de statistiques pour tracker des actions pendant la partie
 - Endroit pour stocker les paramètres du jeu
     - `current_skin`
+- Ajout Sprite `wormPixel.png` dans `ressources`
+- Une sauvegarde peut desormais etre lancer depuis le menu d'acceuil en cliquant sur "Poursuivre une partie"
+- Possibilitee de tirer/faire des degats/tuer un worm dans la version Console du jeu (tire assez limiter)
 - **Diagramme de classes** : Ajout et documentation du diagramme de classes du projet (GameManager, GameLoop, GamePanel, etc.)
 - **Système de configuration de terrains** : Nouvelle classe MapConfig pour gérer les types et tailles de maps
     - 4 types de terrains disponibles :
@@ -123,8 +126,6 @@
         - ISLANDS : Terrain wavy avec zones d'eau au centre pour éviter les spawn kills
         - FLAT : Terrain complètement plat
     - 3 tailles de maps : SMALL (800x720), MEDIUM (1280x720), LARGE (1700x720)
-- Une sauvegarde peut desormais etre lancer depuis le menu d'acceuil en cliquant sur "Poursuivre une partie"
-- Possibilitee de tirer/faire des degats/tuer un worm dans la version Console du jeu (tire assez limiter)
 - Ajout de la dégradation de la map
 - Ajout d'une courbe pour la trajectoire de la map
 
@@ -155,6 +156,7 @@
 - **N equipes** fonctionnelles desormais (2 auparavant)
 - Retour aux mouvements originaux
 - Retour du saut (avec Z)
+- HitBox du Sprite fixed, il n'ya pas plus de decalage lorsque le sprite monte une colline en allant vers la gauche
 - Initialisation de l'overlay Inventaire decaler dans GameManager (precedemment GameLauncher)
 
 ### Optimisation
