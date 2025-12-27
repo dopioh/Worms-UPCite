@@ -31,6 +31,15 @@ public class IntroCinematicView extends JPanel implements ActionListener {
     };
 
     public IntroCinematicView(List<TeamModel> teams, Runnable onCinematicEnd) {
+                // Ajout : touche pour skipper l'intro (Espace) via InputMap/ActionMap (plus fiable)
+                getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("SPACE"), "skipIntro");
+                getActionMap().put("skipIntro", new AbstractAction() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        stopCinematic();
+                        if (onCinematicEnd != null) onCinematicEnd.run();
+                    }
+                });
         this.teams = teams;
         this.onCinematicEnd = onCinematicEnd;
 
