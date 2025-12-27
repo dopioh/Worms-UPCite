@@ -12,8 +12,6 @@ import fr.upc.g5e4.model.TeamModel;
  * Affiche une animation de présentation avant le début du jeu
  */
 public class IntroCinematicView extends JPanel implements ActionListener {
-    private static final int CINEMATIC_DURATION = 5000; // 5 secondes
-    private static final int FADE_DURATION = 1000; // 1 seconde pour le fade
 
     private Timer cinematicTimer;
     private Timer fadeTimer;
@@ -38,6 +36,7 @@ public class IntroCinematicView extends JPanel implements ActionListener {
 
         setBackground(Color.BLACK);
         setLayout(new BorderLayout());
+
 
         // Timer pour l'animation de la cinématique
         cinematicTimer = new Timer(1000, this); // Changement toutes les secondes
@@ -75,10 +74,8 @@ public class IntroCinematicView extends JPanel implements ActionListener {
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
-        // Fond dégradé
-        GradientPaint gradient = new GradientPaint(0, 0, new Color(20, 20, 40),
-                                                 0, getHeight(), new Color(40, 20, 60));
-        g2d.setPaint(gradient);
+        // Fond noir total
+        g2d.setColor(Color.BLACK);
         g2d.fillRect(0, 0, getWidth(), getHeight());
 
         // Appliquer le fade
