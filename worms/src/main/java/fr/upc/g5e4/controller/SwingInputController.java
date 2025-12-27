@@ -166,14 +166,14 @@ public class SwingInputController extends JPanel{
                     case KeyEvent.VK_A:
                         if(gameManager != null) gameManager.nextRound();
                         break;
-                    
+
                     // Changement d'arme (touche E)
                     case KeyEvent.VK_E:
                         if(gameManager != null) gameManager.switchWeapon();
                         System.out.println("switch");
                         break;
 
-                    // Ouverture de l'inventaire
+                    // Sauvegarde de la partie actuel
                     case KeyEvent.VK_J:
                         gameManager.actionPerformed();
                         System.out.println("Save Buttun Pressed");
@@ -208,11 +208,7 @@ public class SwingInputController extends JPanel{
                             
                             // Récupérer le CharacterView correspondant
                             fr.upc.g5e4.view.CharacterView charView = null;
-                            if (teamIndex == 0) {
-                                charView = gameManager.getTeamView1().getCharacterView(wormIndex);
-                            } else {
-                                charView = gameManager.getTeamView2().getCharacterView(wormIndex);
-                            }
+                            charView = gameManager.getListTeamInit().get(teamIndex).getTeamView().getCharacterView(wormIndex);
                             
                             if (charView != null) {
                                 charView.getNameTagView().addItemFromResource("/worm.png", "test_item");

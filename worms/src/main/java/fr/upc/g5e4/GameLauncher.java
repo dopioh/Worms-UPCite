@@ -5,7 +5,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
-import fr.upc.g5e4.model.InventoryModel.*;
+//import java.util.ArrayList;
+
+//import fr.upc.g5e4.model.InventoryModel.*;
+import fr.upc.g5e4.model.io.SaveData;
+//import fr.upc.g5e4.model.io.SaveLoad;
 import fr.upc.g5e4.model.console.ConsoleLauncher;
 import fr.upc.g5e4.view.*;
 import fr.upc.g5e4.controller.*;
@@ -36,7 +40,10 @@ public class GameLauncher{
     private static final int DEFAULT_HEIGHT = 720;
     
     public static final String MENU_CARD = "menu";
+    public static final String CINEMATIC_CARD = "cinematic";
     public static final String GAME_CARD = "game";
+
+    private SaveData saveData; // si il y'a un fichier de sauvegarde
 
     /**
      * Constructeur normal : affiche le menu principal
@@ -63,7 +70,7 @@ public class GameLauncher{
         
         if (!screen) {
             // Mode headless pour les tests (pas d'interface graphique)
-            this.gameManager = new GameManager();
+            this.gameManager = new GameManager(2);
             this.gamePanel = gameManager.getGamePanel();
             this.gameLoop = new GameLoop(gameManager);
             this.gameLoop.timerStart();
@@ -122,54 +129,106 @@ public class GameLauncher{
     }
     
     /**
-     * Lance le jeu (initialise si nécessaire)
+     * Lance le jeu avec une cinématique d'introduction
      */
     public void startGame() throws IOException {
-        // Initialiser le jeu si pas encore fait
+
         if (gameManager == null) {
-            initializeGame();
+                initializeGame(false);
+            } 
+            // Lancer la cinématique d'introduction
+            startIntroCinematic();
         }
-        
+    
+
+    /**
+     * Lance la cinématique d'introduction
+     */
+    private void startIntroCinematic() {
+        // Créer la vue de cinématique
+        IntroCinematicView cinematicView = new IntroCinematicView(
+            gameManager.getlistTeams(),
+            this::onCinematicEnd
+        );
+
+        // Ajouter la cinématique au card panel
+        cardPanel.add(cinematicView, CINEMATIC_CARD);
+
+        // Afficher la cinématique
+        cardLayout.show(cardPanel, CINEMATIC_CARD);
+    }
+
+    /**
+     * Callback appelée à la fin de la cinématique
+     */
+    private void onCinematicEnd() {
+        // Basculer vers le jeu
         cardLayout.show(cardPanel, GAME_CARD);
-        
+
         // Démarrer la game loop
         if (gameLoop != null) {
             gameLoop.timerStart();
         }
-        
+
         // Focus sur l'input controller
         if (gameManager != null && gameManager.getImputController() != null) {
             gameManager.getImputController().requestFocusInWindow();
         }
     }
+
+    /**
+     * Pour lancer SUR LA MEME FENETRE resumeGame
+     * @param saveData une saveData load depuis sauvegarde.txt
+     * 
+     * @see SaveLoad
+     * @see SaveData
+     */
+    public void startFromGameSave(SaveData saveData) throws IOException{
+        this.saveData = saveData;
+
+        resetGame(); // au cas ou 
+
+        initializeGame(true);
+
+        cardLayout.show(cardPanel, GAME_CARD); // afficher le jeu 
+
+        if (gameLoop != null) { // demarrer la gameLoop
+            gameLoop.timerStart();
+        }
+
+        if (gameManager != null && gameManager.getImputController() != null) {
+            gameManager.getImputController().requestFocusInWindow(); // focus l'inputController
+        }
+
+    }
     
     /**
      * Initialise tous les composants du jeu
      */
-    private void initializeGame() throws IOException {
+    private void initializeGame(boolean save) throws IOException {
         int width = cardPanel.getWidth();
         int height = cardPanel.getHeight();
         
         // Mettre à jour la taille du layered pane
         gameLayeredPane.setPreferredSize(new Dimension(width, height));
-        
-        this.gameManager = new GameManager();
+        if (save){
+            this.gameManager = new GameManager(saveData);
+        } else {
+            this.gameManager = new GameManager(3);  // 3 équipes pour tester le scroll
+        }
+
         this.gamePanel = gameManager.getGamePanel();
         
         // VENT
         windOverlay = new WindOverlay(gameManager.getWindModel());
         windOverlay.setBounds(0, 0, width, height);
+        gameManager.setWindOverlay(windOverlay);
 
-        /* ---------------------- Partie Overlay Inventaire ---------------------- */
-        // Charge l'inventaire 
-        InventoryRoot root = InventoryModel.load("/inventory.json");
-        java.util.List<InventoryJson> team1Inventory = copyInventory(root.inventory);
-        java.util.List<InventoryJson> team2Inventory = copyInventory(root.inventory);
-        // Attacher les inventaires aux teams
-        gameManager.getTeamModel1().setInventory(team1Inventory);
-        gameManager.getTeamModel2().setInventory(team2Inventory);
-        // Créer l'overlay
-        this.inventoryOverlay = new InventoryOverlay(gameManager.getTeamModel1().getInventory());
+        // Inventaire Initialisation -> GameManager
+
+        //Créer l'overlay
+        this.inventoryOverlay = new InventoryOverlay(gameManager.getListTeamInit().get(0).getTeamModel().getInventory());  
+
         
         // Placer les composants dans le layered pane
         gamePanel.setBounds(0, 0, width, height);
@@ -193,23 +252,21 @@ public class GameLauncher{
             gameManager.getCamera().setViewSize(width, height);
         }
         
-        // Créer la game loop
+        // Créer et démarrer la game loop
         this.gameLoop = new GameLoop(gameManager);
-    }
-
-    private java.util.List<InventoryModel.InventoryJson> copyInventory(java.util.List<InventoryModel.InventoryJson> src) {
-                java.util.List<InventoryModel.InventoryJson> res = new java.util.ArrayList<>();
-                for (InventoryModel.InventoryJson it : src) {
-                    InventoryModel.InventoryJson c = new InventoryModel.InventoryJson();
-                    c.objectType = it.objectType;
-                    c.name = it.name;
-                    c.maxUsages = it.maxUsages;
-                    c.isInfinite = it.isInfinite;
-                    c.remainingUses = it.remainingUses;
-                    // useThisTurn reste à 0
-                    res.add(c);
+        this.gameLoop.timerStart();
+        
+        // Timer pour vérifier la fin de partie
+        Timer checkGameOverTimer = new Timer(1000, e -> {
+            if (gameLoop != null && gameLoop.isGameOver()) {
+                String winner = gameLoop.getWinner();
+                if (winner != null) {
+                    ((Timer)e.getSource()).stop();
+                    showEndGameScreen(winner);
                 }
-                return res;
+            }
+        });
+        checkGameOverTimer.start();
     }
 
     private void setupGlobalKeyBindings() {
@@ -309,6 +366,10 @@ public class GameLauncher{
     public JFrame getMainFrame() {
         return mainFrame;
     }
+    
+    public JPanel getCardPanel() {
+        return cardPanel;
+    }
 
     
     public GameManager getGameManager(){
@@ -317,6 +378,53 @@ public class GameLauncher{
 
     public GameLoop getGameLoop(){
         return this.gameLoop;
+    }
+    
+    /**
+     * Affiche l'écran de fin de partie avec animation
+     */
+    private void showEndGameScreen(String winnerName) {
+        SwingUtilities.invokeLater(() -> {
+            // Trouver l'équipe gagnante dans la liste des équipes
+            TeamModel winningTeam = null;
+            TeamView winningTeamView = null;
+            
+            for (TeamInitialisation teamInit : gameManager.getListTeamInit()) {
+                if (teamInit.getName().equals(winnerName)) {
+                    winningTeam = teamInit.getTeamModel();
+                    winningTeamView = teamInit.getTeamView();
+                    break;
+                }
+            }
+            
+            if (winningTeam == null || winningTeamView == null) {
+                System.err.println("Erreur: Équipe gagnante non trouvée: " + winnerName);
+                return;
+            }
+            
+            EndGameController endGameController = new EndGameController(this);
+            endGameController.showEndGameScreen(
+                winningTeam, 
+                winningTeamView, 
+                winnerName,
+                gameManager.getAllTeamStats()
+            );
+        });
+    }
+
+    public void resetGame() {
+        if (gameLoop != null) {
+            gameLoop.timerStop();
+        }
+        this.gameManager = null;
+        this.gamePanel = null;
+        this.gameLoop = null;
+        this.inventoryOverlay = null;
+        this.windOverlay = null;
+        if (gameLayeredPane != null) {
+            gameLayeredPane.removeAll();
+            gameLayeredPane.repaint();
+        }
     }
 
     public static void main(String[] args) throws IOException{
@@ -328,6 +436,6 @@ public class GameLauncher{
         // new GameLauncher(true, true);
 
         // Mode console :
-        // new ConsoleLauncher();
+        //new ConsoleLauncher();
     }
 }

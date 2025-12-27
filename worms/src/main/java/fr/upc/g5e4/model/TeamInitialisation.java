@@ -1,12 +1,17 @@
 package fr.upc.g5e4.model;
 
 import fr.upc.g5e4.view.*;
+import fr.upc.g5e4.model.InventoryModel.InventoryJson;
+import fr.upc.g5e4.model.InventoryModel.InventoryRoot;
 //import fr.upc.g5e4.controller.*;
-//import fr.upc.g5e4.model.*;
+import fr.upc.g5e4.model.io.*;
+import fr.upc.g5e4.model.io.CharacterData;
 
 import java.awt.Color;
-import java.util.ArrayList;
-import java.util.Random;
+import java.awt.Graphics2D;
+//import java.util.ArrayList;
+//import java.util.Random;
+import java.util.List;
 
 import org.jbox2d.dynamics.*;
 
@@ -14,58 +19,117 @@ import org.jbox2d.dynamics.*;
  * Transfert de l'initialisation des teams (et worms) du GameManager
  * Pour des questions de modularite 
  * @see GameManager
+ * 
+ * @author Mei
  */
 public class TeamInitialisation {
     private TeamModel teamModel;
 
     private TeamView teamView;
 
-    private int direction = 0;
-
     private Color color;
 
+    private static int COLORTEAM = 0;
+
+    private String name;
+
     
-    private static int SPACING = 50;
-    public static ArrayList<Integer> alreadyUsed;
+    private static int SPACING = 30;
+    public static int[] alreadyUsed = new int[5];
+    
     
     // Prendre le minimum de data necessaire en parametre
     // le reste sera initialise avec Random
-    // creer un constructeur sans startX plus tard
-    public TeamInitialisation(GroundModel groundModel,World world,String teamName, int startX, int teamNumber){
-        boolean d = directionTeam();
-        int s = this.startX(groundModel);
-        RandomColor();
-        teamModel = new TeamModel(groundModel, world, teamName, s, SPACING, teamNumber, false, d, false);
-        teamView = new TeamView(teamNumber,color , "/worm.png", d);
+    /**
+     * Initialise une instance qui creer un teamModel et TeamView ensemble avec un skin personnalisé
+     * @param groundModel terrain model
+     * @param world physique du jeu
+     * @param teamName nom de l'equipe
+     * @param teamNumber nombre de worms par equipe (doit etre le meme pour toutes les equipes)
+     * @param startX position d'initialisation
+     * @param skinPath chemin vers le sprite du worm
+     */
+    public TeamInitialisation(GroundModel groundModel,World world,String teamName, int teamNumber, int startX, String skinPath){
+        //System.out.println("Nombre de worms pour " + teamName + "est de : " + teamNumber);
+        boolean facingRight = (startX < groundModel.getWidth() / 2);
+        this.name = teamName;
+        colorGiving();
+        teamModel = new TeamModel(groundModel, world, name, startX, SPACING, teamNumber, false, facingRight, false,COLORTEAM);
+        teamView = new TeamView(teamNumber,color, skinPath, facingRight);
+        SPACING += 5; // pour que si il y'a plus de 2 equipes, les worms ne se superposent pas
     }
 
-    public boolean directionTeam(){
-        if (direction%2 == 0){  // Nombre Pair = Droite
-            direction++;
-            return true;
-        }
-        direction++;
-        return false;
+    // creer un constructeur sans startX plus tard (notamment pour creer une equipe d'une game deja instancie)
+    /**
+     * Initialise une instance qui creer un teamModel et TeamView ensemble en fixant un skin predefini
+     * @param groundModel terrain model
+     * @param world physique du jeu
+     * @param teamName nom de l'equipe
+     * @param teamNumber nombre de worms par equipe (doit etre le meme pour toutes les equipes)
+     * @param startX position d'initialisation
+     */
+    public TeamInitialisation(GroundModel groundModel,World world,String teamName, int teamNumber, int startX){
+        this(groundModel, world, teamName, teamNumber, startX, "/worm.png");
     }
 
-    public int startX(GroundModel groundModel){
-        if (directionTeam()){
-            return groundModel.getWidth()/4;
-        }
-        return groundModel.getWidth() - 100;
+    /**
+     * Constructeur pour load une sauvegarde
+     * @param groundModel
+     * @param world
+     * @param teamName
+     * @param teamNumber
+     * @param characterData tableau des data des worms
+     */
+    public TeamInitialisation(GroundModel groundModel,World world,int TeamID ,String teamName, int teamNumber,CharacterData[] characterData, Color color, String skinPath, List<InventoryJson> inventory){
+        this.name = teamName;
+        this.color = color;
+        teamModel = new TeamModel(groundModel, world, teamName, teamNumber, TeamID, characterData,COLORTEAM, inventory);
+        teamView = new TeamView(teamNumber,color, skinPath, true); // facingRight a changer apres
     }
 
-    public void RandomColor(){
-        Integer nbr;
+    /**
+     * Constructeur pour load une save avec int COLOR et un skin
+     * @param groundModel
+     * @param world
+     * @param TeamID
+     * @param teamName
+     * @param teamNumber
+     * @param characterData
+     * @param COLOR
+     * @param skinPath
+     */
+    public TeamInitialisation(GroundModel groundModel,World world,int TeamID ,String teamName, int teamNumber,CharacterData[] characterData, int COLOR, String skinPath,List<InventoryJson> inventory){
+        this.name = teamName;
+        COLORTEAM = COLOR;
+        colorGiving();
+        teamModel = new TeamModel(groundModel, world, teamName, teamNumber, TeamID, characterData,COLORTEAM,inventory);
+        teamView = new TeamView(teamNumber,color, skinPath, true); // facingRight a changer apres
+    }
+
+    public TeamModel getTeamModel(){
+        return teamModel;
+    }
+
+    public TeamView getTeamView(){
+        return teamView;
+    }
+
+    public String getName(){
+        return this.name;
+    }
     
-        do {
-            Random random = new Random(5); // 0,1,2,3,4 Normalement
-            nbr = random.nextInt();
-            System.out.println("nbr random : " + nbr);
 
-        } while (alreadyUsed.contains(nbr));
+    /**
+     * Methode interne pour attribuer une couleur a une equipe
+     * Au bout de 5 couleurs diff, on reprends des couleurs deja attribuees 
+     */
+    private void colorGiving(){
 
-        switch (nbr) {
+        if (COLORTEAM >= 5){
+            COLORTEAM = 0;
+        }
+
+        switch (COLORTEAM) {
             case 0:
                 this.color = Color.RED;
                 break;
@@ -82,5 +146,11 @@ public class TeamInitialisation {
                 this.color = Color.YELLOW;
                 break;
         }
+        COLORTEAM++;
     }
+
+    public void draw(Graphics2D gd){
+        teamView.draw(gd, teamModel);
+    }
+
 }

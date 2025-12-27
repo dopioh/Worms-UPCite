@@ -1,6 +1,6 @@
 package fr.upc.g5e4.model;
 import org.jbox2d.common.Vec2;
-import org.jbox2d.dynamics.Body;
+//import org.jbox2d.dynamics.Body;
 
 /**
  * Armes : ajout de damage, blastRadius et speed.

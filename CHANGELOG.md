@@ -1,3 +1,4 @@
+
 # Changelog
 
 ## v.0.0 Configuration : (Avant le premier sprint)
@@ -82,6 +83,8 @@
     - les worms ont des sprites via le constucteur de leur equipe
 - Comportement worm
     - le worm est totalement supprimé de la map quand il meurt (sprite + body physique) 
+- Sauvegarde
+    - une partie peut etre enregistree dans un fichier `sauvegarde.txt` en json avec la touche **_J_**
 
 ### Fixed
 - `.jar` injouable
@@ -92,18 +95,49 @@
 ---
 
 ### Added
+- **Cinématique d'introduction** : Animation de présentation avant le début du combat
+    - Affichage des équipes participantes avec nombre de worms
+    - Présentation du terrain généré procéduralement
+    - Affichage des conditions météorologiques (vent)
+    - Animation avec effets de fade et transitions fluides
+    - Durée de 5 secondes avant lancement automatique du jeu
 - Nametag
     - Affichage des itemes (potions...) sur le nametag
 - Nouveau systeme de map 
     - MAP en tableau 2D remplie d'objet "block"
+- **Cinématique d'introduction** : Animation de présentation avant le début du combat
+    - Affichage des équipes participantes avec nombre de worms
+    - Présentation du terrain généré procéduralement
+    - Affichage des conditions météorologiques (vent)
+    - Animation avec effets de fade et transitions fluides
+    - Durée de 5 secondes avant lancement automatique du jeu
+- Écran de fin de partie avec animation
+  - Animation des worms gagnants marchant vers le trophée
+  - Affichage des statistiques de jeu (dégâts, précision de tir, éliminations, rounds joué)
+  - Particules et effets visuels
+  - Bouton retour au menu
+  - Support du plein écran
+  - Support du N equipe
+  - Stat box glissable avec scroll
+- Système de statistiques pour tracker des actions pendant la partie
+- Endroit pour stocker les paramètres du jeu
+    - `current_skin`
+
+ **Diagramme de classes** : Ajout et documentation du diagramme de classes du projet (GameManager, GameLoop, GamePanel, etc.)
 
 ### Modified
+- Support pour N équipes au lieu de 2 équipes hardcodées
+    - Refactorisation de GameManager, GameLoop et GamePanel pour utiliser des listes dynamiques
+    - Possibilité d'ajouter dynamiquement des équipes via GameManager.addTeam()
 - Nametag
     - Affichage de HP et Shield en chiffre -> barre horizontale
 - `CONTRIBUTING.md`
     - Guide d'utilisation sur le nametag
 - Touche full screen F11 -> F
 - Implémentation de la physique de recul sur les worms touchés
+- Support pour N équipes au lieu de 2 équipes hardcodées
+    - Refactorisation de GameManager, GameLoop et GamePanel pour utiliser des listes dynamiques
+    - Possibilité d'ajouter dynamiquement des équipes via GameManager.addTeam()
 
 ### Fixed
 - Tout le jeu est désormais en une seule fenêtre
@@ -111,10 +145,23 @@
 - Nouveau systeme de map 
     - MAP en tableau 2D remplie d'objet "block"
 
-###
--Tir courbé (bullet drop)
+- **N equipes** fonctionnelles desormais (2 auparavant)
+- Retour aux mouvements originaux
+- Retour du saut (avec Z)
+- Initialisation de l'overlay Inventaire decaler dans GameManager (precedemment GameLauncher)
 
-### Fixed 
-- Détection du sol 
-- Bug du focus de la caméra pour le tir pour la 2eme équipe
+### Optimisation
+- **Performance**
+    - Centralisation de repaint dans un seul Timer (gameLoop) pour avoir un seul repaint()
+    - pré-création d'objets graphiques réutilisables (couleurs, strokes) pour réduire les allocations mémoire pour chaque cube
+- **Lag Audio** : Système de cache avec pré-chargement des sons en mémoire pour éliminer le lag au premier tir
 
+### Added
+- Ajout de la dégradation de la map
+- Ajout d'une courbe pour la trajectoire de la map
+
+### Fixed
+- Vent augmente la portée du projectile (dans le sens du vent) ou réduit la porté (sens opposé du vent)
+- Focus lors du tir
+- Projectile qui se stop en l'air
+- Tir qui rebondit (batte de baseball)

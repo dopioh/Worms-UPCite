@@ -171,4 +171,20 @@ public class CharacterView {
     public void setShowNameTag(boolean showNameTag) {
         this.showNameTag = showNameTag;
     }
+    
+    /**
+     * Retourne l'image du sprite pour l'animation de fin
+     * @return L'image du sprite ou null si pas chargé
+     */
+    public BufferedImage getSpriteImage() {
+        return spriteImage;
+    }
+    
+    /**
+     * Vérifie si le sprite est chargé et utilisé
+     * @return true si le sprite est utilisé
+     */
+    public boolean isUsingSprite() {
+        return useSprite && spriteImage != null;
+    }
 }

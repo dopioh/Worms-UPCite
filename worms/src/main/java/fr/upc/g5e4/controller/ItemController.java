@@ -8,6 +8,7 @@ import fr.upc.g5e4.model.Weapon;
 import fr.upc.g5e4.model.Projectile;
 import fr.upc.g5e4.model.BlockGridModel;
 import fr.upc.g5e4.model.WindModel;
+import fr.upc.g5e4.model.GameManager;
 import fr.upc.g5e4.view.ItemView;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,10 +21,19 @@ public class ItemController {
     private BlockGridModel blockGridModel;
     private WindModel windModel;
     private List<Projectile> activeProjectiles;
+    private GameManager gameManager;
 
     public ItemController(ItemView view) {
         this.view = view;
         this.activeProjectiles = new ArrayList<>();
+    }
+    
+    /**
+     * Définit le GameManager pour le tracking des statistiques
+     * @param gameManager Le gestionnaire de jeu
+     */
+    public void setGameManager(GameManager gameManager) {
+        this.gameManager = gameManager;
     }
 
     /**
@@ -86,6 +96,11 @@ public class ItemController {
             if (projectile != null) {
                 activeProjectiles.add(projectile);
                 System.out.println("Projectile lancé à l'angle: " + String.format("%.0f°", projectile.getShootingAngle()));
+                
+                // Tracker le tir
+                if (gameManager != null) {
+                    gameManager.getCurrentTeamStats().incrementShotsFired();
+                }
             }
             view.showItem(weapon);
         } else {
@@ -129,7 +144,21 @@ public class ItemController {
                     
                     // Si le projectile est proche du worm 
                     if (distance < 0.7f) {
-                        worm.dealDamage(projectile.getSourceWeapon().getDamage(), projectile.getShooter());
+                        double damage = projectile.getSourceWeapon().getDamage();
+                        boolean wasAlive = !worm.isDead();
+                        
+                        worm.dealDamage(damage, projectile.getShooter());
+                        
+                        // Tracker les stats
+                        if (gameManager != null) {
+                            gameManager.getCurrentTeamStats().incrementShotsHit();
+                            gameManager.getCurrentTeamStats().addDamage((int)damage);
+                            
+                            // Si le worm est mort suite aux dégâts
+                            if (wasAlive && worm.isDead()) {
+                                gameManager.getCurrentTeamStats().incrementKills();
+                            }
+                        }
                         
                         // Calculer la direction de l'impact (du projectile vers le worm)
                         Vec2 impactDirection = new Vec2(
@@ -143,7 +172,7 @@ public class ItemController {
                         worm.applyImpact(impactDirection, impactForce);
                         
                         System.out.println("Cible " + worm.getName() + " touchée avec " + 
-                                         projectile.getSourceWeapon().getDamage() + " damage (impact: " + 
+                                         damage + " damage (impact: " + 
                                          String.format("%.2f", impactForce) + ")");
                         applyTerrainDamage(projectile);
                         toRemove.add(projectile);

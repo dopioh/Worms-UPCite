@@ -11,6 +11,7 @@ public class ProjectileView {
     private static final float PPM = 30f;
     private static final Color PROJECTILE_COLOR = new Color(200, 100, 50, 200);  // Couleur orange-brun
     private static final Color PROJECTILE_OUTLINE = new Color(100, 50, 20, 255); // Contour plus foncé
+    private static final BasicStroke PROJECTILE_STROKE = new BasicStroke(1.5f);
     
     /**
      * Dessine un projectile à l'écran
@@ -41,7 +42,7 @@ public class ProjectileView {
         
         // Dessiner le contour
         g2.setColor(PROJECTILE_OUTLINE);
-        g2.setStroke(new BasicStroke(1.5f));
+        g2.setStroke(PROJECTILE_STROKE);
         g2.drawOval((int)(screenX - radius), (int)(screenY - radius), radius * 2, radius * 2);
     }
     

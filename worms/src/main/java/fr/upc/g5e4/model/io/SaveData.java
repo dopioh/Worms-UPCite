@@ -1,38 +1,13 @@
 package fr.upc.g5e4.model.io;
 
-import fr.upc.g5e4.view.*;
-import fr.upc.g5e4.controller.*;
+//import fr.upc.g5e4.view.*;
+//import fr.upc.g5e4.controller.*;
 import fr.upc.g5e4.model.*;
 
 import java.util.ArrayList;
+import java.util.Map;
 
-import com.google.gson.*;  
-
-/*
-Que mettre dans la sauvegarde ?
-    - Vers actifs :
-        - leur position 
-        - stocker que ceux vivant 
-        - leur sprite ? (si dans le futur, on peut les personnaliser)
-            -> stocker leur character model
-
-        Juste prendre les teams model, tout pourra etre recuperer depuis eux ? 
-            -> On veut afficher les pv aussi etc dans sauvegarde.txt
-                -> Donc on doit detailler les attributs ici
-
-    - Map :
-        - l'eau (position fixe ?)
-        - le terrain (juste GroundModel ?)
-
-    - Inventaire : 
-        - l'inventaire par equipe (est ce que c'est deja correctement configurer ca ?)
-
-    - Donnees Parties :
-        - Timer 
-        - Round 
-        - Team Actif 
-        - Ver Actif 
-*/
+//import com.google.gson.*;  
 
 /**
  * Classe qui va stocker, dans des variables,
@@ -40,37 +15,67 @@ Que mettre dans la sauvegarde ?
  * 
  * Chaque attribut sera transforme en key dans JSON 
  * Grace a GSON
+ * 
+ * @see SaveLoad pour le chargement d'une SaveData
+ * 
+ * @see TeamData donnees de TeamModel version minimal
+ * @see CharacterData donnees de CharacterModel version minimal
+ * @see WindData donnees de WindModel version minimal
+ * 
+ * @author Mei
  */
 public class SaveData {
     // Donnes Parties :
     private int round;
+
+    private WindData windData;
+
+    // Pointeurs :
     private int currentTeamindex;
     private int activeWormIndex;
+    private int[] teamCursor;
 
     private int roundTimeRemaining;
+
     // Terrain : 
     private GroundModel groundModel; // pas besoin de classe Data car aucune data useless dans GroundModel
     // Worms :
     private ArrayList<TeamData> teamDatas; // devrait print dans le json les character aussi sous forme de tab
     
-    // Inventaire :
+    // Inventaire -> dans TeamInit et TeamModel
 
-    // Infos Partie (Round, team et worm actif) :
+    // GameStats : 
+    private Map<String, GameStats> teamStats;
 
-
+    /**
+     * Constructeur pour initialiser une SaveData a partir d'une game active
+     * @param gameManager game active
+     */
     public SaveData(GameManager gameManager){
 
         System.out.println("SaveData Called");
         
         this.round = gameManager.getRoundNumber();
+
         this.currentTeamindex = gameManager.getCurrentTeamIndex();
         this.activeWormIndex = gameManager.getActiveWormIndex();
+        this.teamCursor = gameManager.getTeamCursor();
+
         this.roundTimeRemaining = gameManager.getRoundTimeSave();
 
         this.groundModel = gameManager.getGroundModel();
         this.teamDatas = modelToData(gameManager.getlistTeams());
+
+        this.teamStats = gameManager.getAllTeamStats();
+
+        this.windData = WindData.WindModelToWindData(gameManager.getWindModel());
     }
 
+    /**
+     * Transforme une liste de TeamModel en TeamData pour pouvoir la stocker dans SaveData
+     * @param teamModels liste de tout les TeamModel d'une game
+     * @return la version Data
+     */
     public ArrayList<TeamData> modelToData(ArrayList<TeamModel> teamModels){
         ArrayList<TeamData> result = new ArrayList<>();
         for (TeamModel tm : teamModels){
@@ -104,7 +109,16 @@ public class SaveData {
         return roundTimeRemaining;
     }
 
+    public int[] getTeamCursor(){
+        return teamCursor;
+    }
 
+    public Map<String, GameStats> getAllTeamStats(){
+        return teamStats;
+    }
 
+    public WindData getWindData() {
+        return windData;
+    }
 
 }
