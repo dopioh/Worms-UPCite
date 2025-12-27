@@ -1,4 +1,3 @@
-
 # Changelog
 
 ## v.0.0 Configuration : (Avant le premier sprint)
@@ -124,6 +123,8 @@
         - ISLANDS : Terrain wavy avec zones d'eau au centre pour éviter les spawn kills
         - FLAT : Terrain complètement plat
     - 3 tailles de maps : SMALL (800x720), MEDIUM (1280x720), LARGE (1700x720)
+- Une sauvegarde peut desormais etre lancer depuis le menu d'acceuil en cliquant sur "Poursuivre une partie"
+- Possibilitee de tirer/faire des degats/tuer un worm dans la version Console du jeu (tire assez limiter)
 
 ### Modified
 - Support pour N équipes au lieu de 2 équipes hardcodées
@@ -147,6 +148,7 @@
 - **N equipes** fonctionnelles desormais (2 auparavant)
 - Retour aux mouvements originaux
 - Retour du saut (avec Z)
+- Initialisation de l'overlay Inventaire decaler dans GameManager (precedemment GameLauncher)
 
 ### Optimisation
 - **Performance**
