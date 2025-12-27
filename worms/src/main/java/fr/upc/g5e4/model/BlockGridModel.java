@@ -63,12 +63,19 @@ public class BlockGridModel {
             
             // on convertit la position Y en index de grille
             int surfaceGridY = surfaceY / BLOCK_SIZE;
+            int waterGridY = waterLevel / BLOCK_SIZE;
             
             // on remplit les blocs
             for (int gridY = 0; gridY < gridHeight; gridY++) {
                 if (gridY < surfaceGridY) {
-                    // au-dessus de la surface = AIR
-                    grid[gridX][gridY] = BlockType.AIR;
+                    // au-dessus de la surface
+                    if (gridY >= waterGridY) {
+                        // sous le niveau d'eau = WATER
+                        grid[gridX][gridY] = BlockType.WATER;
+                    } else {
+                        // au-dessus du niveau d'eau = AIR
+                        grid[gridX][gridY] = BlockType.AIR;
+                    }
                 } else if (gridY == surfaceGridY) {
                     // surface = GRASS
                     grid[gridX][gridY] = BlockType.GRASS;
