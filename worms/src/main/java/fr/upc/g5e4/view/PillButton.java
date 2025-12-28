@@ -10,6 +10,7 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.Timer;
 
 
 /**
@@ -52,6 +53,8 @@ public class PillButton extends JButton {
     private Color hoverColor;
     private boolean isHovering;
     private Font googleSansFont;
+    private float hoverProgress = 0f; // 0.0 = normal, 1.0 = hover complet
+    private Timer hoverTimer;
 
     public PillButton(String text) {
         super(text);
@@ -98,17 +101,41 @@ public class PillButton extends JButton {
     }
 
     private void addHoverEffect() {
+        // Timer pour l'animation fluide
+        hoverTimer = new Timer(16, e -> {
+            if (isHovering) {
+                if (hoverProgress < 1f) {
+                    hoverProgress = Math.min(1f, hoverProgress + 0.1f);
+                    repaint();
+                }
+            } else {
+                if (hoverProgress > 0f) {
+                    hoverProgress = Math.max(0f, hoverProgress - 0.1f);
+                    repaint();
+                }
+            }
+            
+            // Arrête le timer si l'animation est terminée
+            if ((isHovering && hoverProgress >= 1f) || (!isHovering && hoverProgress <= 0f)) {
+                hoverTimer.stop();
+            }
+        });
+        
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
                 isHovering = true;
-                repaint();
+                if (!hoverTimer.isRunning()) {
+                    hoverTimer.start();
+                }
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
                 isHovering = false;
-                repaint();
+                if (!hoverTimer.isRunning()) {
+                    hoverTimer.start();
+                }
             }
         });
     }
@@ -126,10 +153,13 @@ public class PillButton extends JButton {
         int width = getWidth();
         int height = getHeight();
 
-        // Choix de la couleur selon l'état
+        // Interpolation de couleur pour une transition fluide
         Color bgColor = getBackground();
-        if (isHovering && hoverColor != null) {
-            bgColor = hoverColor;
+        if (hoverColor != null && hoverProgress > 0f) {
+            int r = (int)(bgColor.getRed() + (hoverColor.getRed() - bgColor.getRed()) * hoverProgress);
+            int green = (int)(bgColor.getGreen() + (hoverColor.getGreen() - bgColor.getGreen()) * hoverProgress);
+            int b = (int)(bgColor.getBlue() + (hoverColor.getBlue() - bgColor.getBlue()) * hoverProgress);
+            bgColor = new Color(r, green, b);
         }
 
         // Dessine le fond en forme de pilule (rayon = hauteur/2 pour les côtés complètement arrondis)
