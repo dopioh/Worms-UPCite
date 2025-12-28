@@ -21,9 +21,9 @@ import javax.swing.JPanel;
  */
 public class MainMenuView extends JPanel {
     
-    // couleurs
-    private static final Color BUTTON_BASE = new Color(131, 172, 140);
-    private static final Color BUTTON_HOVER = new Color(92, 121, 98);
+    // couleurs de avant pour les bouttons
+    // private static final Color BUTTON_BASE = new Color(131, 172, 140);
+    // private static final Color BUTTON_HOVER = new Color(92, 121, 98);
 
     private JButton btnNewGame;
     private JButton btnResume;
