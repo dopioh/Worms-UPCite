@@ -208,6 +208,12 @@ public class BlockGridModel {
     public boolean isDirty() { return dirty; }
     
     /**
+     * Vérifie si une position est valide dans la grille
+     */
+    private boolean isValidPosition(int x, int y) {
+        return x >= 0 && x < gridWidth && y >= 0 && y < gridHeight;
+    }
+    /**
      * retourne la largeur totale du terrain en pixels
      * @return largeur en pixels
      */
