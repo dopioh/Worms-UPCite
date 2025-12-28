@@ -215,7 +215,7 @@ public class SettingsView extends JPanel {
 
     // ========== ONGLET MAP ==========
     private JPanel createMapPanel() {
-        JPanel panel = new JPanel();
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 200));
         panel.setOpaque(false);
         
         // Bouton test
