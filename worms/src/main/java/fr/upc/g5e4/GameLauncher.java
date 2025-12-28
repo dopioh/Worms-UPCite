@@ -45,6 +45,8 @@ public class GameLauncher{
 
     private SaveData saveData; // si il y'a un fichier de sauvegarde
 
+    //private boolean firstTimeLaunch = true ; -> on va juste checker si il y'a une sauvegarde deja presente de PlayerData
+
     /**
      * Constructeur normal : affiche le menu principal
      */

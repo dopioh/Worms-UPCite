@@ -1,5 +1,7 @@
 package fr.upc.g5e4.model;
 
+import java.util.HashMap;
+
 /**
  * Classe pour les Données du joueur (Model)
  */
@@ -9,16 +11,30 @@ public class PlayerData {
     private int xp;
     private int money;
 
+    private  HashMap<String,SkinModel> listSkinPlayer;
+
     /**
-     * Constructeur de la classe DoneesJoueur
+     * Constructeur de la classe DoneesJoueur avec MapSkinModel
      * @param name nom du joueur
      * @param xp points d'expérience du joueur
      * @param money argent du joueur
+     * @param listSkinPlayer list des skin du jeu (lock and unlocked)
      */
-    public PlayerData(String name, int xp, int money) {
+    public PlayerData(String name, int xp, int money, HashMap<String,SkinModel> listSkinPlayer ) {
         this.name = name;
         this.xp = xp;
         this.money = money;
+        this.listSkinPlayer = listSkinPlayer;
+    }
+
+    /**
+     * Constructeur dans MapSkinModel
+     * @param name
+     * @param xp
+     * @param money
+     */
+    public PlayerData(String name, int xp, int money){
+        this(name, xp, money, null);
     }
 
     // Getters 

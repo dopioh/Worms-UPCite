@@ -728,11 +728,6 @@ public class GameManager {
             gamePanel.getTrajectoryView().setWeapon(newWeapon);
         }
     }
-
-    // Initialiser un nombre N d'equipes
-    public void createTeam(int number){
-        createTeam(number, "/wormPixel.png"); // Utilise le skin par défaut
-    }
     
     // Initialiser un nombre N d'equipes avec un skin spécifique
     public void createTeam(int number, String skinPath){
