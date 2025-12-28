@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.InputStream;
+import fr.upc.g5e4.view.LoadingBarPanel;
 
 /**
  * Vue pour la cinématique d'introduction du combat
@@ -16,7 +17,7 @@ public class IntroCinematicView extends JPanel implements ActionListener {
     private int progress = 0;
     private Runnable onCinematicEnd;
     private JLabel loadingLabel;
-    // Textes de la cinématique (anciens messages)
+    // Textes de la cinématique à affiche
     private final String[] cinematicTexts = {
         "PREPARATION DU COMBAT...",
         "EQUIPES PRETES AU COMBAT !",
