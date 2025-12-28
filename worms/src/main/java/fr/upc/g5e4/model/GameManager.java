@@ -164,7 +164,7 @@ public class GameManager {
         this.nbrWormsByTeam = 3;
 
         // Récupérer le skin sélectionné dans les paramètres
-        String selectedSkin = SettingsModel.getCurrentSkin();
+        String selectedSkin = SkinSettings.getCurrentSkin();
 
         // creation des equipes selon le nombre que on veut
         createTeam(nbrEquipe, selectedSkin);

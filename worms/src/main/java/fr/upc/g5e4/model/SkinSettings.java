@@ -3,7 +3,12 @@ package fr.upc.g5e4.model;
 /**
  * Classe utilitaire pour stocker les paramètres du jeu
  */
-public class SettingsModel {
+public class SkinSettings {
+    
+    /*
+    Ici il faut faire un tableau de skin avec leur chemin et leur valeur bool lock 
+    -> faire une classe qui relie un skin a sa valeur lock ? 
+     */
     
     // Skin par défaut (modifier pour changer le skin du jeu)
     private static String currentSkin = "/worm.png";
