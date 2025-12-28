@@ -586,7 +586,7 @@ public class GameManager {
             } catch (Exception e) {
                 // fallback sur la valeur par défaut
             }
-            String skinPath = "/worm.png";
+            String skinPath = "/wormPixel.png";
             // Si la TeamView possède un sprite personnalisé, on peut tenter de le récupérer
             // (à adapter si TeamView expose ce champ)
             // Construction de TeamInitialisation
