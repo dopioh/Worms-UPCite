@@ -219,7 +219,7 @@ public class GameManager {
         // Passer l'ItemController au GamePanel pour dessiner les projectiles
         this.gamePanel.setItemController(this.itemController);
         // Ajoute le contrôleur pour capter les touches
-        this.gamePanel.add(imputController);
+        //this.gamePanel.add(imputController);
         imputController.setGameManager(this); // connecte inputController au GameManager
         // Connecter le renderer de trajectoire
         imputController.setTrajectoryRenderer(gamePanel.getTrajectoryView());
@@ -353,7 +353,7 @@ public class GameManager {
         this.gamePanel.setItemController(this.itemController);
 
         // Ajoute le contrôleur pour capter les touches
-        this.gamePanel.add(imputController);
+        //this.gamePanel.add(imputController);
         imputController.setGameManager(this); // connecte inputController au GameManager
                                              //  pour que inputController puisse appeler switchToNextWorm()
         

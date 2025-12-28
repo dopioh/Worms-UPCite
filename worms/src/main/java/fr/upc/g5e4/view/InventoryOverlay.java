@@ -17,6 +17,7 @@ public class InventoryOverlay extends JComponent {
         ARMES, GADGET, CRAFT
     }
 
+    private String equippedItemKey = null; 
     private Category currentCategory = Category.ARMES;
 
     private List<InventoryJson> inventory;
@@ -207,10 +208,10 @@ public class InventoryOverlay extends JComponent {
                 if (r.contains(x, y)) {
                     selectedIndex = i;
                     equippedItem = lastFiltered.get(i);
-
+                    equippedItemKey = equippedItem.name.toLowerCase();
                     if (gameManager != null) {
                         gameManager.setWeaponFromInventory(equippedItem.name);
-                    }
+                    }   
 
                     System.out.println("[Inventaire] " +
                         (gameManager != null ? gameManager.getCurrentTeamName() : "?") +
@@ -394,9 +395,9 @@ public class InventoryOverlay extends JComponent {
 
     public void setInventory(List<InventoryJson> inventory){
         this.inventory = inventory;
-        selectedIndex = -1;
-        equippedItem = null;
         itemBounds.clear();
+        computeLayout();
+        resyncEquippedFromInventory();
         repaint();
     }
     
@@ -404,7 +405,8 @@ public class InventoryOverlay extends JComponent {
         this.visible = visible;
 
         if (visible) {
-            computeLayout();    
+            computeLayout();
+            resyncEquippedFromInventory();    
         } else {
             selectedIndex = -1;
         }
@@ -502,6 +504,29 @@ public class InventoryOverlay extends JComponent {
 
     public InventoryJson getEquippedItem() {
         return equippedItem;
+    }
+
+    private void resyncEquippedFromInventory() {
+        if (equippedItemKey == null || inventory == null) return;
+
+        // retrouver l'objet actuel dans la nouvelle liste inventory
+        equippedItem = null;
+        for (InventoryJson it : inventory) {
+            if (it != null && it.name != null && it.name.toLowerCase().equals(equippedItemKey)) {
+                equippedItem = it;
+                break;
+            }
+        }
+
+        // si on est sur l'onglet actuel, mettre à jour selectedIndex aussi
+        selectedIndex = -1;
+        for (int i = 0; i < lastFiltered.size(); i++) {
+            InventoryJson it = lastFiltered.get(i);
+            if (it != null && it.name != null && it.name.toLowerCase().equals(equippedItemKey)) {
+                selectedIndex = i;
+                break;
+            }
+        }
     }
 
 }

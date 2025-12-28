@@ -223,6 +223,10 @@ public class GameLauncher{
         }
 
         this.gamePanel = gameManager.getGamePanel();
+        SwingInputController input = gameManager.getImputController();
+        input.setBounds(0, 0, width, height);
+        input.setOpaque(false);
+
         
         // Inventaire Initialisation -> GameManager
 
@@ -248,10 +252,12 @@ public class GameLauncher{
         gamePanel.setBounds(0, 0, width, height);
         inventoryOverlay.setBounds(0, 0, width, height);
 
+        
         gameLayeredPane.add(gamePanel, JLayeredPane.DEFAULT_LAYER);
+        gameLayeredPane.add(input, JLayeredPane.DEFAULT_LAYER);
         gameLayeredPane.add(windOverlay, JLayeredPane.PALETTE_LAYER);   
-        gameLayeredPane.add(inventoryOverlay, JLayeredPane.PALETTE_LAYER);  
-        gameLayeredPane.add(hudOverlay, JLayeredPane.MODAL_LAYER);
+        gameLayeredPane.add(hudOverlay, JLayeredPane.PALETTE_LAYER);
+        gameLayeredPane.add(inventoryOverlay, JLayeredPane.MODAL_LAYER);  
         gameLayeredPane.add(pauseOverlay, JLayeredPane.POPUP_LAYER);
         gameLayeredPane.add(helpOverlay, JLayeredPane.DRAG_LAYER);
         
@@ -260,7 +266,6 @@ public class GameLauncher{
         gameManager.setInventoryOverlay(inventoryOverlay);
         gameManager.setHudOverlay(this.hudOverlay); 
 
-        SwingInputController input = gameManager.getImputController();
         input.setGameFrame(mainFrame);
         input.setInventoryOverlay(inventoryOverlay);
         input.setGameManager(gameManager);
@@ -444,6 +449,8 @@ public class GameLauncher{
         this.gameLoop = null;
         this.inventoryOverlay = null;
         this.windOverlay = null;
+        this.hudOverlay = null;
+        this.pauseOverlay = null;
         if (gameLayeredPane != null) {
             gameLayeredPane.removeAll();
             gameLayeredPane.repaint();
