@@ -38,9 +38,8 @@ import javax.swing.Timer;
  * btn.setForeground(nouvelleColor) pour la couleur du texte
  * 
  * COULEURS PAR DÉFAUT :
- * - ACTIVE: new Color(66, 139, 82)
- * - INACTIVE: new Color(41, 59, 45)
- * - HOVER: new Color(42, 99, 55)
+ * - NORMALE: new Color(66, 139, 82)
+ * - HOVER: new Color(80, 160, 100)
  * - TEXT: Color.WHITE
  */
 
@@ -60,9 +59,9 @@ public class PillButton extends JButton {
         super(text);
         this.isHovering = false;
         
-        // Couleurs par défaut (SettingsView)
-        setBackground(new Color(41, 59, 45)); // TAB_INACTIVE
-        setHoverColor(new Color(42, 99, 55)); // TAB_HOVER
+        // Couleurs par défaut
+        setBackground(new Color(66, 139, 82)); // TAB_ACTIVE (couleur normale)
+        setHoverColor(new Color(80, 160, 100)); // Couleur hover légèrement plus claire
         setForeground(Color.WHITE); // TEXT_COLOR
         
         loadFont();

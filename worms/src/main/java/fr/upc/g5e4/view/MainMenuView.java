@@ -122,13 +122,9 @@ public class MainMenuView extends JPanel {
 
     //methode template pour creer des bouttons
     private JButton createMenuButton(String text) {
-        RoundedButton button = new RoundedButton(text, 24);
+        PillButton button = new PillButton(text);
         button.setAlignmentX(Component.CENTER_ALIGNMENT);
         button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        button.setForeground(Color.WHITE);
-        button.setFont(new Font("Arial", Font.BOLD, 18));
-        button.setBackground(BUTTON_BASE);
-        button.setHoverColor(BUTTON_HOVER);
         button.setMaximumSize(new Dimension(280, 45));
         return button;
     }
