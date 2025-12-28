@@ -1,8 +1,8 @@
 // File: fr/upc/g5e4/model/GameLoop.java
 package fr.upc.g5e4.model;
 
-import fr.upc.g5e4.controller.*;
-import fr.upc.g5e4.model.*;
+//import fr.upc.g5e4.controller.*;
+//import fr.upc.g5e4.model.*;
 //import fr.upc.g5e4.view.*;
 import fr.upc.g5e4.view.GamePanel;
 
@@ -25,10 +25,20 @@ public class GameLoop{
     private int roundTimeRemaining;
 
     /** Toute les update de Timer se font dans le Constructeur de GameLoop, pas besoin de creer de methode ici*/
+
+    // Ajout : méthode publique pour reset le timer
+    public void resetRoundTimer() {
+        this.roundTimeRemaining = 1800;
+        gamePanel.setRoundTimer(30);
+    }
     public GameLoop(GameManager gameManager){
         this.gameManager = gameManager;
         this.gamePanel = this.gameManager.getGamePanel();
         this.roundTimeRemaining = gameManager.getRoundTimeRemaining();
+
+        // pour pas que 30 passe par dessus le temps sauvegardee dans le cas de resumeGame()
+        int initialSeconds = roundTimeRemaining / 60;
+        this.gamePanel.setRoundTimer(initialSeconds);
 
         // Initialiser l'affichage du chrono dans la vue -> Ca sert a rien ? 
         //this.gamePanel.setRoundTimer(30);
@@ -37,12 +47,42 @@ public class GameLoop{
         this.timer = new Timer((int)(FIXHZ*1000),new ActionListener() {         
             @Override
             public void actionPerformed(ActionEvent e){
+                // met a jour la caméra
+                if (gameManager.getCameraController() != null) {
+                    gameManager.getCameraController().update();
+                }
+                
+                // met a jour les projectiles
+                if (gameManager.getItemController() != null) {
+                    gameManager.getItemController().updateProjectiles(FIXHZ);
+                }
+                
+                // met a jour l'animation du vent
+                if (gameManager.getWindOverlay() != null) {
+                    gameManager.getWindOverlay().update(FIXHZ);
+                }
+                
                 // met a jour le worm actif
                 if (gameManager.getActiveWormController() != null) {
                     gameManager.getActiveWormController().update();
                 }
+                
+                // stopper le mouvement horizontal des worms non-actifs pour qu'ils ne glissent pas
+                int activeWormIndex = gameManager.getActiveWormIndex();
+                TeamModel activeTeam = gameManager.getCurrentTeam();
+                
+                ArrayList<TeamModel> allTeams = gameManager.getlistTeams();
+                for (TeamModel team : allTeams) {
+                    for (int i = 0; i < team.getWormNumberAtStart(); i++) {
+                        CharacterModel worm = team.getWorm(i);
+                        // stopper le mouvement horizontal si ce n'est pas le worm actif
+                        if (worm != null && !worm.isDead() && !(activeTeam == team && i == activeWormIndex)) {
+                            worm.stopHorizontalMovement();
+                        }
+                    }
+                }
+                
                 gameManager.getWorld().step(FIXHZ,8,3);
-                gamePanel.repaint();
 
                 /* -> Pas une javadoc puisque javadoc peut pas documenter des variables locale 
                  * @see WaterSensorListener.java
@@ -60,7 +100,7 @@ public class GameLoop{
 
                 // si le worm actif est mort -> passer immédiatement au round suivant
                 try {
-                    TeamModel currentTeam = (gameManager.getCurrentTeamIndex() == 0) ? gameManager.getTeamModel1() : gameManager.getTeamModel2();
+                    TeamModel currentTeam = gameManager.getCurrentTeam();
                     int activeIndex = gameManager.getActiveWormIndex();
                     if (activeIndex >= 0 && activeIndex < currentTeam.getWormNumberAtStart()) {
                         CharacterModel activeWorm = currentTeam.getWorm(activeIndex);
@@ -87,6 +127,14 @@ public class GameLoop{
                     gamePanel.setRoundTimer(30);    // reset affichage
                 }
                 
+                // Vérifier si une équipe a gagné
+                String winner = gameManager.checkGameOver();
+                if (winner != null) {
+                    timer.stop();  // Arrêter le jeu
+                    System.out.println("Fin de partie! " + winner + " a gagné!");
+                    // Le GameLauncher déclenchera l'écran de fin
+                }
+                
                 gamePanel.repaint();
             }
         });
@@ -98,5 +146,13 @@ public class GameLoop{
 
     public void timerStop(){
         this.timer.stop();
+    }
+    
+    public boolean isGameOver() {
+        return gameManager.checkGameOver() != null;
+    }
+    
+    public String getWinner() {
+        return gameManager.checkGameOver();
     }
 }

@@ -2,9 +2,15 @@ package fr.upc.g5e4;
 import java.io.IOException;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 
-import fr.upc.g5e4.model.InventoryModel.*;
+//import java.util.ArrayList;
+
+//import fr.upc.g5e4.model.InventoryModel.*;
+import fr.upc.g5e4.model.io.SaveData;
+import fr.upc.g5e4.model.io.SaveLoad;
+//import fr.upc.g5e4.model.io.SaveLoad;
 import fr.upc.g5e4.model.console.ConsoleLauncher;
 import fr.upc.g5e4.view.*;
 import fr.upc.g5e4.controller.*;
@@ -14,9 +20,9 @@ import fr.upc.g5e4.model.*;
 /** Classe qui lance le jeu, elle set la taille de l'ecran (grace a son heritage de JFrame) */
 public class GameLauncher{
     // classe pour lancer le jeu -> elle va instancier le GamePanel
-    private final GameManager gameManager;
-    private final GamePanel gamePanel;
-    private final GameLoop gameLoop;
+    private GameManager gameManager;
+    private GamePanel gamePanel;
+    private GameLoop gameLoop;
 
     private WindOverlay windOverlay;
     private InventoryOverlay inventoryOverlay; 
@@ -26,231 +32,366 @@ public class GameLauncher{
 
 
     private boolean screen;
+    
+    // Composants pour la fenêtre unique
+    private JFrame mainFrame;
+    private CardLayout cardLayout;
+    private JPanel cardPanel;
+    private JLayeredPane gameLayeredPane;
+    private MainMenuView mainMenuView;
+    private boolean isFullScreen = false;
+    
+    private static final int DEFAULT_WIDTH = 1280;
+    private static final int DEFAULT_HEIGHT = 720;
+    
+    public static final String MENU_CARD = "menu";
+    public static final String CINEMATIC_CARD = "cinematic";
+    public static final String GAME_CARD = "game";
 
-    public GameLauncher(boolean screen) throws IOException {
-        this(screen, false);
+    private SaveData saveData; // si il y'a un fichier de sauvegarde
+
+    /**
+     * Constructeur normal : affiche le menu principal
+     */
+    public GameLauncher() throws IOException {
+        this(true, false); // Avec écran, affiche le menu
     }
     
-    public GameLauncher(boolean screen, boolean startFullScreen) throws IOException{
+    /**
+     * Constructeur pour les tests sans interface graphique
+     * @param screen true = avec interface graphique, false = mode headless pour tests
+     */
+    public GameLauncher(boolean screen) throws IOException {
+        this(screen, true); // skipMenu = true si screen, sinon pas de menu en headless
+    }
+    
+    /**
+     * Constructeur complet
+     * @param screen true = avec interface graphique, false = mode headless pour tests
+     * @param skipMenu true = lance le jeu directement, false = affiche le menu (ignoré si screen=false)
+     */
+    public GameLauncher(boolean screen, boolean skipMenu) throws IOException {
         this.screen = screen;
-        int sizeX = 1280;
-        int sizeY = 720;
-
-        if (screen){
-            JFrame game = new JFrame();
-
-            game.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            game.setTitle("Prototype");
-            game.setSize(sizeX,sizeY);         
-
-            this.gameManager = new GameManager();
-            this.gamePanel = gameManager.getGamePanel();
-             
-            //VENT
-            this.windOverlay = new WindOverlay(gameManager.getWindModel());
-            this.windOverlay.setBounds(0, 0, sizeX, sizeY);
-
-            /* ------------------------ Partie Overlay Inventaire --------------------------------- */
-            //Charge l'inventaire 
-            InventoryRoot root = InventoryModel.load("/inventory.json");
-            java.util.List<InventoryJson> team1Inventory = copyInventory(root.inventory);
-            java.util.List<InventoryJson> team2Inventory = copyInventory(root.inventory);
-            // Attacher les inventaires aux teams
-            gameManager.getTeamModel1().setInventory(team1Inventory);
-            gameManager.getTeamModel2().setInventory(team2Inventory);
-            //Créer l'overlay
-            this.inventoryOverlay = new InventoryOverlay(gameManager.getTeamModel1().getInventory());  
-            //Créer un layeredPane
-            JLayeredPane layered = new JLayeredPane();
-            layered.setPreferredSize(new java.awt.Dimension(sizeX,sizeY));
-            layered.setBackground(java.awt.Color.BLACK);
-            layered.setOpaque(true);
-            //placer dedans
-            gamePanel.setBounds(0,0,sizeX,sizeY);
-            inventoryOverlay.setBounds(0,0,sizeX,sizeY);
-            //HUD
-            this.hudOverlay = new HUDOverlay(gameManager);
-            this.hudOverlay.setBounds(0, 0, sizeX, sizeY);
-            this.hudOverlay.setInventoryOverlay(inventoryOverlay);
-            //Menu parametres 
-            this.pauseOverlay = new PauseOverlay();
-            this.pauseOverlay.setBounds(0, 0, sizeX, sizeY);
-            //How to play
-            this.helpOverlay = new HelpOverlay();
-            this.helpOverlay.setBounds(0, 0, sizeX, sizeY);
-
-            this.pauseOverlay.setHelpOverlay(this.helpOverlay);
-
-
-            //Ajout des éléments aux LayeredPane
-            layered.add(gamePanel, JLayeredPane.DEFAULT_LAYER);
-            layered.add(windOverlay, JLayeredPane.PALETTE_LAYER);
-            layered.add(hudOverlay, JLayeredPane.DRAG_LAYER);
-            layered.add(inventoryOverlay, JLayeredPane.PALETTE_LAYER);
-            layered.add(pauseOverlay, JLayeredPane.MODAL_LAYER);
-            layered.add(helpOverlay, JLayeredPane.DRAG_LAYER);
-
-            game.setContentPane(layered);
-            
-            inventoryOverlay.setGameManager(gameManager);    
-            inventoryOverlay.setFireListener(gameManager.getImputController());
-            
-            gameManager.setInventoryOverlay(inventoryOverlay);
-            gameManager.setHudOverlay(this.hudOverlay); 
-
-            SwingInputController input = gameManager.getImputController();
-            input.setGameFrame(game);
-            input.setInventoryOverlay(inventoryOverlay);
-            input.setGameManager(gameManager);
-            input.setPauseOverlay(pauseOverlay);
-            input.setHelpOverlay(helpOverlay);
-
-            game.getContentPane().setBackground(java.awt.Color.BLACK);
-            
-            //Touches raccourcies
-            setupKeyBindings(layered, game, startFullScreen);
-            
-            //game.add(gamePanel);
-            game.pack();
-            game.setLocationRelativeTo(null);
-            game.setResizable(false);
-
-            game.setVisible(true);
-            
-            // Démarrer en plein écran si demandé
-            if (startFullScreen) {
-                java.awt.GraphicsDevice device = java.awt.GraphicsEnvironment
-                    .getLocalGraphicsEnvironment().getDefaultScreenDevice();
-                game.dispose();
-                game.setUndecorated(true);
-                game.setVisible(true);
-                device.setFullScreenWindow(game);
-                
-                // Mettre à jour les dimensions
-                java.awt.Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
-                layered.setPreferredSize(screenSize);
-                gamePanel.setBounds(0, 0, screenSize.width, screenSize.height);
-                gamePanel.setPreferredSize(screenSize);
-                inventoryOverlay.setBounds(0, 0, screenSize.width, screenSize.height);
-                windOverlay.setBounds(0, 0, screenSize.width, screenSize.height);
-                pauseOverlay.setBounds(0, 0, screenSize.width, screenSize.height);
-                helpOverlay.setBounds(0, 0, screenSize.width, screenSize.height);
-                gameManager.getCamera().setViewSize(screenSize.width, screenSize.height);
-            }
-
-            // le clavier focus sur l'imput controller de this.gameManager
-            this.gameManager.getImputController().requestFocusInWindow();
-
-            this.gameLoop = new GameLoop(gameManager);
-            this.gameLoop.timerStart();
-        }
-        else{
-            this.gameManager = new GameManager();
+        
+        if (!screen) {
+            // Mode headless pour les tests (pas d'interface graphique)
+            this.gameManager = new GameManager(2);
             this.gamePanel = gameManager.getGamePanel();
             this.gameLoop = new GameLoop(gameManager);
             this.gameLoop.timerStart();
+            return;
+        }
+        
+        // Créer la fenêtre principale unique
+        mainFrame = new JFrame("Worms");
+        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        mainFrame.setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+        
+        // Créer le CardLayout pour basculer entre menu et jeu
+        cardLayout = new CardLayout();
+        cardPanel = new JPanel(cardLayout);
+        
+        // Créer le menu
+        mainMenuView = new MainMenuView();
+        new MainMenuController(mainMenuView, this);
+        cardPanel.add(mainMenuView, MENU_CARD);
+        
+        // Créer le panneau de jeu (layered pane)
+        gameLayeredPane = new JLayeredPane();
+        gameLayeredPane.setPreferredSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
+        gameLayeredPane.setBackground(Color.BLACK);
+        gameLayeredPane.setOpaque(true);
+        cardPanel.add(gameLayeredPane, GAME_CARD);
+        
+        mainFrame.setContentPane(cardPanel);
+        
+        // Setup des touches globales
+        setupGlobalKeyBindings();
+        
+        mainFrame.pack();
+        mainFrame.setLocationRelativeTo(null);
+        mainFrame.setResizable(false);
+        mainFrame.setVisible(true);
+        
+        // Afficher le menu ou lancer le jeu directement
+        if (skipMenu) {
+            startGame();
+        } else {
+            showMenu();
+        }
+    }
+    
+    /**
+     * Affiche le menu principal
+     */
+    public void showMenu() {
+        // Arrêter le jeu si en cours
+        if (gameLoop != null) {
+            gameLoop.timerStop();
+        }
+        cardLayout.show(cardPanel, MENU_CARD);
+        mainMenuView.requestFocusInWindow();
+    }
+    
+    /**
+     * Lance le jeu avec une cinématique d'introduction
+     */
+    public void startGame() throws IOException {
+
+        if (gameManager == null) {
+                initializeGame(false);
+            } 
+            // Lancer la cinématique d'introduction
+            startIntroCinematic();
+        }
+    
+
+    /**
+     * Lance la cinématique d'introduction
+     */
+    private void startIntroCinematic() {
+        // Créer la vue de cinématique
+        IntroCinematicView cinematicView = new IntroCinematicView(
+            gameManager.getlistTeams(),
+            this::onCinematicEnd
+        );
+
+        // Ajouter la cinématique au card panel
+        cardPanel.add(cinematicView, CINEMATIC_CARD);
+
+        // Afficher la cinématique
+        cardLayout.show(cardPanel, CINEMATIC_CARD);
+    }
+
+    /**
+     * Callback appelée à la fin de la cinématique
+     */
+    private void onCinematicEnd() {
+        // Basculer vers le jeu
+        cardLayout.show(cardPanel, GAME_CARD);
+
+        // Démarrer la game loop
+        if (gameLoop != null) {
+            gameLoop.timerStart();
+        }
+
+        // Focus sur l'input controller
+        if (gameManager != null && gameManager.getImputController() != null) {
+            gameManager.getImputController().requestFocusInWindow();
         }
     }
 
-    private java.util.List<InventoryModel.InventoryJson> copyInventory(java.util.List<InventoryModel.InventoryJson> src) {
-                java.util.List<InventoryModel.InventoryJson> res = new java.util.ArrayList<>();
-                for (InventoryModel.InventoryJson it : src) {
-                    InventoryModel.InventoryJson c = new InventoryModel.InventoryJson();
-                    c.objectType = it.objectType;
-                    c.name = it.name;
-                    c.maxUsages = it.maxUsages;
-                    c.isInfinite = it.isInfinite;
-                    c.remainingUses = it.remainingUses;
-                    // useThisTurn reste à 0
-                    res.add(c);
-                }
-                return res;
+    /**
+     * Pour lancer SUR LA MEME FENETRE resumeGame
+     * @param saveData une saveData load depuis sauvegarde.txt
+     * 
+     * @see SaveLoad
+     * @see SaveData
+     */
+    public void startFromGameSave(SaveData saveData) throws IOException{
+        this.saveData = saveData;
+
+        resetGame(); // au cas ou 
+
+        initializeGame(true);
+
+        cardLayout.show(cardPanel, GAME_CARD); // afficher le jeu 
+
+        if (gameLoop != null) { // demarrer la gameLoop
+            gameLoop.timerStart();
+        }
+
+        if (gameManager != null && gameManager.getImputController() != null) {
+            gameManager.getImputController().requestFocusInWindow(); // focus l'inputController
+        }
+
     }
+    
+    /**
+     * Initialise tous les composants du jeu
+     */
+    private void initializeGame(boolean save) throws IOException {
+        int width = cardPanel.getWidth();
+        int height = cardPanel.getHeight();
+        
+        // Mettre à jour la taille du layered pane
+        gameLayeredPane.setPreferredSize(new Dimension(width, height));
+        if (save){
+            this.gameManager = new GameManager(saveData);
+        } else {
+            this.gameManager = new GameManager(3);  // 3 équipes pour tester le scroll
+        }
 
-    private void setupKeyBindings(JComponent root, JFrame game, boolean initialFullScreen) {
-        InputMap im = root.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
-        ActionMap am = root.getActionMap();
-        // Touche F11 -> basculer en plein écran
-        im.put(KeyStroke.getKeyStroke("F11"), "toggleFullScreen");
-        am.put("toggleFullScreen", new AbstractAction() {
-            private boolean isFullScreen = initialFullScreen;
-            private final int defaultSizeX = 1280;
-            private final int defaultSizeY = 720;
-            
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                java.awt.GraphicsDevice device = java.awt.GraphicsEnvironment
-                    .getLocalGraphicsEnvironment()
-                    .getDefaultScreenDevice();
-                
-                if (isFullScreen) {
-                    // Sortir du plein écran
-                    device.setFullScreenWindow(null);
-                    game.dispose();
-                    game.setUndecorated(false);
-                    game.setVisible(true);
-                    isFullScreen = false;
-                    
-                    // Remettre les dimensions par défaut
-                    updateGameSize(root, defaultSizeX, defaultSizeY);
-                } else {
-                    // Entrer en plein écran
-                    game.dispose();
-                    game.setUndecorated(true);
-                    game.setVisible(true);
-                    device.setFullScreenWindow(game);
-                    isFullScreen = true;
-                    
-                    // Récupérer les dimensions de l'écran et mettre à jour le jeu
-                    java.awt.Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
-                    updateGameSize(root, screenSize.width, screenSize.height);
-                }
-                
-                // Redonner le focus au contrôleur d'input
-                gameManager.getImputController().requestFocusInWindow();
-            }
-            
-            private void updateGameSize(JComponent layered, int newWidth, int newHeight) {
-                // Mettre à jour les bounds du layered pane
-                layered.setPreferredSize(new java.awt.Dimension(newWidth, newHeight));
-                
-                // Mettre à jour les bounds du game panel
-                gamePanel.setBounds(0, 0, newWidth, newHeight);
-                gamePanel.setPreferredSize(new java.awt.Dimension(newWidth, newHeight));
-                
-                // Mettre à jour les bounds de l'overlay inventaire
-                if (inventoryOverlay != null) {
-                    inventoryOverlay.setBounds(0, 0, newWidth, newHeight);
-                }
+        this.gamePanel = gameManager.getGamePanel();
+        
+        // Inventaire Initialisation -> GameManager
 
-                // Mets à jour les bounds du overlay vent
-                if (windOverlay != null) {
-                    windOverlay.setBounds(0, 0, newWidth, newHeight);
-                }
+        this.inventoryOverlay = new InventoryOverlay(gameManager.getListTeamInit().get(0).getTeamModel().getInventory());
+        this.inventoryOverlay.setBounds(0, 0, width, height);
+        // VENT
+        windOverlay = new WindOverlay(gameManager.getWindModel());
+        windOverlay.setBounds(0, 0, width, height);
+        gameManager.setWindOverlay(windOverlay);
+        //HUD
+        this.hudOverlay = new HUDOverlay(gameManager);
+        this.hudOverlay.setBounds(0, 0, width, height);
+        this.hudOverlay.setInventoryOverlay(inventoryOverlay);
+        //Menu parametres 
+        this.pauseOverlay = new PauseOverlay();
+        this.pauseOverlay.setBounds(0, 0, width, height);
+        //How to play
+        this.helpOverlay = new HelpOverlay();
+        this.helpOverlay.setBounds(0, 0, width, height);
+        this.pauseOverlay.setHelpOverlay(this.helpOverlay);
+        
+        // Placer les composants dans le layered pane
+        gamePanel.setBounds(0, 0, width, height);
+        inventoryOverlay.setBounds(0, 0, width, height);
 
-                // Mets à jour les bounds du overlay pause
-                if (pauseOverlay != null) {
-                    pauseOverlay.setBounds(0, 0, newWidth, newHeight);
-                }
+        gameLayeredPane.add(gamePanel, JLayeredPane.DEFAULT_LAYER);
+        gameLayeredPane.add(windOverlay, JLayeredPane.PALETTE_LAYER);   
+        gameLayeredPane.add(inventoryOverlay, JLayeredPane.PALETTE_LAYER);  
+        gameLayeredPane.add(hudOverlay, JLayeredPane.MODAL_LAYER);
+        gameLayeredPane.add(pauseOverlay, JLayeredPane.POPUP_LAYER);
+        gameLayeredPane.add(helpOverlay, JLayeredPane.DRAG_LAYER);
+        
+        inventoryOverlay.setGameManager(gameManager);    
+        inventoryOverlay.setFireListener(gameManager.getImputController());
+        gameManager.setInventoryOverlay(inventoryOverlay);
+        gameManager.setHudOverlay(this.hudOverlay); 
 
-                // Mets à jour les bounds du overlay aide
-                if (helpOverlay != null) {
-                    helpOverlay.setBounds(0, 0, newWidth, newHeight);
+        SwingInputController input = gameManager.getImputController();
+        input.setGameFrame(mainFrame);
+        input.setInventoryOverlay(inventoryOverlay);
+        input.setGameManager(gameManager);
+        input.setPauseOverlay(pauseOverlay);
+        input.setHelpOverlay(helpOverlay);  
+        
+        // Mettre à jour la caméra avec les dimensions actuelles (important si en plein écran)
+        if (gameManager.getCamera() != null) {
+            gameManager.getCamera().setViewSize(width, height);
+        }
+        
+        // Créer et démarrer la game loop
+        this.gameLoop = new GameLoop(gameManager);
+        gameManager.setGameLoop(gameLoop);
+        
+        // Timer pour vérifier la fin de partie
+        Timer checkGameOverTimer = new Timer(1000, e -> {
+            if (gameLoop != null && gameLoop.isGameOver()) {
+                String winner = gameLoop.getWinner();
+                if (winner != null) {
+                    ((Timer)e.getSource()).stop();
+                    showEndGameScreen(winner);
                 }
-
-                // Mets à jour les bounds du overlay HUD
-                if (hudOverlay != null) {
-                    hudOverlay.setBounds(0, 0, newWidth, newHeight);
-                }
-                
-                // Mettre à jour la taille de vue de la caméra
-                gameManager.getCamera().setViewSize(newWidth, newHeight);
-                
-                // Revalider et repeindre
-                layered.revalidate();
-                layered.repaint();
             }
         });
+        checkGameOverTimer.start();
+    }
+
+    private void setupGlobalKeyBindings() {
+        JRootPane rootPane = mainFrame.getRootPane();
+        InputMap im = rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ActionMap am = rootPane.getActionMap();
+        
+        // F -> basculer en plein écran
+        im.put(KeyStroke.getKeyStroke("F"), "toggleFullScreen");
+        am.put("toggleFullScreen", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                toggleFullScreen();
+            }
+        });
+    }
+    
+    private void toggleFullScreen() {
+        GraphicsDevice device = GraphicsEnvironment
+            .getLocalGraphicsEnvironment().getDefaultScreenDevice();
+        
+        if (isFullScreen) {
+            // Sortir du plein écran
+            device.setFullScreenWindow(null);
+            mainFrame.dispose();
+            mainFrame.setUndecorated(false);
+            mainFrame.setVisible(true);
+            isFullScreen = false;
+            updateAllSizes(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+        } else {
+            // Entrer en plein écran
+            mainFrame.dispose();
+            mainFrame.setUndecorated(true);
+            mainFrame.setVisible(true);
+            device.setFullScreenWindow(mainFrame);
+            isFullScreen = true;
+            
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            updateAllSizes(screenSize.width, screenSize.height);
+        }
+        
+        // Redonner le focus
+        if (gameManager != null && gameManager.getImputController() != null) {
+            gameManager.getImputController().requestFocusInWindow();
+        }
+    }
+    
+    private void updateAllSizes(int width, int height) {
+        // Mettre à jour le menu
+        mainMenuView.updateSizes(isFullScreen);
+        
+        // Mettre à jour le jeu si initialisé
+        if (gameLayeredPane != null) {
+            gameLayeredPane.setPreferredSize(new Dimension(width, height));
+        }
+        
+        if (gamePanel != null) {
+            gamePanel.setBounds(0, 0, width, height);
+            gamePanel.setPreferredSize(new Dimension(width, height));
+        }
+        
+        if (inventoryOverlay != null) {
+            inventoryOverlay.setBounds(0, 0, width, height);
+        }
+        
+        if (windOverlay != null) {
+            windOverlay.setBounds(0, 0, width, height);
+        }
+        // Mets à jour les bounds du overlay pause
+        if (pauseOverlay != null) {
+            pauseOverlay.setBounds(0, 0, width, height);
+        }
+
+        // Mets à jour les bounds du overlay aide
+        if (helpOverlay != null) {
+            helpOverlay.setBounds(0, 0, width,height);
+        }
+
+        // Mets à jour les bounds du overlay HUD
+        if (hudOverlay != null) {
+            hudOverlay.setBounds(0, 0, width, height);
+        }
+
+        if (gameManager != null && gameManager.getCamera() != null) {
+            gameManager.getCamera().setViewSize(width, height);
+            // Notifier le CameraController pour éviter le glissement du au followPlayer
+            if (gameManager.getCameraController() != null) {
+                gameManager.getCameraController().onViewSizeChanged();
+            }
+        }
+        
+        cardPanel.revalidate();
+        cardPanel.repaint();
+    }
+    
+    public boolean isFullScreen() {
+        return isFullScreen;
+    }
+    
+    public JFrame getMainFrame() {
+        return mainFrame;
+    }
+    
+    public JPanel getCardPanel() {
+        return cardPanel;
     }
 
     
@@ -262,26 +403,62 @@ public class GameLauncher{
         return this.gameLoop;
     }
     
-    /*  */
-    /**  Affiche l'écran d'accueil au démarrage  */
-    private static void showAccueil() {
-
-        SwingUtilities.invokeLater(() -> { //Mets cette tâche dans la file d'attente pour que l'interface la traite dès que possible
-
-            MainMenuView view = new MainMenuView(); 
-            new MainMenuController(view);
-            view.setVisible(true);
-
+    /**
+     * Affiche l'écran de fin de partie avec animation
+     */
+    private void showEndGameScreen(String winnerName) {
+        SwingUtilities.invokeLater(() -> {
+            // Trouver l'équipe gagnante dans la liste des équipes
+            TeamModel winningTeam = null;
+            TeamView winningTeamView = null;
+            
+            for (TeamInitialisation teamInit : gameManager.getListTeamInit()) {
+                if (teamInit.getName().equals(winnerName)) {
+                    winningTeam = teamInit.getTeamModel();
+                    winningTeamView = teamInit.getTeamView();
+                    break;
+                }
+            }
+            
+            if (winningTeam == null || winningTeamView == null) {
+                System.err.println("Erreur: Équipe gagnante non trouvée: " + winnerName);
+                return;
+            }
+            
+            EndGameController endGameController = new EndGameController(this);
+            endGameController.showEndGameScreen(
+                winningTeam, 
+                winningTeamView, 
+                winnerName,
+                gameManager.getAllTeamStats()
+            );
         });
+    }
+
+    public void resetGame() {
+        if (gameLoop != null) {
+            gameLoop.timerStop();
+        }
+        this.gameManager = null;
+        this.gamePanel = null;
+        this.gameLoop = null;
+        this.inventoryOverlay = null;
+        this.windOverlay = null;
+        if (gameLayeredPane != null) {
+            gameLayeredPane.removeAll();
+            gameLayeredPane.repaint();
+        }
     }
 
     public static void main(String[] args) throws IOException{
 
-        //// Lance l'écran d'accueil au lieu du jeu directement
-        showAccueil();
+        // Lance le jeu avec le menu principal
+        new GameLauncher();
 
-        //// Pour lancer le jeu directement (pour les testes)
-        //new GameLauncher(true);
-        //new ConsoleLauncher(); //la console est trop bien
+        // Pour lancer le jeu directement (sans menu) :
+        // new GameLauncher(true, true);
+
+        // Mode console :
+        //new ConsoleLauncher();
     }
 }

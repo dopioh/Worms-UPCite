@@ -106,7 +106,7 @@ public class CharacterView {
             
             // si on se deplace vers la gauche on inverse le sprite
             if (!model.isFacingRight()) {
-                g2dCopy.translate(x + spriteWidth/2, y - spriteHeight/2);
+                g2dCopy.translate(x, y - spriteHeight/2);   // fix hitbox ici -> il fallait mettre x et pas x + spriteWidth/2
                 g2dCopy.scale(-1, 1);  // inverse horizontalement
                 g2dCopy.drawImage(spriteImage, -spriteWidth/2, 0, spriteWidth, spriteHeight, null);
             } else {
@@ -139,13 +139,8 @@ public class CharacterView {
         // Afficher le NameTag si le personnage est vivant
         nameTagView.setVisible(true);
         
-        String[] stats = {
-            model.getName(),
-            "HP: " + (int)model.getHealth() + "/100",
-            "Shield: " + (int)model.getShield(),
-        };
-        
-        nameTagView.drawMultiLine(g2d, model, stats);
+        // Utiliser le nouveau style de nametag
+        nameTagView.drawNewStyle(g2d, model);
     }
     
     // Getters et Setters
@@ -175,5 +170,21 @@ public class CharacterView {
     
     public void setShowNameTag(boolean showNameTag) {
         this.showNameTag = showNameTag;
+    }
+    
+    /**
+     * Retourne l'image du sprite pour l'animation de fin
+     * @return L'image du sprite ou null si pas chargé
+     */
+    public BufferedImage getSpriteImage() {
+        return spriteImage;
+    }
+    
+    /**
+     * Vérifie si le sprite est chargé et utilisé
+     * @return true si le sprite est utilisé
+     */
+    public boolean isUsingSprite() {
+        return useSprite && spriteImage != null;
     }
 }

@@ -11,15 +11,15 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 
 /**
  * Vue de l'écran d'accueil du jeu Worms
  * Affiche le menu principal avec les boutons d'action
  */
-public class MainMenuView extends JFrame {
+public class MainMenuView extends JPanel {
     
     // couleurs
     private static final Color BUTTON_BASE = new Color(131, 172, 140);
@@ -30,66 +30,13 @@ public class MainMenuView extends JFrame {
     private JButton btnConfig;
     private JButton btnQuit;
     private JLabel titleLabel;
-    private boolean isFullScreen = false;
 
     public MainMenuView() {
-        super("Worms - Home");
         initComponents();
         setupLayout();
-        setupKeyBindings();
-    }
-
-    private void setupKeyBindings() {
-        setupFullScreenToggle();
-        setupExitOnEscape();
     }
     
-    private void setupFullScreenToggle() {
-        // F11 pour basculer en plein écran
-        getRootPane().getInputMap(javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW)
-            .put(javax.swing.KeyStroke.getKeyStroke("F11"), "toggleFullScreen");
-        getRootPane().getActionMap().put("toggleFullScreen", new javax.swing.AbstractAction() {
-            @Override
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                toggleFullScreen();
-            }
-        });
-    }
-
-    private void setupExitOnEscape() {
-        // ESC pour quitter
-        getRootPane().getInputMap(javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW)
-            .put(javax.swing.KeyStroke.getKeyStroke("ESCAPE"), "exitGame");
-        getRootPane().getActionMap().put("exitGame", new javax.swing.AbstractAction() {
-            @Override
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                System.exit(0);
-            }
-        });
-    }
-    
-    private void toggleFullScreen() {
-        java.awt.GraphicsDevice device = java.awt.GraphicsEnvironment
-            .getLocalGraphicsEnvironment().getDefaultScreenDevice();
-        
-        if (isFullScreen) {
-            device.setFullScreenWindow(null);
-            dispose();
-            setUndecorated(false);
-            setVisible(true);
-            isFullScreen = false;
-            updateSizes(false);
-        } else {
-            dispose();
-            setUndecorated(true);
-            setVisible(true);
-            device.setFullScreenWindow(this);
-            isFullScreen = true;
-            updateSizes(true);
-        }
-    }
-    
-    private void updateSizes(boolean fullScreen) {
+    public void updateSizes(boolean fullScreen) {
         // Tailles pour plein écran vs fenêtré
         int titleWidth = fullScreen ? 550 : 400;
         int buttonWidth = fullScreen ? 380 : 280;
@@ -113,15 +60,12 @@ public class MainMenuView extends JFrame {
             btn.setMaximumSize(new Dimension(buttonWidth, buttonHeight));
         }
     }
-    
-    public boolean isFullScreen() {
-        return isFullScreen;
-    }
 
     private void initComponents() {
         // Création du panneau de fond
         JLabel background = createBackground();
-        setContentPane(background);
+        setLayout(new java.awt.BorderLayout());
+        add(background, java.awt.BorderLayout.CENTER);
 
         // Titre
         addTitle(background);
@@ -143,10 +87,7 @@ public class MainMenuView extends JFrame {
     }
 
     private void setupLayout() {
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1280, 720);
-        setLocationRelativeTo(null);
-        setResizable(false);
+        setPreferredSize(new Dimension(1280, 720));
     }
 
     private JLabel createBackground() {
