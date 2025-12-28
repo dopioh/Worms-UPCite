@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.HashMap;
 import java.util.Map;
+import javax.swing.Timer;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.World;
 
@@ -190,6 +191,8 @@ public class GameManager {
         // Initialisation du système de tir
         this.itemController = new ItemController(new ItemView());
         this.itemController.setWorld(world);
+        this.itemController.setBlockGridModel(this.blockGridModel);// pour les dégats sur le terrain
+        this.itemController.setWindModel(this.windModel); // pour le vent
         this.itemController.setGameManager(this);  // Pour le tracking des stats
         
         // Créer un tableau de tous les worms (N equipes)
@@ -219,9 +222,9 @@ public class GameManager {
         this.gamePanel.add(imputController);
         imputController.setGameManager(this); // connecte inputController au GameManager
         // Connecter le renderer de trajectoire
-        imputController.setTrajectoryRenderer(gamePanel.getTrajectoryRenderer());
-        gamePanel.getTrajectoryRenderer().setShooter(activeWormController.getModel());
-        gamePanel.getTrajectoryRenderer().setWeapon(activeWormController.getCurrentWeapon());
+        imputController.setTrajectoryRenderer(gamePanel.getTrajectoryView());
+        gamePanel.getTrajectoryView().setShooter(activeWormController.getModel());
+        gamePanel.getTrajectoryView().setWeapon(activeWormController.getCurrentWeapon());
         // pour ne pas que gamePanel et imputController se disputent le focus
         this.gamePanel.setFocusable(false);  // le panel ne prend pas le focus
         imputController.setFocusable(true);   // l'inputController prend le focus    
@@ -355,14 +358,29 @@ public class GameManager {
                                              //  pour que inputController puisse appeler switchToNextWorm()
         
         // Connecter le renderer de trajectoire
-        imputController.setTrajectoryRenderer(gamePanel.getTrajectoryRenderer());
-        gamePanel.getTrajectoryRenderer().setShooter(activeWormController.getModel());
-        gamePanel.getTrajectoryRenderer().setWeapon(activeWormController.getCurrentWeapon());
+        imputController.setTrajectoryRenderer(gamePanel.getTrajectoryView());
+        gamePanel.getTrajectoryView().setShooter(activeWormController.getModel());
+        gamePanel.getTrajectoryView().setWeapon(activeWormController.getCurrentWeapon());
         
         // pour ne pas que gamePanel et imputController se disputent le focus
         // en lancant le jeu, certaines fois rien n'était controllable mais c'est fix maintenant
         this.gamePanel.setFocusable(false);  // le panel ne prend pas le focus
         imputController.setFocusable(true);   // l'inputController prend le focus    
+
+        // Timer pour update régulier de la caméra, projectiles et repaint
+        new Timer(16, e -> {
+            cameraController.update();
+            // mettre à jour les projectiles (16ms = 0.016s par frame)
+            itemController.updateProjectiles(0.016f);
+            
+            // recréer le terrain physique si la grille a changé (blocs détruits)
+            if (blockGridModel.isDirty()) {
+                physic.recreateTerrainFromBlockGrid(blockGridModel);
+                blockGridModel.clearDirty();
+            }
+            
+            gamePanel.repaint();
+        }).start();
 
         //initialiseInventory();
 
@@ -543,8 +561,8 @@ public class GameManager {
                 cameraController.centerOnCharacter();
                 
                 // mettre à jour la trajectoire avec le nouveau worm et son arme
-                gamePanel.getTrajectoryRenderer().setShooter(worm);
-                gamePanel.getTrajectoryRenderer().setWeapon(activeWormController.getCurrentWeapon());
+                gamePanel.getTrajectoryView().setShooter(worm);
+                gamePanel.getTrajectoryView().setWeapon(activeWormController.getCurrentWeapon());
                 
                 return;
             }
@@ -629,10 +647,10 @@ public class GameManager {
                 imputController.setCharacterController(activeWormController);
                 cameraController.setTargetCharacter(worm);
                 cameraController.centerOnCharacter();
-            
-                gamePanel.getTrajectoryRenderer().setShooter(worm);
-                gamePanel. getTrajectoryRenderer().setWeapon(activeWormController.getCurrentWeapon());
-            
+                
+                // mettre à jour la trajectoire avec le nouveau worm et son arme
+                gamePanel.getTrajectoryView().setShooter(worm);
+                gamePanel.getTrajectoryView().setWeapon(activeWormController.getCurrentWeapon());
                 return;
             }   
         
@@ -673,6 +691,7 @@ public class GameManager {
             inventoryOverlay.setInventory(getCurrentTeamInventory());
         }
 
+        
         // --- Vent : change à chaque tour (fixe pendant le tour) ---
         WindModel.Dir[] dirs = WindModel.Dir.values();
         windModel.setDir(dirs[windRng.nextInt(dirs.length)]);
@@ -684,7 +703,6 @@ public class GameManager {
         System.out.println("[VENT] " + windModel.getDir().label + " | force=" + String.format("%.2f", windModel.getStrength()));
 
     }
-
     
     /**
      * Change l'arme équipée du worm actif (cycliquement)
@@ -717,7 +735,7 @@ public class GameManager {
         if (newWeapon != null && activeWormController != null) {
             activeWormController.setCurrentWeapon(newWeapon);
             // mettre à jour la trajectoire avec la nouvelle arme
-            gamePanel.getTrajectoryRenderer().setWeapon(newWeapon);
+            gamePanel.getTrajectoryView().setWeapon(newWeapon);
         }
     }
 
@@ -828,7 +846,7 @@ public class GameManager {
         if (newWeapon != null && activeWormController != null) {
             activeWormController.setCurrentWeapon(newWeapon);
             // Met à jour la trajectoire
-            gamePanel.getTrajectoryRenderer().setWeapon(newWeapon);
+            gamePanel.getTrajectoryView().setWeapon(newWeapon);
         }
     }
 

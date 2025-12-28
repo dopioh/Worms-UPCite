@@ -6,6 +6,8 @@ import fr.upc.g5e4.model.CharacterModel;
 import fr.upc.g5e4.model.Item;
 import fr.upc.g5e4.model.Weapon;
 import fr.upc.g5e4.model.Projectile;
+import fr.upc.g5e4.model.BlockGridModel;
+import fr.upc.g5e4.model.WindModel;
 import fr.upc.g5e4.model.GameManager;
 import fr.upc.g5e4.view.ItemView;
 import java.util.ArrayList;
@@ -16,6 +18,8 @@ public class ItemController {
     private final ItemView view;
     private World world;
     private CharacterModel[] allWorms;
+    private BlockGridModel blockGridModel;
+    private WindModel windModel;
     private List<Projectile> activeProjectiles;
     private GameManager gameManager;
 
@@ -41,11 +45,27 @@ public class ItemController {
     }
 
     /**
+     * définit le modele du vent
+     * @param windModel le modele du vent
+     */
+    public void setWindModel(WindModel windModel) {
+        this.windModel = windModel;
+    }
+
+    /**
      * Définit le tableau de tous les worms pour la détection de collision
      * @param allWorms Tableau de tous les worms du jeu
      */
     public void setAllWorms(CharacterModel[] allWorms) {
         this.allWorms = allWorms;
+    }
+    
+    /**
+     * définit le BlockGridModel pour les dégâts au terrain
+     * @param blockGridModel Le modèle de grille de blocs
+     */
+    public void setBlockGridModel(BlockGridModel blockGridModel) {
+        this.blockGridModel = blockGridModel;
     }
 
     /**
@@ -72,7 +92,7 @@ public class ItemController {
         if (weapon.use()) {
             SoundPlayer.play("/sfx/gunshot.wav"); // SFX au tir
 
-            Projectile projectile = weapon.fire(shooter, world, allWorms, direction);
+            Projectile projectile = weapon.fire(shooter, world, allWorms, direction, windModel);
             if (projectile != null) {
                 activeProjectiles.add(projectile);
                 System.out.println("Projectile lancé à l'angle: " + String.format("%.0f°", projectile.getShootingAngle()));
@@ -96,7 +116,15 @@ public class ItemController {
         List<Projectile> toRemove = new ArrayList<>();
         // met à jour chaque projectile
         for (Projectile projectile : activeProjectiles) {
-            if (!projectile.update(deltaTime)) {
+            if (!projectile.update(deltaTime)) { // retourne faux si le projectile a dépassé sa portée
+                applyTerrainDamage(projectile); 
+                toRemove.add(projectile);
+                continue;
+            }
+            
+            // permet de détecter le sol
+            if (hitGround(projectile)) {
+                applyTerrainDamage(projectile);
                 toRemove.add(projectile);
                 continue;
             }
@@ -146,6 +174,7 @@ public class ItemController {
                         System.out.println("Cible " + worm.getName() + " touchée avec " + 
                                          damage + " damage (impact: " + 
                                          String.format("%.2f", impactForce) + ")");
+                        applyTerrainDamage(projectile);
                         toRemove.add(projectile);
                         break;
                     }
@@ -155,6 +184,67 @@ public class ItemController {
         
         // supp les projectiles morts
         activeProjectiles.removeAll(toRemove);
+    }
+    
+    /**
+     * vérifie si un projectile a touché le sol
+     * @param projectile le projectile
+     * @return true si le projectile a touché le sol
+     */
+    private boolean hitGround(Projectile projectile) {
+        if (blockGridModel == null) {
+            return false;
+        }
+        
+        Vec2 pos = projectile.getCurrentPosition();
+        float PPM = 30f; // pixel par mètre
+        
+        //convertit la position monde en pixels
+        int pixelX = (int)(pos.x * PPM);
+        int pixelY = (int)(blockGridModel.getPixelHeight() - pos.y * PPM);
+        
+        // verifie si le projectile touche un bloc solide de la grille
+        return blockGridModel.isSolidAt(pixelX, pixelY);
+    }
+    
+    /**
+     * applique les degats au terrain quand le projectile touche le sol
+     * @param projectile Le projectile qui impacte le terrain
+     */
+    private void applyTerrainDamage(Projectile projectile) {
+        if (blockGridModel == null) {
+            return;
+        }
+        
+        Weapon weapon = projectile.getSourceWeapon(); // arme qui a tiré le projectile
+        if (weapon == null || weapon.getTerrainDamage() == 0) {
+            return;
+        }
+        
+        Vec2 projectilePos = projectile.getCurrentPosition();
+        
+        // convertit la position du monde (JBox2D en mètres) en coordonnées de grille
+        float PPM = 30f;
+        
+        // convertir de metres en pixels
+        int pixelX = (int)(projectilePos.x * PPM);
+        // Y est inversé entre JBox2D (Y augmente vers le haut) et pixels (Y augmente vers le bas)
+        int pixelY = (int)(blockGridModel.getPixelHeight() - projectilePos.y * PPM);
+        
+        // convertir de pixels en coordonnées de grille
+        int centerGridX = blockGridModel.pixelToGridX(pixelX);
+        int centerGridY = blockGridModel.pixelToGridY(pixelY);
+        
+        // appliquer les degats au terrain
+        if (weapon.getTerrainBlastRadius() > 0) {
+            // dégats en zone 
+            blockGridModel.damageBlocksInRadius(centerGridX, centerGridY, weapon.getTerrainBlastRadius(), weapon.getTerrainDamage());
+            System.out.println("[" + weapon.getName() + "] Dégâts terrain en zone : " + weapon.getTerrainDamage() + " PV, rayon " + weapon.getTerrainBlastRadius());
+        } else {
+            // dégats ponctuels
+            blockGridModel.damageBlock(centerGridX, centerGridY, weapon.getTerrainDamage());
+            System.out.println("[" + weapon.getName() + "] Dégâts terrain ponctuels : " + weapon.getTerrainDamage() + " PV");
+        }
     }
     
     /**

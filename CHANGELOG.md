@@ -126,6 +126,8 @@
         - ISLANDS : Terrain wavy avec zones d'eau au centre pour éviter les spawn kills
         - FLAT : Terrain complètement plat
     - 3 tailles de maps : SMALL (800x720), MEDIUM (1280x720), LARGE (1700x720)
+- Ajout de la dégradation de la map
+- Ajout d'une courbe pour la trajectoire de la map
 
 ### Modified
 - Support pour N équipes au lieu de 2 équipes hardcodées
@@ -146,6 +148,11 @@
 - Emplacement overlay vent
 - Nouveau systeme de map 
     - MAP en tableau 2D remplie d'objet "block"
+- Vent augmente la portée du projectile (dans le sens du vent) ou réduit la porté (sens opposé du vent)
+- Focus lors du tir
+- Projectile qui se stop en l'air
+- Tir qui rebondit (batte de baseball)
+
 - **N equipes** fonctionnelles desormais (2 auparavant)
 - Retour aux mouvements originaux
 - Retour du saut (avec Z)
