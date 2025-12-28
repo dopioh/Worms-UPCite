@@ -11,6 +11,39 @@ import java.awt.event.MouseEvent;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 
+
+/**
+ * COMMENT UTILISER:
+ * - PillButton btn = new PillButton("Texte");
+ * - Ajoutez un ActionListener comme un JButton normal
+ * 
+ * EXEMPLE:
+ * PillButton btn = new PillButton("Cliquer moi");
+ * btn.addActionListener(e -> System.out.println("Bouton cliqué!"));
+ * panel.add(btn);
+ * btn.setFont(new Font("Arial", Font.BOLD, 20)); // Change la taille de la police
+ * 
+ * PLEINE ECRAN:
+ * - btn.setPreferredSize(new Dimension(largeur, hauteur)); // Ajuste la taille du bouton
+ * - btn.setFont(btn.getFont().deriveFont((float)nouvelleTaille)); // Ajuste la taille de la police
+ * Exemple: float scale = fullScreen ? 1.3f : 1.0f;
+ *          int buttonWidth = (int)(baseWidth * scale);
+ *          int buttonHeight = (int)(baseHeight * scale);
+ *          int fontSize = (int)(baseFontSize * scale);
+ * 
+ * POUR CHANGER LES COULEURS:
+ * btn.setBackground(nouvelleColor) pour la couleur normale
+ * btn.setHoverColor(nouvelleColor) pour la couleur au survol
+ * btn.setForeground(nouvelleColor) pour la couleur du texte
+ * 
+ * COULEURS PAR DÉFAUT :
+ * - ACTIVE: new Color(66, 139, 82)
+ * - INACTIVE: new Color(41, 59, 45)
+ * - HOVER: new Color(42, 99, 55)
+ * - TEXT: Color.WHITE
+ */
+
+
 /**
  * Bouton en forme de pilule pour les onglets reutilisables
  */
@@ -23,6 +56,11 @@ public class PillButton extends JButton {
     public PillButton(String text) {
         super(text);
         this.isHovering = false;
+        
+        // Couleurs par défaut (SettingsView)
+        setBackground(new Color(41, 59, 45)); // TAB_INACTIVE
+        setHoverColor(new Color(42, 99, 55)); // TAB_HOVER
+        setForeground(Color.WHITE); // TEXT_COLOR
         
         loadFont();
         setupButton();
