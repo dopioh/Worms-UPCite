@@ -98,12 +98,8 @@
     - Affichage des itemes (potions...) sur le nametag
 - Nouveau systeme de map 
     - MAP en tableau 2D remplie d'objet "block"
-- **Cinématique d'introduction** : Animation de présentation avant le début du combat
-    - Affichage des équipes participantes avec nombre de worms
-    - Présentation du terrain généré procéduralement
-    - Affichage des conditions météorologiques (vent)
-    - Animation avec effets de fade et transitions fluides
-    - Durée de 5 secondes avant lancement automatique du jeu
+- **Cinématique d'introduction** : Intro cinématique avec barre de chargement cartoon et messages    synchronisés
+- Ajout du fichier LoadingBarPanel.java
 - **Écran de fin de partie avec animation**
   - Animation des worms gagnants marchant vers le trophée
   - Affichage des statistiques de jeu (dégâts, précision de tir, éliminations, rounds joué)
