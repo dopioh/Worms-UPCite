@@ -21,9 +21,9 @@ import javax.swing.JPanel;
  */
 public class MainMenuView extends JPanel {
     
-    // couleurs
-    private static final Color BUTTON_BASE = new Color(131, 172, 140);
-    private static final Color BUTTON_HOVER = new Color(92, 121, 98);
+    // couleurs de avant pour les bouttons
+    // private static final Color BUTTON_BASE = new Color(131, 172, 140);
+    // private static final Color BUTTON_HOVER = new Color(92, 121, 98);
 
     private JButton btnNewGame;
     private JButton btnResume;
@@ -122,13 +122,9 @@ public class MainMenuView extends JPanel {
 
     //methode template pour creer des bouttons
     private JButton createMenuButton(String text) {
-        RoundedButton button = new RoundedButton(text, 24);
+        PillButton button = new PillButton(text);
         button.setAlignmentX(Component.CENTER_ALIGNMENT);
         button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        button.setForeground(Color.WHITE);
-        button.setFont(new Font("Arial", Font.BOLD, 18));
-        button.setBackground(BUTTON_BASE);
-        button.setHoverColor(BUTTON_HOVER);
         button.setMaximumSize(new Dimension(280, 45));
         return button;
     }

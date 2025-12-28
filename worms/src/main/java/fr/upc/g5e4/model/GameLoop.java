@@ -25,6 +25,12 @@ public class GameLoop{
     private int roundTimeRemaining;
 
     /** Toute les update de Timer se font dans le Constructeur de GameLoop, pas besoin de creer de methode ici*/
+
+    // Ajout : méthode publique pour reset le timer
+    public void resetRoundTimer() {
+        this.roundTimeRemaining = 1800;
+        gamePanel.setRoundTimer(30);
+    }
     public GameLoop(GameManager gameManager){
         this.gameManager = gameManager;
         this.gamePanel = this.gameManager.getGamePanel();

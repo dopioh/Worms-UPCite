@@ -11,7 +11,7 @@ public class SkinSettings {
      */
     
     // Skin par défaut (modifier pour changer le skin du jeu)
-    private static String currentSkin = "/worm.png";
+    private static String currentSkin = "/wormPixel.png"; // "/worm.png" pour la version sans pixel
     
     // Méthode pour récupérer le skin actuel
     public static String getCurrentSkin() {

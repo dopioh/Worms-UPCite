@@ -10,6 +10,7 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.Timer;
 
 
 /**
@@ -37,9 +38,8 @@ import javax.swing.JButton;
  * btn.setForeground(nouvelleColor) pour la couleur du texte
  * 
  * COULEURS PAR DÉFAUT :
- * - ACTIVE: new Color(66, 139, 82)
- * - INACTIVE: new Color(41, 59, 45)
- * - HOVER: new Color(42, 99, 55)
+ * - NORMALE: new Color(66, 139, 82)
+ * - HOVER: new Color(80, 160, 100)
  * - TEXT: Color.WHITE
  */
 
@@ -52,14 +52,16 @@ public class PillButton extends JButton {
     private Color hoverColor;
     private boolean isHovering;
     private Font googleSansFont;
+    private float hoverProgress = 0f; // 0.0 = normal, 1.0 = hover complet
+    private Timer hoverTimer;
 
     public PillButton(String text) {
         super(text);
         this.isHovering = false;
         
-        // Couleurs par défaut (SettingsView)
-        setBackground(new Color(41, 59, 45)); // TAB_INACTIVE
-        setHoverColor(new Color(42, 99, 55)); // TAB_HOVER
+        // Couleurs par défaut
+        setBackground(new Color(66, 139, 82)); // TAB_ACTIVE (couleur normale)
+        setHoverColor(new Color(80, 160, 100)); // Couleur hover légèrement plus claire
         setForeground(Color.WHITE); // TEXT_COLOR
         
         loadFont();
@@ -98,17 +100,41 @@ public class PillButton extends JButton {
     }
 
     private void addHoverEffect() {
+        // Timer pour l'animation fluide
+        hoverTimer = new Timer(16, e -> {
+            if (isHovering) {
+                if (hoverProgress < 1f) {
+                    hoverProgress = Math.min(1f, hoverProgress + 0.1f);
+                    repaint();
+                }
+            } else {
+                if (hoverProgress > 0f) {
+                    hoverProgress = Math.max(0f, hoverProgress - 0.1f);
+                    repaint();
+                }
+            }
+            
+            // Arrête le timer si l'animation est terminée
+            if ((isHovering && hoverProgress >= 1f) || (!isHovering && hoverProgress <= 0f)) {
+                hoverTimer.stop();
+            }
+        });
+        
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
                 isHovering = true;
-                repaint();
+                if (!hoverTimer.isRunning()) {
+                    hoverTimer.start();
+                }
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
                 isHovering = false;
-                repaint();
+                if (!hoverTimer.isRunning()) {
+                    hoverTimer.start();
+                }
             }
         });
     }
@@ -126,10 +152,13 @@ public class PillButton extends JButton {
         int width = getWidth();
         int height = getHeight();
 
-        // Choix de la couleur selon l'état
+        // Interpolation de couleur pour une transition fluide
         Color bgColor = getBackground();
-        if (isHovering && hoverColor != null) {
-            bgColor = hoverColor;
+        if (hoverColor != null && hoverProgress > 0f) {
+            int r = (int)(bgColor.getRed() + (hoverColor.getRed() - bgColor.getRed()) * hoverProgress);
+            int green = (int)(bgColor.getGreen() + (hoverColor.getGreen() - bgColor.getGreen()) * hoverProgress);
+            int b = (int)(bgColor.getBlue() + (hoverColor.getBlue() - bgColor.getBlue()) * hoverProgress);
+            bgColor = new Color(r, green, b);
         }
 
         // Dessine le fond en forme de pilule (rayon = hauteur/2 pour les côtés complètement arrondis)
