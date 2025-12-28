@@ -1,11 +1,38 @@
 package fr.upc.g5e4.model.weapons;
 
 import fr.upc.g5e4.model.Weapon;
+import fr.upc.g5e4.model.trajectories.HeavyTrajectory;
 
 public class RocketLauncher extends Weapon {
 
+    /**
+     * constructeur du lance-roquettes
+     * @name rocket launcher
+     * @ammo 2
+     * @isExplosive false
+     * @damage 100
+     * @blastRadius 4
+     * @speed 8
+     * @range 25
+     * @knockbackMultiplier 8.0
+     */
     public RocketLauncher() {
-        super("Rocket Launcher", 2, false, 100, 4, 8, 25);
+        super(
+            "Rocket Launcher",
+            2,
+            false,
+            100,
+            4,
+            8,
+            25,
+            8.0
+        );
+
+        // Lance-roquettes : projectile lourd avec beaucoup de chute
+        this.setTrajectoryCalculator(new HeavyTrajectory());
+        // dégats au terrain : 5 PV par bloc avec blast radius de 3 blocs
+        this.setTerrainDamage(5);
+        this.setTerrainBlastRadius(3.0);
     }
 
     @Override
@@ -15,8 +42,4 @@ public class RocketLauncher extends Weapon {
         return true;
     }
 
-    @Override
-    public double getCurveAmplitude(){
-        return 0.3;
-    }
 }

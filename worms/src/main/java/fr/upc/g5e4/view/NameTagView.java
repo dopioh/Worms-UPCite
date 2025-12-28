@@ -1,120 +1,221 @@
 package fr.upc.g5e4.view;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
+import java.io.IOException;
+import javax.imageio.ImageIO;
 import fr.upc.g5e4.model.CharacterModel;
 
 /**
  * Vue pour l'affichage du NameTag
  */
 public class NameTagView {
-    private Color backgroundColor;
-    private Color textColor;
-    private Color borderColor;
     private int padding;
-    private Font font;
     private boolean visible;
+    
+    // Couleurs pour les barres
+    private Color healthBarColor = new Color(50, 217, 97); // Vert
+    private Color shieldBarColor = new Color(0, 195, 243); // Bleu cyan
+    
+    // Variables pour l'animation (index 0=health, 1=shield)
+    private double[] displayed = {100.0, 50.0};
+    private double[] start = {100.0, 50.0};
+    private double[] target = {100.0, 50.0};
+    private long[] animStart = {0, 0};
+    
+    // Liste des items à afficher au-dessus des barres
+    private List<ItemIcon> itemIcons;
+    
+    /**
+     * Classe interne pour représenter un item icon
+     */
+    public static class ItemIcon {
+        public BufferedImage image;
+        public String name;
+        
+        public ItemIcon(BufferedImage image, String name) {
+            this.image = image;
+            this.name = name;
+        }
+    }
     
     /**
      * Constructeur de la classe NameTagView
      */
     public NameTagView(Color borderColor) {
-        this.backgroundColor = new Color(0, 0, 0, 180);
-        this.textColor = Color.WHITE;
-        this.borderColor = borderColor;
         this.padding = 5;
-        this.font = new Font("Arial", Font.BOLD, 12);
         this.visible = true;
+        this.itemIcons = new ArrayList<>();
     }
     
     /**
-     * Dessine une textbox simple
-     * @param g2d Le contexte graphique
-     * @param model Le modèle du personnage
-     * @param text Le texte à afficher
+     * Ajoute un item en chargeant l'image depuis un fichier dans resources
+     * @param imagePath Le chemin de l'image dans resources (ex: "/items/potion.png")
+     * @param name Le nom de l'item (identifiant unique)
      */
-    public void draw(Graphics2D g2d, CharacterModel model, String text) {
-        if (!visible || text == null || text.isEmpty()) {
-            return;
+    public void addItemFromResource(String imagePath, String name) {
+        try {
+            BufferedImage image = ImageIO.read(getClass().getResourceAsStream(imagePath));
+            itemIcons.add(new ItemIcon(image, name));
+        } catch (IOException | IllegalArgumentException e) {
+            System.err.println("Impossible de charger l'image: " + imagePath);
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Retire tous les items
+     */
+    public void clearItems() {
+        itemIcons.clear();
+    }
+    
+    /**
+     * Retire un item spécifique par son nom
+     * @param name Le nom de l'item à retirer
+     * @return true si l'item a été retiré, false sinon
+     */
+    public boolean removeItem(String name) {
+        return itemIcons.removeIf(item -> item.name != null && item.name.equals(name));
+    }
+    
+    /**
+     * Fonction d'easing ease-out pour une animation fluide
+     * Commence rapidement puis ralentit à la fin
+     * @param t Valeur entre 0 et 1
+     * @return Valeur interpolée avec easing
+     */
+    private double easeOut(double t) {
+        return 1 - Math.pow(1 - t, 3);
+    }
+    
+    /**
+     * Anime une valeur vers sa cible
+     * @param index 0 pour health, 1 pour shield
+     * @param newTarget Nouvelle valeur cible
+     * @param currentTime Temps actuel
+     * @param duration Durée de l'animation
+     */
+    private void animateValue(int index, double newTarget, long currentTime, long duration) {
+        if (newTarget < target[index]) {
+            start[index] = displayed[index];
+            target[index] = newTarget;
+            animStart[index] = currentTime;
         }
         
-        // Utiliser les coordonnées du Body pour suivre le worm
-        org.jbox2d.common.Vec2 position = model.getBody().getPosition();
-        int x = (int)(position.x * CharacterModel.getPPM());
-        int y = (int)((24 - position.y) * CharacterModel.getPPM());
+        if (displayed[index] > target[index]) {
+            long elapsed = currentTime - animStart[index];
+            double progress = Math.min(1.0, (double)elapsed / duration);
+            displayed[index] = start[index] - (start[index] - target[index]) * easeOut(progress);
+        } else {
+            displayed[index] = newTarget;
+            target[index] = newTarget;
+        }
+    }
+    
+    /**
+     * Dessine une barre de progression
+     */
+    private void drawProgressBar(Graphics2D g2d, int x, int y, int width, int height, 
+                                  double value, double maxValue, Color color, Color borderColor) {
+        int radius = height;
         
-        g2d.setFont(font);
-        FontMetrics fm = g2d.getFontMetrics();
-        int textWidth = fm.stringWidth(text);
-        int textHeight = fm.getHeight();
+        // Fond sombre de la barre
+        g2d.setColor(new Color(
+            (int)(color.getRed() * 0.4),
+            (int)(color.getGreen() * 0.4),
+            (int)(color.getBlue() * 0.4), 120));
+        g2d.fillRoundRect(x, y, width, height, radius, radius);
         
-        int boxWidth = textWidth + padding * 2;
-        int boxHeight = textHeight + padding * 2;
+        // Barre de progression
+        int fillWidth = (int)((value / maxValue) * width);
+        if (fillWidth > 0) {
+            g2d.setColor(color);
+            g2d.fillRoundRect(x, y, fillWidth, height, radius, radius);
+        }
         
-        int boxX = x - boxWidth / 2;
-        int boxY = y - 35 - boxHeight;
-        
-        g2d.setColor(backgroundColor);
-        g2d.fillRoundRect(boxX, boxY, boxWidth, boxHeight, 5, 5);
-        
+        // Bordure
         g2d.setColor(borderColor);
-        g2d.setStroke(new BasicStroke(2.0f));
-        g2d.drawRoundRect(boxX, boxY, boxWidth, boxHeight, 5, 5);
-        
-        g2d.setColor(textColor);
-        int textX = boxX + padding;
-        int textY = boxY + padding + fm.getAscent();
-        g2d.drawString(text, textX, textY);
+        g2d.setStroke(new BasicStroke(1.5f));
+        g2d.drawRoundRect(x, y, width, height, radius, radius);
     }
     
     /**
-     * Dessine une textbox multi-lignes
+     * Dessine le nouveau nametag avec items, barres de vie/shield et nom
      * @param g2d Le contexte graphique
      * @param model Le modèle du personnage
-     * @param lignes Les lignes de texte
      */
-    public void drawMultiLine(Graphics2D g2d, CharacterModel model, String[] lignes) {
-        if (!visible || lignes == null || lignes.length == 0) {
+    public void drawNewStyle(Graphics2D g2d, CharacterModel model) {
+        if (!visible) {
             return;
         }
         
         // Utiliser les coordonnées du Body pour suivre le worm
         org.jbox2d.common.Vec2 position = model.getBody().getPosition();
-        int x = (int)(position.x * CharacterModel.getPPM());
-        int y = (int)((24 - position.y) * CharacterModel.getPPM());
+        int centerX = (int)(position.x * CharacterModel.getPPM());
+        int centerY = (int)((24 - position.y) * CharacterModel.getPPM());
         
-        g2d.setFont(font);
-        FontMetrics fm = g2d.getFontMetrics();
+        // Dimensions
+        final int ITEM_SIZE = 18;
+        final int ITEM_SPACING = 3;
+        final int BAR_WIDTH = 70;
+        final int BAR_HEIGHT = 8;
+        final int BAR_SPACING = 3;
+        final int NAME_PADDING = 8;
         
-        int maxWidth = 0;
-        for (String ligne : lignes) {
-            int width = fm.stringWidth(ligne);
-            if (width > maxWidth) {
-                maxWidth = width;
+        // Calculer la hauteur totale du nametag
+        int itemsHeight = itemIcons.isEmpty() ? 0 : ITEM_SIZE + ITEM_SPACING * 2;
+        int barsHeight = BAR_HEIGHT * 2 + BAR_SPACING + padding;
+        
+        // Largeur du conteneur
+        int containerWidth = BAR_WIDTH;
+        int containerHeight = itemsHeight + barsHeight;
+        
+        int boxY = centerY - 22 - containerHeight;
+        
+        int currentY = boxY + padding;
+        
+        // 1. Dessiner les items alignés en haut
+        if (!itemIcons.isEmpty()) {
+            int totalItemsWidth = itemIcons.size() * ITEM_SIZE + (itemIcons.size() - 1) * ITEM_SPACING;
+            int itemsStartX = centerX - totalItemsWidth / 2;
+            
+            for (int i = 0; i < itemIcons.size(); i++) {
+                ItemIcon item = itemIcons.get(i);
+                int itemX = itemsStartX + i * (ITEM_SIZE + ITEM_SPACING);
+                
+                if (item.image != null) {
+                    g2d.drawImage(item.image, itemX, currentY, ITEM_SIZE, ITEM_SIZE, null);
+                }
             }
+            currentY += ITEM_SIZE + ITEM_SPACING * 2;
         }
         
-        int textHeight = fm.getHeight();
-        int boxWidth = maxWidth + padding * 2;
-        int boxHeight = (textHeight * lignes.length) + padding * 2;
+        // 2. Dessiner la barre de shield (bleue)
+        int barX = centerX - BAR_WIDTH / 2;
+        long currentTime = System.currentTimeMillis();
+        final long ANIMATION_DURATION = 600;
         
-        int boxX = x - boxWidth / 2;
-        int boxY = y - 15 - boxHeight;
+        // Animer les valeurs
+        animateValue(0, model.getHealth(), currentTime, ANIMATION_DURATION);
+        animateValue(1, model.getShield(), currentTime, ANIMATION_DURATION);
         
-        g2d.setColor(backgroundColor);
-        g2d.fillRoundRect(boxX, boxY, boxWidth, boxHeight, 5, 5);
+        // Couleurs de bordure
+        Color shieldBorderColor = new Color(38, 119, 140, 220);
+        Color healthBorderColor = new Color(42, 129, 67, 220);
         
-        g2d.setColor(borderColor);
-        g2d.setStroke(new BasicStroke(2.0f));
-        g2d.drawRoundRect(boxX, boxY, boxWidth, boxHeight, 5, 5);
+        drawProgressBar(g2d, barX, currentY, BAR_WIDTH, BAR_HEIGHT, 
+                       displayed[1], 50.0, shieldBarColor, shieldBorderColor);
+        currentY += BAR_HEIGHT + BAR_SPACING;
         
-        g2d.setColor(textColor);
-        for (int i = 0; i < lignes.length; i++) {
-            int textX = boxX + padding;
-            int textY = boxY + padding + fm.getAscent() + (i * textHeight);
-            g2d.drawString(lignes[i], textX, textY);
-        }
+        // 3. Dessiner la barre de vie (verte)
+        drawProgressBar(g2d, barX, currentY, BAR_WIDTH, BAR_HEIGHT, 
+                       displayed[0], 100.0, healthBarColor, healthBorderColor);
     }
-
+    
+    
     // Getters & Setters
 
     /**

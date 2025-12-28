@@ -2,6 +2,8 @@ package fr.upc.g5e4.view;
 
 import fr.upc.g5e4.model.Item;
 
+// SI VOUS RAJOUTER UN ELEMENT SWING/AWT ICI, POSSIBLE QUE CA CASSE LA VERSION CONSOLE
+
 public class ItemView {
     
     public void showItem(Item item){

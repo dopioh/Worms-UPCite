@@ -70,12 +70,93 @@
 - Camera
     - Les déplacements, le zoom et le recentrage de la caméra se font maintenant avec un glissement fluide
 
-## [v.0.3 : SPRINT 3](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/3) (unreleased)
+## [v.0.3 : SPRINT 3](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/3)
 ---
 
 ### Added
 - Mode plein ecran
     - passage du jeu en 16:9
+- MAP Procédurale 
+    - avec bruit de perlin et amplification des bruits
+- SPRITES 
+    - les worms ont des sprites via le constucteur de leur equipe
+- Comportement worm
+    - le worm est totalement supprimé de la map quand il meurt (sprite + body physique) 
+- Sauvegarde
+    - une partie peut etre enregistree dans un fichier `sauvegarde.txt` en json avec la touche **_J_**
 
 ### Fixed
 - `.jar` injouable
+
+--------- a completer ----------
+
+## [v.0.4 : SPRINT 4](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/4) (unreleased)
+---
+
+### Added
+- Nametag
+    - Affichage des itemes (potions...) sur le nametag
+- Nouveau systeme de map 
+    - MAP en tableau 2D remplie d'objet "block"
+- **Cinématique d'introduction** : Intro cinématique avec barre de chargement cartoon et messages    synchronisés
+- Ajout du fichier LoadingBarPanel.java
+- **Écran de fin de partie avec animation**
+  - Animation des worms gagnants marchant vers le trophée
+  - Affichage des statistiques de jeu (dégâts, précision de tir, éliminations, rounds joué)
+  - Particules et effets visuels
+  - Bouton retour au menu
+  - Support du plein écran
+  - Support du N equipe
+  - Stat box glissable avec scroll
+- Système de statistiques pour tracker des actions pendant la partie
+- Endroit pour stocker les paramètres du jeu
+    - `current_skin`
+- Ajout Sprite `wormPixel.png` dans `ressources`
+- Une sauvegarde peut desormais etre lancer depuis le menu d'acceuil en cliquant sur "Poursuivre une partie"
+- Possibilitee de tirer/faire des degats/tuer un worm dans la version Console du jeu (tire assez limiter)
+- **Diagramme de classes** : Ajout et documentation du diagramme de classes du projet (GameManager, GameLoop, GamePanel, etc.)
+- **Système de configuration de terrains** : Nouvelle classe MapConfig pour gérer les types et tailles de maps
+    - 4 types de terrains disponibles :
+        - STANDARD : Terrain avec plateformes de spawn (mode original)
+        - MOUNTAINS : Hautes montagnes avec relief prononcé
+        - ISLANDS : Terrain wavy avec zones d'eau au centre pour éviter les spawn kills
+        - FLAT : Terrain complètement plat
+    - 3 tailles de maps : SMALL (800x720), MEDIUM (1280x720), LARGE (1700x720)
+- Ajout de la dégradation de la map
+- Ajout d'une courbe pour la trajectoire de la map
+
+### Modified
+- Support pour N équipes au lieu de 2 équipes hardcodées
+    - Refactorisation de GameManager, GameLoop et GamePanel pour utiliser des listes dynamiques
+    - Possibilité d'ajouter dynamiquement des équipes via GameManager.addTeam()
+- Nametag
+    - Affichage de HP et Shield en chiffre -> barre horizontale
+- `CONTRIBUTING.md`
+    - Guide d'utilisation sur le nametag
+- Touche full screen F11 -> F
+- Implémentation de la physique de recul sur les worms touchés
+- Support pour N équipes au lieu de 2 équipes hardcodées
+    - Refactorisation de GameManager, GameLoop et GamePanel pour utiliser des listes dynamiques
+    - Possibilité d'ajouter dynamiquement des équipes via GameManager.addTeam()
+
+### Fixed
+- Tout le jeu est désormais en une seule fenêtre
+- Emplacement overlay vent
+- Nouveau systeme de map 
+    - MAP en tableau 2D remplie d'objet "block"
+- Vent augmente la portée du projectile (dans le sens du vent) ou réduit la porté (sens opposé du vent)
+- Focus lors du tir
+- Projectile qui se stop en l'air
+- Tir qui rebondit (batte de baseball)
+
+- **N equipes** fonctionnelles desormais (2 auparavant)
+- Retour aux mouvements originaux
+- Retour du saut (avec Z)
+- HitBox du Sprite fixed, il n'ya pas plus de decalage lorsque le sprite monte une colline en allant vers la gauche
+- Initialisation de l'overlay Inventaire decaler dans GameManager (precedemment GameLauncher)
+
+### Optimisation
+- **Performance**
+    - Centralisation de repaint dans un seul Timer (gameLoop) pour avoir un seul repaint()
+    - pré-création d'objets graphiques réutilisables (couleurs, strokes) pour réduire les allocations mémoire pour chaque cube
+- **Lag Audio** : Système de cache avec pré-chargement des sons en mémoire pour éliminer le lag au premier tir

@@ -7,8 +7,8 @@ import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.*;
 
-//import java.awt.geom.RectangularShape;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.jbox2d.callbacks.*;
 import org.jbox2d.dynamics.contacts.Contact;
@@ -53,7 +53,13 @@ public class PhysicsWorld {
      * Il defini la gravité du monde
      * Chaque Body que vous ferez devra etre ajouté à monde
      */
-    private final World world;                     
+    private final World world;
+    
+    /**
+     * Body du terrain créé à partir du BlockGridModel
+     * On le garde en référence pour pouvoir le détruire et le recréer
+     */
+    private Body blockGridBody;
 
     
 
@@ -103,6 +109,173 @@ public class PhysicsWorld {
         Body bGround = world.createBody(bdGround);                              // on donne une valeur physique a notre BodyDef
         bGround.createFixture(fixtureGround);                                   // on la relie avec notre Chain/ficture
    
+    }
+
+    /**
+     * Crée le sol à partir d'une grille de blocs (une grille de blocs = un tableau 2D)
+     * Génère un contour qui suit la surface des blocs solides
+     * @param blockGrid Le modèle de grille de blocs
+     * @return Le Body du sol créé
+     */
+    public Body createGroundFromBlockGrid(BlockGridModel blockGrid) {
+        int blockSize = blockGrid.getBlockSize();
+        int gridWidth = blockGrid.getGridWidth();
+        int gridHeight = blockGrid.getGridHeight();
+        int pixelHeight = blockGrid.getPixelHeight();
+        
+        // création d'une liste de points pour le contour de la surface des blocs
+        List<Vec2> contourPoints = new ArrayList<>();
+        
+        // point de départ en bas à gauche
+        contourPoints.add(new Vec2(0, 0));
+        
+        // on parcourt de gauche à droite pour trouver les points de surface
+        for (int gridX = 0; gridX < gridWidth; gridX++) {
+            int surfaceGridY = -1;
+            for (int gridY = 0; gridY < gridHeight; gridY++) {
+                if (blockGrid.getBlock(gridX, gridY).isSolid()) {
+                    surfaceGridY = gridY;
+                    break;
+                }
+            }
+            
+            if (surfaceGridY >= 0) { // si on a trouvé un point de surface
+                // on calcule la position en pixels puis en mètres
+                float xPx = gridX * blockSize;
+                float yPx = surfaceGridY * blockSize;
+
+                // conversion en taille pour le monde physique
+                float worldX = xPx / PPM;
+                float worldY = (pixelHeight - yPx) / PPM;  // inversion Y
+                
+                // on ajoute le coin gauche du bloc de surface
+                contourPoints.add(new Vec2(worldX, worldY));
+                
+                // on ajoute le coin droit du bloc de surface
+                worldX = (gridX + 1) * blockSize / PPM;
+                contourPoints.add(new Vec2(worldX, worldY));
+            }
+        }
+        
+        // le point final en bas à droite
+        contourPoints.add(new Vec2(blockGrid.getPixelWidth() / PPM, 0));
+        
+        // si pas assez de points alors on crée un sol plat
+        if (contourPoints.size() < 4) {
+            contourPoints.clear();
+            contourPoints.add(new Vec2(0, 0));
+            contourPoints.add(new Vec2(0, pixelHeight / 2f / PPM));
+            contourPoints.add(new Vec2(blockGrid.getPixelWidth() / PPM, pixelHeight / 2f / PPM));
+            contourPoints.add(new Vec2(blockGrid.getPixelWidth() / PPM, 0));
+        }
+        
+        // simplification du contour
+        List<Vec2> simplifiedContour = simplifyContour(contourPoints);
+        
+        // création du chainshape
+        Vec2[] positions = simplifiedContour.toArray(new Vec2[0]);
+        
+        ChainShape chain = new ChainShape();
+        chain.createChain(positions, positions.length);
+        
+        BodyDef bdGround = new BodyDef();
+        bdGround.type = BodyType.STATIC;
+        
+        FixtureDef fixtureGround = new FixtureDef();
+        fixtureGround.shape = chain;
+        fixtureGround.friction = 0.0f;
+        fixtureGround.restitution = 0;
+        
+        // definition de la catégorie de collision pour le terrain
+        fixtureGround.filter.categoryBits = CharacterModel.CATEGORY_TERRAIN;
+        
+        Body bodyGround = world.createBody(bdGround);
+        bodyGround.createFixture(fixtureGround);
+        
+        // sauvegarder la référence pour pouvoir la recréer plus tard
+        this.blockGridBody = bodyGround;
+        
+        blockGrid.clearDirty();
+        
+        return bodyGround;
+    }
+    
+    /**
+     * recréer le terrain à partir du BlockGridModel (quand les blocs ont changé)
+     * détruit l'ancien body et en crée un nouveau avec la nouvelle configuration
+     * @param blockGrid le modèle de grille à utiliser
+     */
+    public void recreateTerrainFromBlockGrid(BlockGridModel blockGrid) {
+        // détruire l'ancien body s'il existe
+        if (blockGridBody != null) {
+            world.destroyBody(blockGridBody);
+            blockGridBody = null;
+        }
+        
+        // recréer le terrain avec la nouvelle configuration
+        createGroundFromBlockGrid(blockGrid);
+    }
+    
+    /**
+     * Simplification d'un contour en supprimant les points intermédiaires alignés
+     * @param points La liste de points à simplifier
+     * @return La liste de points simplifiée
+     */
+    private List<Vec2> simplifyContour(List<Vec2> points) {
+        if (points.size() <= 3) {
+            return points;
+        }
+        
+        List<Vec2> result = new ArrayList<>();
+        result.add(points.get(0));
+        
+        for (int i = 1; i < points.size() - 1; i++) {
+            // on stock le point precedent, le point courant et le point suivant
+            Vec2 prev = points.get(i - 1);
+            Vec2 curr = points.get(i);
+            Vec2 next = points.get(i + 1);
+            
+            // on verifie que les trois points ne sont pas alignés horizontalement (en y)
+            if (Math.abs(prev.y - curr.y) > 0.001f || Math.abs(curr.y - next.y) > 0.001f) {
+                result.add(curr);
+            }
+        }
+        
+        result.add(points.get(points.size() - 1));
+        return result;
+    }
+    
+    /**
+     * Crée les limites du terrain pour une grille de blocs
+     */
+    public void limitPanel(BlockGridModel blockGrid) {
+        BodyDef leftWall = new BodyDef();
+        leftWall.type = BodyType.STATIC;
+        leftWall.position.set(0, 0);
+
+        EdgeShape eShapeLeftW = new EdgeShape();
+        eShapeLeftW.set(new Vec2(0, 0), new Vec2(0, blockGrid.getPixelHeight() / PPM));
+
+        FixtureDef fDefLeftW = new FixtureDef();
+        fDefLeftW.shape = eShapeLeftW;
+        fDefLeftW.restitution = 0.3f;
+
+        Body bLeftWall = world.createBody(leftWall);
+        bLeftWall.createFixture(fDefLeftW);
+
+        BodyDef rightWall = new BodyDef();
+        rightWall.type = BodyType.STATIC;
+        rightWall.position.set(blockGrid.getPixelWidth() / PPM, 0);
+
+        EdgeShape eShapeRightW = new EdgeShape();
+        eShapeRightW.set(new Vec2(0, 0), new Vec2(0, blockGrid.getPixelHeight() / PPM));
+
+        FixtureDef fDefRightW = new FixtureDef();
+        fDefRightW.shape = eShapeRightW;
+        fDefRightW.restitution = 0.3f;
+
+        Body bRightWall = world.createBody(rightWall);
+        bRightWall.createFixture(fDefRightW);
     }
 
 

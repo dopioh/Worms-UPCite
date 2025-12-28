@@ -38,6 +38,10 @@ public class ConsoleGameLoop{
             }
 
             consoleGameManager.getCharacterController().update();
+
+            // Met a jour les projectiles (16ms = 0.016s)
+            consoleGameManager.getItemController().updateProjectiles(0.016f);
+
             consoleGameManager.getWorld().step(FIXHZ, 8, 3);
             consoleGameManager.getConsoleView().getScreen().clear();
 

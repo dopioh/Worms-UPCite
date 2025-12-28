@@ -9,7 +9,7 @@ import org.jbox2d.common.Vec2;
 import fr.upc.g5e4.model.GameManager;
 import fr.upc.g5e4.model.CharacterModel;
 import fr.upc.g5e4.view.InventoryOverlay;
-import fr.upc.g5e4.view.TrajectoryRenderer;
+import fr.upc.g5e4.view.TrajectoryView;
 import javax.swing.JFrame;
 
 /** 
@@ -23,7 +23,7 @@ public class SwingInputController extends JPanel{
     private CharacterController personnageController;
     private CameraController cameraController;
     private GameManager gameManager; 
-    private TrajectoryRenderer trajectoryRenderer;
+    private TrajectoryView trajectoryRenderer;
     private boolean isAiming = false;  // affichage de la trajectoire
     private double shootingAngle = 0;  // angle de visée en degrés
 
@@ -58,7 +58,7 @@ public class SwingInputController extends JPanel{
     /**
     * Définit le rendu de la trajectoire
     */
-    public void setTrajectoryRenderer(TrajectoryRenderer renderer) {
+    public void setTrajectoryRenderer(TrajectoryView renderer) {
         this.trajectoryRenderer = renderer;
     }
     
@@ -166,14 +166,14 @@ public class SwingInputController extends JPanel{
                     case KeyEvent.VK_A:
                         if(gameManager != null) gameManager.nextRound();
                         break;
-                    
+
                     // Changement d'arme (touche E)
                     case KeyEvent.VK_E:
                         if(gameManager != null) gameManager.switchWeapon();
                         System.out.println("switch");
                         break;
 
-                    // Ouverture de l'inventaire
+                    // Sauvegarde de la partie actuel
                     case KeyEvent.VK_J:
                         gameManager.actionPerformed();
                         System.out.println("Save Buttun Pressed");
@@ -197,6 +197,25 @@ public class SwingInputController extends JPanel{
                         inventoryOverlay.setInventoryVisible(!visible);
                     }
                     break;
+                    
+                    // Touche H pour ajouter un item de test au nametag
+                    case KeyEvent.VK_H:
+                        if (gameManager != null && personnageController != null) {
+                            // Récupérer le worm actif et son index
+                            CharacterModel activeWorm = personnageController.getModel();
+                            int wormIndex = gameManager.getActiveWormIndex();
+                            int teamIndex = gameManager.getCurrentTeamIndex();
+                            
+                            // Récupérer le CharacterView correspondant
+                            fr.upc.g5e4.view.CharacterView charView = null;
+                            charView = gameManager.getListTeamInit().get(teamIndex).getTeamView().getCharacterView(wormIndex);
+                            
+                            if (charView != null) {
+                                charView.getNameTagView().addItemFromResource("/wormPixel.png", "test_item");
+                                System.out.println("Item ajouté au nametag");
+                            }
+                        }
+                        break;
                 }
             }
             
@@ -228,7 +247,7 @@ public class SwingInputController extends JPanel{
                 }
             }
         });
-        
+
         // Tir au clic gauche -> vers la souris
         addMouseListener(new MouseAdapter() {
             @Override
@@ -256,12 +275,38 @@ public class SwingInputController extends JPanel{
         // Position du worm en coordonnées monde
         Vec2 pos = model.getBody().getPosition();
 
-        // Position écran approximative
-        float wormScreenX = pos.x * ppm;
-        float wormScreenY = (worldHeightMeters - pos.y) * ppm;  // inversion Y
+        //info de la caméra
+        double zoomFactor = 1.0;
+        double cameraX = 0.0;
+        double cameraY = 0.0;
+        
+        if (cameraController != null) {
+            zoomFactor = cameraController.getCamera().getZoomFactor();
+            cameraX = cameraController.getCamera().getX();
+            cameraY = cameraController.getCamera().getY();
+        }
+        
+        // obtenir les coordonnées monde
+        //convertir les pixel écran (x, y) en coordonnées monde:
 
-        double dx = x - wormScreenX;
-        double dy = wormScreenY - y; // inversion Y
+        //Compenser le translate(-camX, -camY) en pixels
+        double xAfterCamera = x + cameraX;
+        double yAfterCamera = y + cameraY;
+        
+        //inverser le zoom
+        double xAfterZoom = xAfterCamera / zoomFactor;
+        double yAfterZoom = yAfterCamera / zoomFactor;
+        
+        //convertir pixels en mètres
+        float clickWorldX = (float)(xAfterZoom / ppm);
+        float clickWorldY = (float)(yAfterZoom / ppm);
+        
+        // Inverser l'axe Y
+        clickWorldY = (float)(worldHeightMeters - clickWorldY);
+
+        // calculer l'angle entre le worm et le clic
+        double dx = clickWorldX - pos.x;
+        double dy = clickWorldY - pos.y;
 
         shootingAngle = Math.toDegrees(Math.atan2(dy, dx));
         if (shootingAngle < 0) {

@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests unitaires pour la classe Projectile (trajectoire mathématique)
+ * Coordonnés avec l'implémentation réelle de la classe Projectile
  */
 public class ProjectileTest {
     private Projectile projectile;
@@ -34,7 +35,7 @@ public class ProjectileTest {
         shooter = new CharacterModel(ground, world, 100, ground.getHeight() - 400, false);
         
         // Créer une arme simple
-        weapon = new Weapon("Test Weapon", 10, false, 10, 0, 10, 30) {
+        weapon = new Weapon("Test Weapon", 10, false, 10, 0, 10, 30, 1.0) {
             @Override
             protected boolean onUse() {
                 return true;
@@ -46,6 +47,7 @@ public class ProjectileTest {
         projectile = new Projectile(weapon, shooter, position, 20, 10, 45);
     }
 
+    // ========== Tests d'initialisation ==========
     @Test
     void testProjectileInitialization() {
         assertNotNull(projectile);
@@ -63,11 +65,14 @@ public class ProjectileTest {
         assertFalse(projectile.update(5.0f)); // Projectile mort (MAX_LIFETIME = 10)
     }
 
+    // ========== Tests de position ==========
     @Test
     void testGetPositionAtTime() {
         // t = 0 : position de départ
         Vec2 posAtStart = projectile.getPositionAtTime(0);
         assertNotNull(posAtStart);
+        assertEquals(100, posAtStart.x, 0.5);
+        assertEquals(20, posAtStart.y, 0.5);
         
         // t = 0.5 : position au milieu
         Vec2 posAtMid = projectile.getPositionAtTime(0.5f);
@@ -77,74 +82,9 @@ public class ProjectileTest {
         Vec2 posAtEnd = projectile.getPositionAtTime(1);
         assertNotNull(posAtEnd);
         
-        // Vérifier que les positions sont différentes
-        assertNotEquals(posAtStart.x, posAtEnd.x, 0.01);
-    }
-
-    @Test
-    void testTrajectorySymmetry() {
-        // Avec un angle de 45°, la trajectoire doit être symétrique en horizontal
-        Vec2 pos_0_25 = projectile.getPositionAtTime(0.25f);
-        Vec2 pos_0_75 = projectile.getPositionAtTime(0.75f);
-        
-        // Le X doit être différent (distance parcourue croissante)
-        assertTrue(pos_0_25.x < pos_0_75.x);
-        // Les hauteurs devraient être comparables en raison de la parabole
-        assertTrue(Math.abs(pos_0_25.y - pos_0_75.y) < 10);
-    }
-
-    @Test
-    void testTrajectoryAngle0() {
-        // Créer un projectile tirant à 0° (horizontalement à droite)
-        Vec2 position = new Vec2(0, 10);
-        Projectile projectile0 = new Projectile(weapon, shooter, position, 20, 10, 0);
-        
-        Vec2 pos_0_5 = projectile0.getPositionAtTime(0.5f);
-        
-        // À 0°, le projectile doit progresser horizontalement (X > 0)
-        assertTrue(pos_0_5.x > position.x);
-        // Le Y doit baisser à cause de la courbe parabolique
-        assertTrue(pos_0_5.y < position.y);
-    }
-
-    @Test
-    void testTrajectoryAngle90() {
-        // Créer un projectile tirant à 90° (verticalement vers le haut)
-        Vec2 position = new Vec2(0, 0);
-        Projectile projectile90 = new Projectile(weapon, shooter, position, 20, 10, 90);
-        
-        Vec2 pos_0_5 = projectile90.getPositionAtTime(0.5f);
-        
-        // À 90°, le projectile doit aller vers le haut (Y > 0)
-        assertTrue(pos_0_5.y > position.y);
-        // X ne doit pas beaucoup changer (cos(90°) ≈ 0)
-        assertEquals(position.x, pos_0_5.x, 0.5f);
-    }
-
-    @Test
-    void testTrajectoryAngle180() {
-        // Créer un projectile tirant à 180° (horizontalement à gauche)
-        Vec2 position = new Vec2(100, 10);
-        Projectile projectile180 = new Projectile(weapon, shooter, position, 20, 10, 180);
-        
-        Vec2 pos_0_5 = projectile180.getPositionAtTime(0.5f);
-        
-        // À 180°, le projectile doit aller à gauche (X < 100)
-        assertTrue(pos_0_5.x < position.x);
-        // Le Y doit baisser à cause de la courbe parabolique
-        assertTrue(pos_0_5.y < position.y);
-    }
-
-    @Test
-    void testTrajectoryAngle270() {
-        // Créer un projectile tirant à 270° (verticalement vers le bas)
-        Vec2 position = new Vec2(0, 20);
-        Projectile projectile270 = new Projectile(weapon, shooter, position, 20, 10, 270);
-        
-        Vec2 pos_0_5 = projectile270.getPositionAtTime(0.5f);
-        
-        // À 270°, le projectile doit aller vers le bas (Y < 20)
-        assertTrue(pos_0_5.y < position.y);
+        // Vérifier que les positions progressent en X
+        assertTrue(posAtStart.x <= posAtMid.x);
+        assertTrue(posAtMid.x <= posAtEnd.x);
     }
 
     @Test
@@ -173,6 +113,96 @@ public class ProjectileTest {
         assertEquals(posAtOne.y, posAboveOne.y, 0.01);
     }
 
+    // ========== Tests avec différents angles ==========
+    @Test
+    void testTrajectoryAngle0Degrees() {
+        // Créer un projectile tirant à 0° (horizontalement à droite)
+        Vec2 position = new Vec2(0, 10);
+        Projectile projectile0 = new Projectile(weapon, shooter, position, 20, 10, 0);
+        
+        Vec2 pos_0_0 = projectile0.getPositionAtTime(0.0f);
+        Vec2 pos_0_5 = projectile0.getPositionAtTime(0.5f);
+        Vec2 pos_1_0 = projectile0.getPositionAtTime(1.0f);
+        
+        // À 0°, cos(0) = 1, sin(0) = 0
+        // X progresse linéairement, Y reste stable
+        assertTrue(pos_0_0.x <= pos_0_5.x, "X doit augmenter");
+        assertTrue(pos_0_5.x <= pos_1_0.x, "X doit augmenter");
+        assertEquals(position.y, pos_0_0.y, 0.1, "Y devrait rester constant à 0°");
+    }
+
+    @Test
+    void testTrajectoryAngle45Degrees() {
+        // À 45°, le projectile progresse diagonalement
+        Vec2 pos_0_0 = projectile.getPositionAtTime(0.0f);
+        Vec2 pos_0_5 = projectile.getPositionAtTime(0.5f);
+        Vec2 pos_1_0 = projectile.getPositionAtTime(1.0f);
+        
+        // X progresse constamment
+        assertTrue(pos_0_0.x < pos_0_5.x);
+        assertTrue(pos_0_5.x < pos_1_0.x);
+        
+        // Y aussi progresse (car sin(45°) > 0)
+        assertTrue(pos_0_0.y < pos_0_5.y);
+        assertTrue(pos_0_5.y < pos_1_0.y);
+    }
+
+    @Test
+    void testTrajectoryAngle90Degrees() {
+        // Créer un projectile tirant à 90° (verticalement vers le haut)
+        Vec2 position = new Vec2(0, 0);
+        Projectile projectile90 = new Projectile(weapon, shooter, position, 20, 10, 90);
+        
+        Vec2 pos_0_0 = projectile90.getPositionAtTime(0.0f);
+        Vec2 pos_0_5 = projectile90.getPositionAtTime(0.5f);
+        Vec2 pos_1_0 = projectile90.getPositionAtTime(1.0f);
+        
+        // À 90°, cos(90°) ≈ 0, sin(90°) = 1
+        // X reste constant, Y progresse
+        assertEquals(position.x, pos_0_0.x, 0.1, "X devrait être constant à 90°");
+        assertEquals(position.x, pos_0_5.x, 0.1, "X devrait être constant à 90°");
+        
+        // Y augmente
+        assertTrue(pos_0_0.y <= pos_0_5.y);
+        assertTrue(pos_0_5.y <= pos_1_0.y);
+    }
+
+    @Test
+    void testTrajectoryAngle180Degrees() {
+        // Créer un projectile tirant à 180° (horizontalement à gauche)
+        Vec2 position = new Vec2(100, 10);
+        Projectile projectile180 = new Projectile(weapon, shooter, position, 20, 10, 180);
+        
+        Vec2 pos_0_0 = projectile180.getPositionAtTime(0.0f);
+        Vec2 pos_0_5 = projectile180.getPositionAtTime(0.5f);
+        Vec2 pos_1_0 = projectile180.getPositionAtTime(1.0f);
+        
+        // À 180°, cos(180°) = -1, sin(180°) = 0
+        // X diminue (direction inverse), Y reste stable
+        assertTrue(pos_0_0.x >= pos_0_5.x, "X doit diminuer à 180°");
+        assertTrue(pos_0_5.x >= pos_1_0.x, "X doit diminuer à 180°");
+        assertEquals(position.y, pos_0_0.y, 0.1, "Y devrait rester constant à 180°");
+    }
+
+    @Test
+    void testTrajectoryAngle270Degrees() {
+        // Créer un projectile tirant à 270° (verticalement vers le bas)
+        Vec2 position = new Vec2(0, 20);
+        Projectile projectile270 = new Projectile(weapon, shooter, position, 20, 10, 270);
+        
+        Vec2 pos_0_0 = projectile270.getPositionAtTime(0.0f);
+        Vec2 pos_0_5 = projectile270.getPositionAtTime(0.5f);
+        Vec2 pos_1_0 = projectile270.getPositionAtTime(1.0f);
+        
+        // À 270°, cos(270°) ≈ 0, sin(270°) = -1
+        // X reste constant, Y diminue
+        assertEquals(position.x, pos_0_0.x, 0.1, "X devrait être constant à 270°");
+        
+        // Y diminue
+        assertTrue(pos_0_0.y >= pos_0_5.y, "Y doit diminuer à 270°");
+        assertTrue(pos_0_5.y >= pos_1_0.y, "Y doit diminuer à 270°");
+    }
+
     @Test
     void testProjectileWithDifferentAngles() {
         int[] angles = {0, 30, 45, 60, 90, 120, 180, 270, 315, 359};
@@ -187,32 +217,36 @@ public class ProjectileTest {
             // Vérifier que la position est calculable
             Vec2 pos = projectileAngled.getPositionAtTime(0.5f);
             assertNotNull(pos);
+            
+            // Vérifier que la position initiale est correcte
+            Vec2 posStart = projectileAngled.getPositionAtTime(0);
+            assertEquals(position.x, posStart.x, 0.1);
+            assertEquals(position.y, posStart.y, 0.1);
         }
     }
 
     @Test
-    void testProjectileParabolicCurve() {
-        // Vérifier que la courbe parabolique fonctionne correctement
-        Vec2 position = new Vec2(0, 10);
-        Projectile projectileHorizontal = new Projectile(weapon, shooter, position, 20, 10, 0);
+    void testProjectileProgressionLinearity() {
+        // Vérifier que la progression est linéaire en fonction de t
+        Vec2 pos_0_0 = projectile.getPositionAtTime(0.0f);
+        Vec2 pos_0_25 = projectile.getPositionAtTime(0.25f);
+        Vec2 pos_0_5 = projectile.getPositionAtTime(0.5f);
+        Vec2 pos_0_75 = projectile.getPositionAtTime(0.75f);
+        Vec2 pos_1_0 = projectile.getPositionAtTime(1.0f);
         
-        Vec2 pos_0_0 = projectileHorizontal.getPositionAtTime(0.0f);
-        Vec2 pos_0_25 = projectileHorizontal.getPositionAtTime(0.25f);
-        Vec2 pos_0_5 = projectileHorizontal.getPositionAtTime(0.5f);
-        Vec2 pos_0_75 = projectileHorizontal.getPositionAtTime(0.75f);
-        @SuppressWarnings("unused")
-        Vec2 pos_1_0 = projectileHorizontal.getPositionAtTime(1.0f);
+        // Les positions doivent être en progression croissante
+        assertTrue(pos_0_0.x <= pos_0_25.x);
+        assertTrue(pos_0_25.x <= pos_0_5.x);
+        assertTrue(pos_0_5.x <= pos_0_75.x);
+        assertTrue(pos_0_75.x <= pos_1_0.x);
         
-        // La trajectoire doit descendre au début à cause de la courbe parabolique
-        assertTrue(pos_0_0.y >= pos_0_25.y);
-        assertTrue(pos_0_25.y >= pos_0_5.y);
-        
-        // La progression en X doit être croissante
-        assertTrue(pos_0_0.x < pos_0_25.x);
-        assertTrue(pos_0_25.x < pos_0_5.x);
-        assertTrue(pos_0_5.x < pos_0_75.x);
+        assertTrue(pos_0_0.y <= pos_0_25.y);
+        assertTrue(pos_0_25.y <= pos_0_5.y);
+        assertTrue(pos_0_5.y <= pos_0_75.y);
+        assertTrue(pos_0_75.y <= pos_1_0.y);
     }
 
+    // ========== Tests des getters ==========
     @Test
     void testShooterReference() {
         assertEquals(shooter, projectile.getShooter());
@@ -228,5 +262,46 @@ public class ProjectileTest {
     @Test
     void testRangeGetter() {
         assertEquals(20, projectile.getRange(), 0.01);
+    }
+
+    @Test
+    void testAngleGetter() {
+        assertEquals(45, projectile.getShootingAngle(), 0.01);
+    }
+
+    // ========== Tests de stabilité ==========
+    @Test
+    void testMultipleUpdates() {
+        assertTrue(projectile.update(1.0f));
+        assertTrue(projectile.update(2.0f));
+        assertTrue(projectile.update(3.0f));
+        assertTrue(projectile.update(3.0f));  // Cumul = 9f, encore vivant
+        assertFalse(projectile.update(2.0f)); // Cumul = 11f, mort
+    }
+
+    @Test
+    void testProjectileMultiplePositionQueries() {
+        // Vérifier que plusieurs appels ne modifient pas l'état
+        Vec2 pos1 = projectile.getPositionAtTime(0.5f);
+        Vec2 pos2 = projectile.getPositionAtTime(0.5f);
+        
+        assertEquals(pos1.x, pos2.x, 0.01);
+        assertEquals(pos1.y, pos2.y, 0.01);
+    }
+
+    @Test
+    void testStartPositionImmutable() {
+        // Vérifier que la position de départ n'est pas modifiée
+        Vec2 posStart1 = projectile.getPositionAtTime(0);
+        
+        // Faire des appels multiples
+        projectile.getPositionAtTime(0.25f);
+        projectile.getPositionAtTime(0.5f);
+        projectile.getPositionAtTime(1.0f);
+        projectile.update(1.0f);
+        
+        Vec2 posStart2 = projectile.getPositionAtTime(0);
+        assertEquals(posStart1.x, posStart2.x, 0.01);
+        assertEquals(posStart1.y, posStart2.y, 0.01);
     }
 }

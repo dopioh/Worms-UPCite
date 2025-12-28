@@ -1,11 +1,38 @@
 package fr.upc.g5e4.model.weapons;
 
 import fr.upc.g5e4.model.Weapon;
+import fr.upc.g5e4.model.trajectories.StandardTrajectory;
 
 public class Grenade extends Weapon{
 
+    /**
+     * constructeur de la grenade
+     * @name grenade
+     * @ammo 3
+     * @isExplosive false
+     * @damage 50
+     * @blastRadius 3
+     * @speed 5
+     * @range 15
+     * @knockbackMultiplier 5.0
+     */
+    
     public Grenade() {
-        super("Grenade", 3, false, 50, 3, 5, 15);
+        super(
+            "Grenade",
+            3,
+            false,
+            50,
+            3,
+            5,
+            15,
+            5.0
+        );
+        // Grenade : trajectoire parabolique standard
+        this.setTrajectoryCalculator(new StandardTrajectory());
+        // dégats au terrain : 3 PV par bloc avec blast radius de 2 blocs
+        this.setTerrainDamage(3);
+        this.setTerrainBlastRadius(2.0);
     }
 
     @Override
@@ -15,8 +42,4 @@ public class Grenade extends Weapon{
         return true;
     }
 
-    @Override
-    public double getCurveAmplitude(){
-        return 0.6;
-    }
 }

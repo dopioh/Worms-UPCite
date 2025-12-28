@@ -1,6 +1,8 @@
 package fr.upc.g5e4.model;
 
 import fr.upc.g5e4.model.InventoryModel.InventoryJson;
+
+import org.jbox2d.collision.shapes.CircleShape;
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
@@ -108,10 +110,45 @@ public class CharacterModel{
         this.speed = speed;
         this.jump = jump;
         this.isDead = false;
-        this.facingRight = true;  // Par défaut, regarde vers la droite
+        this.facingRight = true;
         this.withCollision = withCollision;
 
         this.persoBody = createBody(console);
+    }
+
+    /**
+     * Constructeur pour le chargement d'une sauvegarde (parametres adapte)
+     * @param model GroundModel (terrain donnes)
+     * @param world Physique du jeu
+     * @param ID ID unique du Worm
+     * @param name nom du worm
+     * @param xcord position x actuelle
+     * @param ycord position y actuelle
+     * @param health vie actuelle 
+     * @param shield shield actuelle 
+     * @param isDead true si le worm est mort
+     * @param facingRight true si il regarde a droite
+     */
+    public CharacterModel(GroundModel model, World world,int ID, String name, double xcord, double ycord, double health, double shield, boolean isDead, boolean facingRight){
+        this.model = model;
+        this.world = world;
+        this.ID = ID;
+        this.name = name;
+        this.xcord = xcord;
+        this.ycord = ycord;
+        this.health = health;
+        this.shield = shield;
+        this.speed = 15.0;
+        this.jump = 5.0;
+        this.withCollision = false;
+        this.isDead = isDead;
+        this.facingRight = facingRight;
+
+        if (isDead){
+            this.persoBody = null;
+        } else {
+            this.persoBody = createBody(false);
+        }
     }
 
     /**
@@ -230,6 +267,10 @@ public class CharacterModel{
         this.facingRight = facingRight;
     }
 
+    public boolean getFacingRight(){
+        return facingRight;
+    }
+
         public Body getBody(){
         return persoBody;
     }
@@ -247,6 +288,20 @@ public class CharacterModel{
     }
 
     
+    public World getWorld() {
+        return this.world;
+    }
+    
+    /**
+     * Arrête complètement le mouvement horizontal du worm quand on n'appuie plus sur une touche
+     * (ça evite que le worm accumule de l'élan)
+     */
+    public void stopHorizontalMovement() {
+        Vec2 vel = persoBody.getLinearVelocity();
+        // on garde toute la vélocité verticale (saut et chute)
+        persoBody.setLinearVelocity(new Vec2(0, vel.y));
+    }
+
     public void setEquippedItem(InventoryJson item){
         this.equippedItem = item;
     }
@@ -293,6 +348,34 @@ public class CharacterModel{
     }
 
     /**
+     * Applique un impact/recul au personnage lorsqu'il est touché
+     * @param impactDirection Direction de l'impact (vecteur normalisé)
+     * @param impactForce Force de l'impact
+     */
+    public void applyImpact(Vec2 impactDirection, float impactForce) {
+        if (persoBody == null || isDead) {
+            return;
+        }
+        
+        // Normaliser la direction si elle n'est pas déjà normalisée
+        float length = impactDirection.length();
+        if (length > 0.001f) {
+            Vec2 normalizedDirection = new Vec2(
+                impactDirection.x / length,
+                impactDirection.y / length
+            );
+            
+            // Appliquer l'impulsion au centre du personnage
+            Vec2 impulse = new Vec2(
+                normalizedDirection.x * impactForce,
+                normalizedDirection.y * impactForce
+            );
+            Vec2 point = persoBody.getWorldCenter();
+            persoBody.applyLinearImpulse(impulse, point);
+        }
+    }
+
+    /**
      * Inflige des dégâts au worm
      * Les dégâts sont d'abord sur le shield, puis au PV
      * @param damageAmount Le montant des dégâts
@@ -332,8 +415,13 @@ public class CharacterModel{
 
         FixtureDef fixtureWorm = new FixtureDef();
 
-        PolygonShape square = new PolygonShape();
-        square.setAsBox(m_WidthPerso/2, m_HeightPerso/2);   
+        //PolygonShape square = new PolygonShape();
+        //square.setAsBox(m_WidthPerso/2, m_HeightPerso/2);
+        
+        CircleShape square = new CircleShape();
+        square.setRadius(m_WidthPerso/2);
+
+        //square.m_p.set(0, -0.1f);
 
         if (console){
             //System.out.println("Console Version");
@@ -364,21 +452,30 @@ public class CharacterModel{
         return bWorm;
     }
 
-    // Getter Data
-    public CharacterData toData(){
-        return new CharacterData(ID, name, xcord, ycord, health, shield, isDead);
-    }
+    /**
+     * Transforme un CharacterModel en CharacterData
+     * Pour sauvegarder les donnees d'un CharacterModel
+     * 
+     * Agit comme un Getter
+     * 
+     * @return un CharacterData stockable dans sauvegarde.txt grace a Gson
+     */
+    public CharacterData toData() {
+        double currentX = this.xcord;
+        double currentY = this.ycord;
+    
+        if (persoBody != null) {
 
-    // Setter Data
-    public void loadFromData(CharacterData characterData){
-        this.ID = characterData.getID();
-        this.name = characterData.getName();
-        this.xcord = characterData.getXcord();
-        this.ycord = characterData.getYcord();
-        this.health = characterData.getHealth();
-        this.shield = characterData.getShield();
-        this.isDead = characterData.getIsDead();
-    }
+            // Obliger de re convertir puisque xcord et ycord ne sont pas actualiser apres que les CharacterM soient initialises
+            // -> il faut recup la position du Body en metres qui lui est tjr actualisee
+            // et ensuite le convertir en pixel
+            currentX = persoBody.getPosition().x * PPM; 
+            currentY = model.getHeight() - (persoBody.getPosition().y * PPM);
+        }
+        System.out.println("[SAVE] " + name + " -> x=" + currentX + ", y=" + currentY);
+        System.out.println("[SAVE] " + name + " -> xcord=" + xcord + ", ycord=" + ycord);
 
+        return new CharacterData(ID, name, currentX, currentY, health, shield, isDead, this.facingRight);
+    }
     
 }
