@@ -266,6 +266,15 @@ public class ItemController {
         
         System.out.println("[TERRAIN] Modified = " + modified);
         
+        // on supprime les blocks flottants après destruction
+        if (modified) {
+            // int searchRadius = weapon.getTerrainBlastRadius() > 0 ? (int)(weapon.getTerrainBlastRadius() * 4) : 20; // SI ON MANQUE DE RESSOURCES
+            int floatingRemoved = blockGridModel.removeFloatingBlocks(centerGridX, centerGridY, 200);
+            if (floatingRemoved > 0) {
+                System.out.println("[TERRAIN] " + floatingRemoved + " blocs flottants supprimés (rayon de recherche: 200)");
+            }
+        }
+        
         // Reconstruire la physique si des blocs ont été détruits
         if (modified && physicsWorld != null) {
             System.out.println("[TERRAIN] Appel de rebuildGroundPhysics...");
