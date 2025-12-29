@@ -122,12 +122,8 @@
 - Système de statistiques pour tracker des actions pendant la partie
 - Endroit pour stocker les paramètres du jeu
     - `current_skin`
-<<<<<<< HEAD
 - Une sauvegarde peut desormais etre lancer depuis le menu d'acceuil en cliquant sur "Poursuivre une partie"
 - Possibilitee de tirer/faire des degats/tuer un worm dans la version Console du jeu (tire assez limiter)
-=======
- **Diagramme de classes** : Ajout et documentation du diagramme de classes du projet (GameManager, GameLoop, GamePanel, etc.)
->>>>>>> dev
 
 ### Modified
 - Support pour N équipes au lieu de 2 équipes hardcodées
@@ -158,3 +154,12 @@
     - Centralisation de repaint dans un seul Timer (gameLoop) pour avoir un seul repaint()
     - pré-création d'objets graphiques réutilisables (couleurs, strokes) pour réduire les allocations mémoire pour chaque cube
 - **Lag Audio** : Système de cache avec pré-chargement des sons en mémoire pour éliminer le lag au premier tir
+
+
+## [v.0.5 : SPRINT 5](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/5) (unreleased)
+---
+
+### Added
+- Algorithme FloodFill
+    - permet de supprimer les blocks qui ne sont pas liés au sol
+- Fixture unique par block
