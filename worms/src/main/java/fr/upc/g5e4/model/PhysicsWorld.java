@@ -53,7 +53,13 @@ public class PhysicsWorld {
      * Il defini la gravité du monde
      * Chaque Body que vous ferez devra etre ajouté à monde
      */
-    private final World world;                     
+    private final World world;
+    
+    /**
+     * Body du terrain créé à partir du BlockGridModel
+     * On le garde en référence pour pouvoir le détruire et le recréer
+     */
+    private Body blockGridBody;
 
     
 
@@ -186,9 +192,28 @@ public class PhysicsWorld {
         Body bodyGround = world.createBody(bdGround);
         bodyGround.createFixture(fixtureGround);
         
+        // sauvegarder la référence pour pouvoir la recréer plus tard
+        this.blockGridBody = bodyGround;
+        
         blockGrid.clearDirty();
         
         return bodyGround;
+    }
+    
+    /**
+     * recréer le terrain à partir du BlockGridModel (quand les blocs ont changé)
+     * détruit l'ancien body et en crée un nouveau avec la nouvelle configuration
+     * @param blockGrid le modèle de grille à utiliser
+     */
+    public void recreateTerrainFromBlockGrid(BlockGridModel blockGrid) {
+        // détruire l'ancien body s'il existe
+        if (blockGridBody != null) {
+            world.destroyBody(blockGridBody);
+            blockGridBody = null;
+        }
+        
+        // recréer le terrain avec la nouvelle configuration
+        createGroundFromBlockGrid(blockGrid);
     }
     
     /**

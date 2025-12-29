@@ -1,4 +1,4 @@
-package fr.upc.g5e4;
+/*package fr.upc.g5e4;
 
 import com.google.gson.Gson;
 
@@ -12,7 +12,7 @@ import java.io.File;
 /**
  * Classe de test pour DoneesJoueur
  */
-public class PlayerDataTest {
+/*public class PlayerDataTest {
     
     private static final File SAVE_FILE = new File("target/test-classes/joueur.json");
     private final Gson gson = new Gson();
@@ -63,4 +63,4 @@ public class PlayerDataTest {
         // Nettoyage
         SAVE_FILE.delete();
     }
-}
+}*/

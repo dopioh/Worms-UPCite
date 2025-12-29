@@ -127,4 +127,12 @@ public class CameraController {
             camera.syncPositions();
         }
     }
+    
+    /**
+     * Getter
+     * @return la CameraModel
+     */
+    public CameraModel getCamera() {
+        return this.camera;
+    }
 }
