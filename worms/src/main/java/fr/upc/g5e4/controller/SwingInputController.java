@@ -274,6 +274,10 @@ public class SwingInputController extends JPanel{
             public void mousePressed(MouseEvent e) {
                 requestFocusInWindow();  // Récupérer le focus au clic
                 if (e.getButton() == MouseEvent.BUTTON1) {
+                    // Vérifier que l'inventaire n'est pas ouvert pour éviter le double tir
+                    if (inventoryOverlay != null && inventoryOverlay.isInventoryVisible()) {
+                        return;  // L'inventaire gère le tir
+                    }
                     handleFireAt(e.getX(), e.getY());
                 }
             }
@@ -346,7 +350,11 @@ public class SwingInputController extends JPanel{
             personnageController.getCurrentWeapon().setShootingAngle(shootingAngle);
         }
 
-        personnageController.fireWeapon(1);  // direction ignorée, l'angle est dans l'arme
+        // Calculer la direction basée sur l'angle
+        int direction = (dx > 0) ? 1 : -1;
+        // Convertir l'angle en radians pour fireWeaponWithAngle
+        double angleInRadians = Math.toRadians(shootingAngle);
+        personnageController.fireWeaponWithAngle(angleInRadians, direction);
     }
     
     /**
