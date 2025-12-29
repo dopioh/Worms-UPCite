@@ -20,6 +20,7 @@ import fr.upc.g5e4.model.PhysicsWorld.WaterSensorListener;
 //import fr.upc.g5e4.model.WindModel.Dir;
 import fr.upc.g5e4.model.camera.CameraModel;
 import fr.upc.g5e4.model.io.SaveData;
+import fr.upc.g5e4.model.io.SaveLoad;
 import fr.upc.g5e4.model.io.TeamData;
 //import fr.upc.g5e4.view.CharacterView;
 import fr.upc.g5e4.view.GamePanel;
@@ -781,8 +782,7 @@ public class GameManager {
         System.out.println("coucou"); 
 
         try {
-            File dossier = new File("sauvegardes");
-            File file = new File(dossier, "sauvegarde.txt");
+            File file = SaveLoad.findSaveFile();
             FileWriter fileWriter = new FileWriter(file);
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             gson.toJson(saveData,fileWriter);

@@ -28,12 +28,7 @@ public class SaveLoad {
     public void loadGame(){
         try {
 
-            File file = new File("./sauvegardes/sauvegarde.txt"); // on suppose que c'est ce chemin
-            if (!file.exists()|| file == null){
-                System.out.println("Aucun fichier trouve..");
-                return;
-            }
-
+            File file = findSaveFile();
             System.out.println(file.getAbsolutePath());
             System.out.println(file.getCanonicalPath());
 
@@ -55,5 +50,23 @@ public class SaveLoad {
 
     public SaveData getSaveData(){
         return this.sv;
+    }
+
+    public static File findSaveFile(){
+
+        File[] tabFilePossible = new File[]{
+            new File("./../sauvegardes/sauvegarde.txt"),
+            new File("./../../sauvegardes/sauvegarde.txt"),
+            new File("./sauvegardes/sauvegarde.txt")
+        };
+        for (int i  = 0 ; i < tabFilePossible.length ;i++){
+            if ( tabFilePossible[i].exists()){
+                return tabFilePossible[i];
+            }
+        }
+        File dossier = new File("sauvegardes");
+        File file = new File(dossier, "sauvegarde.txt");
+        return file;
+        
     }
 }
