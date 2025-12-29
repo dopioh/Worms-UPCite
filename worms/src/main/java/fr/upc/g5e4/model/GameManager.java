@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.HashMap;
 import java.util.Map;
+import javax.swing.Timer;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.World;
 
@@ -109,18 +110,20 @@ public class GameManager {
         //this.saveDataBool = false;
         SoundPlayer.initialize();
 
-        int sizeX = 1280;  // Taille du terrain
-        int sizeY = 720;
-        int waterLevel = 800;
+        // ========== CONFIGURATION DU TERRAIN ==========
+        // Pour changer le type de terrain et la taille, voir MapConfig.java
+        int sizeX = MapConfig.getMapWidth();
+        int sizeY = MapConfig.getMapHeight();
+        // Eau uniquement pour le mode ISLANDS
+        int waterLevel = (MapConfig.getMapType() == MapConfig.MapType.ISLANDS) ? 480 : sizeY + 100;
+        // =============================================
         
         // generation procédurale du terrain avec seed (le temps de la machine)
         TerrainGenerator generator = new TerrainGenerator(System.currentTimeMillis());
-        int[] groundY = generator.generateTerrainWithPlatforms(
+        int[] groundY = generator.generateTerrainByType(
             200,          // nombre de points pour la génération
             250,          // hauteur minimale (depuis le haut)
-            650,          // hauteur maximale
-            280,          // hauteur des plateformes aux bords
-            15            // largeur des plateformes en %
+            650           // hauteur maximale
         );
         /*
          * Ancienne méthode : terrain manuel
@@ -162,7 +165,7 @@ public class GameManager {
         this.nbrWormsByTeam = 3;
 
         // Récupérer le skin sélectionné dans les paramètres
-        String selectedSkin = SettingsModel.getCurrentSkin();
+        String selectedSkin = SkinSettings.getCurrentSkin();
 
         // creation des equipes selon le nombre que on veut
         createTeam(nbrEquipe, selectedSkin);
@@ -186,6 +189,8 @@ public class GameManager {
         // Initialisation du système de tir
         this.itemController = new ItemController(new ItemView());
         this.itemController.setWorld(world);
+        this.itemController.setBlockGridModel(this.blockGridModel);// pour les dégats sur le terrain
+        this.itemController.setWindModel(this.windModel); // pour le vent
         this.itemController.setGameManager(this);  // Pour le tracking des stats
         
         // Créer un tableau de tous les worms (N equipes)
@@ -215,9 +220,9 @@ public class GameManager {
         this.gamePanel.add(imputController);
         imputController.setGameManager(this); // connecte inputController au GameManager
         // Connecter le renderer de trajectoire
-        imputController.setTrajectoryRenderer(gamePanel.getTrajectoryRenderer());
-        gamePanel.getTrajectoryRenderer().setShooter(activeWormController.getModel());
-        gamePanel.getTrajectoryRenderer().setWeapon(activeWormController.getCurrentWeapon());
+        imputController.setTrajectoryRenderer(gamePanel.getTrajectoryView());
+        gamePanel.getTrajectoryView().setShooter(activeWormController.getModel());
+        gamePanel.getTrajectoryView().setWeapon(activeWormController.getCurrentWeapon());
         // pour ne pas que gamePanel et imputController se disputent le focus
         this.gamePanel.setFocusable(false);  // le panel ne prend pas le focus
         imputController.setFocusable(true);   // l'inputController prend le focus    
@@ -352,14 +357,29 @@ public class GameManager {
                                              //  pour que inputController puisse appeler switchToNextWorm()
         
         // Connecter le renderer de trajectoire
-        imputController.setTrajectoryRenderer(gamePanel.getTrajectoryRenderer());
-        gamePanel.getTrajectoryRenderer().setShooter(activeWormController.getModel());
-        gamePanel.getTrajectoryRenderer().setWeapon(activeWormController.getCurrentWeapon());
+        imputController.setTrajectoryRenderer(gamePanel.getTrajectoryView());
+        gamePanel.getTrajectoryView().setShooter(activeWormController.getModel());
+        gamePanel.getTrajectoryView().setWeapon(activeWormController.getCurrentWeapon());
         
         // pour ne pas que gamePanel et imputController se disputent le focus
         // en lancant le jeu, certaines fois rien n'était controllable mais c'est fix maintenant
         this.gamePanel.setFocusable(false);  // le panel ne prend pas le focus
         imputController.setFocusable(true);   // l'inputController prend le focus    
+
+        // Timer pour update régulier de la caméra, projectiles et repaint
+        new Timer(16, e -> {
+            cameraController.update();
+            // mettre à jour les projectiles (16ms = 0.016s par frame)
+            itemController.updateProjectiles(0.016f);
+            
+            // recréer le terrain physique si la grille a changé (blocs détruits)
+            if (blockGridModel.isDirty()) {
+                physic.recreateTerrainFromBlockGrid(blockGridModel);
+                blockGridModel.clearDirty();
+            }
+            
+            gamePanel.repaint();
+        }).start();
 
         //initialiseInventory();
 
@@ -531,8 +551,8 @@ public class GameManager {
                 cameraController.centerOnCharacter();
                 
                 // mettre à jour la trajectoire avec le nouveau worm et son arme
-                gamePanel.getTrajectoryRenderer().setShooter(worm);
-                gamePanel.getTrajectoryRenderer().setWeapon(activeWormController.getCurrentWeapon());
+                gamePanel.getTrajectoryView().setShooter(worm);
+                gamePanel.getTrajectoryView().setWeapon(activeWormController.getCurrentWeapon());
                 
                 return;
             }
@@ -546,13 +566,15 @@ public class GameManager {
     }
 
     /**
+     * FONCTION MAL CODER - QUI A FAIT CA ????
+     * 
      * Ajoute une nouvelle équipe au jeu (pour supporter N équipes)
      * IMPORTANT: À appeler AVANT le démarrage du jeu
      *
      * @param team L'équipe à ajouter
      * @param view La vue correspondante de l'équipe
      */
-    public void addTeam(TeamModel team,TeamView view) {
+    public void addTeam(TeamModel team,TeamView view) { // Pourquoi ? Alors que on a createTeam, et puis on a TeamInitialisation
         if (team != null && view != null) {
             // Extraction des paramètres nécessaires
             String teamName = team.getTeamName();
@@ -617,10 +639,10 @@ public class GameManager {
                 imputController.setCharacterController(activeWormController);
                 cameraController.setTargetCharacter(worm);
                 cameraController.centerOnCharacter();
-            
-                gamePanel.getTrajectoryRenderer().setShooter(worm);
-                gamePanel. getTrajectoryRenderer().setWeapon(activeWormController.getCurrentWeapon());
-            
+                
+                // mettre à jour la trajectoire avec le nouveau worm et son arme
+                gamePanel.getTrajectoryView().setShooter(worm);
+                gamePanel.getTrajectoryView().setWeapon(activeWormController.getCurrentWeapon());
                 return;
             }   
         
@@ -634,12 +656,24 @@ public class GameManager {
     /**
      * passe au round suivant et alterne les équipes
      */
+    // Ajout d'une référence à GameLoop pour synchroniser le timer
+    private GameLoop gameLoop;
+
+    public void setGameLoop(GameLoop loop) {
+        this.gameLoop = loop;
+    }
+
     public void nextRound() {
         roundNumber++;
         currentTeamIndex = (currentTeamIndex + 1) % listTeamInital.size(); 
         currentTeam = listTeamInital.get(currentTeamIndex).getTeamModel();
         if (currentTeam != null) {
             currentTeam.resetInventoryTurn();
+        }
+        // Réinitialise le timer à 30 secondes
+        roundTimeRemaining = roundTimeSave; // ou 1800
+        if (gameLoop != null) {
+            gameLoop.resetRoundTimer();
         }
         //switch worm dans cette équipe
         switchToNextWorm(currentTeam);
@@ -649,6 +683,7 @@ public class GameManager {
             inventoryOverlay.setInventory(getCurrentTeamInventory());
         }
 
+        
         // --- Vent : change à chaque tour (fixe pendant le tour) ---
         WindModel.Dir[] dirs = WindModel.Dir.values();
         windModel.setDir(dirs[windRng.nextInt(dirs.length)]);
@@ -660,7 +695,6 @@ public class GameManager {
         System.out.println("[VENT] " + windModel.getDir().label + " | force=" + String.format("%.2f", windModel.getStrength()));
 
     }
-
     
     /**
      * Change l'arme équipée du worm actif (cycliquement)
@@ -693,13 +727,8 @@ public class GameManager {
         if (newWeapon != null && activeWormController != null) {
             activeWormController.setCurrentWeapon(newWeapon);
             // mettre à jour la trajectoire avec la nouvelle arme
-            gamePanel.getTrajectoryRenderer().setWeapon(newWeapon);
+            gamePanel.getTrajectoryView().setWeapon(newWeapon);
         }
-    }
-
-    // Initialiser un nombre N d'equipes
-    public void createTeam(int number){
-        createTeam(number, "/worm.png"); // Utilise le skin par défaut
     }
     
     // Initialiser un nombre N d'equipes avec un skin spécifique
@@ -746,13 +775,13 @@ public class GameManager {
     public void save(){
         // creer une sauvegarde automatiquement
         SaveData saveData = new SaveData(this);
-        System.out.println("coucou"); 
+        //System.out.println("coucou"); 
 
         try {
             File dossier = new File("sauvegardes");
             File file = new File(dossier, "sauvegarde.txt");
             FileWriter fileWriter = new FileWriter(file);
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            Gson gson = new GsonBuilder().setPrettyPrinting().create(); // rajouter serializeNulls()
             gson.toJson(saveData,fileWriter);
             System.out.println(file.getAbsolutePath());
             System.out.println(file.getCanonicalPath());
@@ -805,7 +834,7 @@ public class GameManager {
         if (newWeapon != null && activeWormController != null) {
             activeWormController.setCurrentWeapon(newWeapon);
             // Met à jour la trajectoire
-            gamePanel.getTrajectoryRenderer().setWeapon(newWeapon);
+            gamePanel.getTrajectoryView().setWeapon(newWeapon);
         }
     }
 

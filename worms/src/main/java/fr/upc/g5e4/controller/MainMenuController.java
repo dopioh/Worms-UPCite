@@ -7,6 +7,7 @@ import javax.swing.JOptionPane;
 import fr.upc.g5e4.GameLauncher;
 import fr.upc.g5e4.model.io.SaveLoad;
 import fr.upc.g5e4.view.MainMenuView;
+import fr.upc.g5e4.view.SettingsView;
 
 /**
  * Contrôleur pour l'écran d'accueil
@@ -72,11 +73,19 @@ public class MainMenuController {
     }
 
     private void openConfig() {
-        // Pour l'instant juste un message
-        JOptionPane.showMessageDialog(gameLauncher.getMainFrame(), 
-            "Fonctionnalité à venir", 
-            "Réglages", 
-            JOptionPane.INFORMATION_MESSAGE);
+        // Créer la vue des réglages
+        SettingsView settingsView = new SettingsView();
+        
+        // Ajouter un listener pour le bouton retour
+        settingsView.getBtnBack().addActionListener(e -> {
+            // Retour au menu principal en utilisant showMenu()
+            gameLauncher.showMenu();
+        });
+        
+        // Afficher la vue des réglages via le CardPanel
+        gameLauncher.getCardPanel().add(settingsView, "SETTINGS");
+        java.awt.CardLayout cl = (java.awt.CardLayout) gameLauncher.getCardPanel().getLayout();
+        cl.show(gameLauncher.getCardPanel(), "SETTINGS");
     }
 
     private void handlePurchase() {

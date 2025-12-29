@@ -10,7 +10,7 @@ import java.awt.event.ActionEvent;
 //import fr.upc.g5e4.model.InventoryModel.*;
 import fr.upc.g5e4.model.io.SaveData;
 //import fr.upc.g5e4.model.io.SaveLoad;
-//import fr.upc.g5e4.model.console.ConsoleLauncher;
+import fr.upc.g5e4.model.console.ConsoleLauncher;
 import fr.upc.g5e4.view.*;
 import fr.upc.g5e4.controller.*;
 import fr.upc.g5e4.model.*; 
@@ -45,6 +45,10 @@ public class GameLauncher{
 
     private SaveData saveData; // si il y'a un fichier de sauvegarde
 
+    private PlayerDataController playerDataController;
+
+    //private boolean firstTimeLaunch = true ; -> on va juste checker si il y'a une sauvegarde deja presente de PlayerData
+
     /**
      * Constructeur normal : affiche le menu principal
      */
@@ -66,6 +70,9 @@ public class GameLauncher{
      * @param skipMenu true = lance le jeu directement, false = affiche le menu (ignoré si screen=false)
      */
     public GameLauncher(boolean screen, boolean skipMenu) throws IOException {
+        attributionPlayerDataController();
+        testModifPlayerData();
+
         this.screen = screen;
         
         if (!screen) {
@@ -254,7 +261,7 @@ public class GameLauncher{
         
         // Créer et démarrer la game loop
         this.gameLoop = new GameLoop(gameManager);
-        this.gameLoop.timerStart();
+        gameManager.setGameLoop(gameLoop);
         
         // Timer pour vérifier la fin de partie
         Timer checkGameOverTimer = new Timer(1000, e -> {
@@ -425,6 +432,35 @@ public class GameLauncher{
             gameLayeredPane.removeAll();
             gameLayeredPane.repaint();
         }
+    }
+
+    /**
+     * Methode pour charger une sauvegarde de Player
+     * Ou en creer une si il n'en existe pas
+     */
+    public void attributionPlayerDataController(){
+
+        boolean playerSave = PlayerDataController.isThereSavePlayer(); // tjr l'appeler avant this.playerDataController = new PlayerDataController()
+        this.playerDataController = new PlayerDataController();
+
+        if (playerSave){
+            this.playerDataController.chargerJoueur();
+        } else {
+            this.playerDataController.nouveauJoueur();
+            this.playerDataController.sauvegarderJoueur();
+        }
+    }
+
+    /**
+     * Methode useless juste pour te montrer comment ecrire dans le PlayerData
+     * Pense a tjr save des que tu modifies une valeur, le joueur peut quitter le jeu a n'importe quel moment
+     * 
+     * J'appelle cette methode dans gameLauncher mais toi tu peux recup PlayerDataController en la passant en parametre 
+     * Et la recup pour tes fichiers Boutiques BattlePass
+     */
+    public void testModifPlayerData(){
+        this.playerDataController.getPlayerData().setName("NassNass");
+        this.playerDataController.sauvegarderJoueur();
     }
 
     public static void main(String[] args) throws IOException{

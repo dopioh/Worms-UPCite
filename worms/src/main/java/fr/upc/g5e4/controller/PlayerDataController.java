@@ -2,28 +2,39 @@ package fr.upc.g5e4.controller;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import fr.upc.g5e4.model.PlayerData;
-import fr.upc.g5e4.FileUtile;
+
+//import fr.upc.g5e4.FileUtile;
+import fr.upc.g5e4.model.io.PlayerData;
+
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 
 /**
  * Contrôleur pour la gestion des données du joueur (Controller)
  */
 public class PlayerDataController {
     private final Gson gson;
-    private final File saveFile;
+    private final File saveFile; // contient une PlayerData convertit en Json
+    private PlayerData playerData;
 
     /**
      * Constructeur du contrôleur
+     * 
+     * On initialise le fichier de sauvegarde, si il y'en a pas, il le creer
+     * Sinon il le retrouve 
      * @param saveFilePath chemin du fichier de sauvegarde
      */
-    public PlayerDataController(String saveFilePath) {
-        this.gson = new GsonBuilder()
-            .setPrettyPrinting()
-            .serializeNulls()
-            .disableHtmlEscaping()
-            .create();
-        this.saveFile = new File(saveFilePath);
+    public PlayerDataController() {
+        File dossier = new File("sauvegardes");
+        this.saveFile = new File(dossier, "player_save.txt");
+        this.gson = new GsonBuilder().setPrettyPrinting().serializeNulls().disableHtmlEscaping().create();
+        this.playerData = null;
+    }
+
+    // Getter
+    public PlayerData getPlayerData(){
+        return this.playerData;
     }
 
     /**
@@ -32,10 +43,14 @@ public class PlayerDataController {
      * @return true si la sauvegarde a réussi
      * @return false en cas d'erreur
      */
-    public boolean sauvegarderJoueur(PlayerData joueur) {
+    public boolean sauvegarderJoueur() {
         try {
-            String jsonData = gson.toJson(joueur);
-            FileUtile.save(saveFile, jsonData);
+            FileWriter fileWriter = new FileWriter(this.saveFile);
+            this.gson.toJson(playerData, fileWriter);
+            System.out.println(saveFile.getAbsolutePath());
+            System.out.println(saveFile.getCanonicalPath());
+            System.out.println("Joueur sauvegardee !");
+            fileWriter.close();
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -47,15 +62,41 @@ public class PlayerDataController {
      * Charge les données du joueur
      * @return les données chargées ou null en cas d'erreur
      */
-    public PlayerData chargerJoueur() {
+    public void chargerJoueur() {
         try {
-            String jsonData = FileUtile.load(saveFile);
-            if (jsonData != null && !jsonData.isEmpty()) {
-                return gson.fromJson(jsonData, PlayerData.class);
-            }
+            File file = new File("./sauvegardes/player_save.txt");
+            FileReader fileReader = new FileReader(file);
+            this.playerData = gson.fromJson(fileReader, PlayerData.class);
+
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("[LoadPlayer] il y'a eu une erreur imprevu lors de l'appel de la fonction 'chargerJoueur()'..");
+            System.out.print("[LoadPlayer] Un fichier de sauvegarde vierge va etre creer..Renitialisation des donnees joueurs..");
+            this.playerData = new PlayerData("Joueur"); // Vu que on a que un joueur, on lui donne la possibilite de choisir son nom ou pas ?
+           // e.printStackTrace();
         }
-        return null;
     }
+
+    public void nouveauJoueur(){
+        this.playerData = new PlayerData("Joueur");
+    }
+
+    /**
+     * Methode a appeler avant la creation de PlayerDataController
+     * @return vrai si il existe une save, faux sinon 
+     */
+    public static boolean isThereSavePlayer(){
+        System.out.print("isThereSavePlayer() called");
+        File file = new File("./sauvegardes/player_save.txt");
+        if (file.exists()){
+            System.out.println("Une save existe");
+
+            return true;
+        }
+        //System.out.print("isThereSavePlayer() called");
+        System.out.println("Aucune save existe");
+
+        return false;
+        
+    }
+
 }

@@ -9,6 +9,7 @@ public class BlockGridModel {
     public static final int BLOCK_SIZE = 12;  // Taille d'un bloc en pixels
     
     private final BlockType[][] grid;         // la grille de blocs (colonnes, lignes)
+    private final BlockHealthGrid healthGrid; // grille de santé des blocs
     private final int gridWidth;              // nombre de colonnes
     private final int gridHeight;             // nombre de lignes
     private final int pixelWidth;             // largeur totale en pixels
@@ -32,6 +33,8 @@ public class BlockGridModel {
         this.gridHeight = (pixelHeight + BLOCK_SIZE - 1) / BLOCK_SIZE;
         // on crée la grille de blocs
         this.grid = new BlockType[gridWidth][gridHeight];
+        // on crée la grille des PV
+        this.healthGrid = new BlockHealthGrid(gridWidth, gridHeight);
         
         // on initialise la grille avec de l'air partout
         for (int x = 0; x < gridWidth; x++) {
@@ -63,12 +66,19 @@ public class BlockGridModel {
             
             // on convertit la position Y en index de grille
             int surfaceGridY = surfaceY / BLOCK_SIZE;
+            int waterGridY = waterLevel / BLOCK_SIZE;
             
             // on remplit les blocs
             for (int gridY = 0; gridY < gridHeight; gridY++) {
                 if (gridY < surfaceGridY) {
-                    // au-dessus de la surface = AIR
-                    grid[gridX][gridY] = BlockType.AIR;
+                    // au-dessus de la surface
+                    if (gridY >= waterGridY) {
+                        // sous le niveau d'eau = WATER
+                        grid[gridX][gridY] = BlockType.WATER;
+                    } else {
+                        // au-dessus du niveau d'eau = AIR
+                        grid[gridX][gridY] = BlockType.AIR;
+                    }
                 } else if (gridY == surfaceGridY) {
                     // surface = GRASS
                     grid[gridX][gridY] = BlockType.GRASS;
@@ -82,6 +92,8 @@ public class BlockGridModel {
             }
         }
         
+        // initialiser la santé des blocs
+        healthGrid.initializeHealth(grid);
         dirty = true;
     }
     
@@ -190,6 +202,75 @@ public class BlockGridModel {
             }
         }
         return pixelHeight;  // aucun bloc solide trouvé on renvoie la hauteur totale du terrain
+    }
+    
+    /**
+     * applique des dégats à un bloc et change sa texture si endommagé
+     * @param gridX colonne
+     * @param gridY ligne
+     * @param damage dégats à appliquer
+     * @return true si le bloc est détruit
+     */
+    public boolean damageBlock(int gridX, int gridY, int damage) {
+        BlockType blockType = getBlock(gridX, gridY);
+        
+        // ne peut pas endommager l'air
+        if (!blockType.isSolid()) {
+            return false;
+        }
+        
+        // appliquer les dégats
+        boolean destroyed = healthGrid.takeDamage(gridX, gridY, damage);
+        
+        if (destroyed) {
+            // détruire le bloc
+            setBlock(gridX, gridY, BlockType.AIR);
+            // réinitialiser les PV à 0
+            healthGrid.setHealth(gridX, gridY, 0);
+            return true;
+        }
+        
+        // bloc endommagé mais pas détruit - sa texture changera au rendu
+        dirty = true;
+        return false;
+    }
+    
+    /**
+     * applique des dégats en zone (blast radius) autour d'une position
+     * @param centerGridX centre X en grille
+     * @param centerGridY centre Y en grille
+     * @param radiusInBlocks rayon en nombre de blocs
+     * @param damage dégats à appliquer
+     */
+    public void damageBlocksInRadius(int centerGridX, int centerGridY, double radiusInBlocks, int damage) {
+        int radius = (int) Math.ceil(radiusInBlocks);
+        
+        for (int gridX = centerGridX - radius; gridX <= centerGridX + radius; gridX++) {
+            for (int gridY = centerGridY - radius; gridY <= centerGridY + radius; gridY++) {
+                // calcule la distance
+                double distance = Math.sqrt(
+                    Math.pow(gridX - centerGridX, 2) + 
+                    Math.pow(gridY - centerGridY, 2)
+                );
+                
+                // vérifie si le bloc est dans le rayon
+                if (distance <= radiusInBlocks) {
+                    // les blocs plus proches reçoivent plus de dégats
+                    double damageMultiplier = 1.0 - (distance / radiusInBlocks);
+                    int adjustedDamage = Math.max(1, (int) (damage * damageMultiplier));
+                    
+                    damageBlock(gridX, gridY, adjustedDamage);
+                }
+            }
+        }
+    }
+    
+    /**
+     * GEtter de la grille de santé
+     * @return la grille de PV des blocs
+     */
+    public BlockHealthGrid getHealthGrid() {
+        return healthGrid;
     }
     
     // Getters utiles

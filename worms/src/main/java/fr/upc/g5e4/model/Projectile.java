@@ -1,6 +1,7 @@
 package fr.upc.g5e4.model;
 
 import org.jbox2d.common.Vec2;
+import fr.upc.g5e4.model.trajectories.NoDropTrajectory;
 
 /**
  * Classe représentant un projectile avec une trajectoire courbe mathématique
@@ -38,12 +39,33 @@ public class Projectile {
     /**
      * calcule la position du projectile à un temps donné
      * 
-     * @param t Temps entre 0 et 1 (0 = départ, 1 = fin)
+     * @param t Temps entre 0 et 1 (0 = départ, 1 = fin), ou > 1 si le projectile continue au-delà de la portée
      * @return Position du projectile
      */
     public Vec2 getPositionAtTime(float t) {
-        // t doit être entre 0 et 1
-        t = Math.max(0, Math.min(1, t));
+        // si l'arme a un calculateur de trajectoire
+        if (sourceWeapon != null && sourceWeapon.getTrajectoryCalculator() != null) {
+            double angleRad = Math.toRadians(shootingAngle);
+            // Si c'est un projectile qui doit s'arrêter à la portée (comme la batte), clamp t
+            if (shouldStopAtRange()) {
+                t = Math.max(0, Math.min(1, t));
+            } else {
+                // Sinon, permet à t de continuer au-delà de 1
+                t = Math.max(0, t);
+            }
+            return sourceWeapon.getTrajectoryCalculator().calculatePosition(
+                t, startPosition, range, angleRad
+            );
+        }
+        
+        // sinon, utiliser la trajectoire par défaut
+        // Vérifie si le projectile doit s'arrêter à la portée
+        if (shouldStopAtRange()) {
+            t = Math.max(0, Math.min(1, t));
+        } else {
+            // Permet au projectile de continuer au-delà de la portée
+            t = Math.max(0, t);
+        }
         
         // convertir l'angle en radians
         double angleRad = Math.toRadians(shootingAngle);
@@ -54,10 +76,6 @@ public class Projectile {
         // X et Y varient selon l'angle de tir
         float x = startPosition.x + (float)(horizontalDistance * Math.cos(angleRad));
         float y = startPosition.y + (float)(horizontalDistance * Math.sin(angleRad));
-        
-        // appliquer la courbe parabolique 
-        double curveEffect = sourceWeapon.getCurveAmplitude();
-        y -= (float)(curveEffect * 4 * t * (1 - t));
         
         return new Vec2(x, y);
     }
@@ -79,8 +97,36 @@ public class Projectile {
     public Vec2 getCurrentPosition() {
         // calculer t en fonction de la durée (durée totale ≈ range / speed)
         float totalDuration = (float)(range / speed);
-        float t = Math.min(lifetime / totalDuration, 1.0f);
+        float t;
+        
+        // Si c'est un projectile qui doit s'arrêter à la portée, clamp t
+        if (shouldStopAtRange()) {
+            t = Math.min(lifetime / totalDuration, 1.0f);
+        } else {
+            // Sinon, laisse t continuer au-delà de 1
+            t = lifetime / totalDuration;
+        }
+        
         return getPositionAtTime(t);
+    }
+    
+    /**
+     * Vérifie si le projectile doit s'arrêter à sa portée
+     * C'est le cas pour les armes utilisant NoDropTrajectory (comme la batte de baseball)
+     * @return true si le projectile doit s'arrêter à la portée, false pour continuer jusqu'au sol/limite
+     */
+    private boolean shouldStopAtRange() {
+        if (sourceWeapon == null) {
+            return true; // Par défaut, arrête à la portée
+        }
+        
+        TrajectoryInterface trajectory = sourceWeapon.getTrajectoryCalculator();
+        if (trajectory == null) {
+            return true; // Par défaut, arrête à la portée
+        }
+        
+        // S'il utilise NoDropTrajectory, c'est une arme de mêlée qui doit s'arrêter à la portée
+        return trajectory instanceof NoDropTrajectory;
     }
     
     /**

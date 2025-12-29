@@ -40,6 +40,19 @@ public class TeamInitialisation {
     
     // Prendre le minimum de data necessaire en parametre
     // le reste sera initialise avec Random
+    // creer un constructeur sans startX plus tard
+    /**
+     * Initialise une instance qui creer un teamModel et TeamView ensemble
+     * @param groundModel terrain model
+     * @param world physique du jeu
+     * @param teamName nom de l'equipe
+     * @param teamNumber nombre de worms par equipe (doit etre le meme pour toutes les equipes)
+     * @param startX position d'initialisation
+     */
+    public TeamInitialisation(GroundModel groundModel,World world,String teamName, int teamNumber, int startX){
+        this(groundModel, world, teamName, teamNumber, startX, "/wormPinky.png");
+    }
+    
     /**
      * Initialise une instance qui creer un teamModel et TeamView ensemble avec un skin personnalisé
      * @param groundModel terrain model
@@ -58,19 +71,7 @@ public class TeamInitialisation {
         teamView = new TeamView(teamNumber,color, skinPath, facingRight);
         SPACING += 5; // pour que si il y'a plus de 2 equipes, les worms ne se superposent pas
     }
-
-    // creer un constructeur sans startX plus tard (notamment pour creer une equipe d'une game deja instancie)
-    /**
-     * Initialise une instance qui creer un teamModel et TeamView ensemble en fixant un skin predefini
-     * @param groundModel terrain model
-     * @param world physique du jeu
-     * @param teamName nom de l'equipe
-     * @param teamNumber nombre de worms par equipe (doit etre le meme pour toutes les equipes)
-     * @param startX position d'initialisation
-     */
-    public TeamInitialisation(GroundModel groundModel,World world,String teamName, int teamNumber, int startX){
-        this(groundModel, world, teamName, teamNumber, startX, "/worm.png");
-    }
+    
 
     /**
      * Constructeur pour load une sauvegarde
