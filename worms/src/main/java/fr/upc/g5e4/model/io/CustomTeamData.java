@@ -24,8 +24,11 @@ import fr.upc.g5e4.model.SkinModel;
  */
 
 /**
-* Classe stocker une equipe personnaliser
-*/
+ * Classe stocker une equipe personnaliser
+ * Sera gerer dans le CustomTeamManager 
+ * 
+ * @author Mei
+ */
 public class CustomTeamData {
 
     private String teamName;
@@ -38,11 +41,34 @@ public class CustomTeamData {
 
     // TeamData ICI mais faut personnaliser TeamModel et TeamInitialisation
     // Pas forcement ?
-    // On stocke juste les donnees que on veut ici 
+    // On stocke juste les donnees que on veut ici
     // Que on fou dans un json
-    // et ca sera assembler quand on va charger une game 
+    // et ca sera assembler quand on va charger une game
 
-    private ArrayList<String> WormsName;
+    private ArrayList<String> WormsName; // pour x worms
 
+    public CustomTeamData(String teamName, SkinModel skin, int nbrWorms, ArrayList<String> WormsName) {
+        this.teamName = teamName;
+        this.skin = skin;
+        this.nbrWorms = nbrWorms;
+        this.WormsName = WormsName;
+    }
+
+    // Getter
+    public String getTeamName() {
+        return this.teamName;
+    }
+
+    public SkinModel getSkin() {
+        return this.skin;
+    }
+
+    public int getNbrWorms() {
+        return this.nbrWorms;
+    }
+
+    public ArrayList<String> getWormsName() {
+        return this.WormsName;
+    }
 
 }

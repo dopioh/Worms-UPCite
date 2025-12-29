@@ -566,13 +566,15 @@ public class GameManager {
     }
 
     /**
+     * FONCTION MAL CODER - QUI A FAIT CA ????
+     * 
      * Ajoute une nouvelle équipe au jeu (pour supporter N équipes)
      * IMPORTANT: À appeler AVANT le démarrage du jeu
      *
      * @param team L'équipe à ajouter
      * @param view La vue correspondante de l'équipe
      */
-    public void addTeam(TeamModel team,TeamView view) {
+    public void addTeam(TeamModel team,TeamView view) { // Pourquoi ? Alors que on a createTeam, et puis on a TeamInitialisation
         if (team != null && view != null) {
             // Extraction des paramètres nécessaires
             String teamName = team.getTeamName();
@@ -773,13 +775,13 @@ public class GameManager {
     public void save(){
         // creer une sauvegarde automatiquement
         SaveData saveData = new SaveData(this);
-        System.out.println("coucou"); 
+        //System.out.println("coucou"); 
 
         try {
             File dossier = new File("sauvegardes");
             File file = new File(dossier, "sauvegarde.txt");
             FileWriter fileWriter = new FileWriter(file);
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            Gson gson = new GsonBuilder().setPrettyPrinting().create(); // rajouter serializeNulls()
             gson.toJson(saveData,fileWriter);
             System.out.println(file.getAbsolutePath());
             System.out.println(file.getCanonicalPath());
