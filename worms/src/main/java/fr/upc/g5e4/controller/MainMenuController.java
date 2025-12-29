@@ -36,6 +36,9 @@ public class MainMenuController {
         view.getBtnResume().addActionListener(e -> resumeGame());
         view.getBtnConfig().addActionListener(e -> openConfig());
         view.getBtnQuit().addActionListener(e -> quitGame());
+        
+        // Bouton d'achat de la boutique
+        view.getShopView().getBuyButton().addActionListener(e -> handlePurchase());
     }
 
     private void startNewGame() throws IOException {
@@ -73,6 +76,17 @@ public class MainMenuController {
         JOptionPane.showMessageDialog(gameLauncher.getMainFrame(), 
             "Fonctionnalité à venir", 
             "Réglages", 
+            JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void handlePurchase() {
+        // TODO: Implémenter la logique
+        // verif si le joueur a assez d'argent
+        // ajouter l'item à l'inventaire
+        
+        JOptionPane.showMessageDialog(gameLauncher.getMainFrame(), 
+            "Achat effectué avec succès !", 
+            "Boutique", 
             JOptionPane.INFORMATION_MESSAGE);
     }
 
