@@ -164,7 +164,7 @@
     - permet de supprimer les blocks qui ne sont pas liés au sol
 - Fixture unique par block
 - Boutique
-- Arme/Item graphiquement attachée au worm
+- Arme/Item graphiquement attachés au worm
 - Sons pour chaque arme
 
 ### Fixed
