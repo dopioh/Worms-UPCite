@@ -160,3 +160,13 @@
     - Centralisation de repaint dans un seul Timer (gameLoop) pour avoir un seul repaint()
     - pré-création d'objets graphiques réutilisables (couleurs, strokes) pour réduire les allocations mémoire pour chaque cube
 - **Lag Audio** : Système de cache avec pré-chargement des sons en mémoire pour éliminer le lag au premier tir
+
+
+## [v.0.5 : SPRINT 5](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/5) (unreleased)
+---
+
+### Added
+- Algorithme FloodFill
+    - permet de supprimer les blocks qui ne sont pas liés au sol
+- Fixture unique par block
+- Boutique
