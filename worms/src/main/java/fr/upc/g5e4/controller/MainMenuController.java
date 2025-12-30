@@ -70,19 +70,10 @@ public class MainMenuController {
     }
 
     private void openConfig() {
-        // Créer la vue des réglages
-        SettingsView settingsView = new SettingsView();
-        
-        // Ajouter un listener pour le bouton retour
-        settingsView.getBtnBack().addActionListener(e -> {
-            // Retour au menu principal en utilisant showMenu()
-            gameLauncher.showMenu();
-        });
-        
-        // Afficher la vue des réglages via le CardPanel
-        gameLauncher.getCardPanel().add(settingsView, "SETTINGS");
-        java.awt.CardLayout cl = (java.awt.CardLayout) gameLauncher.getCardPanel().getLayout();
-        cl.show(gameLauncher.getCardPanel(), "SETTINGS");
+        // Créer le contrôleur des réglages qui gère les listeners
+        SettingsController settingsController = new SettingsController(gameLauncher);
+        // Afficher les réglages via GameLauncher qui gère la navigation
+        gameLauncher.showSettings(settingsController.getView());
     }
 
     private void quitGame() {

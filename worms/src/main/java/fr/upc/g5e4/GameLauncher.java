@@ -136,6 +136,14 @@ public class GameLauncher{
     }
     
     /**
+     * Affiche settings
+     */
+    public void showSettings(SettingsView settingsView) {
+        cardPanel.add(settingsView, "SETTINGS");
+        cardLayout.show(cardPanel, "SETTINGS");
+    }
+    
+    /**
      * Lance le jeu avec une cinématique d'introduction
      */
     public void startGame() throws IOException {

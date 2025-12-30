@@ -58,6 +58,8 @@ public class SettingsView extends JPanel {
     private JPanel teamsPanel;
     private JPanel otherPanel;
     
+    private JButton testButton;
+    
     private Image backgroundImage;
     private String currentTab = "Map";
     
@@ -188,11 +190,6 @@ public class SettingsView extends JPanel {
         btnTeamsTab = createButton("Equipes");
         btnOtherTab = createButton("Autre");
 
-        // Ajout des actions pour changer d'onglet
-        btnMapTab.addActionListener(e -> showPanel("Map"));
-        btnTeamsTab.addActionListener(e -> showPanel("Equipes"));
-        btnOtherTab.addActionListener(e -> showPanel("Autre"));
-
         tabsPanel.add(btnMapTab);
         tabsPanel.add(btnTeamsTab);
         tabsPanel.add(btnOtherTab);
@@ -219,8 +216,7 @@ public class SettingsView extends JPanel {
         panel.setOpaque(false);
         
         // Bouton test
-        JButton testButton = createButton("Test");
-        testButton.addActionListener(e -> System.out.println("Test appuié"));
+        testButton = createButton("Test");
         panel.add(testButton);
         
         return panel;
@@ -249,7 +245,7 @@ public class SettingsView extends JPanel {
     /**
      * Affiche le panel correspondant à l'onglet sélectionné
      */
-    private void showPanel(String tabName) {
+    public void showPanel(String tabName) {
         currentTab = tabName;
         
         // Mise à jour des couleurs et hover des onglets
@@ -310,5 +306,9 @@ public class SettingsView extends JPanel {
 
     public String getCurrentTab() {
         return currentTab;
+    }
+
+    public JButton getTestButton() {
+        return testButton;
     }
 }
