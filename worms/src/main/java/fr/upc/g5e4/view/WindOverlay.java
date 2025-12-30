@@ -1,3 +1,5 @@
+
+
 package fr.upc.g5e4.view;
 
 import fr.upc.g5e4.model.WindModel;
@@ -33,6 +35,7 @@ public class WindOverlay extends JComponent {
         for (int i = 0; i < 30; i++) {
             particles.add(spawnParticle());
         }
+    
 
         // L'animation est maintenant gérée via un appel externe depuis GameLoop
         // pour synchroniser avec le reste du jeu et éviter les repaints excessifs
@@ -193,3 +196,5 @@ public class WindOverlay extends JComponent {
         float alpha;
     }
 }
+
+

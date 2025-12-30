@@ -53,7 +53,13 @@ public class PhysicsWorld {
      * Il defini la gravité du monde
      * Chaque Body que vous ferez devra etre ajouté à monde
      */
-    private final World world;                     
+    private final World world;
+    
+    /**
+     * Body du terrain créé à partir du BlockGridModel
+     * On le garde en référence pour pouvoir le détruire et le recréer
+     */
+    private Body blockGridBody;
 
     
 
@@ -159,9 +165,57 @@ public class PhysicsWorld {
         
         System.out.println("[PHYSICS] Créé " + blockCount + " fixtures de blocs");
         
+        // sauvegarder la référence pour pouvoir la recréer plus tard
+        this.blockGridBody = bodyGround;
+        
         blockGrid.clearDirty();
         
         return bodyGround;
+    }
+    
+    /**
+     * recréer le terrain à partir du BlockGridModel (quand les blocs ont changé)
+     * détruit l'ancien body et en crée un nouveau avec la nouvelle configuration
+     * @param blockGrid le modèle de grille à utiliser
+     */
+    public void recreateTerrainFromBlockGrid(BlockGridModel blockGrid) {
+        // détruire l'ancien body s'il existe
+        if (blockGridBody != null) {
+            world.destroyBody(blockGridBody);
+            blockGridBody = null;
+        }
+        
+        // recréer le terrain avec la nouvelle configuration
+        createGroundFromBlockGrid(blockGrid);
+    }
+    
+    /**
+     * Simplification d'un contour en supprimant les points intermédiaires alignés
+     * @param points La liste de points à simplifier
+     * @return La liste de points simplifiée
+     */
+    private List<Vec2> simplifyContour(List<Vec2> points) {
+        if (points.size() <= 3) {
+            return points;
+        }
+        
+        List<Vec2> result = new ArrayList<>();
+        result.add(points.get(0));
+        
+        for (int i = 1; i < points.size() - 1; i++) {
+            // on stock le point precedent, le point courant et le point suivant
+            Vec2 prev = points.get(i - 1);
+            Vec2 curr = points.get(i);
+            Vec2 next = points.get(i + 1);
+            
+            // on verifie que les trois points ne sont pas alignés horizontalement (en y)
+            if (Math.abs(prev.y - curr.y) > 0.001f || Math.abs(curr.y - next.y) > 0.001f) {
+                result.add(curr);
+            }
+        }
+        
+        result.add(points.get(points.size() - 1));
+        return result;
     }
     
     /**

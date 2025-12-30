@@ -23,6 +23,11 @@ public class ProjectileView {
             return;
         }
         
+        //permet de ne pas voir le projectile de la batte de baseball
+        if ("Baseball Bat".equals(projectile.getSourceWeapon().getName())) {
+            return;
+        }
+        
         Vec2 worldPos = projectile.getCurrentPosition();
         
         // Convertir les coordonnées monde en coordonnées écran

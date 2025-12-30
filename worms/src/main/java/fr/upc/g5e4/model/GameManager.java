@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.HashMap;
 import java.util.Map;
+import javax.swing.Timer;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.World;
 
@@ -26,6 +27,7 @@ import fr.upc.g5e4.view.ItemView;
 import fr.upc.g5e4.view.TeamView;
 //import fr.upc.g5e4.view.TeamView;
 import fr.upc.g5e4.view.InventoryOverlay;
+import fr.upc.g5e4.view.HUDOverlay;
 
 import java.io.*;
 import com.google.gson.*;
@@ -79,6 +81,7 @@ public class GameManager {
 
     
     private InventoryOverlay inventoryOverlay;
+    private HUDOverlay hudOverlay;
     private fr.upc.g5e4.view.WindOverlay windOverlay;
 
     private final WindModel windModel = new WindModel();
@@ -109,18 +112,20 @@ public class GameManager {
         //this.saveDataBool = false;
         SoundPlayer.initialize();
 
-        int sizeX = 1280;  // Taille du terrain
-        int sizeY = 720;
-        int waterLevel = 800;
+        // ========== CONFIGURATION DU TERRAIN ==========
+        // Pour changer le type de terrain et la taille, voir MapConfig.java
+        int sizeX = MapConfig.getMapWidth();
+        int sizeY = MapConfig.getMapHeight();
+        // Eau uniquement pour le mode ISLANDS
+        int waterLevel = (MapConfig.getMapType() == MapConfig.MapType.ISLANDS) ? 480 : sizeY + 100;
+        // =============================================
         
         // generation procédurale du terrain avec seed (le temps de la machine)
         TerrainGenerator generator = new TerrainGenerator(System.currentTimeMillis());
-        int[] groundY = generator.generateTerrainWithPlatforms(
+        int[] groundY = generator.generateTerrainByType(
             200,          // nombre de points pour la génération
             250,          // hauteur minimale (depuis le haut)
-            650,          // hauteur maximale
-            280,          // hauteur des plateformes aux bords
-            15            // largeur des plateformes en %
+            650           // hauteur maximale
         );
         /*
          * Ancienne méthode : terrain manuel
@@ -186,6 +191,8 @@ public class GameManager {
         // Initialisation du système de tir
         this.itemController = new ItemController(new ItemView());
         this.itemController.setWorld(world);
+        this.itemController.setBlockGridModel(this.blockGridModel);// pour les dégats sur le terrain
+        this.itemController.setWindModel(this.windModel); // pour le vent
         this.itemController.setGameManager(this);  // Pour le tracking des stats
         
         // Créer un tableau de tous les worms (N equipes)
@@ -198,7 +205,7 @@ public class GameManager {
         activeWormController.setWorld(world);
         activeWormController.setAllWorms(this.allWorms);
         // Équiper une arme par défaut (AK-47)
-        activeWormController.setCurrentWeapon(new Ak47());
+        activeWormController.setCurrentWeapon(null);
         // Initialisation caméra avec le worm actif (fenêtre 1280x720, terrain 6000x720)
         this.cameraController = new CameraController(camera,listTeamInital.get(currentTeamIndex).getTeamModel().getWorm(activeWormIndex));
         // Centrer la caméra sur le worm actif au démarrage
@@ -212,12 +219,12 @@ public class GameManager {
         // Passer l'ItemController au GamePanel pour dessiner les projectiles
         this.gamePanel.setItemController(this.itemController);
         // Ajoute le contrôleur pour capter les touches
-        this.gamePanel.add(imputController);
+        //this.gamePanel.add(imputController);
         imputController.setGameManager(this); // connecte inputController au GameManager
         // Connecter le renderer de trajectoire
-        imputController.setTrajectoryRenderer(gamePanel.getTrajectoryRenderer());
-        gamePanel.getTrajectoryRenderer().setShooter(activeWormController.getModel());
-        gamePanel.getTrajectoryRenderer().setWeapon(activeWormController.getCurrentWeapon());
+        imputController.setTrajectoryRenderer(gamePanel.getTrajectoryView());
+        gamePanel.getTrajectoryView().setShooter(activeWormController.getModel());
+        gamePanel.getTrajectoryView().setWeapon(activeWormController.getCurrentWeapon());
         // pour ne pas que gamePanel et imputController se disputent le focus
         this.gamePanel.setFocusable(false);  // le panel ne prend pas le focus
         imputController.setFocusable(true);   // l'inputController prend le focus    
@@ -324,10 +331,9 @@ public class GameManager {
         activeWormController.setItemController(this.itemController);
         activeWormController.setWorld(world);
         activeWormController.setAllWorms(this.allWorms);
-
-        // Équiper une arme par défaut (AK-47)
-        activeWormController.setCurrentWeapon(new Ak47());
-
+        
+        activeWormController.setCurrentWeapon(null);
+        
         // Initialisation caméra avec le worm actif (fenêtre 1280x720, terrain 6000x720)
         this.cameraController = new CameraController(camera,listTeamInital.get(currentTeamIndex).getTeamModel().getWorm(activeWormIndex));
         
@@ -347,19 +353,34 @@ public class GameManager {
         this.gamePanel.setItemController(this.itemController);
 
         // Ajoute le contrôleur pour capter les touches
-        this.gamePanel.add(imputController);
+        //this.gamePanel.add(imputController);
         imputController.setGameManager(this); // connecte inputController au GameManager
                                              //  pour que inputController puisse appeler switchToNextWorm()
         
         // Connecter le renderer de trajectoire
-        imputController.setTrajectoryRenderer(gamePanel.getTrajectoryRenderer());
-        gamePanel.getTrajectoryRenderer().setShooter(activeWormController.getModel());
-        gamePanel.getTrajectoryRenderer().setWeapon(activeWormController.getCurrentWeapon());
+        imputController.setTrajectoryRenderer(gamePanel.getTrajectoryView());
+        gamePanel.getTrajectoryView().setShooter(activeWormController.getModel());
+        gamePanel.getTrajectoryView().setWeapon(activeWormController.getCurrentWeapon());
         
         // pour ne pas que gamePanel et imputController se disputent le focus
         // en lancant le jeu, certaines fois rien n'était controllable mais c'est fix maintenant
         this.gamePanel.setFocusable(false);  // le panel ne prend pas le focus
         imputController.setFocusable(true);   // l'inputController prend le focus    
+
+        // Timer pour update régulier de la caméra, projectiles et repaint
+        new Timer(16, e -> {
+            cameraController.update();
+            // mettre à jour les projectiles (16ms = 0.016s par frame)
+            itemController.updateProjectiles(0.016f);
+            
+            // recréer le terrain physique si la grille a changé (blocs détruits)
+            if (blockGridModel.isDirty()) {
+                physic.recreateTerrainFromBlockGrid(blockGridModel);
+                blockGridModel.clearDirty();
+            }
+            
+            gamePanel.repaint();
+        }).start();
 
         //initialiseInventory();
 
@@ -457,6 +478,15 @@ public class GameManager {
     public WindModel getWindModel(){
         return this.windModel;
     }
+
+    public void setHudOverlay(HUDOverlay hud) {
+        this.hudOverlay = hud;
+    }
+
+    public HUDOverlay getHudOverlay() {
+        return hudOverlay;
+    }
+    
     public Map<String, GameStats> getAllTeamStats() {
         return teamStats;
     }
@@ -524,15 +554,15 @@ public class GameManager {
                 activeWormController.setItemController(this.itemController);
                 activeWormController.setWorld(world);
                 activeWormController.setAllWorms(this.allWorms);
-                activeWormController.setCurrentWeapon(new Ak47());
+                activeWormController.setCurrentWeapon(null);
                 
                 imputController.setCharacterController(activeWormController);
                 cameraController.setTargetCharacter(worm);
                 cameraController.centerOnCharacter();
                 
                 // mettre à jour la trajectoire avec le nouveau worm et son arme
-                gamePanel.getTrajectoryRenderer().setShooter(worm);
-                gamePanel.getTrajectoryRenderer().setWeapon(activeWormController.getCurrentWeapon());
+                gamePanel.getTrajectoryView().setShooter(worm);
+                gamePanel.getTrajectoryView().setWeapon(activeWormController.getCurrentWeapon());
                 
                 return;
             }
@@ -566,7 +596,7 @@ public class GameManager {
             } catch (Exception e) {
                 // fallback sur la valeur par défaut
             }
-            String skinPath = "/worm.png";
+            String skinPath = "/wormPixel.png";
             // Si la TeamView possède un sprite personnalisé, on peut tenter de le récupérer
             // (à adapter si TeamView expose ce champ)
             // Construction de TeamInitialisation
@@ -612,15 +642,15 @@ public class GameManager {
                 activeWormController.setItemController(this.itemController);
                 activeWormController.setWorld(world);
                 activeWormController.setAllWorms(this.allWorms);
-                activeWormController. setCurrentWeapon(new Ak47());
+                activeWormController.setCurrentWeapon(null);
 
                 imputController.setCharacterController(activeWormController);
                 cameraController.setTargetCharacter(worm);
                 cameraController.centerOnCharacter();
-            
-                gamePanel.getTrajectoryRenderer().setShooter(worm);
-                gamePanel. getTrajectoryRenderer().setWeapon(activeWormController.getCurrentWeapon());
-            
+                
+                // mettre à jour la trajectoire avec le nouveau worm et son arme
+                gamePanel.getTrajectoryView().setShooter(worm);
+                gamePanel.getTrajectoryView().setWeapon(activeWormController.getCurrentWeapon());
                 return;
             }   
         
@@ -634,12 +664,24 @@ public class GameManager {
     /**
      * passe au round suivant et alterne les équipes
      */
+    // Ajout d'une référence à GameLoop pour synchroniser le timer
+    private GameLoop gameLoop;
+
+    public void setGameLoop(GameLoop loop) {
+        this.gameLoop = loop;
+    }
+
     public void nextRound() {
         roundNumber++;
         currentTeamIndex = (currentTeamIndex + 1) % listTeamInital.size(); 
         currentTeam = listTeamInital.get(currentTeamIndex).getTeamModel();
         if (currentTeam != null) {
             currentTeam.resetInventoryTurn();
+        }
+        // Réinitialise le timer à 30 secondes
+        roundTimeRemaining = roundTimeSave; // ou 1800
+        if (gameLoop != null) {
+            gameLoop.resetRoundTimer();
         }
         //switch worm dans cette équipe
         switchToNextWorm(currentTeam);
@@ -649,6 +691,7 @@ public class GameManager {
             inventoryOverlay.setInventory(getCurrentTeamInventory());
         }
 
+        
         // --- Vent : change à chaque tour (fixe pendant le tour) ---
         WindModel.Dir[] dirs = WindModel.Dir.values();
         windModel.setDir(dirs[windRng.nextInt(dirs.length)]);
@@ -660,7 +703,6 @@ public class GameManager {
         System.out.println("[VENT] " + windModel.getDir().label + " | force=" + String.format("%.2f", windModel.getStrength()));
 
     }
-
     
     /**
      * Change l'arme équipée du worm actif (cycliquement)
@@ -693,13 +735,13 @@ public class GameManager {
         if (newWeapon != null && activeWormController != null) {
             activeWormController.setCurrentWeapon(newWeapon);
             // mettre à jour la trajectoire avec la nouvelle arme
-            gamePanel.getTrajectoryRenderer().setWeapon(newWeapon);
+            gamePanel.getTrajectoryView().setWeapon(newWeapon);
         }
     }
 
     // Initialiser un nombre N d'equipes
     public void createTeam(int number){
-        createTeam(number, "/worm.png"); // Utilise le skin par défaut
+        createTeam(number, "/wormPixel.png"); // Utilise le skin par défaut
     }
     
     // Initialiser un nombre N d'equipes avec un skin spécifique
@@ -779,33 +821,35 @@ public class GameManager {
     public void setWeaponFromInventory(String itemName) {
         Weapon newWeapon = null;
 
-        switch (itemName) {
-            case "Ak47":
-            case "AK47":
+        // Empeche la casse 
+        String normalizedName = itemName.toLowerCase();
+
+        switch (normalizedName) {
+            case "ak47":
                 newWeapon = new Ak47();
                 System.out.println("[Inventaire] Arme équipée depuis inventaire : AK-47");
                 break;
-            case "BaseballBat":
+            case "baseballbat":
                 newWeapon = new BaseballBat();
                 System.out.println("[Inventaire] Arme équipée depuis inventaire : Baseball Bat");
                 break;
-            case "Grenade":
+            case "grenade":
                 newWeapon = new Grenade();
                 System.out.println("[Inventaire] Arme équipée depuis inventaire : Grenade");
                 break;
-            case "RocketLauncher":
+            case "rocketlauncher":
                 newWeapon = new RocketLauncher();
                 System.out.println("[Inventaire] Arme équipée depuis inventaire : Rocket Launcher");
                 break;
             default:
-                System.out.println("[Inventaire] Aucun mapping d’arme pour : " + itemName);
+                System.out.println("[Inventaire] Arme non reconnue: " + itemName);
                 break;
         }
 
         if (newWeapon != null && activeWormController != null) {
             activeWormController.setCurrentWeapon(newWeapon);
             // Met à jour la trajectoire
-            gamePanel.getTrajectoryRenderer().setWeapon(newWeapon);
+            gamePanel.getTrajectoryView().setWeapon(newWeapon);
         }
     }
 
