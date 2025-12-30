@@ -25,6 +25,7 @@ import fr.upc.g5e4.model.io.TeamData;
 import fr.upc.g5e4.view.GamePanel;
 import fr.upc.g5e4.view.ItemView;
 import fr.upc.g5e4.view.TeamView;
+import fr.upc.g5e4.view.CharacterView;
 //import fr.upc.g5e4.view.TeamView;
 import fr.upc.g5e4.view.InventoryOverlay;
 
@@ -204,7 +205,10 @@ public class GameManager {
         activeWormController.setWorld(world);
         activeWormController.setAllWorms(this.allWorms);
         // Équiper une arme par défaut (AK-47)
-        activeWormController.setCurrentWeapon(new Ak47());
+        Weapon defaultWeapon = null;
+        activeWormController.setCurrentWeapon(defaultWeapon);
+        // Mettre à jour l'arme dans la vue
+        updateWeaponInView(activeWormController.getModel(), defaultWeapon);
         // Initialisation caméra avec le worm actif (fenêtre 1280x720, terrain 6000x720)
         this.cameraController = new CameraController(camera,listTeamInital.get(currentTeamIndex).getTeamModel().getWorm(activeWormIndex));
         // Centrer la caméra sur le worm actif au démarrage
@@ -335,7 +339,10 @@ public class GameManager {
         activeWormController.setAllWorms(this.allWorms);
 
         // Équiper une arme par défaut (AK-47)
-        activeWormController.setCurrentWeapon(new Ak47());
+        Weapon defaultWeapon = null;
+        activeWormController.setCurrentWeapon(defaultWeapon);
+        // Mettre à jour l'arme dans la vue
+        updateWeaponInView(activeWormController.getModel(), defaultWeapon);
 
         // Initialisation caméra avec le worm actif (fenêtre 1280x720, terrain 6000x720)
         this.cameraController = new CameraController(camera,listTeamInital.get(currentTeamIndex).getTeamModel().getWorm(activeWormIndex));
@@ -548,7 +555,8 @@ public class GameManager {
                 activeWormController.setItemController(this.itemController);
                 activeWormController.setWorld(world);
                 activeWormController.setAllWorms(this.allWorms);
-                activeWormController.setCurrentWeapon(new Ak47());
+                Weapon defaultWeapon = null;
+                activeWormController.setCurrentWeapon(defaultWeapon);
                 
                 imputController.setCharacterController(activeWormController);
                 cameraController.setTargetCharacter(worm);
@@ -556,7 +564,10 @@ public class GameManager {
                 
                 // mettre à jour la trajectoire avec le nouveau worm et son arme
                 gamePanel.getTrajectoryView().setShooter(worm);
-                gamePanel.getTrajectoryView().setWeapon(activeWormController.getCurrentWeapon());
+                gamePanel.getTrajectoryView().setWeapon(defaultWeapon);
+                
+                // mettre à jour l'arme dans la vue
+                updateWeaponInView(worm, defaultWeapon);
                 
                 return;
             }
@@ -638,7 +649,8 @@ public class GameManager {
                 activeWormController.setItemController(this.itemController);
                 activeWormController.setWorld(world);
                 activeWormController.setAllWorms(this.allWorms);
-                activeWormController. setCurrentWeapon(new Ak47());
+                Weapon defaultWeapon = null;
+                activeWormController.setCurrentWeapon(defaultWeapon);
 
                 imputController.setCharacterController(activeWormController);
                 cameraController.setTargetCharacter(worm);
@@ -646,7 +658,10 @@ public class GameManager {
                 
                 // mettre à jour la trajectoire avec le nouveau worm et son arme
                 gamePanel.getTrajectoryView().setShooter(worm);
-                gamePanel.getTrajectoryView().setWeapon(activeWormController.getCurrentWeapon());
+                gamePanel.getTrajectoryView().setWeapon(defaultWeapon);
+                
+                // mettre à jour l'arme dans la vue
+                updateWeaponInView(worm, defaultWeapon);
                 return;
             }   
         
@@ -732,6 +747,8 @@ public class GameManager {
             activeWormController.setCurrentWeapon(newWeapon);
             // mettre à jour la trajectoire avec la nouvelle arme
             gamePanel.getTrajectoryView().setWeapon(newWeapon);
+            // met à jour l'arme dans la vue
+            updateWeaponInView(activeWormController.getModel(), newWeapon);
         }
     }
     
@@ -839,6 +856,8 @@ public class GameManager {
             activeWormController.setCurrentWeapon(newWeapon);
             // Met à jour la trajectoire
             gamePanel.getTrajectoryView().setWeapon(newWeapon);
+            // met à jour l'arme dans la vue
+            updateWeaponInView(activeWormController.getModel(), newWeapon);
         }
     }
 
@@ -913,6 +932,37 @@ public class GameManager {
             }
         }
         return allWorms;
+    }
+    
+    /**
+     * Met à jour l'arme affichee dans la vue pour un worm en parametre
+     * @param worm le modèle du worm
+     * @param weapon l'arme à afficher (peut être null)
+     */
+    private void updateWeaponInView(CharacterModel worm, Weapon weapon) {
+        if (worm == null || listTeamInital == null) {
+            return;
+        }
+        
+        // chercher le worm a travers les equipes en jeu
+        for (TeamInitialisation teamInit : listTeamInital) {
+            TeamModel teamModel = teamInit.getTeamModel();
+            CharacterModel[] worms = teamModel.getTabWorms();
+            
+            // chercher l'index du worm dans l'equipe qu'on est entrain de parcourir
+            for (int i = 0; i < worms.length; i++) {
+                if (worms[i] == worm) {
+                    TeamView teamView = teamInit.getTeamView();
+                    if (teamView != null) {
+                        CharacterView characterView = teamView.getCharacterView(i);
+                        if (characterView != null) {
+                            characterView.setCurrentWeaponSprite(weapon);
+                        }
+                    }
+                    return;
+                }
+            }
+        }
     }
 
     /**
