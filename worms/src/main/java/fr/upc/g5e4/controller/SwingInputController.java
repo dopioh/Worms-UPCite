@@ -8,8 +8,10 @@ import org.jbox2d.common.Vec2;
 
 import fr.upc.g5e4.model.GameManager;
 import fr.upc.g5e4.model.CharacterModel;
-import fr.upc.g5e4.view.InventoryOverlay;
-import fr.upc.g5e4.view.TrajectoryView;
+import fr.upc.g5e4.view.*;
+import fr.upc.g5e4.controller.SwingInputController;
+import fr.upc.g5e4.controller.CharacterController;
+
 import javax.swing.JFrame;
 
 /** 
@@ -29,6 +31,9 @@ public class SwingInputController extends JPanel{
 
     private InventoryOverlay inventoryOverlay; 
     private JFrame gameFrame;
+    private PauseOverlay pauseOverlay;
+    private HelpOverlay helpOverlay;
+
 
     /**
      * Constructeur pour gérer uniquement le personnage
@@ -101,6 +106,15 @@ public class SwingInputController extends JPanel{
      */
     public void setGameFrame(JFrame frame){
         this.gameFrame = frame;
+    }
+
+    public void setPauseOverlay(PauseOverlay overlay) {
+        this.pauseOverlay = overlay;
+    }
+ 
+    
+    public void setHelpOverlay(HelpOverlay overlay) {
+        this.helpOverlay = overlay;
     }
 
     //@Override
@@ -184,19 +198,25 @@ public class SwingInputController extends JPanel{
                         personnageController.toggleFlyMode();
                         System.out.println("SUPERMAAAAAAAAAAAAN (todo : ajouter cape)");
                         break;
-                    // Touche Echap pour quitter le jeu !!!!!!!!!!!!!!!!!!!!!!!!! A modifier pour le menu plus tard
+                    // Touche Echap pour ouvrir les parametres
                     case KeyEvent.VK_ESCAPE:
-                        if(gameFrame != null){
-                            gameFrame.dispose();
+                        if (pauseOverlay != null) {
+                            boolean v = pauseOverlay.isPauseVisible();
+                            pauseOverlay.setPauseVisible(!v);
+
+                            // si on ferme pause, on ferme aussi help
+                            if (v && helpOverlay != null) {
+                                helpOverlay.setHelpVisible(false);
+                            }
                         }
-                        System.exit(0);
                         break;
+
                     case KeyEvent.VK_I:
                         if (inventoryOverlay != null) {
                         boolean visible = inventoryOverlay.isInventoryVisible();
                         inventoryOverlay.setInventoryVisible(!visible);
-                    }
-                    break;
+                        }
+                        break;
                     
                     // Touche H pour ajouter un item de test au nametag
                     case KeyEvent.VK_H:
@@ -254,6 +274,10 @@ public class SwingInputController extends JPanel{
             public void mousePressed(MouseEvent e) {
                 requestFocusInWindow();  // Récupérer le focus au clic
                 if (e.getButton() == MouseEvent.BUTTON1) {
+                    // Vérifier que l'inventaire n'est pas ouvert pour éviter le double tir
+                    if (inventoryOverlay != null && inventoryOverlay.isInventoryVisible()) {
+                        return;  // L'inventaire gère le tir
+                    }
                     handleFireAt(e.getX(), e.getY());
                 }
             }
@@ -326,7 +350,11 @@ public class SwingInputController extends JPanel{
             personnageController.getCurrentWeapon().setShootingAngle(shootingAngle);
         }
 
-        personnageController.fireWeapon(1);  // direction ignorée, l'angle est dans l'arme
+        // Calculer la direction basée sur l'angle
+        int direction = (dx > 0) ? 1 : -1;
+        // Convertir l'angle en radians pour fireWeaponWithAngle
+        double angleInRadians = Math.toRadians(shootingAngle);
+        personnageController.fireWeaponWithAngle(angleInRadians, direction);
     }
     
     /**
