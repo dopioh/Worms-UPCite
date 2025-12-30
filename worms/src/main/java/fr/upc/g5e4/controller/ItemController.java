@@ -100,7 +100,11 @@ public class ItemController {
         }
 
         if (weapon.use()) {
-            SoundPlayer.play("/sfx/gunshot.wav");
+            // on fait jouer le son de l'arme
+            String soundPath = getWeaponSoundPath(weapon);
+            if (soundPath != null) {
+                SoundPlayer.play(soundPath);
+            }
 
             Projectile projectile = weapon.fire(shooter, world, allWorms, direction, windModel);
             if (projectile != null) {
@@ -289,5 +293,29 @@ public class ItemController {
      */
     public List<Projectile> getActiveProjectiles() {
         return activeProjectiles;
+    }
+    
+    /**
+     * Retourne le chemin du son pour une arme donnée
+     * @param weapon l'arme pour laquelle obtenir le son
+     * @return le chemin du son dans resources/sfx/ ou null si non trouvé
+     */
+    private String getWeaponSoundPath(Weapon weapon) {
+        if (weapon == null) {
+            return null;
+        }
+
+        String className = weapon.getClass().getSimpleName();
+        String fileName = className.toLowerCase();
+        String wavPath = "/sfx/" + fileName + "-sound.wav";
+        
+        // si le fichier son existe (obligatoirement en .wav)
+        if (SoundPlayer.class.getResourceAsStream(wavPath) != null) {
+            return wavPath;
+        }
+        
+        // si on trouve pas le fichier son
+        System.err.println("Aucun fichier son trouvé pour l'arme: " + className);
+        return null;
     }
 }
