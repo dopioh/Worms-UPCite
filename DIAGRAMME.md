@@ -1,157 +1,89 @@
-# Diagramme d'Architecture - Projet Worms
+# Spécifications Techniques : Architecture Projet Worms
 
-## Vue d'ensemble
-Ce document présente un diagramme complet des classes principales et leurs interactions dans le projet Worms, organisé selon le pattern **MVC (Modèle-Vue-Contrôleur)**.
-
----
-
-## Classes Principales et Interactions
-
-### Point d'entree
-- **GameLauncher** : Classe principale qui initialise le jeu
-  - Cree GameManager et GameLoop
-  - Lance la boucle de jeu
-
-### Noyau du Jeu (MVC)
-```
-┌─────────────────┐
-│   GameLauncher  │
-└─────────────────┘
-         │
-         ▼
-┌─────────────────┐ ◄─── ┌─────────────────┐
-│   GameManager   │      │    GameLoop     │
-└─────────────────┘      └─────────────────┘
-         │
-         ▼
-    ┌─────────────┐ ──► ┌─────────────┐ ◄── ┌─────────────┐
-    │ Controllers │     │    Models   │     │    Views    │
-    └─────────────┘     └─────────────┘     └─────────────┘
-```
-
-* GameLoop → GameManager : GameLoop appelle les updates de GameManager
-* Controllers → Models : Controllers modifient l'etat des Models  
-* Models → Views : Views lisent les donnees des Models pour l'affichage
+Ce document décrit la structure logicielle du projet, basée sur un découpage MVC strict et l'intégration du moteur physique JBox2D.
 
 ---
 
-## Detail des Interactions
+## 1. Noyau du Système (Core)
 
-### GameManager (Coeur logique)
-**Responsabilites :** Gere les equipes, personnages, physique, rounds
-- **Equipes :** TeamModel[] (maintenant dynamique)
-- **Personnages :** CharacterModel[]
-- **Physique :** PhysicsWorld
-- **Terrain :** GroundModel / BlockGridModel
+L'exécution repose sur la synchronisation entre la logique métier et le moteur physique.
 
-**Interactions principales :**
-- **→ GameLoop** : Fournit l'etat du jeu pour la boucle
-- **→ Controllers** : Recoit les entrees utilisateur
-- **→ Models** : Met a jour la logique (equipes, inventaire, projectiles)
-- **→ Views** : Met a jour l'affichage via GamePanel
-
-### GameLoop (Boucle principale)
-**Responsabilites :** Gestion du timing (60 FPS), physique, rendu
-- **Timer :** javax.swing.Timer a 16ms (~60 FPS)
-- **Physique :** Mise a jour PhysicsWorld
-- **Rendu :** Appel repaint() sur GamePanel
-
-**Interactions :**
-- **→ GameManager** : Appelle update() pour la logique
-- **→ GamePanel** : Declenche le repaint()
-- **→ PhysicsWorld** : Met a jour la physique JBox2D
-
-### Controllers (Gestion des entrees)
-| Classe | Responsabilite | Interactions |
-|--------|---------------|--------------|
-| **CharacterController** | Mouvement, tir, changement d'arme | → GameManager, → CharacterModel |
-| **CameraController** | Zoom, deplacement camera | → CameraModel |
-| **ItemController** | Gestion projectiles/items | → GameManager, → Projectile |
-| **SwingInputController** | Capture clavier/souris | → Tous les controllers |
-
-### Models (Logique metier)
-| Categorie | Classes principales | Responsabilites |
-|-----------|-------------------|---------------|
-| Equipes | TeamModel, TeamInitialisation | Gestion des equipes de worms |
-| Personnages | CharacterModel | Position, vie, inventaire d'un worm |
-| Terrain | GroundModel, BlockGridModel, TerrainGenerator | Geometrie du terrain |
-| Physique | PhysicsWorld | Monde JBox2D, collisions |
-| Items | InventoryModel, Item, Weapon, Gadget | Armes, gadgets, inventaire |
-| Projectiles | Projectile | Physique des tirs |
-| Utilitaires | PerlinNoise, PlayerData | Generation procedurale, sauvegarde |
-
-### Views (Affichage)
-| Classe | Responsabilite | Technologies |
-|--------|---------------|--------------|
-| GamePanel | Panel principal, rendu complet | Swing, Graphics2D |
-| TeamView | Affichage d'une equipe | Sprites, couleurs |
-| CharacterView | Rendu d'un worm | Images, animations |
-| InventoryOverlay | Interface inventaire | JDialog, boutons |
-| TrajectoryRenderer | Trajectoire de tir (Angry Birds) | Mathematiques, courbes |
-| ProjectileView | Affichage projectiles | Particules, effets |
+* **GameLauncher** : Point d'entrée principal. Responsable de l'injection de dépendances et de l'initialisation du `GameManager`.
+* **GameLoop** : Thread cadencé à 16ms (~60 FPS). Elle orchestre les cycles `update()` (logique) et `repaint()` (rendu).
+* **GameManager** : Pivot central. Gère le cycle de vie des rounds, le switch d'équipes et la coordination entre les contrôleurs et le `PhysicsWorld`.
 
 ---
 
-## Flux de Donnees Typique
+## 2. Implémentation du Pattern MVC
 
-Imagine que tu appuies sur la fleche droite pour bouger ton worm. Voici ce qui se passe :
+### Modèles (State & Logic)
+Le package `models/` encapsule l'état du jeu et les règles physiques.
 
-```mermaid
-graph TD
-    A[Tu appuies fleche droite] --> B[Controller capte la touche]
-    B --> C[GameManager calcule le mouvement]
-    C --> D[Models changent la position]
-    D --> E[Physique applique gravite]
-    E --> F[Views preparent le dessin]
-    F --> G[GamePanel redessine l'ecran]
-    G --> H[Tu vois le worm bouger]
-```
+* **Gestion des Équipes** : 
+    * `TeamModel` : Conteneur des données d'équipe (couleurs, liste de worms).
+    * `TeamInitialisation` : Logique de déploiement et de configuration initiale des escouades.
+* **Entités & Physique** :
+    * `CharacterModel` : État dynamique d'un Worm (HP, inventaire).
+    * `PhysicsWorld` : Instance JBox2D gérant les corps physiques et la gravité.
+    * `WindModel` : Influence les trajectoires balistiques des projectiles.
+    * `WaterSensorListener` : Détecte l'immersion des corps via des capteurs physiques (JBox2D Sensors).
+* **Système d'Items** :
+    * `Weapon` : Classe abstraite étendue par `Ak47`, `RocketLauncher`, `Grenade`, `BaseballBat`.
+    * `Gadget` : Items utilitaires (ex: `Bumper`).
+    * `Projectile` : Entité physique autonome générée lors d'un tir.
+* **Données & Stats** :
+    * `PlayerData` / `GameStats` : Persistance des profils et calcul des performances en fin de match (Kills, dégâts cumulés).
+* **Terrain** :
+    * `GroundModel` / `BlockGridModel` : Représentation matricielle de la carte.
+    * `TerrainGenerator` / `PerlinNoise` : Algorithmes de génération procédurale.
 
-### Exemple concret :
-1. **Tu appuies** sur une touche (ex: fleche droite)
-2. **Controller** detecte et dit "le joueur veut aller a droite"
-3. **GameManager** decide "OK, bouger le worm de 5 pixels a droite"
-4. **Models** mettent a jour la position du worm dans le code
-5. **Physique** verifie les collisions et applique la gravite
-6. **Views** calculent comment dessiner le worm a sa nouvelle position
-7. **GamePanel** efface l'ancien dessin et redessine tout
-8. **Ecran** affiche le worm a sa nouvelle position - tu le vois bouger !
+### Vues (UI & Rendering)
+Le package `views/` gère l'affichage via Graphics2D et des composants Swing personnalisés.
 
-## Architecture MVC Implementee
+* **États de Jeu** :
+    * `MainMenuView` : Interface d'accueil.
+    * `GamePanel` : Canvas principal de la simulation.
+    * `EndGameView` : Écran de résultats (score final et statistiques).
+* **Composants graphiques** :
+    * `BlockGridView` : Rendu optimisé de la grille de terrain.
+    * `NameTagView` : Overlay affichant les noms et barres de vie au-dessus des entités.
+    * `CharacterView` / `ProjectileView` : Gestion des sprites et des animations de particules.
+    * `TrajectoryRenderer` : Tracé prédictif de la trajectoire avant le tir.
+    * `RoundedButton` : Composant UI étendu pour l'esthétique des menus.
 
-### Modele (Model)
-- **Logique metier** : TeamModel, CharacterModel, PhysicsWorld
-- **Donnees** : PlayerData, InventoryModel
-- **Calculs** : PerlinNoise, TerrainGenerator
+### Contrôleurs (Coordination)
+Le package `controllers/` fait le pont entre les inputs et les modèles.
 
-### Vue (View)
-- **Swing Components** : GamePanel, InventoryOverlay
-- **Rendu graphique** : CharacterView, TeamView
-- **Effets visuels** : TrajectoryRenderer, ProjectileView
-
-### Controleur (Controller)
-- **Entrees** : SwingInputController, CharacterController
-- **Coordination** : GameManager, GameLoop
-- **Actions** : ItemController, CameraController
-
-## Points Cles d'Architecture
-
-### Points forts
-- **Separation claire MVC** : Logique, affichage et controle separes
-- **Extensibilite** : Support N equipes, ajout facile de nouvelles armes
-- **Performance** : Boucle 60 FPS optimisee, physique JBox2D
-- **Testabilite** : Classes isolees, nombreux tests unitaires
-
-### Composants critiques
-- **GameManager** : Coeur du jeu, coordonne tout
-- **GameLoop** : Maintient le rythme du jeu
-- **PhysicsWorld** : Gestion collisions et physique
-- **GamePanel** : Rendu graphique principal
-
-### Mode Console
-- Classes paralleles dans console/ : ConsoleLauncher, ConsoleGameManager
-- Version textuelle complete sans interface graphique
+* **Gameplay** :
+    * `CharacterController` : Mouvements, sauts et visée.
+    * `ItemController` : Gestion de l'inventaire et activation des armes/gadgets.
+    * `CameraController` : Gestion du Smooth Follow (Lerp) et du zoom sur l'action.
+* **Navigation** :
+    * `MainMenuController` / `EndGameController` : Logique de transition entre les écrans.
+* **Inputs** :
+    * `SwingInputController` : Centralisation des Key/Mouse Listeners.
 
 ---
 
-*Ce diagramme montre comment les classes du projet Worms s'articulent pour creer une experience de jeu coherente et extensible.*</content>
+## 3. Mode Console (Debug & Headless)
+
+Pour le développement et les tests unitaires de la logique métier, une branche `console/` permet de faire tourner le jeu sans l'overhead graphique.
+
+* **Composants** : `ConsoleGameManager`, `ConsoleInputController`, `ConsoleLogics`.
+* **Usage** : Permet de simuler des tours de jeu et de valider les calculs de dégâts/mouvements via des flux textes.
+
+---
+
+## 4. Liaisons et Flux de données
+
+1.  **Entrée** : Le `SwingInputController` capte un événement.
+2.  **Traitement** : Le `CharacterController` applique une force (`applyLinearImpulse`) au corps JBox2D associé dans le `PhysicsWorld`.
+3.  **Simulation** : JBox2D résout les collisions (via `WaterSensorListener` ou `ContactListener`).
+4.  **Mise à jour** : Le `GameManager` vérifie les conditions de victoire via `GameStats`.
+5.  **Rendu** : Le `GamePanel` itère sur les vues (`CharacterView`, `BlockGridView`) pour rafraîchir l'écran.
+
+
+
+---
+**Utilitaires :**
+- `FileUtile` : Gestion des entrées/sorties (sauvegardes, chargement de assets).
