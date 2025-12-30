@@ -142,3 +142,9 @@
     - Suppression du double `repaint()`
     - pré-création d'objets graphiques réutilisables (couleurs, strokes) pour réduire les allocations mémoire
 - **Lag Audio** : Système de cache avec pré-chargement des sons en mémoire pour éliminer le lag au premier tir
+
+## [v.0.5 : SPRINT 5](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/4) (unreleased)
+---
+
+### Modified
+- Maj du DIAGRAMME.MD
