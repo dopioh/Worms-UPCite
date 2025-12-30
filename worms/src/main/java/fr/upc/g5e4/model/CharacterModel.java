@@ -58,6 +58,12 @@ public class CharacterModel{
     //Armes équipées
     private InventoryJson equippedItem;
 
+    // cela permet de voir le statut actuel du perso
+    public enum StatusEffect { NONE, DAMAGE, HEAL, SHIELD, BUFF }
+    private StatusEffect currentStatus = StatusEffect.NONE;
+    private long statusStartTime = 0;
+    private static final long STATUS_DURATION = 1000; // en milliseconde 
+
     //private static final int sizePerso = 40;
 
     /**
@@ -224,10 +230,18 @@ public class CharacterModel{
     }
 
     public void setHealth(double health) {
+        // vérifie la guérison (augmentation de vie)
+        if (health > this.health) {
+            healEffect();
+        }
         this.health = health;
     }
 
     public void setShield(double shield) {
+        // vérifie l'ajout d'un shield
+        if (shield > this.shield) {
+            shieldEffect();
+        }
         this.shield = shield;
     }
 
@@ -382,6 +396,9 @@ public class CharacterModel{
      * @param attacker Le worm qui a infligé les dégâts
      */
     public void dealDamage(double damageAmount, CharacterModel attacker) {
+        // Déclencher l'effet visuel de dégâts
+        damageEffect();
+        
         double actualDamage = damageAmount - this.shield; //Dégats apres le shield
         if (actualDamage > 0) {
             this.health -= actualDamage;
@@ -478,4 +495,61 @@ public class CharacterModel{
         return new CharacterData(ID, name, currentX, currentY, health, shield, isDead, this.facingRight);
     }
     
+    // ==================== Partie qui permet de voir visuellement les status du perso ====================
+    
+    /**
+     * effet visuel de dégâts (rouge)
+     */
+    public void damageEffect() {
+        this.currentStatus = StatusEffect.DAMAGE;
+        this.statusStartTime = System.currentTimeMillis();
+    }
+    
+    /**
+     * effet visuel de guérison (vert)
+     */
+    public void healEffect() {
+        this.currentStatus = StatusEffect.HEAL;
+        this.statusStartTime = System.currentTimeMillis();
+    }
+    
+    /**
+     * effet visuel du shield (cyan)
+     */
+    public void shieldEffect() {
+        this.currentStatus = StatusEffect.SHIELD;
+        this.statusStartTime = System.currentTimeMillis();
+    }
+    
+    /**
+     * effet visuel du buff (bleu)
+     */
+    public void buffEffect() {
+        this.currentStatus = StatusEffect.BUFF;
+        this.statusStartTime = System.currentTimeMillis();
+    }
+    
+    /**
+     * @return effet actuel (avec vérif de la durée)
+     */
+    public StatusEffect getCurrentStatus() {
+        long elapsed = System.currentTimeMillis() - statusStartTime;
+        if (elapsed > STATUS_DURATION) {
+            currentStatus = StatusEffect.NONE;
+        }
+        return currentStatus;
+    }
+    
+    /**
+     * @return progression de l'animation (0 à 1)
+     */
+    public float getStatusEffect() {
+        long elapsed = System.currentTimeMillis() - statusStartTime;
+        if (elapsed > STATUS_DURATION) {
+            return 0f; 
+        }
+        return 1f;
+    }
+    
 }
+
