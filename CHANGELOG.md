@@ -164,7 +164,6 @@
 - **Performance**
     - Centralisation de repaint dans un seul Timer (gameLoop) pour avoir un seul repaint()
     - pré-création d'objets graphiques réutilisables (couleurs, strokes) pour réduire les allocations mémoire pour chaque cube
-<<<<<<< HEAD
 - **Lag Audio** : Système de cache avec pré-chargement des sons en mémoire pour éliminer le lag au premier tir
 
 
@@ -175,6 +174,3 @@
 - Algorithme FloodFill
     - permet de supprimer les blocks qui ne sont pas liés au sol
 - Fixture unique par block
-=======
-- **Lag Audio** : Système de cache avec pré-chargement des sons en mémoire pour éliminer le lag au premier tir
->>>>>>> origin/dev
