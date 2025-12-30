@@ -12,6 +12,8 @@ import org.jbox2d.dynamics.FixtureDef;
 import org.jbox2d.dynamics.World;
 
 import fr.upc.g5e4.model.io.CharacterData;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Modèle du Personnage
@@ -59,10 +61,13 @@ public class CharacterModel{
     private InventoryJson equippedItem;
 
     // cela permet de voir le statut actuel du perso
-    public enum StatusEffect { NONE, DAMAGE, HEAL, SHIELD, BUFF }
+    public enum StatusEffect { NONE, DAMAGE, HEAL, SHIELD, BUFF, SPEED_BUFF, JUMP_BUFF }
     private StatusEffect currentStatus = StatusEffect.NONE;
     private long statusStartTime = 0;
     private static final long STATUS_DURATION = 1000; // en milliseconde 
+    
+    // buffs temporaires - support multiple buffs simultanés
+    private List<BuffEffect> activeBuffs = new ArrayList<>();
 
     //private static final int sizePerso = 40;
 
@@ -83,7 +88,7 @@ public class CharacterModel{
         this.ycord = ycord;
         this.health = 100.0;
         this.shield = 50.0;
-        this.speed = 5.0;  // defini à 3 à la base
+        this.speed = 4;  // vitesse de base
         this.jump = 5.0;
         this.isDead = false;
         this.facingRight = true;
@@ -144,7 +149,7 @@ public class CharacterModel{
         this.ycord = ycord;
         this.health = health;
         this.shield = shield;
-        this.speed = 15.0;
+        this.speed = 4;
         this.jump = 5.0;
         this.withCollision = false;
         this.isDead = isDead;
@@ -197,11 +202,25 @@ public class CharacterModel{
     }
 
     public double getSpeed() {
-        return speed;
+        // Appliquer tous les buffs de speed actifs
+        double finalSpeed = speed;
+        for (BuffEffect buff : activeBuffs) {
+            if (buff.isActive() && buff.getType() == BuffEffect.BuffType.SPEED_BOOST) {
+                finalSpeed *= buff.getMultiplier();
+            }
+        }
+        return finalSpeed;
     }
 
     public double getJump() {
-        return jump;
+        // Appliquer tous les buffs de jump actifs
+        double finalJump = jump;
+        for (BuffEffect buff : activeBuffs) {
+            if (buff.isActive() && buff.getType() == BuffEffect.BuffType.JUMP_BOOST) {
+                finalJump *= buff.getMultiplier();
+            }
+        }
+        return finalJump;
     }
 
     public boolean isDead() {
@@ -353,7 +372,7 @@ public class CharacterModel{
         double timeSinceLastJump = (currentTime - lastJumpTime) / 1000.0; //Chronometre le dernier saut
         
         if (isOnGround() && timeSinceLastJump >= JUMP_COOLDOWN) {
-            float jumpForce = (float)(jump);
+            float jumpForce = (float)(getJump());
             Vec2 impulse = new Vec2(0, jumpForce);
             Vec2 point = persoBody.getWorldCenter();
             persoBody.applyLinearImpulse(impulse, point);
@@ -530,6 +549,22 @@ public class CharacterModel{
     }
     
     /**
+     * effet visuel du buff speed (rose)
+     */
+    public void speedBuffEffect() {
+        this.currentStatus = StatusEffect.SPEED_BUFF;
+        this.statusStartTime = System.currentTimeMillis();
+    }
+    
+    /**
+     * effet visuel du buff jump (jaune)
+     */
+    public void jumpBuffEffect() {
+        this.currentStatus = StatusEffect.JUMP_BUFF;
+        this.statusStartTime = System.currentTimeMillis();
+    }
+    
+    /**
      * @return effet actuel (avec vérif de la durée)
      */
     public StatusEffect getCurrentStatus() {
@@ -551,5 +586,65 @@ public class CharacterModel{
         return 1f;
     }
     
+    // ==================== buffs temporaires ====================
+    
+    /**
+     * applique un buff au worm
+     * @param buffType le type de buff à appliquer
+     * @param duration la durée du buff en milliseconde
+     */
+    public void applyBuff(BuffEffect.BuffType buffType, long duration) {
+        activeBuffs.add(new BuffEffect(buffType, duration));
+        buffEffect();  // déclenche l'animation visuelle bleue
+        System.out.println("[BUFF] " + name + " reçoit " + buffType.getName() + " pour " + (duration / 1000.0) + "s");
+    }
+    
+    /**
+     * applique un buff speed(vitesse +50%) 
+     */
+    public void applySpeedBuff() {
+        activeBuffs.add(new BuffEffect(BuffEffect.BuffType.SPEED_BOOST, 20000));
+        speedBuffEffect();  // déclenche l'animation visuelle rose
+        System.out.println("[BUFF] " + name + " reçoit Speed Boost pour 20s");
+    }
+    
+    /**
+     * applique un buff jump (saut +50%) pendant 20 secondes
+     */
+    public void applyJumpBuff() {
+        activeBuffs.add(new BuffEffect(BuffEffect.BuffType.JUMP_BOOST, 20000));
+        jumpBuffEffect();  // déclenche l'animation visuelle jaune
+        System.out.println("[BUFF] " + name + " reçoit Jump Boost pour 20s");
+    }
+    
+    /**
+     * @return le buff actif actuellement (ou null)
+     */
+    public BuffEffect getActiveBuff() {
+        // Nettoyer les buffs expirés
+        activeBuffs.removeIf(buff -> !buff.isActive());
+        
+        // Retourner le premier buff speed ou jump s'il existe
+        if (!activeBuffs.isEmpty()) {
+            return activeBuffs.get(0);
+        }
+        return null;
+    }
+    
+    /**
+     * @return le multiplicateur du buff actif (1.0 si pas de buff)
+     */
+    public double getBuffMultiplier() {
+        // Nettoyer les buffs expirés
+        activeBuffs.removeIf(buff -> !buff.isActive());
+        
+        // Retourner le multiplicateur du premier buff s'il existe
+        if (!activeBuffs.isEmpty()) {
+            return activeBuffs.get(0).getMultiplier();
+        }
+        return 1.0;
+    }
+    
 }
+
 

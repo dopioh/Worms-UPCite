@@ -840,6 +840,45 @@ public class GameManager {
             gamePanel.getTrajectoryView().setWeapon(newWeapon);
         }
     }
+    
+    /**
+     * Utilise un gadget depuis l'inventaire (potions, bumper, etc)
+     * @param itemName Le nom du gadget à utiliser
+     */
+    public void useGadgetFromInventory(String itemName) {
+        if (activeWormController == null || activeWormController.getModel() == null) {
+            return;
+        }
+        
+        CharacterModel currentWorm = activeWormController.getModel();
+        
+        switch (itemName) {
+            case "PotionHeal":
+                currentWorm.setHealth(Math.min(100, currentWorm.getHealth() + 50));
+                currentWorm.healEffect();
+                System.out.println("[Gadget] Potion Heal : +50 HP");
+                break;
+            case "PotionShield":
+                currentWorm.setShield(Math.min(100, currentWorm.getShield() + 25));
+                currentWorm.shieldEffect();
+                System.out.println("[Gadget] Potion Shield : +25 Shield");
+                break;
+            case "PotionSpeed":
+                currentWorm.applySpeedBuff();
+                System.out.println("[Gadget] Potion Speed : +50% vitesse");
+                break;
+            case "PotionJump":
+                currentWorm.applyJumpBuff();
+                System.out.println("[Gadget] Potion Jump : +50% saut");
+                break;
+            case "Bumper":
+                System.out.println("[Gadget] Bumper utilisé");
+                break;
+            default:
+                System.out.println("[Gadget] Gadget inconnu : " + itemName);
+                break;
+        }
+    }
 
     public java.util.List<InventoryModel.InventoryJson> getCurrentTeamInventory() {
         TeamModel team = getCurrentTeam();

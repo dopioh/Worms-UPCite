@@ -18,8 +18,6 @@ public class CharacterController {
     private boolean LeftKeyPressed = false;
     private boolean RightKeyPressed = false;
     private boolean SpaceKeyPressed = false;
-
-    private final double MOVE_FORCE;  // Vitesse de deplacement
     
     // Références pour le tir
     private ItemController itemController;
@@ -33,7 +31,6 @@ public class CharacterController {
      */
     public CharacterController(CharacterModel model) {
         this.model = model;
-        MOVE_FORCE = model.getSpeed();
     }
 
     /**
@@ -126,14 +123,17 @@ public class CharacterController {
         Body body = model.getBody();
         boolean isMoving = false;
         
+        // calcule de la vitesse avec le buff
+        float currentSpeed = (float) model.getSpeed();
+        
         if (model.isFlyMode()) {
             // Mode vol : déplacement direct sans accumulation d'élan
             float velX = 0;
             float velY = 0;
             
-            if (LeftKeyPressed) velX = -MAX_HORIZONTAL_SPEED * 2;
-            if (RightKeyPressed) velX = MAX_HORIZONTAL_SPEED * 2;
-            if (SpaceKeyPressed) velY = MAX_HORIZONTAL_SPEED * 2;
+            if (LeftKeyPressed) velX = -currentSpeed * 2;
+            if (RightKeyPressed) velX = currentSpeed * 2;
+            if (SpaceKeyPressed) velY = currentSpeed * 2;
             
             body.setLinearVelocity(new Vec2(velX, velY));
             isMoving = LeftKeyPressed || RightKeyPressed;
@@ -144,7 +144,7 @@ public class CharacterController {
                 model.setFacingRight(RightKeyPressed);
                 
                 float currentVelY = body.getLinearVelocity().y;
-                body.setLinearVelocity(new Vec2(direction * MAX_HORIZONTAL_SPEED, currentVelY));
+                body.setLinearVelocity(new Vec2(direction * currentSpeed, currentVelY));
                 
                 isMoving = true;
             } else {

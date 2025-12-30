@@ -221,8 +221,16 @@ public class CharacterView {
                 effectColor = new Color(0, 255, 255, (int)(255 * progress));
                 break;
             case BUFF:
-                // bleu pour les buffs
+                // bleu pour les buffs génériques
                 effectColor = new Color(0, 100, 255, (int)(255 * progress));
+                break;
+            case SPEED_BUFF:
+                // rose pour le buff speed
+                effectColor = new Color(255, 105, 180, (int)(255 * progress));
+                break;
+            case JUMP_BUFF:
+                // jaune pour le buff jump
+                effectColor = new Color(255, 255, 0, (int)(255 * progress));
                 break;
             default:
                 // couleur normale sans effet

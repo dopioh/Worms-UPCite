@@ -109,7 +109,7 @@ public class InventoryOverlay extends JComponent {
                     selectedIndex = i;
                     equippedItem = inventory.get(i);
 
-                    if (gameManager != null) {
+                    if (gameManager != null && "WEAPON".equals(equippedItem.objectType)) {
                         gameManager.setWeaponFromInventory(equippedItem.name);
                     }
 
@@ -150,19 +150,28 @@ public class InventoryOverlay extends JComponent {
                 equippedItem.remainingUses + " munition(s) restante(s)");
         }
 
-        // déléguer le tir au listener (SwingInputController -> handleFireAt)
-        if (fireListener != null) {
-            MouseEvent fake = new MouseEvent(
-                    this,
-                    MouseEvent.MOUSE_PRESSED,
-                    System.currentTimeMillis(),
-                    0,
-                    x, y,
-                    1,
-                    false,
-                    MouseEvent.BUTTON1
-            );
-            fireListener.mousePressed(fake);
+        // Vérifier si c'est un gadget ou une arme
+        if ("GADGET".equals(equippedItem.objectType)) {
+            // Pour les gadgets, utiliser directement
+            if (gameManager != null) {
+                gameManager.useGadgetFromInventory(equippedItem.name);
+                System.out.println("[Inventaire] Gadget utilisé : " + equippedItem.name);
+            }
+        } else {
+            // Pour les armes, déléguer le tir au listener (SwingInputController -> handleFireAt)
+            if (fireListener != null) {
+                MouseEvent fake = new MouseEvent(
+                        this,
+                        MouseEvent.MOUSE_PRESSED,
+                        System.currentTimeMillis(),
+                        0,
+                        x, y,
+                        1,
+                        false,
+                        MouseEvent.BUTTON1
+                );
+                fireListener.mousePressed(fake);
+            }
         }
     }
 
