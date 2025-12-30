@@ -164,6 +164,8 @@
     - permet de supprimer les blocks qui ne sont pas liés au sol
 - Fixture unique par block
 - Boutique
+- Arme/Item graphiquement attachés au worm
+- Sons pour chaque arme
 
 ### Fixed
 - body des blocks invisible après destruction
