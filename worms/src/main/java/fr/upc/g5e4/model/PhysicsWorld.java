@@ -165,9 +165,6 @@ public class PhysicsWorld {
         
         System.out.println("[PHYSICS] Créé " + blockCount + " fixtures de blocs");
         
-        // sauvegarder la référence pour pouvoir la recréer plus tard
-        this.blockGridBody = bodyGround;
-        
         blockGrid.clearDirty();
         
         return bodyGround;

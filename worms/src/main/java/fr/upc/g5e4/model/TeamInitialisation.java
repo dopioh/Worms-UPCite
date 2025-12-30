@@ -50,7 +50,7 @@ public class TeamInitialisation {
      * @param startX position d'initialisation
      */
     public TeamInitialisation(GroundModel groundModel,World world,String teamName, int teamNumber, int startX){
-        this(groundModel, world, teamName, teamNumber, startX, "/wormPixel.png");
+        this(groundModel, world, teamName, teamNumber, startX, "/wormPinky.png");
     }
     
     /**
@@ -71,6 +71,7 @@ public class TeamInitialisation {
         teamView = new TeamView(teamNumber,color, skinPath, facingRight);
         SPACING += 5; // pour que si il y'a plus de 2 equipes, les worms ne se superposent pas
     }
+    
 
     /**
      * Constructeur pour load une sauvegarde

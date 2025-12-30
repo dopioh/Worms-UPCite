@@ -169,3 +169,4 @@
 - Algorithme FloodFill
     - permet de supprimer les blocks qui ne sont pas liés au sol
 - Fixture unique par block
+- Boutique
