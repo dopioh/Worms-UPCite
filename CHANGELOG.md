@@ -111,10 +111,6 @@
 - Système de statistiques pour tracker des actions pendant la partie
 - Endroit pour stocker les paramètres du jeu
     - `current_skin`
-<<<<<<< HEAD
-- Une sauvegarde peut desormais etre lancer depuis le menu d'acceuil en cliquant sur "Poursuivre une partie"
-- Possibilitee de tirer/faire des degats/tuer un worm dans la version Console du jeu (tire assez limiter)
-=======
 - Ajout Sprite `wormPixel.png` dans `ressources`
 - Une sauvegarde peut desormais etre lancer depuis le menu d'acceuil en cliquant sur "Poursuivre une partie"
 - Possibilitee de tirer/faire des degats/tuer un worm dans la version Console du jeu (tire assez limiter)
@@ -128,7 +124,6 @@
     - 3 tailles de maps : SMALL (800x720), MEDIUM (1280x720), LARGE (1700x720)
 - Ajout de la dégradation de la map
 - Ajout d'une courbe pour la trajectoire de la map
->>>>>>> origin/dev
 
 ### Modified
 - Support pour N équipes au lieu de 2 équipes hardcodées
