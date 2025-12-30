@@ -207,81 +207,16 @@ public class InventoryOverlay extends JComponent {
                 Rectangle r = itemBounds.get(i);
                 if (r.contains(x, y)) {
                     selectedIndex = i;
-<<<<<<< HEAD
-                    equippedItem = inventory.get(i);
-
-                    if (gameManager != null && "WEAPON".equals(equippedItem.objectType)) {
-                        gameManager.setWeaponFromInventory(equippedItem.name);
-                    }
-
-                    System.out.println("[Inventaire] " +
-                        (gameManager != null ? gameManager.getCurrentTeamName() : "?") +
-                        " équipe " + equippedItem.name);
-
-=======
                     equipItem(lastFiltered.get(i));
->>>>>>> dev
                     repaint();
                     return;
                 }
             }
             return; // clic dans le panneau mais pas sur un item -> rien
         }
-
-<<<<<<< HEAD
-        // 2) clic en dehors du panneau -> tir avec l'item équipé
-        if (equippedItem == null) {
-            System.out.println("[Inventaire] Aucun objet équipé, tir ignoré.");
-            return;
-        }
-
-        boolean ok = equippedItem.registerUseThisTurn();
-        if (!ok) {
-            System.out.println("[Inventaire] Plus d'utilisation possible pour " + equippedItem.name);
-            return;
-        }
-
-        int restantesTour = equippedItem.getRemainingUseThisTurn();
-        if (equippedItem.remainingUses == null) {
-            System.out.println("[" +
-                (gameManager != null ? gameManager.getCurrentTeamName() : "?") +
-                "] tire avec " + equippedItem.name +
-                " → " + restantesTour + " utilisation(s) restante(s) ce tour, munitions : infinies");
-        } else {
-            System.out.println("[" +
-                (gameManager != null ? gameManager.getCurrentTeamName() : "?") +
-                "] tire avec " + equippedItem.name +
-                " → " + restantesTour + " utilisation(s) ce tour, " +
-                equippedItem.remainingUses + " munition(s) restante(s)");
-        }
-
-        // Vérifier si c'est un gadget ou une arme
-        if ("GADGET".equals(equippedItem.objectType)) {
-            // Pour les gadgets, utiliser directement
-            if (gameManager != null) {
-                gameManager.useGadgetFromInventory(equippedItem.name);
-                System.out.println("[Inventaire] Gadget utilisé : " + equippedItem.name);
-            }
-        } else {
-            // Pour les armes, déléguer le tir au listener (SwingInputController -> handleFireAt)
-            if (fireListener != null) {
-                MouseEvent fake = new MouseEvent(
-                        this,
-                        MouseEvent.MOUSE_PRESSED,
-                        System.currentTimeMillis(),
-                        0,
-                        x, y,
-                        1,
-                        false,
-                        MouseEvent.BUTTON1
-                );
-                fireListener.mousePressed(fake);
-            }
-        }
-=======
+        
         // clic en dehors du panneau -> bloqué quand l'inventaire est ouvert
         return;
->>>>>>> dev
     }
 
     @Override

@@ -342,6 +342,23 @@ public class CharacterView {
         
         return new Color(r, g, b);
     }
+
+    /**
+        * Définit l'arme actuellement equipee et charge son sprite dans la variable weaponSprite
+     * @param weapon l'arme a equipee (peut etre null)
+     */
+    public void setCurrentWeaponSprite(Weapon weapon) {
+        this.currentWeapon = weapon;
+        loadWeaponSprite(weapon);
+    }
+    
+    /**
+     * Retourne l'arme actuellement equipee
+     * @return l'arme equipee ou null
+     */
+    public Weapon getCurrentWeaponSprite() {
+        return currentWeapon;
+    }
     
     /**
      * colorie un sprite en le peignant avec la couleur spécifiée
@@ -386,22 +403,7 @@ public class CharacterView {
         }
         
         return colorized;
-=======
-     * Définit l'arme actuellement equipee et charge son sprite dans la variable weaponSprite
-     * @param weapon l'arme a equipee (peut etre null)
-     */
-    public void setCurrentWeaponSprite(Weapon weapon) {
-        this.currentWeapon = weapon;
-        loadWeaponSprite(weapon);
-    }
-    
-    /**
-     * Retourne l'arme actuellement equipee
-     * @return l'arme equipee ou null
-     */
-    public Weapon getCurrentWeaponSprite() {
-        return currentWeapon;
->>>>>>> dev
+
     }
 }
 
