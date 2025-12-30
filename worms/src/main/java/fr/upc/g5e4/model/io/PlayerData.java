@@ -16,7 +16,7 @@ public class PlayerData {
 
     private SkinModel[] tabSkinPlayer;
 
-    private CustomTeamManager customTeamManager;
+    private CustomGameManager customTeamManager;
 
     // rajouter l'attribut CustomTeamManager ici
 
@@ -27,7 +27,7 @@ public class PlayerData {
      * @param money argent du joueur
      * @param listSkinPlayer list des skin du jeu (lock and unlocked)
      */
-    public PlayerData(String name, int xp, int money, SkinModel[] tabSkinPlayer,CustomTeamManager customTeamManager) {
+    public PlayerData(String name, int xp, int money, SkinModel[] tabSkinPlayer,CustomGameManager customTeamManager) {
         this.name = name;
         this.xp = xp;
         this.money = money;
@@ -44,7 +44,7 @@ public class PlayerData {
         this.xp = 0;
         this.money = 0;
         createtanSkinFULLLOCK();
-        this.customTeamManager = new CustomTeamManager();
+        this.customTeamManager = new CustomGameManager();
     }
     
 
@@ -65,7 +65,7 @@ public class PlayerData {
         return this.tabSkinPlayer;
     }
 
-    public CustomTeamManager getCustomTeamManager(){
+    public CustomGameManager getCustomTeamManager(){
         return this.customTeamManager;
     }
 
@@ -86,7 +86,7 @@ public class PlayerData {
         this.tabSkinPlayer = tabSkinPlayer;
     }
 
-    public void setCustomTeamManager(CustomTeamManager customTeamManager) {
+    public void setCustomTeamManager(CustomGameManager customTeamManager) {
         this.customTeamManager = customTeamManager;
     }
 

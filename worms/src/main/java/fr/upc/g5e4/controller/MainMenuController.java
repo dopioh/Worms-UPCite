@@ -5,9 +5,11 @@ import java.io.IOException;
 import javax.swing.JOptionPane;
 
 import fr.upc.g5e4.GameLauncher;
+import fr.upc.g5e4.model.TeamSettingsModel;
 import fr.upc.g5e4.model.io.SaveLoad;
 import fr.upc.g5e4.view.MainMenuView;
 import fr.upc.g5e4.view.SettingsView;
+import fr.upc.g5e4.view.TeamSettingsView;
 
 /**
  * Contrôleur pour l'écran d'accueil
@@ -70,8 +72,14 @@ public class MainMenuController {
     }
 
     private void openConfig() {
+
+        TeamSettingsView teamSettingsView = new TeamSettingsView(); // creer la vue 
         // Créer la vue des réglages
-        SettingsView settingsView = new SettingsView();
+        SettingsView settingsView = new SettingsView(teamSettingsView);
+
+        // Creer la partie Terminal 
+        TeamSettingsModel teamSettingsModel = new TeamSettingsModel(teamSettingsView);
+        TeamSettingsController teamSettingsController = teamSettingsModel.getTeamSettingsController();
         
         // Ajouter un listener pour le bouton retour
         settingsView.getBtnBack().addActionListener(e -> {

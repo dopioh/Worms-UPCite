@@ -18,6 +18,8 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import fr.upc.g5e4.controller.MainMenuController;
+
 
 /**
  * STRUCTURE:
@@ -60,11 +62,14 @@ public class SettingsView extends JPanel {
     
     private Image backgroundImage;
     private String currentTab = "Map";
+
+    private TeamSettingsView externalTeamsView; // pour recup la view de gestion des equipes 
     
     // Variables pour le scaling
     private boolean isFullScreen = false;
 
-    public SettingsView() {
+    public SettingsView(TeamSettingsView externalTeamsView) {
+        this.externalTeamsView = externalTeamsView;
         loadBackgroundImage();
         initComponents();
         setupLayout();
@@ -118,6 +123,10 @@ public class SettingsView extends JPanel {
             btnBack.setPreferredSize(new Dimension(buttonWidth, buttonHeight));
             btnBack.setFont(btnBack.getFont().deriveFont((float)fontSize));
         }
+
+        if (externalTeamsView != null) {
+            externalTeamsView.update(fullScreen);
+        }
         
         // Forcer le rafraîchissement
         revalidate();
@@ -164,7 +173,8 @@ public class SettingsView extends JPanel {
 
         // Création des panels pour chaque onglet
         mapPanel = createMapPanel();
-        teamsPanel = createTeamsPanel();
+        this.externalTeamsView.setFullScreen(isFullScreen);
+        teamsPanel = this.externalTeamsView;
         otherPanel = createOtherPanel();
     }
 
@@ -227,13 +237,19 @@ public class SettingsView extends JPanel {
     }
 
     // ========== ONGLET EQUIPES ==========
+    /*
     private JPanel createTeamsPanel() {
-        JPanel panel = new JPanel();
-        panel.setOpaque(false);
-        
-        // AJOUTEZ VOS COMPOSANTS ICI
-        
-        return panel;
+        //this.teamsPanel.setLayout(new FlowLayout());
+        this.teamsPanel.add(this.externalTeamsView);
+
+        this.teamsPanel.revalidate();
+        this.teamsPanel.repaint();
+
+    }
+    */
+
+    public void setTeamSettingsView(TeamSettingsView teamSettingsView){
+        this.externalTeamsView = teamSettingsView;
     }
 
     // ========== ONGLET AUTRE ==========
