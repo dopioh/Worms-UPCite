@@ -7,6 +7,7 @@ import fr.upc.g5e4.model.Item;
 import fr.upc.g5e4.model.Weapon;
 import fr.upc.g5e4.model.Projectile;
 import fr.upc.g5e4.model.BlockGridModel;
+import fr.upc.g5e4.model.PhysicsWorld;
 import fr.upc.g5e4.model.WindModel;
 import fr.upc.g5e4.model.GameManager;
 import fr.upc.g5e4.view.ItemView;
@@ -17,6 +18,7 @@ import fr.upc.g5e4.model.SoundPlayer;
 public class ItemController {
     private final ItemView view;
     private World world;
+    private PhysicsWorld physicsWorld;
     private CharacterModel[] allWorms;
     private BlockGridModel blockGridModel;
     private WindModel windModel;
@@ -42,6 +44,14 @@ public class ItemController {
      */
     public void setWorld(World world) {
         this.world = world;
+    }
+    
+    /**
+     * définit le PhysicsWorld pour reconstruire le terrain après destruction
+     * @param physicsWorld Le gestionnaire de physique
+     */
+    public void setPhysicsWorld(PhysicsWorld physicsWorld) {
+        this.physicsWorld = physicsWorld;
     }
 
     /**
@@ -235,15 +245,42 @@ public class ItemController {
         int centerGridX = blockGridModel.pixelToGridX(pixelX);
         int centerGridY = blockGridModel.pixelToGridY(pixelY);
         
+        boolean modified = false; // indique si le terrain a été modifié
+        
+        System.out.println("[TERRAIN] Impact à gridX=" + centerGridX + ", gridY=" + centerGridY);
+        System.out.println("[TERRAIN] PhysicsWorld est " + (physicsWorld == null ? "NULL" : "défini"));
+        
         // appliquer les degats au terrain
         if (weapon.getTerrainBlastRadius() > 0) {
             // dégats en zone 
             blockGridModel.damageBlocksInRadius(centerGridX, centerGridY, weapon.getTerrainBlastRadius(), weapon.getTerrainDamage());
             System.out.println("[" + weapon.getName() + "] Dégâts terrain en zone : " + weapon.getTerrainDamage() + " PV, rayon " + weapon.getTerrainBlastRadius());
+            modified = true;
         } else {
             // dégats ponctuels
-            blockGridModel.damageBlock(centerGridX, centerGridY, weapon.getTerrainDamage());
+            if (blockGridModel.damageBlock(centerGridX, centerGridY, weapon.getTerrainDamage())) {
+                modified = true;
+            }
             System.out.println("[" + weapon.getName() + "] Dégâts terrain ponctuels : " + weapon.getTerrainDamage() + " PV");
+        }
+        
+        System.out.println("[TERRAIN] Modified = " + modified);
+        
+        // on supprime les blocks flottants après destruction
+        if (modified) {
+            // int searchRadius = weapon.getTerrainBlastRadius() > 0 ? (int)(weapon.getTerrainBlastRadius() * 4) : 20; // SI ON MANQUE DE RESSOURCES
+            int floatingRemoved = blockGridModel.removeFloatingBlocks(centerGridX, centerGridY, 200);
+            if (floatingRemoved > 0) {
+                System.out.println("[TERRAIN] " + floatingRemoved + " blocs flottants supprimés (rayon de recherche: 200)");
+            }
+        }
+        
+        // Reconstruire la physique si des blocs ont été détruits
+        if (modified && physicsWorld != null) {
+            System.out.println("[TERRAIN] Appel de rebuildGroundPhysics...");
+            physicsWorld.rebuildGroundPhysics(blockGridModel);
+        } else if (modified && physicsWorld == null) {
+            System.out.println("[TERRAIN] ERROR: physicsWorld est NULL !");
         }
     }
     

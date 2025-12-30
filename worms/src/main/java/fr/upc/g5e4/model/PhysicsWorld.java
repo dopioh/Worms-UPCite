@@ -175,7 +175,7 @@ public class PhysicsWorld {
      * détruit l'ancien body et en crée un nouveau avec la nouvelle configuration
      * @param blockGrid le modèle de grille à utiliser
      */
-    public void recreateTerrainFromBlockGrid(BlockGridModel blockGrid) {
+    public void recreateGroundFromBlockGrid(BlockGridModel blockGrid) {
         // détruire l'ancien body s'il existe
         if (blockGridBody != null) {
             world.destroyBody(blockGridBody);
@@ -183,7 +183,17 @@ public class PhysicsWorld {
         }
         
         // recréer le terrain avec la nouvelle configuration
-        createGroundFromBlockGrid(blockGrid);
+        blockGridBody = createGroundFromBlockGrid(blockGrid);
+    }
+    
+    /**
+     * reconstruit la physique du sol après modification des blocs
+     * (méthode utilisée après destruction de blocs par des armes)
+     * @param blockGrid le modèle de grille à utiliser
+     */
+    public void rebuildGroundPhysics(BlockGridModel blockGrid) {
+        recreateGroundFromBlockGrid(blockGrid);
+        //System.out.println("[PHYSICS] Physique reconstruite");
     }
     
     /**

@@ -149,7 +149,7 @@ public class GameManager {
         this.world = physic.getWorld();
         
         // nouveau sol
-        physic.createGroundFromBlockGrid(blockGridModel);
+        physic.recreateGroundFromBlockGrid(blockGridModel);
         physic.limitPanel(blockGridModel);
         
         // création de l'eau
@@ -191,6 +191,7 @@ public class GameManager {
         // Initialisation du système de tir
         this.itemController = new ItemController(new ItemView());
         this.itemController.setWorld(world);
+        this.itemController.setPhysicsWorld(this.physic); // pour reconstruire le terrain
         this.itemController.setBlockGridModel(this.blockGridModel);// pour les dégats sur le terrain
         this.itemController.setWindModel(this.windModel); // pour le vent
         this.itemController.setGameManager(this);  // Pour le tracking des stats
@@ -265,7 +266,7 @@ public class GameManager {
         this.physic = new PhysicsWorld();
         this.world = physic.getWorld();
 
-        physic.createGroundFromBlockGrid(blockGridModel);
+        physic.recreateGroundFromBlockGrid(blockGridModel);
         physic.limitPanel(blockGridModel);
 
         this.water = physic.createBodyWater(model);
@@ -318,6 +319,9 @@ public class GameManager {
         // Initialisation du système de tir
         this.itemController = new ItemController(new ItemView());
         this.itemController.setWorld(world);
+        this.itemController.setPhysicsWorld(this.physic); // pour reconstruire le terrain
+        this.itemController.setBlockGridModel(this.blockGridModel);// pour les dégats sur le terrain
+        this.itemController.setWindModel(this.windModel); // pour le vent
         this.itemController.setGameManager(this);  // Pour le tracking des stats
         
         // Créer un tableau de tous les worms (N equipes)
@@ -375,7 +379,7 @@ public class GameManager {
             
             // recréer le terrain physique si la grille a changé (blocs détruits)
             if (blockGridModel.isDirty()) {
-                physic.recreateTerrainFromBlockGrid(blockGridModel);
+                physic.recreateGroundFromBlockGrid(blockGridModel);
                 blockGridModel.clearDirty();
             }
             

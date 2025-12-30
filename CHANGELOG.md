@@ -1,3 +1,4 @@
+
 # Changelog
 
 ## v.0.0 Configuration : (Avant le premier sprint)
@@ -94,13 +95,23 @@
 ---
 
 ### Added
+- **Cinématique d'introduction** : Animation de présentation avant le début du combat
+    - Affichage des équipes participantes avec nombre de worms
+    - Présentation du terrain généré procéduralement
+    - Affichage des conditions météorologiques (vent)
+    - Animation avec effets de fade et transitions fluides
+    - Durée de 5 secondes avant lancement automatique du jeu
 - Nametag
     - Affichage des itemes (potions...) sur le nametag
 - Nouveau systeme de map 
     - MAP en tableau 2D remplie d'objet "block"
-- **Cinématique d'introduction** : Intro cinématique avec barre de chargement cartoon et messages    synchronisés
-- Ajout du fichier LoadingBarPanel.java
-- **Écran de fin de partie avec animation**
+- **Cinématique d'introduction** : Animation de présentation avant le début du combat
+    - Affichage des équipes participantes avec nombre de worms
+    - Présentation du terrain généré procéduralement
+    - Affichage des conditions météorologiques (vent)
+    - Animation avec effets de fade et transitions fluides
+    - Durée de 5 secondes avant lancement automatique du jeu
+- Écran de fin de partie avec animation
   - Animation des worms gagnants marchant vers le trophée
   - Affichage des statistiques de jeu (dégâts, précision de tir, éliminations, rounds joué)
   - Particules et effets visuels
@@ -111,19 +122,8 @@
 - Système de statistiques pour tracker des actions pendant la partie
 - Endroit pour stocker les paramètres du jeu
     - `current_skin`
-- Ajout Sprite `wormPixel.png` dans `ressources`
 - Une sauvegarde peut desormais etre lancer depuis le menu d'acceuil en cliquant sur "Poursuivre une partie"
 - Possibilitee de tirer/faire des degats/tuer un worm dans la version Console du jeu (tire assez limiter)
-- **Diagramme de classes** : Ajout et documentation du diagramme de classes du projet (GameManager, GameLoop, GamePanel, etc.)
-- **Système de configuration de terrains** : Nouvelle classe MapConfig pour gérer les types et tailles de maps
-    - 4 types de terrains disponibles :
-        - STANDARD : Terrain avec plateformes de spawn (mode original)
-        - MOUNTAINS : Hautes montagnes avec relief prononcé
-        - ISLANDS : Terrain wavy avec zones d'eau au centre pour éviter les spawn kills
-        - FLAT : Terrain complètement plat
-    - 3 tailles de maps : SMALL (800x720), MEDIUM (1280x720), LARGE (1700x720)
-- Ajout de la dégradation de la map
-- Ajout d'une courbe pour la trajectoire de la map
 
 ### Modified
 - Support pour N équipes au lieu de 2 équipes hardcodées
@@ -144,15 +144,9 @@
 - Emplacement overlay vent
 - Nouveau systeme de map 
     - MAP en tableau 2D remplie d'objet "block"
-- Vent augmente la portée du projectile (dans le sens du vent) ou réduit la porté (sens opposé du vent)
-- Focus lors du tir
-- Projectile qui se stop en l'air
-- Tir qui rebondit (batte de baseball)
-
 - **N equipes** fonctionnelles desormais (2 auparavant)
 - Retour aux mouvements originaux
 - Retour du saut (avec Z)
-- HitBox du Sprite fixed, il n'ya pas plus de decalage lorsque le sprite monte une colline en allant vers la gauche
 - Initialisation de l'overlay Inventaire decaler dans GameManager (precedemment GameLauncher)
 
 ### Optimisation
@@ -170,3 +164,6 @@
     - permet de supprimer les blocks qui ne sont pas liés au sol
 - Fixture unique par block
 - Boutique
+
+### Fixed
+- body des blocks invisible après destruction
