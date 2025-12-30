@@ -100,7 +100,7 @@ public class ItemController {
         }
 
         if (weapon.use()) {
-            SoundPlayer.play("/sfx/gunshot.wav");
+            SoundPlayer.play("/sfx/gunshot.wav"); // SFX au tir
 
             Projectile projectile = weapon.fire(shooter, world, allWorms, direction, windModel);
             if (projectile != null) {
