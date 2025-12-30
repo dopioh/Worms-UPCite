@@ -28,6 +28,7 @@ import fr.upc.g5e4.view.TeamView;
 import fr.upc.g5e4.view.CharacterView;
 //import fr.upc.g5e4.view.TeamView;
 import fr.upc.g5e4.view.InventoryOverlay;
+import fr.upc.g5e4.view.HUDOverlay;
 
 import java.io.*;
 import com.google.gson.*;
@@ -81,6 +82,7 @@ public class GameManager {
 
     
     private InventoryOverlay inventoryOverlay;
+    private HUDOverlay hudOverlay;
     private fr.upc.g5e4.view.WindOverlay windOverlay;
 
     private final WindModel windModel = new WindModel();
@@ -222,7 +224,7 @@ public class GameManager {
         // Passer l'ItemController au GamePanel pour dessiner les projectiles
         this.gamePanel.setItemController(this.itemController);
         // Ajoute le contrôleur pour capter les touches
-        this.gamePanel.add(imputController);
+        //this.gamePanel.add(imputController);
         imputController.setGameManager(this); // connecte inputController au GameManager
         // Connecter le renderer de trajectoire
         imputController.setTrajectoryRenderer(gamePanel.getTrajectoryView());
@@ -363,7 +365,7 @@ public class GameManager {
         this.gamePanel.setItemController(this.itemController);
 
         // Ajoute le contrôleur pour capter les touches
-        this.gamePanel.add(imputController);
+        //this.gamePanel.add(imputController);
         imputController.setGameManager(this); // connecte inputController au GameManager
                                              //  pour que inputController puisse appeler switchToNextWorm()
         
@@ -488,6 +490,15 @@ public class GameManager {
     public WindModel getWindModel(){
         return this.windModel;
     }
+
+    public void setHudOverlay(HUDOverlay hud) {
+        this.hudOverlay = hud;
+    }
+
+    public HUDOverlay getHudOverlay() {
+        return hudOverlay;
+    }
+    
     public Map<String, GameStats> getAllTeamStats() {
         return teamStats;
     }
@@ -603,7 +614,7 @@ public class GameManager {
             } catch (Exception e) {
                 // fallback sur la valeur par défaut
             }
-            String skinPath = "/worm.png";
+            String skinPath = "/wormPixel.png";
             // Si la TeamView possède un sprite personnalisé, on peut tenter de le récupérer
             // (à adapter si TeamView expose ce champ)
             // Construction de TeamInitialisation
@@ -829,26 +840,28 @@ public class GameManager {
     public void setWeaponFromInventory(String itemName) {
         Weapon newWeapon = null;
 
-        switch (itemName) {
-            case "Ak47":
-            case "AK47":
+        // Empeche la casse 
+        String normalizedName = itemName.toLowerCase();
+
+        switch (normalizedName) {
+            case "ak47":
                 newWeapon = new Ak47();
                 System.out.println("[Inventaire] Arme équipée depuis inventaire : AK-47");
                 break;
-            case "BaseballBat":
+            case "baseballbat":
                 newWeapon = new BaseballBat();
                 System.out.println("[Inventaire] Arme équipée depuis inventaire : Baseball Bat");
                 break;
-            case "Grenade":
+            case "grenade":
                 newWeapon = new Grenade();
                 System.out.println("[Inventaire] Arme équipée depuis inventaire : Grenade");
                 break;
-            case "RocketLauncher":
+            case "rocketlauncher":
                 newWeapon = new RocketLauncher();
                 System.out.println("[Inventaire] Arme équipée depuis inventaire : Rocket Launcher");
                 break;
             default:
-                System.out.println("[Inventaire] Aucun mapping d’arme pour : " + itemName);
+                System.out.println("[Inventaire] Arme non reconnue: " + itemName);
                 break;
         }
 
