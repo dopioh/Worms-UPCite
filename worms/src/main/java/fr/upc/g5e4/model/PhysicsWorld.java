@@ -113,7 +113,7 @@ public class PhysicsWorld {
 
     /**
      * Crée le sol à partir d'une grille de blocs (une grille de blocs = un tableau 2D)
-     * Génère un contour qui suit la surface des blocs solides
+     * Génère des collisions individuelles pour chaque block (solid)
      * @param blockGrid Le modèle de grille de blocs
      * @return Le Body du sol créé
      */
@@ -123,74 +123,47 @@ public class PhysicsWorld {
         int gridHeight = blockGrid.getGridHeight();
         int pixelHeight = blockGrid.getPixelHeight();
         
-        // création d'une liste de points pour le contour de la surface des blocs
-        List<Vec2> contourPoints = new ArrayList<>();
-        
-        // point de départ en bas à gauche
-        contourPoints.add(new Vec2(0, 0));
-        
-        // on parcourt de gauche à droite pour trouver les points de surface
-        for (int gridX = 0; gridX < gridWidth; gridX++) {
-            int surfaceGridY = -1;
-            for (int gridY = 0; gridY < gridHeight; gridY++) {
-                if (blockGrid.getBlock(gridX, gridY).isSolid()) {
-                    surfaceGridY = gridY;
-                    break;
-                }
-            }
-            
-            if (surfaceGridY >= 0) { // si on a trouvé un point de surface
-                // on calcule la position en pixels puis en mètres
-                float xPx = gridX * blockSize;
-                float yPx = surfaceGridY * blockSize;
-
-                // conversion en taille pour le monde physique
-                float worldX = xPx / PPM;
-                float worldY = (pixelHeight - yPx) / PPM;  // inversion Y
-                
-                // on ajoute le coin gauche du bloc de surface
-                contourPoints.add(new Vec2(worldX, worldY));
-                
-                // on ajoute le coin droit du bloc de surface
-                worldX = (gridX + 1) * blockSize / PPM;
-                contourPoints.add(new Vec2(worldX, worldY));
-            }
-        }
-        
-        // le point final en bas à droite
-        contourPoints.add(new Vec2(blockGrid.getPixelWidth() / PPM, 0));
-        
-        // si pas assez de points alors on crée un sol plat
-        if (contourPoints.size() < 4) {
-            contourPoints.clear();
-            contourPoints.add(new Vec2(0, 0));
-            contourPoints.add(new Vec2(0, pixelHeight / 2f / PPM));
-            contourPoints.add(new Vec2(blockGrid.getPixelWidth() / PPM, pixelHeight / 2f / PPM));
-            contourPoints.add(new Vec2(blockGrid.getPixelWidth() / PPM, 0));
-        }
-        
-        // simplification du contour
-        List<Vec2> simplifiedContour = simplifyContour(contourPoints);
-        
-        // création du chainshape
-        Vec2[] positions = simplifiedContour.toArray(new Vec2[0]);
-        
-        ChainShape chain = new ChainShape();
-        chain.createChain(positions, positions.length);
-        
+        // init du body static qu'on va utiliser pour chaque block solide
         BodyDef bdGround = new BodyDef();
         bdGround.type = BodyType.STATIC;
-        
-        FixtureDef fixtureGround = new FixtureDef();
-        fixtureGround.shape = chain;
-        fixtureGround.friction = 0.0f;
-        fixtureGround.restitution = 0;
-        
-        // definition de la catégorie de collision pour le terrain
-        fixtureGround.filter.categoryBits = CharacterModel.CATEGORY_TERRAIN;
-        
         Body bodyGround = world.createBody(bdGround);
-        bodyGround.createFixture(fixtureGround);
+        
+        // on parcourt blockGrid
+        int blockCount = 0;
+        for (int gridX = 0; gridX < gridWidth; gridX++) {
+            for (int gridY = 0; gridY < gridHeight; gridY++) {
+                // si le bloc est solide, on crée une fixture
+                if (blockGrid.getBlock(gridX, gridY).isSolid()) {
+                    // on calcul les mesures
+                    float xPx = gridX * blockSize;
+                    float yPx = gridY * blockSize;
+                    float worldX = xPx / PPM;
+                    float worldY = (pixelHeight - yPx) / PPM;
+                    float blockSizeMeters = blockSize / PPM;
+                    
+                    // on crée la shape et la hitbox du block
+                    PolygonShape blockShape = new PolygonShape();
+                    blockShape.setAsBox(
+                        blockSizeMeters / 2f,
+                        blockSizeMeters / 2f,
+                        new Vec2(worldX + blockSizeMeters / 2f, worldY - blockSizeMeters / 2f),
+                        0
+                    );
+                    
+                    // on peut maintenant créer la fixture pour ce block
+                    FixtureDef fixtureBlock = new FixtureDef();
+                    fixtureBlock.shape = blockShape;
+                    fixtureBlock.friction = 0.0f;
+                    fixtureBlock.restitution = 0;
+                    fixtureBlock.filter.categoryBits = CharacterModel.CATEGORY_TERRAIN;
+                    
+                    bodyGround.createFixture(fixtureBlock);
+                    blockCount++;
+                }
+            }
+        }
+        
+        System.out.println("[PHYSICS] Créé " + blockCount + " fixtures de blocs");
         
         // sauvegarder la référence pour pouvoir la recréer plus tard
         this.blockGridBody = bodyGround;
