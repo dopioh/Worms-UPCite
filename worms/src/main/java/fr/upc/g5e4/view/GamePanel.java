@@ -36,7 +36,7 @@ public class GamePanel extends JPanel {
     // ajout: label pour afficher le temps restant (vue)
     private final JLabel roundTimerLabel = new JLabel("Temps restant : 30s");
 
-    // --- Ajout : accès direct au GameManager pour le pointeur graphique ---
+    //accès direct au GameManager pour le pointeur graphique 
     private final fr.upc.g5e4.model.GameManager gameManager;
     
     // Pré-création des objets graphiques pour éviter les allocations à chaque frame + access facile aux couleurs
@@ -240,7 +240,7 @@ public class GamePanel extends JPanel {
                     // Flèche rouge, petite, inversée (pointe vers le bas), et plus haut
                     int arrowW = 8;
                     int arrowH = 14;
-                    int yOffset = 56;
+                    int yOffset = 60;
                     int[] xPoints = {x, x - arrowW/2, x + arrowW/2};
                     int[] yPoints = {y - yOffset + arrowH, y - yOffset, y - yOffset};
 
