@@ -289,6 +289,83 @@ public class BlockGridModel {
     public boolean isDirty() { return dirty; }
     
     /**
+     * Vérifie si une position est valide dans la grille
+     */
+    private boolean isValidPosition(int x, int y) {
+        return x >= 0 && x < gridWidth && y >= 0 && y < gridHeight;
+    }
+
+    /**
+     * methode qui check si un bloc est connecté au sol (soit lui soit son voisin, soit le voisin de son voisin, etc.)
+     * on reprend l'algorithme de flood fill
+     * @param gridX colonne du bloc
+     * @param gridY ligne du bloc
+     * @return true si le bloc est connecté au sol
+     */
+    public boolean isConnectedToGround(int gridX, int gridY) {
+        // verif si le bloc est valide et solide
+        if (!isValidPosition(gridX, gridY) || !getBlock(gridX, gridY).isSolid()) {
+            return false;
+        }
+
+        boolean[][] visited = new boolean[gridWidth][gridHeight];
+        return floodFillFromBottom(gridX, gridY, visited);
+    }
+    
+    /**
+     * flood fill récursif pour vérifier la connexion au sol
+     */
+    private boolean floodFillFromBottom(int x, int y, boolean[][] visited) {
+        // verif pos valide ou si déjà visité
+        if (!isValidPosition(x, y) || visited[x][y]) {
+            return false;
+        }
+        
+        // si pas solid on arrete tout de suite
+        if (!getBlock(x, y).isSolid()) {
+            return false;
+        }
+        
+        // si on atteint le bas de la grille c'est connecté au sol
+        if (y == gridHeight - 1) {
+            return true;
+        }
+        
+        // on peut marquer comme visité
+        visited[x][y] = true;
+        
+        // vérifier les 4 directions (haut, bas, gauche, droite)
+        return floodFillFromBottom(x, y + 1, visited) ||  // Bas
+               floodFillFromBottom(x, y - 1, visited) ||  // Haut
+               floodFillFromBottom(x - 1, y, visited) ||  // Gauche
+               floodFillFromBottom(x + 1, y, visited);    // Droite
+    }
+    
+    /**
+     * Supprime tous les block non connectés au sol dans un rayon donné (pour ne pas utiliser trop de ressources)
+     * @param centerX centre X
+     * @param centerY centre Y
+     * @param radius rayon en blocs
+     * @return nombre de blocs supprimés
+     */
+    public int removeFloatingBlocks(int centerX, int centerY, int radius) {
+        int removed = 0;
+        
+        // parcourir tous les blocs dans le rayon
+        for (int x = Math.max(0, centerX - radius); x <= Math.min(gridWidth - 1, centerX + radius); x++) {
+            for (int y = Math.max(0, centerY - radius); y <= Math.min(gridHeight - 1, centerY + radius); y++) {
+                // si le bloc est solide mais pas connecté au sol on supprime
+                if (getBlock(x, y).isSolid() && !isConnectedToGround(x, y)) {
+                    setBlock(x, y, BlockType.AIR);
+                    removed++;
+                }
+            }
+        }
+        
+        return removed;
+    }
+
+    /**
      * retourne la largeur totale du terrain en pixels
      * @return largeur en pixels
      */

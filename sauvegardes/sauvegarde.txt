@@ -13,7 +13,11 @@
     0,
     0
   ],
+<<<<<<< HEAD
+  "roundTimeRemaining": 1731,
+=======
   "roundTimeRemaining": 1671,
+>>>>>>> dev
   "groundModel": {
     "groundY": [
       280,
@@ -24,6 +28,111 @@
       284,
       285,
       287,
+<<<<<<< HEAD
+      290,
+      294,
+      299,
+      304,
+      309,
+      316,
+      323,
+      331,
+      340,
+      350,
+      360,
+      371,
+      383,
+      396,
+      409,
+      422,
+      436,
+      450,
+      466,
+      480,
+      495,
+      509,
+      524,
+      540,
+      536,
+      533,
+      529,
+      525,
+      520,
+      515,
+      510,
+      505,
+      500,
+      495,
+      490,
+      485,
+      480,
+      475,
+      470,
+      466,
+      462,
+      457,
+      453,
+      450,
+      447,
+      443,
+      439,
+      435,
+      431,
+      428,
+      424,
+      421,
+      417,
+      414,
+      411,
+      409,
+      406,
+      404,
+      402,
+      401,
+      399,
+      399,
+      398,
+      398,
+      398,
+      398,
+      399,
+      400,
+      401,
+      403,
+      405,
+      407,
+      410,
+      412,
+      415,
+      418,
+      421,
+      423,
+      426,
+      429,
+      432,
+      435,
+      437,
+      440,
+      442,
+      444,
+      445,
+      447,
+      448,
+      449,
+      450,
+      450,
+      450,
+      450,
+      450,
+      450,
+      450,
+      451,
+      452,
+      453,
+      455,
+      456,
+      458,
+=======
       289,
       291,
       293,
@@ -119,6 +228,7 @@
       450,
       453,
       457,
+>>>>>>> dev
       460,
       464,
       466,
@@ -211,7 +321,8 @@
       291,
       288,
       285,
-      283,
+      284,
+      282,
       281,
       280,
       280,
@@ -231,8 +342,13 @@
         {
           "ID": 0,
           "name": "Worm-0",
+<<<<<<< HEAD
+          "xcord": 100.59090423583984,
+          "ycord": 316.0587463378906,
+=======
           "xcord": 280.39208984375,
           "ycord": 389.9788818359375,
+>>>>>>> dev
           "health": 100.0,
           "shield": 50.0,
           "isDead": false,
@@ -241,8 +357,13 @@
         {
           "ID": 1,
           "name": "Worm-1",
+<<<<<<< HEAD
+          "xcord": 130.0,
+          "ycord": 317.2249755859375,
+=======
           "xcord": 129.99998474121094,
           "ycord": 302.8258056640625,
+>>>>>>> dev
           "health": 100.0,
           "shield": 50.0,
           "isDead": false,
@@ -251,8 +372,13 @@
         {
           "ID": 2,
           "name": "Worm-2",
+<<<<<<< HEAD
+          "xcord": 160.0,
+          "ycord": 317.2249755859375,
+=======
           "xcord": 165.26400756835938,
           "ycord": 314.72161865234375,
+>>>>>>> dev
           "health": 100.0,
           "shield": 50.0,
           "isDead": false,
@@ -262,14 +388,14 @@
       "inventory": [
         {
           "objectType": "WEAPON",
-          "name": "BaseballBat",
-          "maxUsages": 2,
+          "name": "baseballbat",
+          "maxUsages": 1,
           "isInfinite": true,
           "useThisTurn": 0
         },
         {
           "objectType": "WEAPON",
-          "name": "Grenade",
+          "name": "grenade",
           "maxUsages": 1,
           "isInfinite": false,
           "remainingUses": 3,
@@ -277,22 +403,22 @@
         },
         {
           "objectType": "GADGET",
-          "name": "Bumper",
+          "name": "bumper",
           "maxUsages": 1,
           "isInfinite": true,
           "useThisTurn": 0
         },
         {
           "objectType": "WEAPON",
-          "name": "Ak47",
-          "maxUsages": 1,
+          "name": "ak47",
+          "maxUsages": 3,
           "isInfinite": false,
           "remainingUses": 30,
           "useThisTurn": 0
         },
         {
           "objectType": "WEAPON",
-          "name": "RocketLauncher",
+          "name": "bazooka",
           "maxUsages": 1,
           "isInfinite": false,
           "remainingUses": 2,
@@ -310,7 +436,11 @@
           "ID": 3,
           "name": "Worm-3",
           "xcord": 1080.0,
+<<<<<<< HEAD
+          "ycord": 317.2249755859375,
+=======
           "ycord": 518.8177490234375,
+>>>>>>> dev
           "health": 100.0,
           "shield": 50.0,
           "isDead": false,
@@ -319,8 +449,13 @@
         {
           "ID": 4,
           "name": "Worm-4",
+<<<<<<< HEAD
+          "xcord": 1114.7376708984375,
+          "ycord": 314.91552734375,
+=======
           "xcord": 1113.37646484375,
           "ycord": 447.2334899902344,
+>>>>>>> dev
           "health": 100.0,
           "shield": 50.0,
           "isDead": false,
@@ -329,8 +464,13 @@
         {
           "ID": 5,
           "name": "Worm-5",
+<<<<<<< HEAD
+          "xcord": 1148.9063720703125,
+          "ycord": 291.3075866699219,
+=======
           "xcord": 1147.825439453125,
           "ycord": 363.8229675292969,
+>>>>>>> dev
           "health": 100.0,
           "shield": 50.0,
           "isDead": false,
@@ -340,14 +480,14 @@
       "inventory": [
         {
           "objectType": "WEAPON",
-          "name": "BaseballBat",
-          "maxUsages": 2,
+          "name": "baseballbat",
+          "maxUsages": 1,
           "isInfinite": true,
           "useThisTurn": 0
         },
         {
           "objectType": "WEAPON",
-          "name": "Grenade",
+          "name": "grenade",
           "maxUsages": 1,
           "isInfinite": false,
           "remainingUses": 3,
@@ -355,22 +495,22 @@
         },
         {
           "objectType": "GADGET",
-          "name": "Bumper",
+          "name": "bumper",
           "maxUsages": 1,
           "isInfinite": true,
           "useThisTurn": 0
         },
         {
           "objectType": "WEAPON",
-          "name": "Ak47",
-          "maxUsages": 1,
+          "name": "ak47",
+          "maxUsages": 3,
           "isInfinite": false,
           "remainingUses": 30,
           "useThisTurn": 0
         },
         {
           "objectType": "WEAPON",
-          "name": "RocketLauncher",
+          "name": "bazooka",
           "maxUsages": 1,
           "isInfinite": false,
           "remainingUses": 2,
@@ -387,8 +527,13 @@
         {
           "ID": 6,
           "name": "Worm-6",
+<<<<<<< HEAD
+          "xcord": 100.59090423583984,
+          "ycord": 316.0587463378906,
+=======
           "xcord": 100.0,
           "ycord": 290.8144226074219,
+>>>>>>> dev
           "health": 100.0,
           "shield": 50.0,
           "isDead": false,
@@ -397,8 +542,13 @@
         {
           "ID": 7,
           "name": "Worm-7",
+<<<<<<< HEAD
+          "xcord": 140.0,
+          "ycord": 317.2249755859375,
+=======
           "xcord": 139.99998474121094,
           "ycord": 302.8258056640625,
+>>>>>>> dev
           "health": 100.0,
           "shield": 50.0,
           "isDead": false,
@@ -408,7 +558,11 @@
           "ID": 8,
           "name": "Worm-8",
           "xcord": 180.0,
+<<<<<<< HEAD
+          "ycord": 317.2249755859375,
+=======
           "ycord": 326.83526611328125,
+>>>>>>> dev
           "health": 100.0,
           "shield": 50.0,
           "isDead": false,
@@ -418,14 +572,14 @@
       "inventory": [
         {
           "objectType": "WEAPON",
-          "name": "BaseballBat",
-          "maxUsages": 2,
+          "name": "baseballbat",
+          "maxUsages": 1,
           "isInfinite": true,
           "useThisTurn": 0
         },
         {
           "objectType": "WEAPON",
-          "name": "Grenade",
+          "name": "grenade",
           "maxUsages": 1,
           "isInfinite": false,
           "remainingUses": 3,
@@ -433,22 +587,22 @@
         },
         {
           "objectType": "GADGET",
-          "name": "Bumper",
+          "name": "bumper",
           "maxUsages": 1,
           "isInfinite": true,
           "useThisTurn": 0
         },
         {
           "objectType": "WEAPON",
-          "name": "Ak47",
-          "maxUsages": 1,
+          "name": "ak47",
+          "maxUsages": 3,
           "isInfinite": false,
           "remainingUses": 30,
           "useThisTurn": 0
         },
         {
           "objectType": "WEAPON",
-          "name": "RocketLauncher",
+          "name": "bazooka",
           "maxUsages": 1,
           "isInfinite": false,
           "remainingUses": 2,
@@ -464,7 +618,11 @@
       "shotsHit": 0,
       "kills": 0,
       "roundsPlayed": 0,
+<<<<<<< HEAD
+      "startTime": 1766956900562
+=======
       "startTime": 1766955008745
+>>>>>>> dev
     },
     "Team 1": {
       "damageDealt": 0,
@@ -472,7 +630,11 @@
       "shotsHit": 0,
       "kills": 0,
       "roundsPlayed": 0,
+<<<<<<< HEAD
+      "startTime": 1766956900517
+=======
       "startTime": 1766955008712
+>>>>>>> dev
     },
     "Team 2": {
       "damageDealt": 0,
@@ -480,7 +642,11 @@
       "shotsHit": 0,
       "kills": 0,
       "roundsPlayed": 0,
+<<<<<<< HEAD
+      "startTime": 1766956900540
+=======
       "startTime": 1766955008729
+>>>>>>> dev
     }
   }
 }

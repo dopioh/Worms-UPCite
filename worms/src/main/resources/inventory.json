@@ -2,20 +2,20 @@
     "inventory":[   
         {
             "objectType" : "WEAPON",
-            "name" : "BaseballBat",
-            "maxUsages" : 2,
+            "name" : "baseballbat",
+            "maxUsages" : 1,
             "isInfinite" : true
         },
         {
             "objectType" : "WEAPON",
-            "name" : "Grenade",
+            "name" : "grenade",
             "maxUsages" : 1,
             "isInfinite" : false,
             "remainingUses" : 3
         },
         {
             "objectType" : "GADGET",
-            "name" : "Bumper",
+            "name" : "bumper",
             "maxUsages" : 1,
             "isInfinite" : true    
         },
@@ -49,14 +49,14 @@
         },
         {
             "objectType" : "WEAPON",
-            "name" : "Ak47",
-            "maxUsages" : 1,
+            "name" : "ak47",
+            "maxUsages" : 3,
             "isInfinite" : false,
             "remainingUses" : 30
         },
         {
             "objectType" : "WEAPON",
-            "name" : "RocketLauncher",
+            "name" : "bazooka",
             "maxUsages" : 1,
             "isInfinite" : false,
             "remainingUses" : 2    

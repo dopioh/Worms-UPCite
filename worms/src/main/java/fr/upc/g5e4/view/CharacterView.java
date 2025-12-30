@@ -9,6 +9,10 @@ import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
 
 import fr.upc.g5e4.model.CharacterModel;
+import fr.upc.g5e4.model.Weapon;
+//j'ai ajoute l'import de la grenade et du lance-roquettes pour les exeptions de taille
+import fr.upc.g5e4.model.weapons.Grenade;
+import fr.upc.g5e4.model.weapons.RocketLauncher;
 
 /**
  * Vue pour l'affichage graphique
@@ -20,6 +24,8 @@ public class CharacterView {
     private boolean showNameTag = true;
     private BufferedImage spriteImage; 
     private boolean useSprite; // utile pour savoir si on dessine un carré ou le sprite
+    private Weapon currentWeapon; // arme actuellement équipée
+    private BufferedImage weaponSprite; // sprite de l'arme
     
     /**
      * Constructeur de la classe PersonnageView avec couleur, taille et sprite par defaut
@@ -127,6 +133,97 @@ public class CharacterView {
             g2d.setColor(drawColor);
             g2d.fillRect(x - size/2, y - size/2, size, size);
         }
+        
+        // on dessine l'arme si le worm en est equipé
+        drawWeapon(g2d, model, x, y);
+    }
+    
+    /**
+     * Dessine le sprite de l'arme équipée sur le worm
+     * @param g2d le contexte graphique
+     * @param model le modèle du worm
+     * @param x Position X du worm en pixels
+     * @param y Position Y du worm en pixels
+     */
+    private void drawWeapon(Graphics2D g2d, CharacterModel model, int x, int y) {
+        if (currentWeapon == null || weaponSprite == null) {
+            return;
+        }
+        
+        // init taille de l'arme
+        int weaponWidth = size;
+        int weaponHeight = size;
+        int weaponX, weaponY = 0;
+
+        // exeption grenade
+        if (currentWeapon instanceof Grenade) {
+            // reduire taille de la grenade
+            weaponWidth = (int)(size * 0.9);
+            weaponHeight = (int)(size * 0.9);
+            weaponY += 5;
+        } else if (currentWeapon instanceof RocketLauncher) {
+            // allonger largeur du lance-roquettes
+            weaponWidth = (int)(size * 1.8);
+            weaponHeight = size;
+        }
+        
+        // definir position de l'arme (a gauche ou a droite selon la direction)
+        if (model.isFacingRight()) {
+            weaponX = (x-15) + size/2;
+            weaponY += (y-5) - size/4;
+        } else {
+            weaponX = (x+15) - size/2 - weaponWidth;
+            weaponY += (y-5) - size/4;
+        }
+        
+        // on cree un nouveau contexte graphique pour dessiner l'arme
+        // sans copie du context graphique on inverserait tout (je crois) les dessin du jeu 
+        // avec la copie on inverse juste le sprite de l'arme
+        // on libere ensuite la copie pour une meilleure gestion des ressources
+        Graphics2D g2dCopy = (Graphics2D) g2d.create();
+        
+        // si le worm "regarde" a gauche on reverse juste le sprite
+        if (!model.isFacingRight()) {
+            g2dCopy.translate(weaponX + weaponWidth, weaponY);
+            g2dCopy.scale(-1, 1);
+            g2dCopy.drawImage(weaponSprite, 0, 0, weaponWidth, weaponHeight, null);
+        } else {
+            g2dCopy.drawImage(weaponSprite, weaponX, weaponY, weaponWidth, weaponHeight, null);
+        }
+        
+        g2dCopy.dispose();
+    }
+    
+    /**
+     * Charge le sprite de l'arme equipee dans la variable weaponSprite
+     * @param weapon l'objet arme equipee
+     */
+    private void loadWeaponSprite(Weapon weapon) {
+        if (weapon == null) { // si on a pas d'arme equipee on ne charge rien
+            weaponSprite = null;
+            return;
+        }
+        
+        // on recup le nom de la classe de l'arme pour créer le chemin du sprite
+        String className = weapon.getClass().getSimpleName();
+        String spritePath = getWeaponSpritePath(className);
+        
+        try {
+            weaponSprite = ImageIO.read(getClass().getResourceAsStream(spritePath));
+        } catch (IOException | IllegalArgumentException e) {
+            System.err.println("Impossible de charger le sprite d'arme: " + spritePath);
+            weaponSprite = null;
+        }
+    }
+    
+    /**
+     * Retourne le chemin du sprite pour une arme donnée (ex: "ak47" -> "/sprite_items/ak47-sprite.png")
+     * @param className le nom de la classe de l'arme
+     * @return le chemin du sprite dans resources/sprite_items/
+     */
+    private String getWeaponSpritePath(String className) {
+        String fileName = className.toLowerCase();
+        return "/sprite_items/" + fileName + "-sprite.png";
     }
     
     /**
@@ -198,6 +295,7 @@ public class CharacterView {
     }
     
     /**
+<<<<<<< HEAD
      * envoie la couleur du worm selon son statut d'effet
      * @param model modèle du worm
      * @return la couleur à utiliser pour le dessin
@@ -288,6 +386,22 @@ public class CharacterView {
         }
         
         return colorized;
+=======
+     * Définit l'arme actuellement equipee et charge son sprite dans la variable weaponSprite
+     * @param weapon l'arme a equipee (peut etre null)
+     */
+    public void setCurrentWeaponSprite(Weapon weapon) {
+        this.currentWeapon = weapon;
+        loadWeaponSprite(weapon);
+    }
+    
+    /**
+     * Retourne l'arme actuellement equipee
+     * @return l'arme equipee ou null
+     */
+    public Weapon getCurrentWeaponSprite() {
+        return currentWeapon;
+>>>>>>> dev
     }
 }
 
