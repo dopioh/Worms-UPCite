@@ -68,6 +68,9 @@ public class CharacterModel{
     
     // buffs temporaires - support multiple buffs simultanés
     private List<BuffEffect> activeBuffs = new ArrayList<>();
+    
+    // Référence optionnelle à la vue du worm pour afficher les icônes de buff
+    private fr.upc.g5e4.view.CharacterView characterView = null;
 
     //private static final int sizePerso = 40;
 
@@ -338,6 +341,13 @@ public class CharacterModel{
     public void setEquippedItem(InventoryJson item){
         this.equippedItem = item;
     }
+    
+    /**
+     * setter pour la vue du worm (utilisé pour afficher les icônes de buff au NameTag)
+     */
+    public void setCharacterView(fr.upc.g5e4.view.CharacterView charView) {
+        this.characterView = charView;
+    }
 
     /**
      * Vérifie si le personnage touche le sol
@@ -606,6 +616,11 @@ public class CharacterModel{
         activeBuffs.add(new BuffEffect(BuffEffect.BuffType.SPEED_BOOST, 20000));
         speedBuffEffect();  // déclenche l'animation visuelle rose
         System.out.println("[BUFF] " + name + " reçoit Speed Boost pour 20s");
+        
+        // affichage l'icône de buff speed au NameTag
+        if (characterView != null) {
+            characterView.getNameTagView().addItemFromResource("/buffs/speed_buff.png", "speed_buff_icon");
+        }
     }
     
     /**
@@ -615,6 +630,11 @@ public class CharacterModel{
         activeBuffs.add(new BuffEffect(BuffEffect.BuffType.JUMP_BOOST, 20000));
         jumpBuffEffect();  // déclenche l'animation visuelle jaune
         System.out.println("[BUFF] " + name + " reçoit Jump Boost pour 20s");
+        
+        // affichage l'icône de buff jump au NameTag
+        if (characterView != null) {
+            characterView.getNameTagView().addItemFromResource("/buffs/jump_buff.png", "jump_buff_icon");
+        }
     }
     
     /**

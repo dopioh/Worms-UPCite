@@ -52,7 +52,11 @@ public class InventoryOverlay extends JComponent {
         loadImage("Grenade", "/grenade.png");
         loadImage("Bazooka", "/bazooka.png");
         loadImage("BaseballBat", "/baseballbat.png");
-        //loadImage("Bumper", "/"); Pas encore fait
+        loadImage("PotionSpeed", "/gadgets/potion_speed.png");
+        loadImage("PotionJump", "/gadgets/potion_jump.png");
+        loadImage("PotionHeal", "/gadgets/potion_heal.png");
+        loadImage("PotionShield", "/gadgets/potion_shield.png");
+        loadImage("Bumper", "/gadgets/bumper.png");
     }
 
     private void loadImage(String name, String path) {
@@ -78,6 +82,10 @@ public class InventoryOverlay extends JComponent {
         itemDescriptions.put("grenade", "Boom! Gros dégâts de zone");
         itemDescriptions.put("bazooka", "Gros dégâts");
         itemDescriptions.put("baseballbat", "Cogne sauvagement tes ennemis");
+        itemDescriptions.put("potionspeed", "Augmente la vitesse +50% pour 20s");
+        itemDescriptions.put("potionjump", "Augmente le saut +50% pour 20s");
+        itemDescriptions.put("potionheal", "Restaure 50 HP");
+        itemDescriptions.put("potionshield", "Ajoute 25 de shield");
         itemDescriptions.put("bumper", "Rebondis");
     }
 
