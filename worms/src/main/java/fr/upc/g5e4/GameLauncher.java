@@ -298,40 +298,40 @@ public class GameLauncher{
             }
         });
         
-        // ESC -> quitter ou retour au menu
-        im.put(KeyStroke.getKeyStroke("ESCAPE"), "handleEscape");
-        am.put("handleEscape", new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Si dans le menu, quitter
-                // Si dans le jeu, on peut ajouter un comportement différent plus tard
-                System.exit(0);
-            }
-        });
     }
     
     private void toggleFullScreen() {
-        GraphicsDevice device = GraphicsEnvironment
-            .getLocalGraphicsEnvironment().getDefaultScreenDevice();
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice gd = ge.getDefaultScreenDevice();
+        GraphicsConfiguration gc = gd.getDefaultConfiguration();
+        
+        // Obtenir la taille de l'écran sans le notch(mac), menu bar/dock
+        Rectangle screenBounds = gc.getBounds();
+        Insets screenInsets = Toolkit.getDefaultToolkit().getScreenInsets(gc);
+        
+        int usableX = screenBounds.x + screenInsets.left;
+        int usableY = screenBounds.y + screenInsets.top;
+        int usableWidth = screenBounds.width - screenInsets.left - screenInsets.right;
+        int usableHeight = screenBounds.height - screenInsets.top - screenInsets.bottom;
         
         if (isFullScreen) {
             // Sortir du plein écran
-            device.setFullScreenWindow(null);
             mainFrame.dispose();
             mainFrame.setUndecorated(false);
+            mainFrame.setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+            mainFrame.setLocationRelativeTo(null);
             mainFrame.setVisible(true);
             isFullScreen = false;
             updateAllSizes(DEFAULT_WIDTH, DEFAULT_HEIGHT);
         } else {
-            // Entrer en plein écran
+            // Entrer en plein écran (simulé, respecte le notch et le dock)
             mainFrame.dispose();
             mainFrame.setUndecorated(true);
+            mainFrame.setBounds(usableX, usableY, usableWidth, usableHeight);
             mainFrame.setVisible(true);
-            device.setFullScreenWindow(mainFrame);
             isFullScreen = true;
             
-            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-            updateAllSizes(screenSize.width, screenSize.height);
+            updateAllSizes(usableWidth, usableHeight);
         }
         
         // Redonner le focus
