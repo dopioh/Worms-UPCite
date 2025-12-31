@@ -90,7 +90,7 @@
 
 --------- a completer ----------
 
-## [v.0.4 : SPRINT 4](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/4) (unreleased)
+## [v.0.4 : SPRINT 4](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/4) 
 ---
 
 ### Added
@@ -160,3 +160,32 @@
     - Centralisation de repaint dans un seul Timer (gameLoop) pour avoir un seul repaint()
     - pré-création d'objets graphiques réutilisables (couleurs, strokes) pour réduire les allocations mémoire pour chaque cube
 - **Lag Audio** : Système de cache avec pré-chargement des sons en mémoire pour éliminer le lag au premier tir
+
+
+## [v.0.5 : SPRINT 5](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/5) (unreleased)
+---
+
+### Added
+- **Page reglages**
+    - Système d'onglets : Map, Équipes, Autre
+    - Support du plein écran avec scaling automatique
+    - Bouton retour vers le menu principal
+- **Composant PillButton**
+    - Bouton arrondi stylisée avec effet hover et plus
+- **Composant PillComboBox**
+    - Liste déroulante stylisée
+- **Onglet Map dans les réglages**
+    - Prévisualisation en temps réel de la map
+
+### Modified
+- **Système de plein écran**
+    - Passage du mode `setFullScreenWindow` au plein écran simulé
+    - Gestion du notch macOS et du dock
+
+### Fixed
+- JComboBox invisibles en plein écran
+- Problème du notch et menu macOS sur le contenu en plein ecran
+- Image de prévisualisation pas mise à jour au retour dans les settings
+- Coins pixelisés sur les images arrondies
+- Suppression de touche Echap dans main menu
+
