@@ -292,7 +292,7 @@ public class SwingInputController extends JPanel{
             return;
         }
 
-        // Vérifier si un gadget est équipé au lieu d'une arme
+        // vérifier si un gadget est équipé au lieu d'une arme
         if (inventoryOverlay != null && inventoryOverlay.getEquippedGadget() != null) {
             inventoryOverlay.useEquippedGadget();
             return;

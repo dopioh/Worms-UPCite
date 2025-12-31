@@ -34,10 +34,39 @@ public class NameTagView {
     public static class ItemIcon {
         public BufferedImage image;
         public String name;
+        public long creationTime; // temps de création de l'item
+        public long duration; // durée en millisecondes 
         
         public ItemIcon(BufferedImage image, String name) {
             this.image = image;
             this.name = name;
+            this.creationTime = System.currentTimeMillis();
+            this.duration = 0; // par défaut, pas d'expiration
+        }
+        
+        public ItemIcon(BufferedImage image, String name, long durationMs) {
+            this.image = image;
+            this.name = name;
+            this.creationTime = System.currentTimeMillis();
+            this.duration = durationMs;
+        }
+        
+        /**
+         * @return le temps restant en millisecondes, ou 0 si expiré
+         */
+        public long getRemainingTime() {
+            if (duration == 0) return 0; // Pas de timer
+            long elapsed = System.currentTimeMillis() - creationTime;
+            long remaining = duration - elapsed;
+            return Math.max(0, remaining);
+        }
+        
+        /**
+         * @return true si l'item a expiré
+         */
+        public boolean isExpired() {
+            if (duration == 0) return false; // pas d'expiration
+            return getRemainingTime() <= 0;
         }
     }
     
@@ -56,9 +85,19 @@ public class NameTagView {
      * @param name Le nom de l'item (identifiant unique)
      */
     public void addItemFromResource(String imagePath, String name) {
+        addItemFromResource(imagePath, name, 0);
+    }
+    
+    /**
+     * ajoute un item avec un timer
+     * @param imagePath Le chemin de l'image dans resources
+     * @param name Le nom de l'item 
+     * @param durationMs La durée en milliseconde
+     */
+    public void addItemFromResource(String imagePath, String name, long durationMs) {
         try {
             BufferedImage image = ImageIO.read(getClass().getResourceAsStream(imagePath));
-            itemIcons.add(new ItemIcon(image, name));
+            itemIcons.add(new ItemIcon(image, name, durationMs));
         } catch (IOException | IllegalArgumentException e) {
             System.err.println("Impossible de charger l'image: " + imagePath);
             e.printStackTrace();
@@ -179,6 +218,9 @@ public class NameTagView {
         
         // 1. Dessiner les items alignés en haut
         if (!itemIcons.isEmpty()) {
+            // nettoyer les items expirés
+            itemIcons.removeIf(ItemIcon::isExpired);
+            
             int totalItemsWidth = itemIcons.size() * ITEM_SIZE + (itemIcons.size() - 1) * ITEM_SPACING;
             int itemsStartX = centerX - totalItemsWidth / 2;
             
@@ -188,6 +230,25 @@ public class NameTagView {
                 
                 if (item.image != null) {
                     g2d.drawImage(item.image, itemX, currentY, ITEM_SIZE, ITEM_SIZE, null);
+                    
+                    // afficher le timer si l'item a une durée 
+                    if (item.duration > 0) {
+                        long remaining = item.getRemainingTime();
+                        double seconds = remaining / 1000.0;
+                        String timerText = String.format("%.0f", seconds);
+                        
+                        // fond du timer invisible 
+                        //g2d.setColor(new Color(0, 0, 0, 0));
+                        //g2d.fillRoundRect(itemX + 6, currentY - 2, 14, 12, 3, 3);
+                        
+                        // Texte du timer
+                        g2d.setColor(Color.WHITE);
+                        g2d.setFont(new Font("Arial", Font.BOLD, 8));
+                        FontMetrics fm = g2d.getFontMetrics();
+                        int textX = itemX + 13 - fm.stringWidth(timerText) / 2;
+                        int textY = currentY + 8;
+                        g2d.drawString(timerText, textX, textY);
+                    }
                 }
             }
             currentY += ITEM_SIZE + ITEM_SPACING * 2;

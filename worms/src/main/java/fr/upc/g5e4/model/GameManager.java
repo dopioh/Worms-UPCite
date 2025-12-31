@@ -885,23 +885,41 @@ public class GameManager {
         
         CharacterModel currentWorm = activeWormController.getModel();
         
+        // réécupérer la vue du worm pour ajouter l'étiquette au nametag
+        fr.upc.g5e4.view.CharacterView charView = null;
+        int wormIndex = getActiveWormIndex();
+        int teamIndex = getCurrentTeamIndex();
+        if (wormIndex >= 0 && teamIndex >= 0 && teamIndex < getListTeamInit().size()) {
+            charView = getListTeamInit().get(teamIndex).getTeamView().getCharacterView(wormIndex);
+        }
+        
         switch (itemName) {
             case "PotionHeal":
                 currentWorm.setHealth(Math.min(100, currentWorm.getHealth() + 50));
                 currentWorm.healEffect();
+                // Pas d'étiquette pour le heal
                 System.out.println("[Gadget] Potion Heal : +50 HP");
                 break;
             case "PotionShield":
                 currentWorm.setShield(Math.min(100, currentWorm.getShield() + 25));
                 currentWorm.shieldEffect();
+                // Pas d'étiquette pour le shield
                 System.out.println("[Gadget] Potion Shield : +25 Shield");
                 break;
             case "PotionSpeed":
                 currentWorm.applySpeedBuff();
+                // ajouter l'étiquette via la vue du worm avec timer (20 secondes)
+                if (charView != null) {
+                    charView.getNameTagView().addItemFromResource("/buffs/speed_buff.png", "speed_buff_icon", 20000);
+                }
                 System.out.println("[Gadget] Potion Speed : +50% vitesse");
                 break;
             case "PotionJump":
                 currentWorm.applyJumpBuff();
+                // ajouter l'étiquette via la vue du worm avec timer (20 secondes)
+                if (charView != null) {
+                    charView.getNameTagView().addItemFromResource("/buffs/jump_buff.png", "jump_buff_icon", 20000);
+                }
                 System.out.println("[Gadget] Potion Jump : +50% saut");
                 break;
             case "Bumper":

@@ -205,6 +205,9 @@ public class CharacterModel{
     }
 
     public double getSpeed() {
+        // Nettoyer les buffs expirés
+        cleanExpiredBuffs();
+        
         // Appliquer tous les buffs de speed actifs
         double finalSpeed = speed;
         for (BuffEffect buff : activeBuffs) {
@@ -216,6 +219,9 @@ public class CharacterModel{
     }
 
     public double getJump() {
+        // Nettoyer les buffs expirés
+        cleanExpiredBuffs();
+        
         // Appliquer tous les buffs de jump actifs
         double finalJump = jump;
         for (BuffEffect buff : activeBuffs) {
@@ -224,6 +230,26 @@ public class CharacterModel{
             }
         }
         return finalJump;
+    }
+
+    /**
+     * Nettoie les buffs expirés et supprime leurs étiquettes du nametag
+     */
+    private void cleanExpiredBuffs() {
+        activeBuffs.removeIf(buff -> {
+            if (!buff.isActive()) {
+                // Supprimer l'étiquette du buff qui expire
+                if (characterView != null) {
+                    if (buff.getType() == BuffEffect.BuffType.SPEED_BOOST) {
+                        characterView.getNameTagView().removeItem("speed_buff_icon");
+                    } else if (buff.getType() == BuffEffect.BuffType.JUMP_BOOST) {
+                        characterView.getNameTagView().removeItem("jump_buff_icon");
+                    }
+                }
+                return true;
+            }
+            return false;
+        });
     }
 
     public boolean isDead() {
@@ -642,7 +668,7 @@ public class CharacterModel{
      */
     public BuffEffect getActiveBuff() {
         // Nettoyer les buffs expirés
-        activeBuffs.removeIf(buff -> !buff.isActive());
+        cleanExpiredBuffs();
         
         // Retourner le premier buff speed ou jump s'il existe
         if (!activeBuffs.isEmpty()) {
@@ -656,7 +682,7 @@ public class CharacterModel{
      */
     public double getBuffMultiplier() {
         // Nettoyer les buffs expirés
-        activeBuffs.removeIf(buff -> !buff.isActive());
+        cleanExpiredBuffs();
         
         // Retourner le multiplicateur du premier buff s'il existe
         if (!activeBuffs.isEmpty()) {

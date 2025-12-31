@@ -150,7 +150,7 @@ public class InventoryOverlay extends JComponent {
     }
 
     /**
-     * Définit un callback quand un gadget est utilisé
+     * définit un rappel quand un gadget est utilisé
      */
     public void setOnGadgetUse(Runnable callback) {
         this.onGadgetUse = callback;
@@ -511,13 +511,13 @@ public class InventoryOverlay extends JComponent {
     }
 
     /**
-     * Utilise un gadget de l'inventaire quand celui-ci est fermé
+     * utilise un gadget de l'inventaire quand celui-ci est fermé
      * @param gadgetIndex l'index du gadget dans la liste des gadgets (0-4)
      */
     public void useGadgetByIndex(int gadgetIndex) {
-        if (visible) return; // Ne pas utiliser si l'inventaire est ouvert
+        if (visible) return; // ne pas pouvoir utiliser l'inventaire si c'est ouvert
         
-        // Filtrer les gadgets seulement
+        // filtrer les gadgets seulement
         List<InventoryJson> gadgets = new ArrayList<>();
         for (InventoryJson item : inventory) {
             if (item != null && "GADGET".equals(item.objectType)) {
@@ -526,7 +526,7 @@ public class InventoryOverlay extends JComponent {
         }
         
         if (gadgetIndex < 0 || gadgetIndex >= gadgets.size()) {
-            return; // Index invalide
+            return; // index invalide
         }
         
         InventoryJson gadget = gadgets.get(gadgetIndex);
@@ -542,15 +542,15 @@ public class InventoryOverlay extends JComponent {
     }
 
     /**
-     * Utilise le gadget actuellement équipé
-     * Appelé quand l'inventaire est fermé et on clique
+     * utilise le gadget actuellement équipé
+     * appelé quand l'inventaire est fermé et on clique
      */
     public void useEquippedGadget() {
-        if (visible || equippedItem == null) return; // Ne pas utiliser si l'inventaire est ouvert ou pas de gadget équipé
+        if (visible || equippedItem == null) return; // ne pas utiliser si l'inventaire est ouvert ou pas de gadget équipé
         
-        // Vérifier que c'est un gadget
+        // vérifier que c'est un gadget
         if (!"GADGET".equals(equippedItem.objectType)) {
-            return; // Ce n'est pas un gadget
+            return; // ce n'est pas un gadget
         }
         
         if (equippedItem.canUseThisTurn()) {
@@ -565,7 +565,7 @@ public class InventoryOverlay extends JComponent {
     }
 
     /**
-     * Retourne le gadget actuellement équipé
+     * @return le gadget actuellement équipé
      */
     public InventoryJson getEquippedGadget() {
         if (equippedItem != null && "GADGET".equals(equippedItem.objectType)) {
