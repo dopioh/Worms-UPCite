@@ -34,6 +34,7 @@ public class InventoryOverlay extends JComponent {
     private Rectangle panelBounds;
 
     private GameManager gameManager;
+    private Runnable onGadgetUse;
 
     // --- Grille INVENTAIRE ---
     private static final int CELL_SIZE = 96;   // taille des cases
@@ -146,6 +147,13 @@ public class InventoryOverlay extends JComponent {
 
     public void setGameManager(GameManager gameManager) {
         this.gameManager = gameManager;
+    }
+
+    /**
+     * Définit un callback quand un gadget est utilisé
+     */
+    public void setOnGadgetUse(Runnable callback) {
+        this.onGadgetUse = callback;
     }
 
     /**
@@ -500,6 +508,70 @@ public class InventoryOverlay extends JComponent {
                 break;
             }
         }
+    }
+
+    /**
+     * Utilise un gadget de l'inventaire quand celui-ci est fermé
+     * @param gadgetIndex l'index du gadget dans la liste des gadgets (0-4)
+     */
+    public void useGadgetByIndex(int gadgetIndex) {
+        if (visible) return; // Ne pas utiliser si l'inventaire est ouvert
+        
+        // Filtrer les gadgets seulement
+        List<InventoryJson> gadgets = new ArrayList<>();
+        for (InventoryJson item : inventory) {
+            if (item != null && "GADGET".equals(item.objectType)) {
+                gadgets.add(item);
+            }
+        }
+        
+        if (gadgetIndex < 0 || gadgetIndex >= gadgets.size()) {
+            return; // Index invalide
+        }
+        
+        InventoryJson gadget = gadgets.get(gadgetIndex);
+        if (gadget.canUseThisTurn()) {
+            gadget.registerUseThisTurn();
+            if (gameManager != null) {
+                gameManager.useGadgetFromInventory(gadget.name);
+            }
+            if (onGadgetUse != null) {
+                onGadgetUse.run();
+            }
+        }
+    }
+
+    /**
+     * Utilise le gadget actuellement équipé
+     * Appelé quand l'inventaire est fermé et on clique
+     */
+    public void useEquippedGadget() {
+        if (visible || equippedItem == null) return; // Ne pas utiliser si l'inventaire est ouvert ou pas de gadget équipé
+        
+        // Vérifier que c'est un gadget
+        if (!"GADGET".equals(equippedItem.objectType)) {
+            return; // Ce n'est pas un gadget
+        }
+        
+        if (equippedItem.canUseThisTurn()) {
+            equippedItem.registerUseThisTurn();
+            if (gameManager != null) {
+                gameManager.useGadgetFromInventory(equippedItem.name);
+            }
+            if (onGadgetUse != null) {
+                onGadgetUse.run();
+            }
+        }
+    }
+
+    /**
+     * Retourne le gadget actuellement équipé
+     */
+    public InventoryJson getEquippedGadget() {
+        if (equippedItem != null && "GADGET".equals(equippedItem.objectType)) {
+            return equippedItem;
+        }
+        return null;
     }
 
 }

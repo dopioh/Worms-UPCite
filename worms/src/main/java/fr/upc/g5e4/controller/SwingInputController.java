@@ -292,6 +292,12 @@ public class SwingInputController extends JPanel{
             return;
         }
 
+        // Vérifier si un gadget est équipé au lieu d'une arme
+        if (inventoryOverlay != null && inventoryOverlay.getEquippedGadget() != null) {
+            inventoryOverlay.useEquippedGadget();
+            return;
+        }
+
         CharacterModel model = personnageController.getModel();
         float ppm = CharacterModel.getPPM();
         float worldHeightMeters = 24f; // 720 / 30 = 24 (hauteur du monde en mètres)
