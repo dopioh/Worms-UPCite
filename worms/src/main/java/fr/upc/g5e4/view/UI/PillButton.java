@@ -1,5 +1,4 @@
-package fr.upc.g5e4.view;
-
+package fr.upc.g5e4.view.UI;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;

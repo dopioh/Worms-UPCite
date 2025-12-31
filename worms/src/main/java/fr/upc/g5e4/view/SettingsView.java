@@ -19,6 +19,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import fr.upc.g5e4.controller.MainMenuController;
+import fr.upc.g5e4.view.UI.*;;
+
 
 
 /**
