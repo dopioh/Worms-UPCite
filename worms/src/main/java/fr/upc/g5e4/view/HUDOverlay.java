@@ -22,7 +22,7 @@ public class HUDOverlay extends JComponent {
     private void loadWeaponImages() {
         loadWeaponImage("ak47", "/ak.png");
         loadWeaponImage("grenade", "/grenade.png");
-        loadWeaponImage("bazooka", "/bazooka.png");
+        loadWeaponImage("rocketlauncher", "/rocketlauncher.png");
         loadWeaponImage("baseballbat", "/baseballbat.png");
     }
 

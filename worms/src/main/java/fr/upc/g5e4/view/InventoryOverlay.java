@@ -50,7 +50,7 @@ public class InventoryOverlay extends JComponent {
     private void loadItemImages() {
         loadImage("AK47", "/ak.png");
         loadImage("Grenade", "/grenade.png");
-        loadImage("Bazooka", "/bazooka.png");
+        loadImage("RocketLauncher", "/rocketlauncher.png");
         loadImage("BaseballBat", "/baseballbat.png");
         //loadImage("Bumper", "/"); Pas encore fait
     }
@@ -76,7 +76,7 @@ public class InventoryOverlay extends JComponent {
     private void loadDescriptions() {
         itemDescriptions.put("ak47", "rafales rapides, bonne portée");
         itemDescriptions.put("grenade", "Boom! Gros dégâts de zone");
-        itemDescriptions.put("bazooka", "Gros dégâts");
+        itemDescriptions.put("rocketlauncher", "Gros dégâts");
         itemDescriptions.put("baseballbat", "Cogne sauvagement tes ennemis");
         itemDescriptions.put("bumper", "Rebondis");
     }

@@ -111,7 +111,6 @@ public class GameManager {
     public GameManager(int nbrEquipe) {
         // Initialiser le système audio en arrière-plan pour éviter le lag au premier tir
         //this.saveDataBool = false;
-        SoundPlayer.initialize();
 
         // ========== CONFIGURATION DU TERRAIN ==========
         // Pour changer le type de terrain et la taille, voir MapConfig.java
@@ -274,8 +273,6 @@ public class GameManager {
         physic.limitPanel(blockGridModel);
 
         this.water = physic.createBodyWater(model);
-
-        SoundPlayer.initialize();
 
         this.roundTimeRemaining = saveData.getRoundTimeRemaining();
 
