@@ -169,3 +169,14 @@
 
 ### Fixed
 - body des blocks invisible après destruction
+
+
+### Added
+- Plusieurs buffs (Speed, jump)
+- Potion (Speed, jump, heal, shield)
+- sprites pour gagdets 
+- sons pour les gadgets
+
+### Fixed
+- Double tir
+
