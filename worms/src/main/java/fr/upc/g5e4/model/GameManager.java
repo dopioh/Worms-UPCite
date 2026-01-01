@@ -71,6 +71,9 @@ public class GameManager {
     private TeamModel currentTeam;
 
     private int currentWeaponIndex = 0;  // 0=AK47, 1=Baseball, 2=Grenade, 3=Rocket    
+    
+    private boolean weaponUsedThisTurn = false;  //empêche de changer d'arme après avoir tiré
+    private int gadgetsUsedThisTurn = 0;  // Compte le nombre de gadgets utilisés
 
     // ajout minimal: gestion des rounds
     private int roundNumber = 1;
@@ -179,6 +182,7 @@ public class GameManager {
         this.teamCursor = new int[nbrEquipe];
         this.activeWormIndex = 0;
         this.activeWormController = new CharacterController(listTeamInital.get(currentTeamIndex).getTeamModel().getWorm(activeWormIndex));
+        activeWormController.setGameManager(this);
         
         // Créer une liste de tous les worms pour le WaterSensorListener
         ArrayList<CharacterModel> allWorms = new ArrayList<>();
@@ -302,6 +306,7 @@ public class GameManager {
 
         this.activeWormIndex = saveData.getActiveWormIndex();
         this.activeWormController =  new CharacterController(listTeamInital.get(currentTeamIndex).getTeamModel().getWorm(activeWormIndex));
+        activeWormController.setGameManager(this);
 
         // GameStats : 
         this.teamStats = saveData.getAllTeamStats();
@@ -657,6 +662,7 @@ public class GameManager {
                 this.activeWormIndex = cursor;
             
                 activeWormController = new CharacterController(worm);
+                activeWormController.setGameManager(this);
                 activeWormController.setItemController(this.itemController);
                 activeWormController.setWorld(world);
                 activeWormController.setAllWorms(this.allWorms);
@@ -700,6 +706,10 @@ public class GameManager {
         if (currentTeam != null) {
             currentTeam.resetInventoryTurn();
         }
+        // réinitialise le flag d'utilisation d'arme pour le nouveau tour
+        resetWeaponUsedFlag();
+        // réinitialise le compteur de gadgets utilisés
+        gadgetsUsedThisTurn = 0;
         // Réinitialise le timer à 30 secondes
         roundTimeRemaining = roundTimeSave; // ou 1800
         if (gameLoop != null) {
@@ -838,6 +848,12 @@ public class GameManager {
 
     /*Selection d'inventaire depuis l'inventaire*/
     public void setWeaponFromInventory(String itemName) {
+        // vérifier si une arme a déjà été utilisée ce tour
+        if (weaponUsedThisTurn) {
+            System.out.println("[Inventaire] Impossible de changer d'arme après avoir tiré ce tour!");
+            return;
+        }
+        
         Weapon newWeapon = null;
 
         // Empeche la casse 
@@ -869,7 +885,11 @@ public class GameManager {
             // Déséquiper le gadget (on ne peut pas avoir 2 choses dans les mains)
             clearGadgetSprite();
             
+            // trouver l'arme dans l'inventaire 
+            InventoryJson weaponInventory = findWeaponInInventory(itemName);
+            
             activeWormController.setCurrentWeapon(newWeapon);
+            activeWormController.setCurrentWeaponInventory(weaponInventory);
             // Met à jour la trajectoire
             gamePanel.getTrajectoryView().setWeapon(newWeapon);
             // met à jour l'arme dans la vue
@@ -914,6 +934,12 @@ public class GameManager {
             return;
         }
         
+        // vérifier si on peut encore utiliser un gadget ce tour
+        if (gadgetsUsedThisTurn >= 2) {
+            System.out.println("[Gadget] Limite atteinte! Vous avez déjà utilisé 2 gadgets ce tour.");
+            return;
+        }
+        
         CharacterModel currentWorm = activeWormController.getModel();
         
         // récupérer la vue du worm pour ajouter l'étiquette au nametag et afficher le sprite du gadget
@@ -929,6 +955,9 @@ public class GameManager {
             charView.setCurrentGadgetSprite(itemName);
         }
         
+        // trouver le gadget dans l'inventaire pour enregistrer son utilisation
+        InventoryJson gadgetFromInventory = findGadgetInInventory(itemName);
+        
         switch (itemName) {
             case "PotionHeal":
                 currentWorm.setHealth(Math.min(100, currentWorm.getHealth() + 50));
@@ -936,6 +965,11 @@ public class GameManager {
                 // Pas d'étiquette pour le heal
                 System.out.println("[Gadget] Potion Heal : +50 HP");
                 SoundPlayer.play("/sfx/potionheal-sound.wav");
+                gadgetsUsedThisTurn++;
+                // enregistrer l'utilisation du gadget
+                if (gadgetFromInventory != null && gadgetFromInventory.canUseThisTurn()) {
+                    gadgetFromInventory.registerUseThisTurn();
+                }
                 break;
             case "PotionShield":
                 currentWorm.setShield(Math.min(100, currentWorm.getShield() + 25));
@@ -943,6 +977,11 @@ public class GameManager {
                 // Pas d'étiquette pour le shield
                 System.out.println("[Gadget] Potion Shield : +25 Shield");
                 SoundPlayer.play("/sfx/potionshield-sound.wav");
+                gadgetsUsedThisTurn++;
+                // enregistrer l'utilisation du gadget
+                if (gadgetFromInventory != null && gadgetFromInventory.canUseThisTurn()) {
+                    gadgetFromInventory.registerUseThisTurn();
+                }
                 break;
             case "PotionSpeed":
                 currentWorm.applySpeedBuff();
@@ -952,6 +991,11 @@ public class GameManager {
                 }
                 System.out.println("[Gadget] Potion Speed : +50% vitesse");
                 SoundPlayer.play("/sfx/potionspeed-sound.wav");
+                gadgetsUsedThisTurn++;
+                // enregistrer l'utilisation du gadget
+                if (gadgetFromInventory != null && gadgetFromInventory.canUseThisTurn()) {
+                    gadgetFromInventory.registerUseThisTurn();
+                }
                 break;
             case "PotionJump":
                 currentWorm.applyJumpBuff();
@@ -961,10 +1005,20 @@ public class GameManager {
                 }
                 System.out.println("[Gadget] Potion Jump : +50% saut");
                 SoundPlayer.play("/sfx/potionjump-sound.wav");
+                gadgetsUsedThisTurn++;
+                // enregistrer l'utilisation du gadget
+                if (gadgetFromInventory != null && gadgetFromInventory.canUseThisTurn()) {
+                    gadgetFromInventory.registerUseThisTurn();
+                }
                 break;
             case "Bumper":
                 System.out.println("[Gadget] Bumper utilisé");
                 // SoundPlayer.play("/sfx/bumper-sound.wav");
+                gadgetsUsedThisTurn++;
+                // enregistrer l'utilisation du gadget
+                if (gadgetFromInventory != null && gadgetFromInventory.canUseThisTurn()) {
+                    gadgetFromInventory.registerUseThisTurn();
+                }
                 break;
             default:
                 System.out.println("[Gadget] Gadget inconnu : " + itemName);
@@ -975,6 +1029,40 @@ public class GameManager {
     public java.util.List<InventoryModel.InventoryJson> getCurrentTeamInventory() {
         TeamModel team = getCurrentTeam();
         return (team != null) ? team.getInventory() : null;
+    }
+    
+    /**
+     * trouve un gadget dans l'inventaire de l'équipe actuelle par son nom
+     * @param itemName Le nom du gadget
+     * @return L'objet inventoryJson du gadget ou null si non trouvé
+     */
+    private InventoryJson findGadgetInInventory(String itemName) {
+        java.util.List<InventoryJson> inventory = getCurrentTeamInventory();
+        if (inventory == null) return null;
+        
+        for (InventoryJson item : inventory) {
+            if (itemName.equals(item.name) && "GADGET".equals(item.objectType)) {
+                return item;
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * trouve une arme dans l'inventaire de l'équipe actuelle par son nom
+     * @param itemName Le nom de l'arme
+     * @return L'objet inventoryJson de l'arme ou null si non trouvé
+     */
+    private InventoryJson findWeaponInInventory(String itemName) {
+        java.util.List<InventoryJson> inventory = getCurrentTeamInventory();
+        if (inventory == null) return null;
+        
+        for (InventoryJson item : inventory) {
+            if (itemName.equalsIgnoreCase(item.name) && "WEAPON".equals(item.objectType)) {
+                return item;
+            }
+        }
+        return null;
     }
 
     public void setInventoryOverlay(InventoryOverlay overlay){
@@ -1139,6 +1227,29 @@ public class GameManager {
     private CharacterModel[] buildAllWormsArray() {
         ArrayList<CharacterModel> wormsList = buildAllWormsList();
         return wormsList.toArray(new CharacterModel[0]);
+    }
+    
+    /**
+     * Marque qu'une arme a été utilisée ce tour
+     * Empêche les changements d'arme après un tir
+     */
+    public void markWeaponUsed() {
+        weaponUsedThisTurn = true;
+        System.out.println("[Arme] Vous ne pouvez plus changer d'arme ce tour!");
+    }
+    
+    /**
+     * Réinitialise le flag d'utilisation d'arme (appelé au début du tour)
+     */
+    public void resetWeaponUsedFlag() {
+        weaponUsedThisTurn = false;
+    }
+    
+    /**
+     * Retourne le nombre de gadgets restants ce tour
+     */
+    public int getRemainingGadgetsThisTurn() {
+        return 2 - gadgetsUsedThisTurn;
     }
 
 }

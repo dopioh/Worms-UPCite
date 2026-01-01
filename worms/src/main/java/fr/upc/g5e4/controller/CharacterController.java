@@ -5,6 +5,8 @@ import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.World;
 
 import fr.upc.g5e4.model.CharacterModel;
+import fr.upc.g5e4.model.GameManager;
+import fr.upc.g5e4.model.InventoryModel.InventoryJson;
 import fr.upc.g5e4.model.Weapon;
 
 /**
@@ -24,6 +26,8 @@ public class CharacterController {
     private World world;
     private CharacterModel[] allWorms;
     private Weapon currentWeapon;
+    private InventoryJson currentWeaponInventory;
+    private GameManager gameManager;
 
     /**
      * Constructeur de la classe PersonnageController
@@ -58,11 +62,27 @@ public class CharacterController {
     }
 
     /**
+     * définit le GameManager pour l'utilisation d'arme
+     * @param gameManager Le GameManager
+     */
+    public void setGameManager(GameManager gameManager) {
+        this.gameManager = gameManager;
+    }
+
+    /**
      * Définit l'arme actuellement équipée
      * @param weapon L'arme à équiper
      */
     public void setCurrentWeapon(Weapon weapon) {
         this.currentWeapon = weapon;
+    }
+    
+    /**
+     * définit l'objet inventoryJson de l'arme actuellement équipée
+     * @param weaponInventory L'objet inventoryJson de l'arme
+     */
+    public void setCurrentWeaponInventory(InventoryJson weaponInventory) {
+        this.currentWeaponInventory = weaponInventory;
     }
 
     /**
@@ -219,8 +239,24 @@ public class CharacterController {
             return;
         }
         
+        // vérifier si on peut tirer avec cette arme ce tour
+        if (currentWeaponInventory != null && !currentWeaponInventory.canUseThisTurn()) {
+            System.out.println("[Arme] Limite d'utilisation atteinte pour cette arme ce tour!");
+            return;
+        }
+        
         // tirer avec l'arme 
         itemController.useWeaponOnTarget(currentWeapon, model, direction);
+        
+        // enregistrer l'utilisation de l'arme
+        if (currentWeaponInventory != null) {
+            currentWeaponInventory.registerUseThisTurn();
+        }
+        
+        // marquer que l'arme a été utilisée ce tour
+        if (gameManager != null) {
+            gameManager.markWeaponUsed();
+        }
     }
     
     /**
@@ -232,7 +268,23 @@ public class CharacterController {
             return;
         }
         
+        // vérifier si on peut tirer avec cette arme ce tour
+        if (currentWeaponInventory != null && !currentWeaponInventory.canUseThisTurn()) {
+            System.out.println("[Arme] Limite d'utilisation atteinte pour cette arme ce tour!");
+            return;
+        }
+        
         // tirer avec l'arme 
         itemController.useWeaponOnTarget(currentWeapon, model, direction);
+        
+        // enregistrer l'utilisation de l'arme
+        if (currentWeaponInventory != null) {
+            currentWeaponInventory.registerUseThisTurn();
+        }
+        
+        // marquer que l'arme a été utilisée ce tour
+        if (gameManager != null) {
+            gameManager.markWeaponUsed();
+        }
     }
 }

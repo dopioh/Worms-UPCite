@@ -537,7 +537,6 @@ public class InventoryOverlay extends JComponent {
         
         InventoryJson gadget = gadgets.get(gadgetIndex);
         if (gadget.canUseThisTurn()) {
-            gadget.registerUseThisTurn();
             if (gameManager != null) {
                 gameManager.useGadgetFromInventory(gadget.name);
             }
@@ -560,7 +559,6 @@ public class InventoryOverlay extends JComponent {
         }
         
         if (equippedItem.canUseThisTurn()) {
-            equippedItem.registerUseThisTurn();
             if (gameManager != null) {
                 gameManager.useGadgetFromInventory(equippedItem.name);
             }
