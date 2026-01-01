@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class SoundPlayerTest {
 
     private static final String MISSING = "/sfx/does-not-exist.wav";
-    private static final String TEST_WAV = "/sfx/test-sound.wav"; // à mettre dans src/test/resources
+    private static final String TEST_WAV = "/sfx/ak47.wav"; 
 
     @BeforeEach
     void resetCache() throws Exception {
@@ -36,15 +36,11 @@ class SoundPlayerTest {
     @Test
     void play_missingResource_doesNotThrow() {
         assertDoesNotThrow(() -> SoundPlayer.play(MISSING));
-        // Asynchrone: on ne peut pas garantir quand le job tourne, mais on vérifie qu'aucune exception n'est propagée
     }
 
     @Test
     void play_existingResource_eventuallyCachesBytes_ifTestWavPresent() throws Exception {
-        Assumptions.assumeTrue(
-                SoundPlayer.class.getResourceAsStream(TEST_WAV) != null,
-                "Ajoute un WAV de test: src/test/resources/sfx/test-sound.wav"
-        );
+        Assumptions.assumeTrue(SoundPlayer.class.getResourceAsStream(TEST_WAV) != null,"");
 
         SoundPlayer.play(TEST_WAV);
 
@@ -73,9 +69,7 @@ class SoundPlayerTest {
     @Test
     void loadBytesOrNull_existingResource_returnsBytes_ifTestWavPresent() throws Exception {
         Assumptions.assumeTrue(
-                SoundPlayer.class.getResourceAsStream(TEST_WAV) != null,
-                "Ajoute un WAV de test: src/test/resources/sfx/test-sound.wav"
-        );
+                SoundPlayer.class.getResourceAsStream(TEST_WAV) != null,"");
 
         Object res = invokePrivateStatic(
                 "loadBytesOrNull",
