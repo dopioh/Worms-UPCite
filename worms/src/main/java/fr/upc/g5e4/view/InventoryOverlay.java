@@ -483,7 +483,13 @@ public class InventoryOverlay extends JComponent {
         equippedItemKey = item.name.toLowerCase();
         equippedItem = item;
         if (gameManager != null) {
-            gameManager.setWeaponFromInventory(item.name);
+            // appeler la bonne méthode selon le type d'objet
+            if ("GADGET".equalsIgnoreCase(item.objectType)) {
+                gameManager.setGadgetFromInventory(item.name);
+            } else {
+                // WEAPON par défaut
+                gameManager.setWeaponFromInventory(item.name);
+            }
         }
     }
 

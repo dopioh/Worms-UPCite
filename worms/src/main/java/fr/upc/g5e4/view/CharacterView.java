@@ -26,6 +26,8 @@ public class CharacterView {
     private boolean useSprite; // utile pour savoir si on dessine un carré ou le sprite
     private Weapon currentWeapon; // arme actuellement équipée
     private BufferedImage weaponSprite; // sprite de l'arme
+    private String currentGadget; // gadget actuellement équipé 
+    private BufferedImage gadgetSprite; // sprite du gadget
     
     /**
      * Constructeur de la classe PersonnageView avec couleur, taille et sprite par defaut
@@ -135,8 +137,9 @@ public class CharacterView {
         }
         
         // on dessine l'arme si le worm en est equipé
-        drawWeapon(g2d, model, x, y);
-    }
+        drawWeapon(g2d, model, x, y);        
+        // on dessine le gadget si le worm en est equipe
+        drawGadget(g2d, model, x, y);    }
     
     /**
      * Dessine le sprite de l'arme équipée sur le worm
@@ -195,6 +198,48 @@ public class CharacterView {
     }
     
     /**
+     * dessine le sprite du gadget équipé sur le worm (similaire à drawWeapon)
+     * @param g2d le contexte graphique
+     * @param model le modèle du worm
+     * @param x Position X du worm en pixels
+     * @param y Position Y du worm en pixels
+     */
+    private void drawGadget(Graphics2D g2d, CharacterModel model, int x, int y) {
+        if (currentGadget == null || gadgetSprite == null) {
+            return;
+        }
+        
+        // init taille du gadget (plus petit que l'arme)
+        int gadgetWidth = (int)(size * 0.7);
+        int gadgetHeight = (int)(size * 0.7);
+        int gadgetX, gadgetY = 0;
+        
+        // positionner le gadget (à gauche ou à droite selon la direction)
+        // placer le gadget sous le worm
+        if (model.isFacingRight()) {
+            gadgetX = (x-15) + size/2;
+            gadgetY += (y-5) + size/2;
+        } else {
+            gadgetX = (x+15) - size/2 - gadgetWidth;
+            gadgetY += (y-5) + size/2;
+        }
+        
+        // créer un nouveau contexte graphique pour dessiner le gadget
+        Graphics2D g2dCopy = (Graphics2D) g2d.create();
+        
+        // si le worm "regarde" à gauche on reverse le sprite
+        if (!model.isFacingRight()) {
+            g2dCopy.translate(gadgetX + gadgetWidth, gadgetY);
+            g2dCopy.scale(-1, 1);
+            g2dCopy.drawImage(gadgetSprite, 0, 0, gadgetWidth, gadgetHeight, null);
+        } else {
+            g2dCopy.drawImage(gadgetSprite, gadgetX, gadgetY, gadgetWidth, gadgetHeight, null);
+        }
+        
+        g2dCopy.dispose();
+    }
+    
+    /**
      * Charge le sprite de l'arme equipee dans la variable weaponSprite
      * @param weapon l'objet arme equipee
      */
@@ -224,6 +269,37 @@ public class CharacterView {
     private String getWeaponSpritePath(String className) {
         String fileName = className.toLowerCase();
         return "/sprite_items/" + fileName + "-sprite.png";
+    }
+    
+    /**
+     * charge le sprite du gadget équipé dans la variable gadgetSprite
+     * @param gadgetName le nom du gadget 
+     */
+    private void loadGadgetSprite(String gadgetName) {
+        if (gadgetName == null) { // si on a pas de gadget equipé on ne charge rien
+            gadgetSprite = null;
+            return;
+        }
+        
+        // on crée le chemin du sprite basé sur le nom du gadget
+        String spritePath = getGadgetSpritePath(gadgetName);
+        
+        try {
+            gadgetSprite = ImageIO.read(getClass().getResourceAsStream(spritePath));
+        } catch (IOException | IllegalArgumentException e) {
+            System.err.println("Impossible de charger le sprite de gadget: " + spritePath);
+            gadgetSprite = null;
+        }
+    }
+    
+    /**
+     * retourne le chemin du sprite pour un gadget donné 
+     * @param gadgetName le nom du gadget
+     * @return le chemin du sprite dans resources/gadgets/
+     */
+    private String getGadgetSpritePath(String gadgetName) {
+        String fileName = gadgetName.toLowerCase();
+        return "/gadgets/" + fileName + "-sprite.png";
     }
     
     /**
@@ -405,5 +481,21 @@ public class CharacterView {
         return colorized;
 
     }
+    
+    /**
+     * définit le gadget actuellement équipé et charge son sprite dans la variable gadgetSprite
+     * @param gadgetName le nom du gadget à équiper 
+     */
+    public void setCurrentGadgetSprite(String gadgetName) {
+        this.currentGadget = gadgetName;
+        loadGadgetSprite(gadgetName);
+    }
+    
+    /**
+     * getter pour le gadget actuellement équipé
+     * @return le nom du gadget équipé ou null
+     */
+    public String getCurrentGadgetSprite() {
+        return currentGadget;
+    }
 }
-

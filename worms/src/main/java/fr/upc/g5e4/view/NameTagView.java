@@ -55,7 +55,7 @@ public class NameTagView {
          * @return le temps restant en millisecondes, ou 0 si expiré
          */
         public long getRemainingTime() {
-            if (duration == 0) return 0; // Pas de timer
+            if (duration == 0) return 0; // pas de timer
             long elapsed = System.currentTimeMillis() - creationTime;
             long remaining = duration - elapsed;
             return Math.max(0, remaining);
@@ -237,11 +237,7 @@ public class NameTagView {
                         double seconds = remaining / 1000.0;
                         String timerText = String.format("%.0f", seconds);
                         
-                        // fond du timer invisible 
-                        //g2d.setColor(new Color(0, 0, 0, 0));
-                        //g2d.fillRoundRect(itemX + 6, currentY - 2, 14, 12, 3, 3);
-                        
-                        // Texte du timer
+                        //texte du timer
                         g2d.setColor(Color.WHITE);
                         g2d.setFont(new Font("Arial", Font.BOLD, 8));
                         FontMetrics fm = g2d.getFontMetrics();

@@ -205,7 +205,7 @@ public class CharacterModel{
     }
 
     public double getSpeed() {
-        // Nettoyer les buffs expirés
+        // nettoie les buffs expirés
         cleanExpiredBuffs();
         
         // Appliquer tous les buffs de speed actifs
@@ -219,7 +219,7 @@ public class CharacterModel{
     }
 
     public double getJump() {
-        // Nettoyer les buffs expirés
+        // nettoie les buffs expirés
         cleanExpiredBuffs();
         
         // Appliquer tous les buffs de jump actifs
@@ -233,12 +233,12 @@ public class CharacterModel{
     }
 
     /**
-     * Nettoie les buffs expirés et supprime leurs étiquettes du nametag
+     * nettoie les buffs expirés et supprime leurs étiquettes du nametag
      */
     private void cleanExpiredBuffs() {
         activeBuffs.removeIf(buff -> {
             if (!buff.isActive()) {
-                // Supprimer l'étiquette du buff qui expire
+                // supprime l'étiquette du buff qui expire
                 if (characterView != null) {
                     if (buff.getType() == BuffEffect.BuffType.SPEED_BOOST) {
                         characterView.getNameTagView().removeItem("speed_buff_icon");
@@ -667,7 +667,7 @@ public class CharacterModel{
      * @return le buff actif actuellement (ou null)
      */
     public BuffEffect getActiveBuff() {
-        // Nettoyer les buffs expirés
+        // nettoie les buffs expirés
         cleanExpiredBuffs();
         
         // Retourner le premier buff speed ou jump s'il existe
@@ -681,7 +681,7 @@ public class CharacterModel{
      * @return le multiplicateur du buff actif (1.0 si pas de buff)
      */
     public double getBuffMultiplier() {
-        // Nettoyer les buffs expirés
+        // nettoie les buffs expirés
         cleanExpiredBuffs();
         
         // Retourner le multiplicateur du premier buff s'il existe
