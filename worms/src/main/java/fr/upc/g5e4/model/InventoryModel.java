@@ -26,7 +26,7 @@ public class InventoryModel {
      * le nombre d'utilisations restantes au total
      * le compteur d'utilisations dans le tour courant
      */
-    public static class InventoryJson{        //DTO pour le fichier Json
+    public static class InventoryJson{       
         public String objectType, name;   
         public int maxUsages;             
         public boolean isInfinite;
@@ -34,7 +34,7 @@ public class InventoryModel {
         public int useThisTurn = 0;
 
         /**
-         * Représentation textuelle simple.
+         * Représentation textuelle 
          *
          * @return une chaîne au format name(objectType)
          */        
@@ -43,18 +43,36 @@ public class InventoryModel {
             return name +"("+ objectType +")";
         }
 
-        public boolean hasRemainingUses(){          //Auxiliaire de register use
+         /**
+         * Indique s'il reste des utilisations disponibles au total
+         *
+         * @return true si infini ou remainingUses > 0, false sinon
+         */
+        public boolean hasRemainingUses(){     
             if(isInfinite) return true;
             if (remainingUses == null) return false;
             return remainingUses > 0;
         }
 
-    
+        /**
+         * Indique si l'objet peut être utilisé pendant le tour courant :
+         * 
+         * le nombre max d'usages par tour n'est pas dépassé
+         * il reste des utilisations totales (sauf infini)
+         *
+         * @return true si l'objet peut être utilisé, false sinon
+         */
         public boolean canUseThisTurn(){
             if(useThisTurn>= maxUsages) return false;
             return hasRemainingUses();
         }
 
+        /**
+         * Enregistre une utilisation pendant le tour courant.
+         * Incrémente {@link #useThisTurn} et décrémente {@link #remainingUses} si l'objet n'est pas infini.
+         *
+         * @return true si l'utilisation a été enregistrée, false sinon
+         */
         public boolean registerUseThisTurn(){   
             if(!canUseThisTurn())return false;
             useThisTurn++;
@@ -62,25 +80,47 @@ public class InventoryModel {
             return true;
         }
 
-        public void resetTurn(){    //Nouveau tour
+        /**
+         * Réinitialise le compteur d'utilisations pour un nouveau tour.
+         */
+        public void resetTurn(){    
             useThisTurn = 0;
         }
 
+        /**
+         * Retourne le nombre d'utilisations encore possibles pendant le tour courant.
+         *
+         * @return maxUsages - useThisTurn
+         */
         public int getRemainingUseThisTurn(){       
             return maxUsages - useThisTurn;
         }
 
+        /**
+         * Retourne le nombre maximum d'utilisations autorisées par tour.
+         *
+         * @return maxUsages
+         */
         public int getMaxUsages(){
             return maxUsages;
         }
     }
 
-    public static class InventoryRoot{        //DTO cela représente la racine du fichier Json
+    /**
+     * DTO correspondant à la racine du fichier JSON.
+     */
+    public static class InventoryRoot{        
         public List<InventoryJson> inventory;  
     }
 
-    //Lecture du Json depuis le classpath (fonctionne dans le JAR)
-    public static InventoryRoot load(String resourcePath) throws IOException{      //IOException pour mieux gérer l'erreur                
+    /**
+     * Charge un inventaire depuis une ressource JSON du classpath.
+     *
+     * @param resourcePath chemin de ressource 
+     * @return la racine JSON mappée en {@link InventoryRoot}
+     * @throws IOException si la ressource n'existe pas ou n'est pas lisible
+     */
+    public static InventoryRoot load(String resourcePath) throws IOException{             
         Gson gson = new Gson();
         try (InputStream is = InventoryModel.class.getResourceAsStream(resourcePath)) {
             if (is == null) {
