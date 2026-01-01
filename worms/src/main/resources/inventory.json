@@ -16,7 +16,7 @@
         {
             "objectType" : "GADGET",
             "name" : "bumper",
-            "maxUsages" : 1,
+            "maxUsages" : 5,
             "isInfinite" : true    
         },
         {

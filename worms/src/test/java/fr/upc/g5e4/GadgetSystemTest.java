@@ -33,7 +33,7 @@ public class GadgetSystemTest {
         potionSpeed.name = "PotionSpeed";
         potionSpeed.maxUsages = 2;
         potionSpeed.isInfinite = false;
-        potionSpeed.remainingUses = 2;
+        potionSpeed.remainingUses = 10;
         
         potionJump = new InventoryJson();
         potionJump.objectType = "GADGET";
@@ -52,7 +52,7 @@ public class GadgetSystemTest {
         bumper = new InventoryJson();
         bumper.objectType = "GADGET";
         bumper.name = "Bumper";
-        bumper.maxUsages = 1;
+        bumper.maxUsages = 5;
         bumper.isInfinite = true;
         bumper.remainingUses = null;
     }
