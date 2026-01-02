@@ -195,3 +195,4 @@
 
 ### Fixed
 - body des blocks invisible après destruction
+- l'image de fond dans main menu qui ne redimentionne pas bien lors du passage en full screen sur un grand ecran
