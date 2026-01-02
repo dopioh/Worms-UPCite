@@ -258,16 +258,16 @@ public class GameManager {
     public GameManager(SaveData saveData){
         //this.saveDataBool = true;
         //this.saveData = saveData;
+        BlockGridModel b = saveData.getBlockGridModel();
 
         // On part du principe que la taille du terrain ne changera jamais 
-        int sizeX = 1280;  // Taille du terrain
-        int sizeY = 720;
-        int waterLevel = 800;
-
-        System.out.println("Ca marche ?"); // oui, ca casse a la ligne de en dessous
+        int sizeX = b.getPixelWidth();  // Taille du terrain
+        int sizeY = b.getPixelHeight();
+        int waterLevel = b.getWaterLevel(); // a recup de saveData aussi..
 
         int[] groundY = saveData.getGroundModel().getGroundY();
-        this.blockGridModel = new BlockGridModel(sizeX, sizeY, waterLevel);
+        this.blockGridModel = b;
+        
         blockGridModel.generateWithGroundY(groundY);
 
         this.model = saveData.getGroundModel();
