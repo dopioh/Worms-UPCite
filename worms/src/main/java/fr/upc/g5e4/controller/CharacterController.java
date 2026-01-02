@@ -5,6 +5,8 @@ import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.World;
 
 import fr.upc.g5e4.model.CharacterModel;
+import fr.upc.g5e4.model.GameManager;
+import fr.upc.g5e4.model.InventoryModel.InventoryJson;
 import fr.upc.g5e4.model.Weapon;
 
 /**
@@ -18,14 +20,14 @@ public class CharacterController {
     private boolean LeftKeyPressed = false;
     private boolean RightKeyPressed = false;
     private boolean SpaceKeyPressed = false;
-
-    private final double MOVE_FORCE;  // Vitesse de deplacement
     
     // Références pour le tir
     private ItemController itemController;
     private World world;
     private CharacterModel[] allWorms;
     private Weapon currentWeapon;
+    private InventoryJson currentWeaponInventory;
+    private GameManager gameManager;
 
     /**
      * Constructeur de la classe PersonnageController
@@ -33,7 +35,6 @@ public class CharacterController {
      */
     public CharacterController(CharacterModel model) {
         this.model = model;
-        MOVE_FORCE = model.getSpeed();
     }
 
     /**
@@ -61,11 +62,27 @@ public class CharacterController {
     }
 
     /**
+     * définit le GameManager pour l'utilisation d'arme
+     * @param gameManager Le GameManager
+     */
+    public void setGameManager(GameManager gameManager) {
+        this.gameManager = gameManager;
+    }
+
+    /**
      * Définit l'arme actuellement équipée
      * @param weapon L'arme à équiper
      */
     public void setCurrentWeapon(Weapon weapon) {
         this.currentWeapon = weapon;
+    }
+    
+    /**
+     * définit l'objet inventoryJson de l'arme actuellement équipée
+     * @param weaponInventory L'objet inventoryJson de l'arme
+     */
+    public void setCurrentWeaponInventory(InventoryJson weaponInventory) {
+        this.currentWeaponInventory = weaponInventory;
     }
 
     /**
@@ -126,14 +143,17 @@ public class CharacterController {
         Body body = model.getBody();
         boolean isMoving = false;
         
+        // calcule de la vitesse avec le buff
+        float currentSpeed = (float) model.getSpeed();
+        
         if (model.isFlyMode()) {
             // Mode vol : déplacement direct sans accumulation d'élan
             float velX = 0;
             float velY = 0;
             
-            if (LeftKeyPressed) velX = -MAX_HORIZONTAL_SPEED * 2;
-            if (RightKeyPressed) velX = MAX_HORIZONTAL_SPEED * 2;
-            if (SpaceKeyPressed) velY = MAX_HORIZONTAL_SPEED * 2;
+            if (LeftKeyPressed) velX = -currentSpeed * 2;
+            if (RightKeyPressed) velX = currentSpeed * 2;
+            if (SpaceKeyPressed) velY = currentSpeed * 2;
             
             body.setLinearVelocity(new Vec2(velX, velY));
             isMoving = LeftKeyPressed || RightKeyPressed;
@@ -144,7 +164,7 @@ public class CharacterController {
                 model.setFacingRight(RightKeyPressed);
                 
                 float currentVelY = body.getLinearVelocity().y;
-                body.setLinearVelocity(new Vec2(direction * MAX_HORIZONTAL_SPEED, currentVelY));
+                body.setLinearVelocity(new Vec2(direction * currentSpeed, currentVelY));
                 
                 isMoving = true;
             } else {
@@ -219,8 +239,33 @@ public class CharacterController {
             return;
         }
         
+        // vérifier si une autre arme a déjà été utilisée ce tour
+        if (gameManager != null) {
+            String usedWeapon = gameManager.getWeaponUsedThisTurn();
+            if (usedWeapon != null && currentWeaponInventory != null && !usedWeapon.equalsIgnoreCase(currentWeaponInventory.name)) {
+                System.out.println("[Arme] Vous avez déjà utilisé " + usedWeapon + " ce tour! Vous ne pouvez utiliser que cette arme.");
+                return;
+            }
+        }
+        
+        // vérifier si on peut tirer avec cette arme ce tour
+        if (currentWeaponInventory != null && !currentWeaponInventory.canUseThisTurn()) {
+            System.out.println("[Arme] Limite d'utilisation atteinte pour cette arme ce tour!");
+            return;
+        }
+        
         // tirer avec l'arme 
         itemController.useWeaponOnTarget(currentWeapon, model, direction);
+        
+        // enregistrer l'utilisation de l'arme
+        if (currentWeaponInventory != null) {
+            currentWeaponInventory.registerUseThisTurn();
+        }
+        
+        // marquer que l'arme a été utilisée ce tour
+        if (gameManager != null && currentWeaponInventory != null) {
+            gameManager.markWeaponUsed(currentWeaponInventory.name);
+        }
     }
     
     /**
@@ -232,7 +277,32 @@ public class CharacterController {
             return;
         }
         
+        // vérifier si une autre arme a déjà été utilisée ce tour
+        if (gameManager != null) {
+            String usedWeapon = gameManager.getWeaponUsedThisTurn();
+            if (usedWeapon != null && currentWeaponInventory != null && !usedWeapon.equalsIgnoreCase(currentWeaponInventory.name)) {
+                System.out.println("[Arme] Vous avez déjà utilisé " + usedWeapon + " ce tour! Vous ne pouvez utiliser que cette arme.");
+                return;
+            }
+        }
+        
+        // vérifier si on peut tirer avec cette arme ce tour
+        if (currentWeaponInventory != null && !currentWeaponInventory.canUseThisTurn()) {
+            System.out.println("[Arme] Limite d'utilisation atteinte pour cette arme ce tour!");
+            return;
+        }
+        
         // tirer avec l'arme 
         itemController.useWeaponOnTarget(currentWeapon, model, direction);
+        
+        // enregistrer l'utilisation de l'arme
+        if (currentWeaponInventory != null) {
+            currentWeaponInventory.registerUseThisTurn();
+        }
+        
+        // marquer que l'arme a été utilisée ce tour
+        if (gameManager != null && currentWeaponInventory != null) {
+            gameManager.markWeaponUsed(currentWeaponInventory.name);
+        }
     }
 }

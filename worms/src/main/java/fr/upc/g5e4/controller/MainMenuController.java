@@ -7,6 +7,7 @@ import javax.swing.JOptionPane;
 import fr.upc.g5e4.GameLauncher;
 import fr.upc.g5e4.model.io.SaveLoad;
 import fr.upc.g5e4.view.MainMenuView;
+import fr.upc.g5e4.view.SettingsView;
 
 /**
  * Contrôleur pour l'écran d'accueil
@@ -36,6 +37,9 @@ public class MainMenuController {
         view.getBtnResume().addActionListener(e -> resumeGame());
         view.getBtnConfig().addActionListener(e -> openConfig());
         view.getBtnQuit().addActionListener(e -> quitGame());
+        
+        // Bouton d'achat de la boutique
+        view.getShopView().getBuyButton().addActionListener(e -> handlePurchase());
     }
 
     private void startNewGame() throws IOException {
@@ -73,10 +77,29 @@ public class MainMenuController {
     }
 
     private void openConfig() {
-        // Pour l'instant juste un message
+        // Créer la vue des réglages
+        SettingsView settingsView = new SettingsView();
+        
+        // Ajouter un listener pour le bouton retour
+        settingsView.getBtnBack().addActionListener(e -> {
+            // Retour au menu principal en utilisant showMenu()
+            gameLauncher.showMenu();
+        });
+        
+        // Afficher la vue des réglages via le CardPanel
+        gameLauncher.getCardPanel().add(settingsView, "SETTINGS");
+        java.awt.CardLayout cl = (java.awt.CardLayout) gameLauncher.getCardPanel().getLayout();
+        cl.show(gameLauncher.getCardPanel(), "SETTINGS");
+    }
+
+    private void handlePurchase() {
+        // TODO: Implémenter la logique
+        // verif si le joueur a assez d'argent
+        // ajouter l'item à l'inventaire
+        
         JOptionPane.showMessageDialog(gameLauncher.getMainFrame(), 
-            "Fonctionnalité à venir", 
-            "Réglages", 
+            "Achat effectué avec succès !", 
+            "Boutique", 
             JOptionPane.INFORMATION_MESSAGE);
     }
 
