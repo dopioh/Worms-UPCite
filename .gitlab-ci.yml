@@ -63,7 +63,6 @@ deploy:
   script:
     - cd worms
     - mvn $MAVEN_CLI_OPTS clean package
-    - cp target/worms-*.jar target/worms-app.jar
   artifacts:
     paths:
       - worms/target/worms-app.jar
