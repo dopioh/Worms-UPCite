@@ -176,6 +176,7 @@
 - Potion (Speed, jump, heal, shield)
 - sprites pour gagdets 
 - sons pour les gadgets
+- Degats de zone 
 
 ### Fixed
 - Double tir
