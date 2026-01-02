@@ -30,9 +30,9 @@ public class RocketLauncher extends Weapon {
 
         // Lance-roquettes : projectile lourd avec beaucoup de chute
         this.setTrajectoryCalculator(new HeavyTrajectory());
-        // dégats au terrain : 5 PV par bloc avec blast radius de 3 blocs
-        this.setTerrainDamage(5);
-        this.setTerrainBlastRadius(3.0);
+        // dégats au terrain : 9 PV par bloc avec blast radius de 7 blocs
+        this.setTerrainDamage(9);
+        this.setTerrainBlastRadius(7);
     }
 
     @Override

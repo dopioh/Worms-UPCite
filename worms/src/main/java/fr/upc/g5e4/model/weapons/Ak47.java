@@ -29,9 +29,9 @@ public class Ak47 extends Weapon{
         );
         // AK-47 : balles rapides avec peu de chute
         this.setTrajectoryCalculator(new FastTrajectory());
-        // dégats au terrain : 1 PV par bloc, pas de blast radius
-        this.setTerrainDamage(1);
-        this.setTerrainBlastRadius(0.5);
+        // Dégâts au terrain : 5 PV par bloc, blast radius de 1 bloc
+        this.setTerrainDamage(5);
+        this.setTerrainBlastRadius(1.0);
     }
 
     @Override

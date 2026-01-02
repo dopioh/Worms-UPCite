@@ -69,7 +69,7 @@ public class TeamModel {
                 yPosition, 
                 100.0,  // health
                 50.0,   // shield
-                15.0,   // speed
+                4,      // speed
                 5.0,     // jump
                 console,
                 withCollision

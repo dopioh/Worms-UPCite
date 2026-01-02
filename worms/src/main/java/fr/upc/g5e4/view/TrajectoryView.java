@@ -18,8 +18,7 @@ public class TrajectoryView {
     private double shootingAngle = 0;  // angle en degrés (0-360)
     private boolean isAiming = false;
     private static final int TRAJECTORY_POINTS = 50;
-    private static final Color TRAJECTORY_COLOR = new Color(255, 200, 0, 180); // Orange semi-transparent
-    private static final Color TRAJECTORY_LINE_COLOR = new Color(255, 150, 0, 200); // Orange foncé
+    private static final Color TRAJECTORY_COLOR = new Color(80, 80, 80); // Gris clair
     private static final float PPM = 30f;
 
     public TrajectoryView() {
@@ -99,11 +98,6 @@ public class TrajectoryView {
                 float horizontalDistance = (float)(range * t);
                 float worldX = shooterPos.x + (float)(horizontalDistance * Math.cos(angleRad));
                 float worldY = shooterPos.y + (float)(horizontalDistance * Math.sin(angleRad));
-                
-                // Ajouter un effet de chute léger par défaut
-                float gravityEffect = 5.0f * (t * t);
-                worldY -= gravityEffect;
-                
                 position = new Vec2(worldX, worldY);
             }
             
@@ -120,20 +114,18 @@ public class TrajectoryView {
             trajectoryY[i] = (24 - trajectoryWorldY[i]) * PPM;  // Conversion et inversion Y
         }
 
-        // déssiner la ligne de trajectoire
-        g2.setColor(TRAJECTORY_LINE_COLOR);
-        g2.setStroke(new BasicStroke(2.0f));
-        for (int i = 0; i < TRAJECTORY_POINTS; i++) {
-            g2.drawLine(
-                (int) trajectoryX[i], (int) trajectoryY[i],
-                (int) trajectoryX[i + 1], (int) trajectoryY[i + 1]
-            );
-        }
-
         //dessiner les points de trajectoire
         g2.setColor(TRAJECTORY_COLOR);
-        int pointSize = 4;
-        for (int i = 0; i <= TRAJECTORY_POINTS; i++) {
+        int pointSize = 3;  // Points réduits
+        int maxPoints;
+        //réduire davantage pour l'AK-47
+        if (currentWeapon.getName() != null && currentWeapon.getName().equals("AK-47")) {
+            maxPoints = (int)(TRAJECTORY_POINTS * 0.10);  // 1/10 de la trajectoire pour AK-47
+        } else {
+            maxPoints = (int)(TRAJECTORY_POINTS * 0.67);  // 2/3 pour les autres armes
+        }
+        
+        for (int i = 0; i <= maxPoints; i++) {
             g2.fillOval(
                 (int) (trajectoryX[i] - pointSize / 2),
                 (int) (trajectoryY[i] - pointSize / 2),
@@ -143,3 +135,4 @@ public class TrajectoryView {
         }
     }
 }
+
