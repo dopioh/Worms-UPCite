@@ -11,6 +11,7 @@ import java.util.List;
 import fr.upc.g5e4.model.InventoryModel.InventoryJson;
 import fr.upc.g5e4.controller.SwingInputController;
 import fr.upc.g5e4.model.GameManager;
+import fr.upc.g5e4.controller.PlayerDataController;
 
 public class InventoryOverlay extends JComponent {
     private enum Category {
@@ -38,14 +39,14 @@ public class InventoryOverlay extends JComponent {
     // --- Grille INVENTAIRE ---
     private static final int CELL_SIZE = 96;   // taille des cases
     private static final int CELL_GAP  = 16;   // espace entre cases
-    private static final int GRID_COLS = 3;    // plus de colonnes
+    private static final int GRID_COLS = 3;    // 3 colonnes pour ARMES/GADGET (5 pour BOUTIQUE)
 
     private Rectangle armesTab;
     private Rectangle gadgetTab;
     private Rectangle boutiqueTab;
     
     // Boutique
-    private fr.upc.g5e4.controller.PlayerDataController playerDataController;
+    private PlayerDataController playerDataController;
     private int selectedShopIndex = -1;
     private final List<Rectangle> buyButtons = new ArrayList<>();
     private WormRaceOverlay wormRaceOverlay;
@@ -79,7 +80,9 @@ public class InventoryOverlay extends JComponent {
         
         // Boutique
         loadImage("luckyblock", "/luckyblock.png");
-        loadImage("stickygamble", "/stick-ticket.png");
+        loadImage("wormog", "/worm.png");
+        loadImage("wormpinky", "/wormpinky.png");
+        loadImage("wormnoel", "/wormnoel.png");
         loadImage("wormjack", "/wormjack.png");
         loadImage("wormrace", "/wormrace.png");
         loadImage("wormguess", "/wormguess.png");
@@ -125,6 +128,9 @@ public class InventoryOverlay extends JComponent {
         playerDataController.chargerJoueur();
         
         shopItems.add(new ShopItem("LuckyBlock", "luckyblock", 50));
+        shopItems.add(new ShopItem("Worm OG", "wormog", 20));
+        shopItems.add(new ShopItem("Worm Pinky Edition", "wormpinky", 20));
+        shopItems.add(new ShopItem("Worm Noel Edition", "wormnoel", 20));
         shopItems.add(new ShopItem("WORMRACE", "wormrace", 0));
         shopItems.add(new ShopItem("WORMJACK", "wormjack", 0));
         shopItems.add(new ShopItem("WORMGUESS", "wormguess", 0));
@@ -171,7 +177,6 @@ public class InventoryOverlay extends JComponent {
                 if (changed) repaint();
             }
         });
-
 
     }
 
@@ -299,8 +304,8 @@ public class InventoryOverlay extends JComponent {
         computeLayout();
 
 
-        // panneau inventaire à gauche
-        int panelW = 360;
+        // panneau inventaire à gauche (plus large si boutique)
+        int panelW = currentCategory == Category.BOUTIQUE ? 600 : 360;
         int panelH = 520;
         int panelX = 20;
         int panelY = (h - panelH) / 2;
@@ -313,9 +318,12 @@ public class InventoryOverlay extends JComponent {
         g2.setColor(Color.WHITE);
         g2.drawString("INVENTAIRE", panelX + 20, panelY + 30);
         
-        // affiche l'argent du joueur dans la boutique
+        // affiche l'argent de l'équipe active dans la boutique
         if (currentCategory == Category.BOUTIQUE) {
-            int money = playerDataController.getPlayerData().getMoney();
+            int money = 0;
+            if (gameManager != null && gameManager.getCurrentTeam() != null) {
+                money = gameManager.getCurrentTeam().getMoney();
+            }
             g2.setFont(g2.getFont().deriveFont(Font.BOLD, 14f));
             g2.setColor(new Color(255, 215, 0));
             String moneyText = "Argent: " + money + " $";
@@ -347,11 +355,21 @@ public class InventoryOverlay extends JComponent {
         int col = 0;
         int row = 0;
         
+        // Nombre de colonnes selon la catégorie
+        int gridCols = currentCategory == Category.BOUTIQUE ? 5 : GRID_COLS;
+        
         // si on est dans la boutique on affiche les items de la boutique
         if (currentCategory == Category.BOUTIQUE) {
-            int btnHeight = 24;
-            int btnMargin = 8;
-            int totalCellHeight = CELL_SIZE + btnHeight + btnMargin + CELL_GAP;
+            int btnHeight = 28;
+            int btnMargin = 12;
+            int nameSpacing = 30; // Espace pour le nom et le prix
+            int totalCellHeight = CELL_SIZE + nameSpacing + btnHeight + btnMargin + CELL_GAP;
+            
+            // Créer une zone de clipping pour le scroll
+            Rectangle clipBounds = new Rectangle(startX - 10, startY, 
+                gridCols * (CELL_SIZE + CELL_GAP), 
+                panelBounds.height - (startY - panelBounds.y) - 40);
+            g2.setClip(clipBounds);
             
             for (int i = 0; i < shopItems.size(); i++) {
                 ShopItem shopItem = shopItems.get(i);
@@ -390,40 +408,86 @@ public class InventoryOverlay extends JComponent {
                 FontMetrics fm = g2.getFontMetrics();
                 int textW = fm.stringWidth(shopItem.name);
 
-                g2.drawString(shopItem.name, x + (CELL_SIZE - textW) / 2, y + CELL_SIZE - 20);
+                g2.drawString(shopItem.name, x + (CELL_SIZE - textW) / 2, y + CELL_SIZE + 15);
                 
                 g2.setColor(new Color(255, 215, 0));
                 String priceText = shopItem.price + " $";
                 int priceW = fm.stringWidth(priceText);
-                g2.drawString(priceText, x + (CELL_SIZE - priceW) / 2, y + CELL_SIZE - 6);
+                g2.drawString(priceText, x + (CELL_SIZE - priceW) / 2, y + CELL_SIZE + 28);
                 
                 // Bouton acheter sous l'item
                 int btnW = CELL_SIZE;
-                int btnH = 24;
+                int btnH = 28;
                 int btnX = x;
-                int btnY = y + CELL_SIZE + 8;
+                int btnY = y + CELL_SIZE + 35;
                 
                 Rectangle buyBtn = new Rectangle(btnX, btnY, btnW, btnH);
                 buyButtons.add(buyBtn);
                 
-                g2.setColor(new Color(76, 175, 80));
-                g2.fillRoundRect(btnX, btnY, btnW, btnH, 8, 8);
+                // Vérifier si c'est un skin déjà débloqué
+                boolean isSkin = shopItem.name.startsWith("Worm") && 
+                                 !shopItem.name.equals("WORMRACE") && 
+                                 !shopItem.name.equals("WORMJACK") && 
+                                 !shopItem.name.equals("WORMGUESS");
+                boolean isUnlocked = isSkin && playerDataController.getPlayerData().isSkinUnlocked(shopItem.name);
                 
-                g2.setColor(Color.WHITE);
-                g2.drawRoundRect(btnX, btnY, btnW, btnH, 8, 8);
+                // check si l'équipe a assez d'argent
+                int currentMoney = 0;
+                if (gameManager != null && gameManager.getCurrentTeam() != null) {
+                    currentMoney = gameManager.getCurrentTeam().getMoney();
+                }
+                boolean canAfford = currentMoney >= shopItem.price;
                 
-                g2.setFont(g2.getFont().deriveFont(Font.BOLD, 11f));
-                String btnText = "ACHETER";
-                FontMetrics btnFm = g2.getFontMetrics();
-                int btnTextW = btnFm.stringWidth(btnText);
-                g2.drawString(btnText, btnX + (btnW - btnTextW) / 2, btnY + 16);
+                if (isUnlocked) {
+                    // bouton grisé pour skin débloqué
+                    g2.setColor(new Color(100, 100, 100));
+                    g2.fillRoundRect(btnX, btnY, btnW, btnH, 8, 8);
+                    g2.setColor(new Color(150, 150, 150));
+                    g2.drawRoundRect(btnX, btnY, btnW, btnH, 8, 8);
+                    
+                    g2.setColor(new Color(180, 180, 180));
+                    g2.setFont(g2.getFont().deriveFont(Font.BOLD, 11f));
+                    String btnText = "DÉBLOQUÉ";
+                    FontMetrics btnFm = g2.getFontMetrics();
+                    int btnTextW = btnFm.stringWidth(btnText);
+                    g2.drawString(btnText, btnX + (btnW - btnTextW) / 2, btnY + 16);
+                } else if (!canAfford) {
+                    // bouton grisé pour argent insuffisant
+                    g2.setColor(new Color(100, 100, 100));
+                    g2.fillRoundRect(btnX, btnY, btnW, btnH, 8, 8);
+                    g2.setColor(new Color(150, 150, 150));
+                    g2.drawRoundRect(btnX, btnY, btnW, btnH, 8, 8);
+                    
+                    g2.setColor(new Color(180, 180, 180));
+                    g2.setFont(g2.getFont().deriveFont(Font.BOLD, 10f));
+                    String btnText = "INSUFFISANT";
+                    FontMetrics btnFm = g2.getFontMetrics();
+                    int btnTextW = btnFm.stringWidth(btnText);
+                    g2.drawString(btnText, btnX + (btnW - btnTextW) / 2, btnY + 16);
+                } else {
+                    // bouton vert pour achat possible
+                    g2.setColor(new Color(76, 175, 80));
+                    g2.fillRoundRect(btnX, btnY, btnW, btnH, 8, 8);
+                    
+                    g2.setColor(Color.WHITE);
+                    g2.drawRoundRect(btnX, btnY, btnW, btnH, 8, 8);
+                    
+                    g2.setFont(g2.getFont().deriveFont(Font.BOLD, 11f));
+                    String btnText = "ACHETER";
+                    FontMetrics btnFm = g2.getFontMetrics();
+                    int btnTextW = btnFm.stringWidth(btnText);
+                    g2.drawString(btnText, btnX + (btnW - btnTextW) / 2, btnY + 16);
+                }
 
                 col++;
-                if (col >= GRID_COLS) {
+                if (col >= gridCols) {
                     col = 0;
                     row++;
                 }
             }
+            
+            // Restaurer le clip
+            g2.setClip(null);
         } else {
             // Affichage normal pour armes et gadgets
             for (int i = 0; i < lastFiltered.size(); i++) {
@@ -470,7 +534,7 @@ public class InventoryOverlay extends JComponent {
             );
 
             col++;
-            if (col >= GRID_COLS) {
+            if (col >= gridCols) {
                 col = 0;
                 row++;
             }
@@ -592,7 +656,7 @@ public class InventoryOverlay extends JComponent {
         int h = getHeight();
 
         // panneau inventaire à gauche
-        int panelW = 360;
+        int panelW = 600;
         int panelH = 520;
         int panelX = 20;
         int panelY = (h - panelH) / 2;
@@ -672,15 +736,40 @@ public class InventoryOverlay extends JComponent {
         }
         
         ShopItem shopItem = shopItems.get(selectedShopIndex);
-        int currentMoney = playerDataController.getPlayerData().getMoney();
+        
+        // check si c'est un skin et s'il est déjà débloqué
+        boolean isSkin = shopItem.name.startsWith("Worm") && 
+                         !shopItem.name.equals("WORMRACE") && 
+                         !shopItem.name.equals("WORMJACK") && 
+                         !shopItem.name.equals("WORMGUESS");
+        
+        if (isSkin && playerDataController.getPlayerData().isSkinUnlocked(shopItem.name)) {
+            System.out.println("Skin déjà débloqué: " + shopItem.name);
+            return;
+        }
+        
+        // on prend l'argent de l'équipe active
+        if (gameManager == null || gameManager.getCurrentTeam() == null) {
+            System.err.println("Erreur: pas d'équipe active");
+            return;
+        }
+        
+        int currentMoney = gameManager.getCurrentTeam().getMoney();
         
         if (currentMoney < shopItem.price) {
             System.out.println("Pas assez d'argent pour acheter " + shopItem.name);
             return;
         }
         
-        // Déduire l'argent
-        playerDataController.getPlayerData().setMoney(currentMoney - shopItem.price);
+        // Déduire l'argent de l'équipe
+        gameManager.getCurrentTeam().removeMoney(shopItem.price);
+        
+        // on unlock le skin si c'est un skin
+        if (isSkin) {
+            playerDataController.getPlayerData().unlockSkin(shopItem.name);
+            System.out.println("Skin débloqué: " + shopItem.name);
+        }
+        
         playerDataController.sauvegarderJoueur();
         
         System.out.println("Achat réussi: " + shopItem.name + " pour " + shopItem.price + "$");

@@ -29,6 +29,8 @@ public class TeamModel {
 
     private boolean facingRight;
     
+    private int money;
+    
     /**
      * Constructeur de la classe TeamModel avec initialisation automatique des worms
      * @param groundModel Le modèle du terrain
@@ -50,6 +52,7 @@ public class TeamModel {
         this.number = wormNumber;
         this.tabModelWorms = new CharacterModel[number];
         this.COLORTEAM = COLORTEAM;
+        this.money = 0;
 
         TEAMSNUMBER++;
         this.teamID = TEAMSNUMBER;
@@ -89,6 +92,7 @@ public class TeamModel {
         this.teamID = teamID;
         this.COLORTEAM = COLORTEAM;
         this.inventory = inventory;
+        this.money = 0;
         
         this.tabModelWorms = new CharacterModel[number];
         for (int i = 0 ; i < tabModelWorms.length ; i++){
@@ -147,7 +151,7 @@ public class TeamModel {
 
     // Getter Data
     public TeamData toData(){
-        return new TeamData(teamID, number, tabModelWorms,teamName,COLORTEAM, inventory);
+        return new TeamData(teamID, number, tabModelWorms,teamName,COLORTEAM, inventory, money);
     }
     
 
@@ -173,5 +177,21 @@ public class TeamModel {
         for (InventoryJson item : inventory) {
             item.resetTurn();
         }
+    }
+
+    public int getMoney() {
+        return money;
+    }
+
+    public void setMoney(int money) {
+        this.money = money;
+    }
+
+    public void addMoney(int amount) {
+        this.money += amount;
+    }
+
+    public void removeMoney(int amount) {
+        this.money -= amount;
     }
 }

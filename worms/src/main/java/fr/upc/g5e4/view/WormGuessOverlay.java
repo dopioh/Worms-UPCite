@@ -31,9 +31,10 @@ public class WormGuessOverlay extends JPanel {
     private int[] bets = new int[2];
     private Rectangle[] betButtons = new Rectangle[2];
     private Rectangle startGameButton;
-    private static final int BET_AMOUNT = 3; 
+    private static final int BET_AMOUNT = 1; 
     
     private PlayerDataController playerDataController;
+    private fr.upc.g5e4.model.GameManager gameManager;
     
     public WormGuessOverlay() {
         setOpaque(false);
@@ -63,6 +64,16 @@ public class WormGuessOverlay extends JPanel {
                     visible = false;
                     setVisible(false);
                     setEnabled(false);
+                    repaint();
+                }
+            }
+        });
+        
+        // Repaindre lors du redimensionnement
+        addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentResized(java.awt.event.ComponentEvent e) {
+                if (visible && isVisible()) {
                     repaint();
                 }
             }
@@ -127,15 +138,19 @@ public class WormGuessOverlay extends JPanel {
      * @param wormIndex index du worm/la piste du worm
      */
     private void placeBet(int wormIndex) {
-        int currentMoney = playerDataController.getPlayerData().getMoney();
+        if (gameManager == null || gameManager.getCurrentTeam() == null) {
+            System.err.println("Erreur: pas d'équipe active");
+            return;
+        }
+        
+        int currentMoney = gameManager.getCurrentTeam().getMoney();
         if (currentMoney < BET_AMOUNT) {
             System.out.println("Pas assez d'argent pour parier!");
             return;
         }
         
         bets[wormIndex] += BET_AMOUNT;
-        playerDataController.getPlayerData().setMoney(currentMoney - BET_AMOUNT);
-        playerDataController.sauvegarderJoueur();
+        gameManager.getCurrentTeam().removeMoney(BET_AMOUNT);
         
         repaint();
     }
@@ -193,10 +208,9 @@ public class WormGuessOverlay extends JPanel {
     private void gestionWin() {
         if (bets[winnerIndex] > 0) {
             int gains = bets[winnerIndex] * 2;
-            playerDataController.getPlayerData().setMoney(
-                playerDataController.getPlayerData().getMoney() + gains
-            );
-            playerDataController.sauvegarderJoueur();
+            if (gameManager != null && gameManager.getCurrentTeam() != null) {
+                gameManager.getCurrentTeam().addMoney(gains);
+            }
             System.out.println("Gagné! +" + gains + "$");
         } else {
             System.out.println("Perdu! Le worm " + (winnerIndex + 1) + " était le bon.");
@@ -253,7 +267,11 @@ public class WormGuessOverlay extends JPanel {
         
         g2.setColor(new Color(255, 215, 0));
         g2.setFont(new Font("Arial", Font.BOLD, 20));
-        String moneyText = "Argent: " + playerDataController.getPlayerData().getMoney() + "$";
+        int money = 0;
+        if (gameManager != null && gameManager.getCurrentTeam() != null) {
+            money = gameManager.getCurrentTeam().getMoney();
+        }
+        String moneyText = "Argent: " + money + "$";
         FontMetrics moneyFm = g2.getFontMetrics();
         int moneyTextW = moneyFm.stringWidth(moneyText);
         g2.drawString(moneyText, panelX + OVERLAY_WIDTH - moneyTextW - 20, panelY + 30);
@@ -356,14 +374,30 @@ public class WormGuessOverlay extends JPanel {
                 
                 betButtons[i] = new Rectangle(btnX, btnY, btnW, btnH);
                 
-                g2.setColor(new Color(76, 175, 80));
+                // check si l'équipe a assez d'argent
+                int currentMoney = 0;
+                if (gameManager != null && gameManager.getCurrentTeam() != null) {
+                    currentMoney = gameManager.getCurrentTeam().getMoney();
+                }
+                boolean canAfford = currentMoney >= BET_AMOUNT;
+                
+                if (canAfford) {
+                    g2.setColor(new Color(76, 175, 80));
+                } else {
+                    g2.setColor(new Color(100, 100, 100));
+                }
                 g2.fillRoundRect(btnX, btnY, btnW, btnH, 8, 8);
                 
                 g2.setColor(Color.WHITE);
                 g2.drawRoundRect(btnX, btnY, btnW, btnH, 8, 8);
                 
                 g2.setFont(new Font("Arial", Font.BOLD, 12));
-                String btnText = bets[i] > 0 ? "PARIER " + BET_AMOUNT + "$ (" + bets[i] + "$)" : "PARIER " + BET_AMOUNT + "$";
+                String btnText;
+                if (!canAfford) {
+                    btnText = "INSUFFISANT";
+                } else {
+                    btnText = bets[i] > 0 ? "PARIER " + BET_AMOUNT + "$ (" + bets[i] + "$)" : "PARIER " + BET_AMOUNT + "$";
+                }
                 FontMetrics fm = g2.getFontMetrics();
                 int textW = fm.stringWidth(btnText);
                 g2.drawString(btnText, btnX + (btnW - textW) / 2, btnY + 22);
@@ -417,5 +451,9 @@ public class WormGuessOverlay extends JPanel {
         
         g2.dispose();
         return blackImg;
+    }
+    
+    public void setGameManager(fr.upc.g5e4.model.GameManager gameManager) {
+        this.gameManager = gameManager;
     }
 }

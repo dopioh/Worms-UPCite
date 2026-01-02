@@ -40,6 +40,7 @@ public class WormJackOverlay extends JPanel {
     private int currentBet = 0;
     
     private fr.upc.g5e4.controller.PlayerDataController playerDataController;
+    private fr.upc.g5e4.model.GameManager gameManager;
     
     // Classe interne : chaque carte a une classe
     private static class Card {
@@ -98,6 +99,16 @@ public class WormJackOverlay extends JPanel {
                     visible = false;
                     setVisible(false);
                     setEnabled(false);
+                    repaint();
+                }
+            }
+        });
+        
+        // Repaindre lors du redimensionnement
+        addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentResized(java.awt.event.ComponentEvent e) {
+                if (visible && isVisible()) {
                     repaint();
                 }
             }
@@ -164,15 +175,19 @@ public class WormJackOverlay extends JPanel {
     }
     
     private void placeBet() {
-        int currentMoney = playerDataController.getPlayerData().getMoney();
+        if (gameManager == null || gameManager.getCurrentTeam() == null) {
+            System.err.println("Erreur: pas d'équipe active");
+            return;
+        }
+        
+        int currentMoney = gameManager.getCurrentTeam().getMoney();
         if (currentMoney < BET_AMOUNT) {
             System.out.println("Pas assez d'argent pour parier!");
             return;
         }
         
         currentBet += BET_AMOUNT;
-        playerDataController.getPlayerData().setMoney(currentMoney - BET_AMOUNT);
-        playerDataController.sauvegarderJoueur();
+        gameManager.getCurrentTeam().removeMoney(BET_AMOUNT);
         
         repaint();
     }
@@ -288,10 +303,9 @@ public class WormJackOverlay extends JPanel {
         }
         
         if (gains > 0) {
-            playerDataController.getPlayerData().setMoney(
-                playerDataController.getPlayerData().getMoney() + gains
-            );
-            playerDataController.sauvegarderJoueur();
+            if (gameManager != null && gameManager.getCurrentTeam() != null) {
+                gameManager.getCurrentTeam().addMoney(gains);
+            }
         }
     }
 
@@ -353,7 +367,11 @@ public class WormJackOverlay extends JPanel {
         
         g2.setColor(new Color(255, 215, 0));
         g2.setFont(new Font("Arial", Font.BOLD, 18));
-        String moneyText = "Argent: " + playerDataController.getPlayerData().getMoney() + "$";
+        int money = 0;
+        if (gameManager != null && gameManager.getCurrentTeam() != null) {
+            money = gameManager.getCurrentTeam().getMoney();
+        }
+        String moneyText = "Argent: " + money + "$";
         FontMetrics moneyFm = g2.getFontMetrics();
         int moneyTextW = moneyFm.stringWidth(moneyText);
         g2.drawString(moneyText, panelX + OVERLAY_WIDTH - moneyTextW - 20, panelY + 30);
@@ -385,7 +403,18 @@ public class WormJackOverlay extends JPanel {
             
             betButton = new Rectangle(betBtnX, btnY, betBtnW, betBtnH);
             
-            g2.setColor(new Color(76, 175, 80));
+            // check si l'équipe a assez d'argent
+            int currentMoney = 0;
+            if (gameManager != null && gameManager.getCurrentTeam() != null) {
+                currentMoney = gameManager.getCurrentTeam().getMoney();
+            }
+            boolean canAfford = currentMoney >= BET_AMOUNT;
+            
+            if (canAfford) {
+                g2.setColor(new Color(76, 175, 80));
+            } else {
+                g2.setColor(new Color(100, 100, 100));
+            }
             g2.fillRoundRect(betBtnX, btnY, betBtnW, betBtnH, 10, 10);
             g2.setColor(new Color(255, 215, 0));
             g2.setStroke(new BasicStroke(3));
@@ -393,7 +422,12 @@ public class WormJackOverlay extends JPanel {
             
             g2.setColor(Color.WHITE);
             g2.setFont(new Font("Arial", Font.BOLD, 14));
-            String betText = currentBet > 0 ? "PARIER 5$ (" + currentBet + "$)" : "PARIER 5$";
+            String betText;
+            if (!canAfford) {
+                betText = "INSUFFISANT";
+            } else {
+                betText = currentBet > 0 ? "PARIER 5$ (" + currentBet + "$)" : "PARIER 5$";
+            }
             FontMetrics fm = g2.getFontMetrics();
             int textW = fm.stringWidth(betText);
             g2.drawString(betText, betBtnX + (betBtnW - textW) / 2, btnY + 26);
@@ -530,5 +564,9 @@ public class WormJackOverlay extends JPanel {
                 g2.fillOval(centerX - 180, y + 50, 15, 15);
             }
         }
+    }
+    
+    public void setGameManager(fr.upc.g5e4.model.GameManager gameManager) {
+        this.gameManager = gameManager;
     }
 }

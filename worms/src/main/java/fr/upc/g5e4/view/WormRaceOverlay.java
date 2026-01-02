@@ -31,9 +31,10 @@ public class WormRaceOverlay extends JPanel {
     private int[] bets = new int[3]; // tableau pcq on peut parier sur 3 worms
     private Rectangle[] betButtons = new Rectangle[3];
     private Rectangle startRaceButton; // c'est le bouton "LANCER LA COURSE"
-    private static final int BET_AMOUNT = 3; // on parie 3$ par 3$
+    private static final int BET_AMOUNT = 1; // on parie 1$ par 1$
     
     private PlayerDataController playerDataController;
+    private fr.upc.g5e4.model.GameManager gameManager;
     
     public WormRaceOverlay() {
         setOpaque(false);
@@ -64,6 +65,16 @@ public class WormRaceOverlay extends JPanel {
                     visible = false;
                     setVisible(false);
                     setEnabled(false);
+                    repaint();
+                }
+            }
+        });
+        
+        // Repaindre lors du redimensionnement
+        addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentResized(java.awt.event.ComponentEvent e) {
+                if (visible && isVisible()) {
                     repaint();
                 }
             }
@@ -149,15 +160,19 @@ public class WormRaceOverlay extends JPanel {
      * @param wormIndex index du worm/la piste du worm
      */
     private void placeBet(int wormIndex) {
-        int currentMoney = playerDataController.getPlayerData().getMoney();
+        if (gameManager == null || gameManager.getCurrentTeam() == null) {
+            System.err.println("Erreur: pas d'équipe active");
+            return;
+        }
+        
+        int currentMoney = gameManager.getCurrentTeam().getMoney();
         if (currentMoney < BET_AMOUNT) {
             System.out.println("Pas assez d'argent pour parier!");
             return;
         }
         
         bets[wormIndex] += BET_AMOUNT;
-        playerDataController.getPlayerData().setMoney(currentMoney - BET_AMOUNT);
-        playerDataController.sauvegarderJoueur();
+        gameManager.getCurrentTeam().removeMoney(BET_AMOUNT);
         
         repaint();
     }
@@ -200,10 +215,9 @@ public class WormRaceOverlay extends JPanel {
         if (bets[winnerIndex] > 0) {
             // si le joueur a misé sur le worm gagnant
             int gains = bets[winnerIndex] * 2; // Double la mise
-            playerDataController.getPlayerData().setMoney(
-                playerDataController.getPlayerData().getMoney() + gains
-            );
-            playerDataController.sauvegarderJoueur();
+            if (gameManager != null && gameManager.getCurrentTeam() != null) {
+                gameManager.getCurrentTeam().addMoney(gains);
+            }
             System.out.println("Gagné! +" + gains + "$");
         } else {
             System.out.println("Perdu! Le worm " + (winnerIndex + 1) + " a gagné.");
@@ -264,7 +278,11 @@ public class WormRaceOverlay extends JPanel {
         // afficher l'argent
         g2.setColor(new Color(255, 215, 0));
         g2.setFont(new Font("Arial", Font.BOLD, 20));
-        String moneyText = "Argent: " + playerDataController.getPlayerData().getMoney() + "$";
+        int money = 0;
+        if (gameManager != null && gameManager.getCurrentTeam() != null) {
+            money = gameManager.getCurrentTeam().getMoney();
+        }
+        String moneyText = "Argent: " + money + "$";
         FontMetrics moneyFm = g2.getFontMetrics();
         int moneyTextW = moneyFm.stringWidth(moneyText);
         g2.drawString(moneyText, panelX + OVERLAY_WIDTH - moneyTextW - 20, panelY + 30);
@@ -361,8 +379,17 @@ public class WormRaceOverlay extends JPanel {
             
             betButtons[i] = new Rectangle(btnX, btnY, btnW, btnH);
             
-            if (!raceStarted) {
+            // check si l'équipe a assez d'argent
+            int currentMoney = 0;
+            if (gameManager != null && gameManager.getCurrentTeam() != null) {
+                currentMoney = gameManager.getCurrentTeam().getMoney();
+            }
+            boolean canAfford = currentMoney >= BET_AMOUNT;
+            
+            if (!raceStarted && canAfford) {
                 g2.setColor(new Color(76, 175, 80));
+            } else if (!raceStarted && !canAfford) {
+                g2.setColor(new Color(100, 100, 100));
             } else {
                 g2.setColor(new Color(100, 100, 100));
             }
@@ -372,7 +399,12 @@ public class WormRaceOverlay extends JPanel {
             g2.drawRoundRect(btnX, btnY, btnW, btnH, 8, 8);
             
             g2.setFont(new Font("Arial", Font.BOLD, 12));
-            String btnText = bets[i] > 0 ? "PARIER " + BET_AMOUNT + "$ (" + bets[i] + "$)" : "PARIER " + BET_AMOUNT + "$";
+            String btnText;
+            if (!raceStarted && !canAfford) {
+                btnText = "INSUFFISANT";
+            } else {
+                btnText = bets[i] > 0 ? "PARIER " + BET_AMOUNT + "$ (" + bets[i] + "$)" : "PARIER " + BET_AMOUNT + "$";
+            }
             FontMetrics fm = g2.getFontMetrics();
             int textW = fm.stringWidth(btnText);
             g2.drawString(btnText, btnX + (btnW - textW) / 2, btnY + 22);
@@ -400,6 +432,10 @@ public class WormRaceOverlay extends JPanel {
         String closeText = "cliquez en dehors pour fermer";
         FontMetrics fm = g2.getFontMetrics();
         int textW = fm.stringWidth(closeText);
-        g2.drawString(closeText, panelX + (OVERLAY_WIDTH - textW) / 2, panelY + OVERLAY_HEIGHT - 10);
+        g2.drawString(closeText, panelX + (OVERLAY_WIDTH - textW) / 2, panelY + OVERLAY_HEIGHT - 20);
+    }
+    
+    public void setGameManager(fr.upc.g5e4.model.GameManager gameManager) {
+        this.gameManager = gameManager;
     }
 }

@@ -1,7 +1,7 @@
 {
   "name": "NassNass",
   "xp": 0,
-  "money": 39997848,
+  "money": 39997648,
   "tabSkinPlayer": [
     {
       "skinName": "Worm de base",
@@ -11,12 +11,12 @@
     {
       "skinName": "Worm Noel Edition",
       "filePath": "/wormNoel.png",
-      "unlocked": false
+      "unlocked": true
     },
     {
       "skinName": "Worm Pinky Edition",
       "filePath": "/wormPinky.png",
-      "unlocked": false
+      "unlocked": true
     },
     {
       "skinName": "Base",

@@ -245,14 +245,17 @@ public class GameLauncher{
         // WormRace Overlay
         this.wormRaceOverlay = new WormRaceOverlay();
         this.wormRaceOverlay.setBounds(0, 0, width, height);
+        this.wormRaceOverlay.setGameManager(gameManager);
         this.inventoryOverlay.setWormRaceOverlay(this.wormRaceOverlay);
         // WormGuess Overlay
         this.wormGuessOverlay = new WormGuessOverlay();
         this.wormGuessOverlay.setBounds(0, 0, width, height);
+        this.wormGuessOverlay.setGameManager(gameManager);
         this.inventoryOverlay.setWormGuessOverlay(this.wormGuessOverlay);
         // WormJack Overlay
         this.wormJackOverlay = new WormJackOverlay();
         this.wormJackOverlay.setBounds(0, 0, width, height);
+        this.wormJackOverlay.setGameManager(gameManager);
         this.inventoryOverlay.setWormJackOverlay(this.wormJackOverlay);
         // VENT
         windOverlay = new WindOverlay(gameManager.getWindModel());
