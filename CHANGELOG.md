@@ -166,6 +166,7 @@
 - Boutique
 - Arme/Item graphiquement attachés au worm
 - Sons pour chaque arme
+- Tutoriel
 
 ### Fixed
 - body des blocks invisible après destruction

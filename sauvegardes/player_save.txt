@@ -1,7 +1,7 @@
 {
   "name": "NassNass",
   "xp": 0,
-  "money": 0,
+  "money": 9549,
   "tabSkinPlayer": [
     {
       "skinName": "Worm de base",

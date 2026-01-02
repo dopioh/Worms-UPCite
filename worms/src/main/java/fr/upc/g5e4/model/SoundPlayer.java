@@ -113,4 +113,18 @@ public final class SoundPlayer {
         e.printStackTrace();
     }
     }
+    
+    /**
+     * son quand un worm meurt
+     */
+    public static void playDepopSound() {
+        play("/sfx/depop.wav");
+    }
+    
+    /**
+     * son quand on casse un block
+     */
+    public static void playBreakBlockSound() {
+        play("/sfx/breakblock.wav");
+    }
 }

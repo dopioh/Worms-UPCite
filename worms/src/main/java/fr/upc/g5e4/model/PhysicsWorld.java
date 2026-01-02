@@ -375,6 +375,7 @@ public class PhysicsWorld {
                     if (fullInWater(worm)) {
                         worm.setDead(true);
                         destroy.add(worm);
+                        SoundPlayer.playDepopSound();
                         System.out.println("DEPOP: " + worm.getName() + " est mort dans l'eau!");
                     }
                     break;

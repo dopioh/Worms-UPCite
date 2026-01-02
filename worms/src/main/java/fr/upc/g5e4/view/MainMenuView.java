@@ -32,8 +32,10 @@ public class MainMenuView extends JPanel {
     private JButton btnResume;
     private JButton btnConfig;
     private JButton btnQuit;
+    private JButton btnTutorial;
     private JLabel titleLabel;
     private ShopView shopView;
+    private TutorialOverlay tutorialOverlay;
     private JPanel centerPanel;
     private JLabel background;
 
@@ -78,6 +80,10 @@ public class MainMenuView extends JPanel {
         shopView = new ShopView();
         background.add(shopView);
         
+        // Bouton tutoriel "?" en bas à droite
+        btnTutorial = createTutorialButton();
+        background.add(btnTutorial);
+        
         // Panel au centre avec titre et boutons
         centerPanel = new JPanel();
         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
@@ -102,6 +108,14 @@ public class MainMenuView extends JPanel {
         centerPanel.add(btnQuit);
         
         background.add(centerPanel);
+        
+        tutorialOverlay = new TutorialOverlay();
+        tutorialOverlay.setVisible(false);
+        tutorialOverlay.setOnClose(() -> tutorialOverlay.setVisible(false));
+        background.add(tutorialOverlay);
+        
+        // dessiner l'overlay tutoriel par dessus tout les autres composants
+        background.setComponentZOrder(tutorialOverlay, 0);
     }
 
     private void setupLayout() {
@@ -128,6 +142,13 @@ public class MainMenuView extends JPanel {
         int centerPanelWidth = 400;
         int centerPanelX = (width - centerPanelWidth) / 2;
         centerPanel.setBounds(centerPanelX, 20, centerPanelWidth, height - 40);
+        
+        // bouton tutoriel en bas à droite
+        int btnSize = 70;
+        btnTutorial.setBounds(width - btnSize - 20, height - btnSize - 20, btnSize, btnSize);
+        
+        // position de l'overlay tuto au centre de la fenetre
+        tutorialOverlay.setBounds(0, 0, width, height);
     }
 
     private JLabel createBackground() {
@@ -192,5 +213,32 @@ public class MainMenuView extends JPanel {
     
     public ShopView getShopView() {
         return shopView;
+    }
+    
+    public JButton getBtnTutorial() {
+        return btnTutorial;
+    }
+    
+    public TutorialOverlay getTutorialOverlay() {
+        return tutorialOverlay;
+    }
+    
+    /**
+     * bouton "?" pour le tutoriel
+     */
+    private JButton createTutorialButton() {
+        JButton btn = new JButton("?");
+        btn.setFont(new Font("Arial", Font.BOLD, 36));
+        btn.setForeground(Color.WHITE);
+        btn.setBackground(new Color(70, 130, 180));
+        btn.setFocusPainted(false);
+        btn.setBorderPainted(false);
+        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        
+        btn.addActionListener(e -> {
+            tutorialOverlay.setVisible(true);
+        });
+        
+        return btn;
     }
 }

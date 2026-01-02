@@ -3,11 +3,11 @@ package fr.upc.g5e4.view;
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.*;
+import fr.upc.g5e4.controller.PlayerDataController;
+import fr.upc.g5e4.model.io.PlayerData;
 
 /**
- * Vue de la boutique du jeu (version compacte pour le menu)
- * Affiche les items disponibles à l'achat avec leurs descriptions
- * bien repositionné la boutique en fulscreen (todo)
+ * Vue de la boutique du jeu
  */
 public class ShopView extends JPanel {
     
@@ -22,10 +22,19 @@ public class ShopView extends JPanel {
     private JPanel detailPanel;
     private JButton buyButton;
     private RoundedPanel selectedCard = null;
+    private JLabel moneyLabel;
+    private PlayerDataController playerDataController;
+    
+    // Stockage de l'item sélectionné
+    private String selectedItemName;
+    private int selectedItemPrice;
     
     public ShopView() {
+        playerDataController = new PlayerDataController();
+        playerDataController.chargerJoueur();
         initComponents();
         setupLayout();
+        updateMoneyDisplay();
     }
     
     private void initComponents() {
@@ -34,12 +43,24 @@ public class ShopView extends JPanel {
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         setOpaque(false);
         
+        // Panel titre avec argent
+        JPanel titlePanel = new JPanel(new BorderLayout());
+        titlePanel.setOpaque(false);
+        
         // Titre de la boutique
         JLabel titleLabel = new JLabel("BOUTIQUE", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
         titleLabel.setForeground(new Color(255, 208, 0));
-        titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
-        add(titleLabel, BorderLayout.NORTH);
+        titlePanel.add(titleLabel, BorderLayout.CENTER);
+        
+        // Affichage de l'argent
+        moneyLabel = new JLabel("0 $", SwingConstants.RIGHT);
+        moneyLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        moneyLabel.setForeground(new Color(76, 175, 80));
+        moneyLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 10));
+        titlePanel.add(moneyLabel, BorderLayout.EAST);
+        
+        add(titlePanel, BorderLayout.NORTH);
         
         // Panel central pour les items
         itemsGridPanel = new JPanel();
@@ -57,8 +78,8 @@ public class ShopView extends JPanel {
         detailPanel = createLargeBuyButton();
         add(detailPanel, BorderLayout.SOUTH);
         
-        // Ajouter des items d'exemple
-        addExampleItems();
+        // ajouter les items a vendre
+        addItems();
     }
     
     private JPanel createLargeBuyButton() {
@@ -74,7 +95,7 @@ public class ShopView extends JPanel {
         ((RoundedButton)buyButton).setHoverColor(BUTTON_BUY_HOVER);
         buyButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         buyButton.setEnabled(false);
-        buyButton.addActionListener(e -> deselectItem());
+        buyButton.addActionListener(e -> handlePurchase());
         panel.add(buyButton, BorderLayout.CENTER);
 
         return panel;
@@ -145,6 +166,8 @@ public class ShopView extends JPanel {
         }
         // sélectionner le nouvel item
         selectedCard = card;
+        selectedItemName = name;
+        selectedItemPrice = price;
         card.setBackground(ITEM_SELECTED_BG);
         card.repaint();
         // Activer le bouton d'achat
@@ -188,10 +211,7 @@ public class ShopView extends JPanel {
         g2d.dispose();
     }
     
-    /**
-     * Ajoute des items d'exemple pour la démonstration
-     */
-    private void addExampleItems() {
+    private void addItems() {
         addItemCard("Potion PV", "/nuke.png", 
             "une potion qui restaure une grande quantité de points de vie.",
             50);
@@ -200,7 +220,7 @@ public class ShopView extends JPanel {
             "une potion qui restaure une grande quantité de points de bouclier.",
             70);
         
-        addItemCard("Grenade", "/nuke.png",
+        addItemCard("Grenade", "/sprite_items/grenade-sprite.png",
             "un petit objet qui fait un grand boom.",
             150);
         
@@ -212,13 +232,61 @@ public class ShopView extends JPanel {
             "skin",
             250);
 
-        addItemCard("GIGAWORMM", "/worm.png",
+        addItemCard("Worm OG", "/worm.png",
             "skin",
             500);
+
     }
     
     // Getter
     public JButton getBuyButton() {
         return buyButton;
     }
+    
+    /**
+     * update affichage de l'argent
+     */
+    private void updateMoneyDisplay() {
+        PlayerData playerData = playerDataController.getPlayerData();
+        if (playerData != null) {
+            moneyLabel.setText(playerData.getMoney() + " $");
+        }
+    }
+    
+    /**
+     * achat de l'item selectionné
+     */
+    private void handlePurchase() {
+        if (selectedItemName == null) {
+            return;
+        }
+        
+        PlayerData playerData = playerDataController.getPlayerData();
+        if (playerData == null) {
+            JOptionPane.showMessageDialog(this, 
+                "Erreur : Impossible de charger les données du joueur.", 
+                "Erreur", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        int currentMoney = playerData.getMoney();
+
+        if (currentMoney >= selectedItemPrice) {
+            playerData.setMoney(currentMoney - selectedItemPrice);
+            
+            playerDataController.sauvegarderJoueur();
+
+            updateMoneyDisplay();
+            deselectItem();
+            
+            JOptionPane.showMessageDialog(this, 
+                "Vous avez acheté " + selectedItemName + " pour " + selectedItemPrice + " $!", 
+                "Achat réussi", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(this, 
+                "Vous n'avez pas assez d'argent.\nPrix: " + selectedItemPrice + " $\nVous avez: " + currentMoney + " $", 
+                "Argent insuffisant", JOptionPane.WARNING_MESSAGE);
+        }
+    }
+    
 }

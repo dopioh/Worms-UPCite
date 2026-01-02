@@ -388,6 +388,7 @@ public class CharacterModel{
             this.shield = 0;
             if (this.health <= 0) {
                 this.isDead = true;
+                SoundPlayer.playDepopSound();
                 // on détruit le body physique
                 if (this.persoBody != null && this.persoBody.getWorld() != null) {
                     this.world.destroyBody(this.persoBody);

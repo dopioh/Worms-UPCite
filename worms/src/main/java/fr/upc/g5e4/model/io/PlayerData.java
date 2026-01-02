@@ -111,9 +111,9 @@ public class PlayerData {
         tabSkinPlayer[0] = new SkinModel("Worm de base","/wormPixel.png", true);
         tabSkinPlayer[1] = new SkinModel("Worm Noel Edition","/wormNoel.png", false);
         tabSkinPlayer[2] = new SkinModel("Worm Pinky Edition","/wormPinky.png", false);
-
+        tabSkinPlayer[3] = new SkinModel("Worm OG","/worm.png", false);
+        
         // J'ai pas encore importer/dessiner le reste donc je garde ceux de base ici (faite genre que c'est des skins svp..)
-        tabSkinPlayer[3] = new SkinModel("Base","/wormPixel.png", false);
         tabSkinPlayer[4] = new SkinModel("Base","/wormPixel.png", false);
         tabSkinPlayer[5] = new SkinModel("Base","/wormPixel.png", false);
         tabSkinPlayer[6] = new SkinModel("Base","/wormPixel.png", false);
