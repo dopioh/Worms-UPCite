@@ -1,7 +1,7 @@
 package fr.upc.g5e4.model.io;
 
 
-import java.lang.reflect.Array;
+//import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import fr.upc.g5e4.model.SkinModel;
@@ -130,7 +130,7 @@ public class PlayerData {
         this.tabSkinPlayer = new SkinModel[6]; // 6 Skin, le premier est unlocked car c'est celui de base
         
         // Obliger d'initialiser a la main sans boucle car chaque SkinModel a des param diff pour chaque
-        tabSkinPlayer[0] = new SkinModel("Worm de base","/wormPixel.png", false);
+        tabSkinPlayer[0] = new SkinModel("Worm de base","/wormPixel.png", true);
         tabSkinPlayer[1] = new SkinModel("Worm Noel Edition","/wormNoel.png", false);
         tabSkinPlayer[2] = new SkinModel("Worm Pinky Edition","/wormPinky.png", false);
         tabSkinPlayer[3] = new SkinModel("Worm Nerd Edition","/wormNerd.png", false);
