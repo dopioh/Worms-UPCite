@@ -168,6 +168,7 @@
 - sprites pour gagdets 
 - sons pour les gadgets
 - Degats de zone 
+- Readme.md expliquant le projet (comment jouer etc)
 
 ### Fixed
 
@@ -180,3 +181,5 @@
 
 - Suppression des fleches haut et bas, pour une trajectoire seulement avec la souris
 - Maj du DIAGRAMME.MD
+- Maj du ARCHITECTURE.md
+- Amélioration de CHANGELOG.md
