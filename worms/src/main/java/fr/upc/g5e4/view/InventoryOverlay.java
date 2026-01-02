@@ -114,12 +114,12 @@ public class InventoryOverlay extends JComponent {
             }
         });
 
-        // HOVER + Deleguer les événements au controller quand inventaire fermé
+        // HOVER
         addMouseMotionListener(new MouseAdapter() {
             @Override
             public void mouseMoved(MouseEvent e) {
                 if (!visible) {
-                    // Passer l'événement au controller de tir
+                    // passer l'événement au controller de tir
                     if (inputControllerRef != null) {
                         inputControllerRef.updateTrajectoryFromMouseMotion(e.getX(), e.getY());
                     }
@@ -157,7 +157,7 @@ public class InventoryOverlay extends JComponent {
 
             @Override
             public void mouseDragged(MouseEvent e) {
-                // Quand inventaire fermé, passer l'événement au controller
+                // quand inventaire fermé, passer l'événement au controller
                 if (!visible && inputControllerRef != null) {
                     inputControllerRef.updateTrajectoryFromMouseMotion(e.getX(), e.getY());
                 }
@@ -518,7 +518,7 @@ public class InventoryOverlay extends JComponent {
             // appeler la bonne méthode selon le type d'objet
             if ("GADGET".equalsIgnoreCase(item.objectType)) {
                 gameManager.setGadgetFromInventory(item.name);
-                // Désactiver la trajectoire quand un gadget est équipé
+                // désactiver la trajectoire quand un gadget est équipé
                 if (inputControllerRef != null) {
                     inputControllerRef.disableTrajectory();
                 }

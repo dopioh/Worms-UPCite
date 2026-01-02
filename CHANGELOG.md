@@ -179,6 +179,7 @@
 
 ### Fixed
 - Double tir
+- Fix tir lié au zoom
 
 ### Changed 
 - Suppression des fleches haut et bas, pour une trajectoire seulement avec la souris

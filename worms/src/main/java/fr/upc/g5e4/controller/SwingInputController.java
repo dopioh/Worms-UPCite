@@ -138,23 +138,6 @@ public class SwingInputController extends JPanel{
                         personnageController.activateJump();
                         break;
 
-                    // contrôle du viseur - UP/DOWN pour rotation circulaire (0-360°)
-                    // NOTE: Trajectoire affichée au clic de souris à la place
-                    case KeyEvent.VK_UP:
-                        // augmenter l'angle (viser plus haut)
-                        shootingAngle += 10;  // +10 degrés
-                        if (shootingAngle >= 360) {
-                            shootingAngle -= 360;  // revenir à 0 si dépassement
-                        }
-                        break;
-                    case KeyEvent.VK_DOWN:
-                        // diminuer l'angle (viser plus bas)
-                        shootingAngle -= 10;  // -10 degrés
-                        if (shootingAngle < 0) {
-                            shootingAngle += 360;  // revenir à 360 si négatif
-                        }
-                        break;
-
                     // Caméra déplacements
                     case KeyEvent.VK_LEFT:
                         if(cameraController != null) cameraController.activateLeft();
@@ -290,7 +273,7 @@ public class SwingInputController extends JPanel{
             }
         });
 
-        // Mise à jour continue de la trajectoire quand la souris bouge et le bouton est appuyé
+        // Mise à jour continue de la trajectoire quand la souris bouge 
         addMouseMotionListener(new java.awt.event.MouseMotionListener() {
             @Override
             public void mouseMoved(MouseEvent e) {
@@ -309,7 +292,7 @@ public class SwingInputController extends JPanel{
     }
     
     /**
-     * Désactive l'affichage de la trajectoire
+     * désactive l'affichage de la trajectoire
      */
     public void disableTrajectory() {
         isAiming = false;
@@ -320,12 +303,12 @@ public class SwingInputController extends JPanel{
     }
     
     /**
-     * Met à jour la trajectoire basée sur la position écran
-     * Version simplifiée sans vérification de focus
-     * N'active que si une arme est équipée
+     * met à jour la trajectoire basée sur la position écran
+     * version simplifiée sans vérification de focus
+     * n'active que si une arme est équipée
      */
     public void updateTrajectoryFromMouseMotion(int x, int y) {
-        // Vérifier qu'une arme est équipée et pas un gadget
+        // vérifier qu'une arme est équipée et pas un gadget
         if (personnageController == null || personnageController.getCurrentWeapon() == null) {
             return;
         }
@@ -338,15 +321,15 @@ public class SwingInputController extends JPanel{
     }
     
     /**
-     * Met à jour la trajectoire basée sur la position écran
-     * Affiche la trajectoire sans tirer
+     * MAJ la trajectoire basée sur la position écran
+     * affiche la trajectoire sans tirer
      */
     public void updateTrajectoryFromMouse(int x, int y) {
         if (personnageController == null || personnageController.getModel() == null) {
             return;
         }
 
-        // Ne pas afficher la trajectoire si un gadget est équipé
+        // ne pas afficher la trajectoire si un gadget est équipé
         if (inventoryOverlay != null && inventoryOverlay.getEquippedGadget() != null) {
             return;
         }
@@ -372,17 +355,17 @@ public class SwingInputController extends JPanel{
         // obtenir les coordonnées monde
         //convertir les pixel écran (x, y) en coordonnées monde:
 
-        //Compenser le translate(-camX, -camY) en pixels
-        double xAfterCamera = x + cameraX;
-        double yAfterCamera = y + cameraY;
+        // Inverser le zoom d'abord (diviser par le zoom)
+        double xAfterZoom = x / zoomFactor;
+        double yAfterZoom = y / zoomFactor;
         
-        //inverser le zoom
-        double xAfterZoom = xAfterCamera / zoomFactor;
-        double yAfterZoom = yAfterCamera / zoomFactor;
+        // Puis compenser le décalage de la caméra
+        double clickWorldX_temp = xAfterZoom + cameraX;
+        double clickWorldY_temp = yAfterZoom + cameraY;
         
         //convertir pixels en mètres
-        float clickWorldX = (float)(xAfterZoom / ppm);
-        float clickWorldY = (float)(yAfterZoom / ppm);
+        float clickWorldX = (float)(clickWorldX_temp / ppm);
+        float clickWorldY = (float)(clickWorldY_temp / ppm);
         
         // Inverser l'axe Y
         clickWorldY = (float)(worldHeightMeters - clickWorldY);
@@ -396,18 +379,23 @@ public class SwingInputController extends JPanel{
             shootingAngle += 360;
         }
 
-        // Mettre à jour l'arme avec le nouvel angle
+        // DEBUG
+        System.out.println("[TRAJECTORY] Screen: (" + x + ", " + y + ") | Zoom: " + zoomFactor + 
+                         " | Camera: (" + cameraX + ", " + cameraY + ") | World: (" + clickWorldX + ", " + clickWorldY + 
+                         ") | Worm: (" + pos.x + ", " + pos.y + ") | Angle: " + String.format("%.1f°", shootingAngle));
+
+        // mettre à jour l'arme avec le nouvel angle
         if (personnageController.getCurrentWeapon() != null) {
             personnageController.getCurrentWeapon().setShootingAngle(shootingAngle);
         }
 
-        // Afficher la trajectoire en temps réel
+        // afficher la trajectoire en temps réel
         isAiming = true;
         updateTrajectory();
     }
 
     /**
-     * Effectue le tir avec l'angle actuel
+     * effectue le tir avec l'angle actuel
      */
     public void fireWeaponAtAngle(int x, int y) {
         if (personnageController == null || personnageController.getModel() == null) {
@@ -422,7 +410,7 @@ public class SwingInputController extends JPanel{
 
         CharacterModel model = personnageController.getModel();
         
-        // Position du worm en coordonnées monde
+        // position du worm en coordonnées monde
         Vec2 pos = model.getBody().getPosition();
 
         //info de la caméra
@@ -440,16 +428,17 @@ public class SwingInputController extends JPanel{
         float worldHeightMeters = 24f;
 
         // obtenir les coordonnées monde
-        double xAfterCamera = x + cameraX;
-        double yAfterCamera = y + cameraY;
+        // Inverser le zoom d'abord (diviser par le zoom)
+        double xAfterZoom = x / zoomFactor;
+        double yAfterZoom = y / zoomFactor;
         
-        //inverser le zoom
-        double xAfterZoom = xAfterCamera / zoomFactor;
-        double yAfterZoom = yAfterCamera / zoomFactor;
+        // Puis compenser le décalage de la caméra
+        double clickWorldX_temp = xAfterZoom + cameraX;
+        double clickWorldY_temp = yAfterZoom + cameraY;
         
         //convertir pixels en mètres
-        float clickWorldX = (float)(xAfterZoom / ppm);
-        float clickWorldY = (float)(yAfterZoom / ppm);
+        float clickWorldX = (float)(clickWorldX_temp / ppm);
+        float clickWorldY = (float)(clickWorldY_temp / ppm);
         
         // Inverser l'axe Y
         clickWorldY = (float)(worldHeightMeters - clickWorldY);
@@ -458,7 +447,7 @@ public class SwingInputController extends JPanel{
         double dx = clickWorldX - pos.x;
         int direction = (dx > 0) ? 1 : -1;
 
-        // Désactiver l'affichage de la trajectoire
+        // désactiver l'affichage de la trajectoire
         isAiming = false;
         if (trajectoryRenderer != null) {
             trajectoryRenderer.setAiming(false);
