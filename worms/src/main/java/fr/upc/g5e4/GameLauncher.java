@@ -196,11 +196,13 @@ public class GameLauncher{
      * @see SaveData
      */
     public void startFromGameSave(SaveData saveData) throws IOException{
-        this.saveData = saveData;
-
         resetGame(); // au cas ou 
-
-        initializeGame(true);
+        if (saveData == null){
+            initializeGame(false);
+        } else {
+            this.saveData = saveData;
+            initializeGame(true);
+        }
 
         cardLayout.show(cardPanel, GAME_CARD); // afficher le jeu 
 
