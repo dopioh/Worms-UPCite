@@ -1,15 +1,18 @@
 package fr.upc.g5e4.view;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.image.BufferedImage;
 
-import javax.swing.BorderFactory;
+import javax.imageio.ImageIO;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -36,12 +39,63 @@ public class MainMenuView extends JPanel {
     private JLabel titleLabel;
     private TutorialOverlay tutorialOverlay;
     private JPanel centerPanel;
-    private JLabel background;
+    private JPanel background;
+    private BufferedImage backgroundImage;
 
     public MainMenuView() {
+        loadBackgroundImage();
         initComponents();
         setupLayout();
         setupResizeListener();
+    }
+    
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        if (backgroundImage != null) {
+            Graphics2D g2d = (Graphics2D) g;
+
+            // rendu de haute qualité
+            g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+            
+            // Calcul du ratio pour zoomer (cover) plutôt que stretch
+            int panelWidth = getWidth();
+            int panelHeight = getHeight();
+            int imgWidth = backgroundImage.getWidth();
+            int imgHeight = backgroundImage.getHeight();
+            
+            double panelRatio = (double) panelWidth / panelHeight;
+            double imgRatio = (double) imgWidth / imgHeight;
+            
+            int drawWidth, drawHeight, drawX, drawY;
+            
+            if (panelRatio > imgRatio) {
+                // Panel plus large que l'image : remplir en largeur
+                drawWidth = panelWidth;
+                drawHeight = (int) (panelWidth / imgRatio);
+                drawX = 0;
+                drawY = (panelHeight - drawHeight) / 2;
+            } else {
+                // Panel plus haut que l'image : remplir en hauteur
+                drawHeight = panelHeight;
+                drawWidth = (int) (panelHeight * imgRatio);
+                drawX = (panelWidth - drawWidth) / 2;
+                drawY = 0;
+            }
+            
+            g2d.drawImage(backgroundImage, drawX, drawY, drawWidth, drawHeight, this);
+        }
+    }
+    
+    private void loadBackgroundImage() {
+        try {
+            java.net.URL url = getClass().getResource("/background.png");
+            if (url != null) {
+                backgroundImage = ImageIO.read(url);
+            }
+        } catch (Exception e) {
+            System.err.println("Erreur lors du chargement de l'image de fond: " + e.getMessage());
+        }
     }
     
     public void updateSizes(boolean fullScreen) {
@@ -70,10 +124,14 @@ public class MainMenuView extends JPanel {
     }
 
     private void initComponents() {
-        // Création du panneau de fond
-        background = createBackground();
-        setLayout(new java.awt.BorderLayout());
-        add(background, java.awt.BorderLayout.CENTER);
+        // Utilise un layout null pour positionnement absolu
+        setLayout(null);
+        setOpaque(true);
+
+        // Créer le panel de fond
+        background = new JPanel();
+        background.setLayout(null);
+        background.setOpaque(false);
 
         // Bouton tutoriel "?" en bas à droite
         btnTutorial = createTutorialButton();
@@ -111,6 +169,9 @@ public class MainMenuView extends JPanel {
         
         // dessiner l'overlay tutoriel par dessus tout les autres composants
         background.setComponentZOrder(tutorialOverlay, 0);
+        
+        // Ajouter le background au MainMenuView
+        add(background);
     }
 
     private void setupLayout() {
@@ -130,6 +191,11 @@ public class MainMenuView extends JPanel {
         int width = getWidth();
         int height = getHeight();
         
+        // Positionner le background pour qu'il remplisse toute la fenêtre
+        if (background != null) {
+            background.setBounds(0, 0, width, height);
+        }
+        
         // le panel au centre
         int centerPanelWidth = 400;
         int centerPanelX = (width - centerPanelWidth) / 2;
@@ -141,13 +207,6 @@ public class MainMenuView extends JPanel {
         
         // position de l'overlay tuto au centre de la fenetre
         tutorialOverlay.setBounds(0, 0, width, height);
-    }
-
-    private JLabel createBackground() {
-        ImageIcon bgIcon = loadImage("/background.png");
-        JLabel bg = (bgIcon != null) ? new JLabel(bgIcon) : new JLabel();
-        bg.setLayout(null); // Layout null pour positionnement absolu
-        return bg;
     }
 
     private void addTitle(JPanel parent) {

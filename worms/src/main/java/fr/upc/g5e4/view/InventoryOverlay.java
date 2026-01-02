@@ -35,6 +35,7 @@ public class InventoryOverlay extends JComponent {
     private Rectangle panelBounds;
 
     private GameManager gameManager;
+    private Runnable onGadgetUse;
 
     // --- Grille INVENTAIRE ---
     private static final int CELL_SIZE = 96;   // taille des cases
@@ -76,7 +77,6 @@ public class InventoryOverlay extends JComponent {
         loadImage("Grenade", "/grenade.png");
         loadImage("Bazooka", "/bazooka.png");
         loadImage("BaseballBat", "/baseballbat.png");
-        //loadImage("Bumper", "/"); Pas encore fait
         
         // Boutique
         loadImage("luckyblock", "/luckyblock.png");
@@ -86,6 +86,13 @@ public class InventoryOverlay extends JComponent {
         loadImage("wormjack", "/wormjack.png");
         loadImage("wormrace", "/wormrace.png");
         loadImage("wormguess", "/wormguess.png");
+        
+        // gadget & boutique
+        loadImage("PotionSpeed", "/gadgets/potion_speed.png");
+        loadImage("PotionJump", "/gadgets/potion_jump.png");
+        loadImage("PotionHeal", "/gadgets/potion_heal.png");
+        loadImage("PotionShield", "/gadgets/potion_shield.png");
+        loadImage("Bumper", "/gadgets/bumper.png");
     }
 
     private void loadImage(String name, String path) {
@@ -111,6 +118,10 @@ public class InventoryOverlay extends JComponent {
         itemDescriptions.put("grenade", "Boom! Gros dégâts de zone");
         itemDescriptions.put("bazooka", "Gros dégâts");
         itemDescriptions.put("baseballbat", "Cogne sauvagement tes ennemis");
+        itemDescriptions.put("potionspeed", "Augmente la vitesse +50% pour 20s");
+        itemDescriptions.put("potionjump", "Augmente le saut +50% pour 20s");
+        itemDescriptions.put("potionheal", "Restaure 50 HP");
+        itemDescriptions.put("potionshield", "Ajoute 25 de shield");
         itemDescriptions.put("bumper", "Rebondis");
     }
 
@@ -140,13 +151,27 @@ public class InventoryOverlay extends JComponent {
             public void mousePressed(MouseEvent e) {
                 handleClick(e.getX(), e.getY());
             }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                // Quand inventaire fermé, passer l'événement au controller
+                if (!visible && inputControllerRef != null && e.getButton() == MouseEvent.BUTTON1) {
+                    inputControllerRef.fireWeaponAtAngle(e.getX(), e.getY());
+                }
+            }
         });
 
-        // HOVER 
+        // HOVER
         addMouseMotionListener(new MouseAdapter() {
             @Override
             public void mouseMoved(MouseEvent e) {
-                if (!visible) return;
+                if (!visible) {
+                    // passer l'événement au controller de tir
+                    if (inputControllerRef != null) {
+                        inputControllerRef.updateTrajectoryFromMouseMotion(e.getX(), e.getY());
+                    }
+                    return;
+                }
 
                 computeLayout();
                 int x = e.getX();
@@ -176,6 +201,14 @@ public class InventoryOverlay extends JComponent {
 
                 if (changed) repaint();
             }
+
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                // quand inventaire fermé, passer l'événement au controller
+                if (!visible && inputControllerRef != null) {
+                    inputControllerRef.updateTrajectoryFromMouseMotion(e.getX(), e.getY());
+                }
+            }
         });
 
     }
@@ -185,14 +218,31 @@ public class InventoryOverlay extends JComponent {
     }
 
     /**
+     * définit un rappel quand un gadget est utilisé
+     */
+    public void setOnGadgetUse(Runnable callback) {
+        this.onGadgetUse = callback;
+    }
+
+    private SwingInputController inputControllerRef;
+
+    /**
      * FireListener basé sur le SwingInputController (tir vers la souris)
      */
     public void setFireListener(SwingInputController inputController){      // Listener par défaut
+        this.inputControllerRef = inputController;
         this.fireListener = new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON1) {
-                    inputController.handleFireAt(e.getX(), e.getY());
+                    inputController.updateTrajectoryFromMouse(e.getX(), e.getY());
+                }
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON1) {
+                    inputController.fireWeaponAtAngle(e.getX(), e.getY());
                 }
             }
         };
@@ -285,7 +335,7 @@ public class InventoryOverlay extends JComponent {
             }
             return; // clic dans le panneau mais pas sur un item -> rien
         }
-
+        
         // clic en dehors du panneau -> bloqué quand l'inventaire est ouvert
         return;
     }
@@ -703,7 +753,17 @@ public class InventoryOverlay extends JComponent {
         equippedItemKey = item.name.toLowerCase();
         equippedItem = item;
         if (gameManager != null) {
-            gameManager.setWeaponFromInventory(item.name);
+            // appeler la bonne méthode selon le type d'objet
+            if ("GADGET".equalsIgnoreCase(item.objectType)) {
+                gameManager.setGadgetFromInventory(item.name);
+                // désactiver la trajectoire quand un gadget est équipé
+                if (inputControllerRef != null) {
+                    inputControllerRef.disableTrajectory();
+                }
+            } else {
+                // WEAPON par défaut
+                gameManager.setWeaponFromInventory(item.name);
+            }
         }
     }
 
@@ -814,6 +874,68 @@ public class InventoryOverlay extends JComponent {
     
     public void setWormJackOverlay(WormJackOverlay overlay) {
         this.wormJackOverlay = overlay;
+    }
+
+    /**
+     * utilise un gadget de l'inventaire quand celui-ci est fermé
+     * @param gadgetIndex l'index du gadget dans la liste des gadgets (0-4)
+     */
+    public void useGadgetByIndex(int gadgetIndex) {
+        if (visible) return; // ne pas pouvoir utiliser l'inventaire si c'est ouvert
+        
+        // filtrer les gadgets seulement
+        List<InventoryJson> gadgets = new ArrayList<>();
+        for (InventoryJson item : inventory) {
+            if (item != null && "GADGET".equals(item.objectType)) {
+                gadgets.add(item);
+            }
+        }
+        
+        if (gadgetIndex < 0 || gadgetIndex >= gadgets.size()) {
+            return; // index invalide
+        }
+        
+        InventoryJson gadget = gadgets.get(gadgetIndex);
+        if (gadget.canUseThisTurn()) {
+            if (gameManager != null) {
+                gameManager.useGadgetFromInventory(gadget.name);
+            }
+            if (onGadgetUse != null) {
+                onGadgetUse.run();
+            }
+        }
+    }
+
+    /**
+     * utilise le gadget actuellement équipé
+     * appelé quand l'inventaire est fermé et on clique
+     */
+    public void useEquippedGadget() {
+        if (visible || equippedItem == null) return; // ne pas utiliser si l'inventaire est ouvert ou pas de gadget équipé
+        
+        // vérifier que c'est un gadget
+        if (!"GADGET".equals(equippedItem.objectType)) {
+            return; // ce n'est pas un gadget
+        }
+        
+        if (equippedItem.canUseThisTurn()) {
+            if (gameManager != null) {
+                gameManager.useGadgetFromInventory(equippedItem.name);
+            }
+            if (onGadgetUse != null) {
+                onGadgetUse.run();
+            }
+        }
+    }
+
+    /**
+     * @return le gadget actuellement équipé
+     */
+    public InventoryJson getEquippedGadget() {
+        if (equippedItem != null && "GADGET".equals(equippedItem.objectType)) {
+            return equippedItem;
+        }
+        return null;
     }
 
 }

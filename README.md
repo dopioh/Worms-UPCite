@@ -1,45 +1,146 @@
 # Projet Worms
 
-## INFO
+Jeu 2D de type [Worms](https://fr.wikipedia.org/wiki/Worms_(jeu_vidéo)) développé en Java, où des équipes de vers s'affrontent tour à tour sur un terrain destructible avec un petit arsenal soumis à une physique simple (gravité, collisions, vent)
 
-J'ai créé le projet Gitlab de notre groupe pour pouvoir avoir une base, si vous avez quelconque suggestions/modifications n'hésitez pas à l'évoquer et l'intégrer directement si c'est **validé** par le groupe.
+## Prérequis
 
-On communiquera principalement sur le [kanban](https://moule.informatique.u-paris.fr/militon/projet-worms/-/boards) - pour toutes discussions plus complexes un groupe Discord a été créé - de préférence pour l'historique et la notation, il est mieux de seulement communiquer sur le **projet Gitlab**.
+- **Java 23** ou supérieur
+- **Apache Maven 3.6+**
 
-Lorsque vous faites des **commits**, spécifiez bien le **changement** que vous avez fait pour ne pas polluer l'historique, histoire qu'on s'y retrouve.
+## Compilation
 
-## SUJET ET NOTATION
+Depuis le répertoire racine du projet, naviguez vers le dossier `worms` et compilez avec Maven :
 
-Le [sujet](https://moodle.u-pariscite.fr/pluginfile.php/3407236/mod_resource/content/1/projet_2025.pdf) et la [grille de notation](https://docs.google.com/spreadsheets/d/e/2PACX-1vR4JzgF5x4Qx_-W3lg4KVsW8sQGoXe7YrFOyvE-kLjK3zgn-BslKGiMzYN9O1Is8aALiQz-UXFmLiRk/pubhtml) sont disponibles sur moodle.
-
-Le projet consiste à créer en Java un jeu 2D de type [Worms](https://fr.wikipedia.org/wiki/Worms_(jeu_vidéo)), où deux équipes de vers s’affrontent tour à tour sur un terrain destructible à l’aide d’un petit arsenal soumis à une **physique simple** (gravité, collisions, vent).
-
-Toutes les **fonctionnalités obligatoires** sont décrites dans le sujet, il est également conseillé (même *obligatoire*) de rajouter des fonctionnalités supplémentaires pour espérer avoir une note correcte.
-
-Je possède la [derniere version](https://store.steampowered.com/app/327030/Worms_WMD/?l=french) du jeu Worms fait par le studio Team17 sur mon mac si vous voulez voir a quoi le jeu ressemble.
-
-## MARKDOWN
-
-Les fichiers tels que celui-ci ou ceux à rédiger pour avoir un affichage correct sur GitLab devront être rédigés en **markdown** (.md), un PDF synthétisant toute la syntaxe et comment *MD* fonctionne par rapport à HTML et disponible [ici](https://markdown.p2hp.com/assets/book/markdown-guide.pdf).
-
-[Ici](https://markdownlivepreview.com) un site pour avoir un aperçu de ce que vous écrivez en *MD*.
-
-## ORGANISATION
-
-Pour le moment, l'organisation ainsi que nos rôles attribués restent encore en suspend, n'hésitez pas à relire le [CM2](https://moodle.u-pariscite.fr/pluginfile.php/2671492/mod_resource/content/3/cours-02.pdf) qui explique comment fonctionne la méthode **Scrum** - celle que l'on va utiliser pour ce projet - avant que l'on s'organise.
-
-Je peux déjà confirmer qu'on fonctionnera avec ***une fonctionnalité = une branche***, qui sera merge avec la branche `dev` quand elle sera finie puis `dev` avec `main` quand tout sera prêt pour une release.
-
-## Files à rajouter pour le projet git
-
-Plusieurs fichiers seront **obligatoires** à integrer à ce git, parmi eux :
-
-```
-CHANGELOG.md    // Une sorte d'historique du projet où chaque gros changement devra y etre inscrit avec la date et la version du projet.
-LICENSE      // Un fichier Copyright qui indique les droits et les restrictions d’utilisation du code. (Ce qui devra etre *null* pour nous puisque notre code - et nos idees - doivent rester strictement entre nous.)
+```bash
+cd worms
+mvn clean package
 ```
 
-Si quelqu'un a le temps de les intégrer, qu'il n'hésite pas !
+Cette commande va :
+1. Télécharger toutes les dépendances nécessaires
+2. Compiler le code source
+3. Exécuter les tests
+4. Générer un fichier JAR exécutable dans `target/`
 
+Le fichier JAR généré sera nommé `worms-app.jar` et contiendra toutes les dépendances nécessaires.
 
+## Exécution
 
+Après la compilation, **depuis le dossier racine du projet** :
+
+```bash
+java -jar worms/target/worms-app.jar
+```
+
+## Utilisation du jeu
+
+### Menu principal
+
+Au lancement, vous arrivez sur le menu principal avec les options suivantes :
+- **Nouvelle Partie** : Démarrer une nouvelle partie
+- **Poursuivre une partie** : Charger une partie sauvegardée
+- **Reglages** : Configurer les paramètres du jeu (map, équipes, etc.)
+- **Boutique** : Acheter des items et des armes
+- **Tutoriel** : Apprendre les bases du jeu
+- **Quitter** : Fermer le jeu
+
+### Déroulement d'une partie
+
+1. Des équipes s'affrontent tour par tour
+2. Chaque tour, vous contrôlez un ver de votre équipe
+3. Déplacez-vous sur le terrain et utilisez votre arsenal pour éliminer ou pousser dans l'eau l'équipe adverse
+4. Le terrain est destructible - utilisez-le à votre avantage !
+5. La partie se termine lorsqu'une équipe n'a plus de vers
+
+### Contrôles en jeu
+
+- **Q/D** : Déplacer le ver
+- **Z** : Sauter
+- **Clic gauche** : Tirer/Utiliser l'arme ou gadget
+- **Échap** : Menu pause
+- **Scroll** : Zoomer/Dézoomer la caméra
+
+### Inventaire
+
+Pendant la partie, appuyez sur le sac pour ouvrir l'inventaire avec ses trois onglets :
+
+#### Armes
+- Consultez et sélectionnez vos armes disponibles
+
+#### Gadgets
+- Accédez à vos items spéciaux et potions
+
+#### Boutique
+- Jouez à des mini-jeux pour gagner de l'argent supplémentaire
+
+### Arsenal disponible
+
+**Armes :**
+- **AK-47** : Arme automatique avec cadence de tir rapide
+- **Bazooka** : Lance-roquettes à longue portée avec explosion
+- **Grenade** : Projectile explosif avec rebond
+- **Batte de baseball** : Arme de mêlée pour repousser les ennemis
+
+**Gadgets :**
+- **Bumper** : Trampoline pour faire rebondir les worms
+- **Potion de vie** : Restaure les points de vie
+- **Potion de vitesse** : Augmente la vitesse de déplacement
+- **Potion de saut** : Améliore la hauteur de saut
+- **Potion de bouclier** : Offre une protection temporaire
+
+### Système de sauvegarde
+
+On peut sauver des parties dans le dossier `sauvegardes/` :
+- `sauvegarde.txt` : Sauvegarde manuelle
+- `player_save.txt` : Sauvegarde des profils joueurs
+
+## Tests
+
+Pour exécuter les tests unitaires :
+
+```bash
+cd worms
+mvn test
+```
+
+Pour générer un rapport de couverture de code avec JaCoCo :
+
+```bash
+cd worms
+mvn clean verify
+```
+
+Le rapport sera disponible dans `target/site/jacoco/index.html`
+
+## Structure du projet
+
+```
+worms/
+├── src/
+│   ├── main/
+│   │   ├── java/          # Code source
+│   │   └── resources/     # Ressources (sprites, sons, etc.)
+│   └── test/
+│       └── java/          # Tests unitaires
+├── sauvegardes/           # Fichiers de sauvegarde
+└── pom.xml                # Configuration Maven
+```
+Voir [ARCHITECTURE.md](worms/ARCHITECTURE.md) pour la structure complète
+
+## Documentation
+
+- [DESIGN.md](DESIGN.md) : Décisions de conception
+- [CHANGELOG.md](CHANGELOG.md) : Historique des modifications
+- [CONTRIBUTING.md](CONTRIBUTING.md) : Guide de contribution
+- [AUTHORS.md](AUTHORS.md) : Liste des contributeurs du projet
+
+## Problèmes connus
+
+Si vous rencontrez des problèmes :
+
+1. **Le JAR ne se lance pas** : Vérifiez que vous utilisez Java 23+
+2. **Erreur de compilation Maven** : Assurez-vous d'avoir une connexion internet pour télécharger les dépendances
+
+## Licence
+
+Voir le fichier [LICENSE](LICENSE) pour les détails.

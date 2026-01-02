@@ -64,6 +64,10 @@ public class MainMenuController {
             SaveLoad sv = new SaveLoad();
             this.gameLauncher.startFromGameSave(sv.getSaveData());
         } catch (IOException e) {
+            JOptionPane.showMessageDialog(gameLauncher.getMainFrame(), 
+            "Impossible de lancer une sauvegarde", 
+            "A Report A Mei", 
+            JOptionPane.INFORMATION_MESSAGE); //determine l'icône qui s'affiche à gauche du texte
             System.out.println(e.getMessage());
         }
 
