@@ -34,7 +34,6 @@ public class MainMenuView extends JPanel {
     private JButton btnQuit;
     private JButton btnTutorial;
     private JLabel titleLabel;
-    private ShopView shopView;
     private TutorialOverlay tutorialOverlay;
     private JPanel centerPanel;
     private JLabel background;
@@ -76,10 +75,6 @@ public class MainMenuView extends JPanel {
         setLayout(new java.awt.BorderLayout());
         add(background, java.awt.BorderLayout.CENTER);
 
-        // Boutique à gauche en position absolue
-        shopView = new ShopView();
-        background.add(shopView);
-        
         // Bouton tutoriel "?" en bas à droite
         btnTutorial = createTutorialButton();
         background.add(btnTutorial);
@@ -134,9 +129,6 @@ public class MainMenuView extends JPanel {
     private void repositionComponents() {
         int width = getWidth();
         int height = getHeight();
-        
-        // la boutique à gauche
-        shopView.setBounds(20, 100, 350, Math.min(520, height - 200));
         
         // le panel au centre
         int centerPanelWidth = 400;
@@ -209,10 +201,6 @@ public class MainMenuView extends JPanel {
 
     public JButton getBtnQuit() {
         return btnQuit;
-    }
-    
-    public ShopView getShopView() {
-        return shopView;
     }
     
     public JButton getBtnTutorial() {
