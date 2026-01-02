@@ -4,6 +4,7 @@ package fr.upc.g5e4.model;
 //import fr.upc.g5e4.controller.*;
 //import fr.upc.g5e4.model.*;
 //import fr.upc.g5e4.view.*;
+import fr.upc.g5e4.view.HUDOverlay;
 import fr.upc.g5e4.view.GamePanel;
 import fr.upc.g5e4.view.WindOverlay;
 
@@ -27,13 +28,14 @@ public class GameLoop{
 
     private WindOverlay windOverlay;
     private Runnable onRoundChanged;
+    private HUDOverlay hudOverlay;
 
     /** Toute les update de Timer se font dans le Constructeur de GameLoop, pas besoin de creer de methode ici*/
 
     // Ajout : méthode publique pour reset le timer
     public void resetRoundTimer() {
         this.roundTimeRemaining = 1800;
-        gamePanel.setRoundTimer(30);
+        if (hudOverlay != null) hudOverlay.setTimerFrames(1800, 1800);
     }
     public GameLoop(GameManager gameManager){
         this.gameManager = gameManager;
@@ -42,7 +44,6 @@ public class GameLoop{
 
         // pour pas que 30 passe par dessus le temps sauvegardee dans le cas de resumeGame()
         int initialSeconds = roundTimeRemaining / 60;
-        this.gamePanel.setRoundTimer(initialSeconds);
 
         // Initialiser l'affichage du chrono dans la vue -> Ca sert a rien ? 
         //this.gamePanel.setRoundTimer(30);
@@ -112,7 +113,7 @@ public class GameLoop{
                             gameManager.nextRound();
                             if (onRoundChanged != null) onRoundChanged.run();
                             roundTimeRemaining = 1800;
-                            gamePanel.setRoundTimer(30);
+                            if (hudOverlay != null) hudOverlay.setTimerFrames(1800, 1800);
                         }
                     }
                 } catch (Exception ex) {
@@ -122,17 +123,14 @@ public class GameLoop{
                 // décrémente le temps du round, met à jour la vue et change si nécessaire
                 roundTimeRemaining--; 
                 gameManager.setRoundTimeSave(roundTimeRemaining);
-                if (roundTimeRemaining % 60 == 0) {
-                    int secondsLeft = roundTimeRemaining / 60; 
-                    gamePanel.setRoundTimer(Math.max(0, secondsLeft));
-                }
                 if (roundTimeRemaining <= 0) {
-                    gameManager.nextRound();    
-                    if (onRoundChanged != null) onRoundChanged.run();    
-                    roundTimeRemaining = 1800;      // reset
-                    gamePanel.setRoundTimer(30);    // reset affichage
+                    gameManager.nextRound();
+                    if (onRoundChanged != null) onRoundChanged.run();
+                    roundTimeRemaining = 1800;
                 }
-                
+
+                if (hudOverlay != null) hudOverlay.setTimerFrames(roundTimeRemaining, 1800);
+                                
                 // Vérifier si une équipe a gagné
                 String winner = gameManager.checkGameOver();
                 if (winner != null) {
@@ -160,6 +158,11 @@ public class GameLoop{
     
     public String getWinner() {
         return gameManager.checkGameOver();
+    }
+
+    public void setHudOverlay(HUDOverlay hudOverlay) {
+        this.hudOverlay = hudOverlay;
+        if (hudOverlay != null) hudOverlay.setTimerFrames(roundTimeRemaining, 1800);
     }
 
     public void setWindOverlay(WindOverlay windOverlay) {

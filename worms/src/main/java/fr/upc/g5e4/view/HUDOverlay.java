@@ -64,9 +64,10 @@ public class HUDOverlay extends JComponent {
     }
 
 
-    // Timer    ----------------------------------------------------------------------------------REMPLACER PLUS TARD PAR LE TIMER DU ROUND
-    private int timerRemaining = 30;
-    private int timerTotal = 30;
+    // Timer  
+    // Pour des animations a 60FPS
+    private int timerRemainingFrames = 0;
+    private int timerTotalFrames = 1;
 
     // Bouton sac
     private Rectangle bagBounds;
@@ -137,7 +138,7 @@ public class HUDOverlay extends JComponent {
         int timerX = (w - timerW) / 2;
         int timerY = hudY - timerH - 10;
 
-        float t = timerRemaining / (float) timerTotal;
+        float t = timerRemainingFrames / (float) timerTotalFrames;
         t = Math.max(0f, Math.min(1f, t));
 
         g2.setColor(new Color(0,0,0,120));
@@ -148,7 +149,9 @@ public class HUDOverlay extends JComponent {
 
         g2.setColor(Color.WHITE);
         g2.setFont(g2.getFont().deriveFont(Font.BOLD, 12f));
-        g2.drawString(timerRemaining + "s", timerX + timerW + 10, timerY + 12);
+        int secondsLeft = (int)Math.ceil(timerRemainingFrames / 60.0);
+        g2.drawString(secondsLeft + "s", timerX + timerW + 10, timerY + 12);
+
 
         // ---------- Fond HUD ----------
         g2.setColor(new Color(0, 0, 0, 120));
@@ -178,8 +181,8 @@ public class HUDOverlay extends JComponent {
         int hpY = hudY + 20;
         int shY = hudY + 45;
 
-        drawBar(g2, barX, hpY, barW, barH, hp, hpMax, "PV");
-        drawBar(g2, barX, shY, barW, barH, shield, shieldMax, "Bouclier");
+        drawBar(g2, barX, hpY, barW, barH, shield, shieldMax, "Bouclier", new Color(120, 170, 255, 220)); //Bleu
+        drawBar(g2, barX, shY, barW, barH, hp, hpMax, "PV", new Color(120, 200, 120, 220)); //Vert
 
         // ---------- Arme équipée + munitions ----------
         int weaponBoxW = 150;
@@ -211,7 +214,7 @@ public class HUDOverlay extends JComponent {
 
         // icône + nom + munitions
         if (weaponName != null) {
-            String key = weaponName.toLowerCase();  // clé pour les images
+            String key = normalizeKey(weaponName);  // clé pour les images
             BufferedImage wi = weaponImages.get(key); 
 
             if (wi != null) {
@@ -228,11 +231,13 @@ public class HUDOverlay extends JComponent {
 
             String ammoText;
             if (eq == null) {
-                ammoText = "--";              // rien équipé via inventaire
-            } else if (eq.remainingUses == null || eq.isInfinite) {
-                ammoText = "∞";               
+                ammoText = "--";
+            } else if (eq.isInfinite) {
+                ammoText = "∞";
             } else {
-                ammoText = String.valueOf(eq.remainingUses); 
+                String tour = Math.max(0, eq.getRemainingUseThisTurn()) + "/" + eq.getMaxUsages();
+                String stock = (eq.remainingUses == null) ? "0" : String.valueOf(eq.remainingUses);
+                ammoText = tour + " | " + stock;
             }
 
             g2.drawString(ammoText, weaponBoxX + 58, weaponBoxY + 45);
@@ -262,19 +267,19 @@ public class HUDOverlay extends JComponent {
         } 
     }
 
-    private void drawBar(Graphics2D g2, int x, int y, int w, int h, double value, double max, String label) { // Dessine une barre (PV, bouclier, etc)
-        float t = (max <= 0) ? 0f : (float)(value / max);
+    // Dessine une barre 
+    private void drawBar(Graphics2D g2, int x, int y, int w, int h, double value, double max, String label, Color fillColor) {
+        float t = (max <= 0)? 0f : (float)(value / max);
         t = Math.max(0f, Math.min(1f, t));
-
         g2.setColor(new Color(0,0,0,140));
         g2.fillRoundRect(x, y, w, h, 12, 12);
 
-        g2.setColor(new Color(120, 200, 120, 220));
+        g2.setColor(fillColor);
         g2.fillRoundRect(x, y, (int)(w * t), h, 12, 12);
 
         g2.setColor(Color.WHITE);
         g2.setFont(g2.getFont().deriveFont(Font.BOLD, 12f));
-        g2.drawString(label + " : " + (int)value, x + w + 15, y + 13);
+        g2.drawString(label + " : " + (int)value, x + 8, y + 11);
     }
 
     private void handleMousePressed(MouseEvent e) { // Clic sur le sac à dos
@@ -303,6 +308,23 @@ public class HUDOverlay extends JComponent {
         bagBounds = new Rectangle(bagX, bagY, bagSize, bagSize);
     }
     
+    private String normalizeKey(String s) { //pour les images ne pas avoir de problème avec les noms d'armes
+        if (s == null) return null;
+        return s.toLowerCase().replaceAll("[^a-z0-9]", "");
+    }   
+
+    /**
+     * Définit le timer en nombre de frames (60 FPS).
+     * @param remainingFrames 
+     * @param totalFrames 
+     */
+    public void setTimerFrames(int remainingFrames, int totalFrames) {
+        this.timerRemainingFrames = Math.max(0, remainingFrames);
+        this.timerTotalFrames = Math.max(1, totalFrames);
+        repaint();
+    }
+
+
     @Override
     public boolean contains(int x, int y) { // Clics uniquement si sur le sac à dos
         computeLayout();  //met à jour les positions des éléments

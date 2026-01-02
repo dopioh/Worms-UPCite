@@ -772,7 +772,8 @@ public class GameManager {
         Gadget newGadget = null;
 
         // Empeche la casse 
-        String normalizedName = itemName.toLowerCase();
+        String normalizedName = itemName.toLowerCase().replaceAll("[^a-z0-9]", "");
+
 
         switch (normalizedName) {
             case "ak47":
@@ -806,6 +807,17 @@ public class GameManager {
             gamePanel.getTrajectoryView().setWeapon(newWeapon);
             // met à jour l'arme dans la vue
             updateWeaponInView(activeWormController.getModel(), newWeapon);
+        }
+    }
+    
+    public void setObjectFromInventory(InventoryJson item) {
+        if (item == null) return;
+
+        setObjectFromInventory(item.name);//equipe l'arme
+
+        // lie l'item inventaire au worm controller (pour maxUsages/remainingUses)
+        if (activeWormController != null) {
+            activeWormController.setEquippedInventoryItem(item);
         }
     }
 

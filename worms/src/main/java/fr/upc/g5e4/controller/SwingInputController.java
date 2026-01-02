@@ -9,10 +9,6 @@ import org.jbox2d.common.Vec2;
 import fr.upc.g5e4.model.GameManager;
 import fr.upc.g5e4.model.CharacterModel;
 import fr.upc.g5e4.view.*;
-import fr.upc.g5e4.controller.SwingInputController;
-import fr.upc.g5e4.controller.CharacterController;
-
-import javax.swing.JFrame;
 
 /** 
  * Classe pour les Entrées Clavier Souris qui reprend celle de Nassim
@@ -29,11 +25,6 @@ public class SwingInputController extends JPanel{
     private boolean isAiming = false;  // affichage de la trajectoire
     private double shootingAngle = 0;  // angle de visée en degrés
 
-    private HUDOverlay hudOverlay;
-    private InventoryOverlay inventoryOverlay; 
-    private JFrame gameFrame;
-    private PauseOverlay pauseOverlay;
-    private HelpOverlay helpOverlay;
     private OverlayManager overlayManager;
 
 
@@ -94,48 +85,6 @@ public class SwingInputController extends JPanel{
     }
 
     /**
-     * Définit l'overlay d'inventaire pour ce contrôleur.
-     * 
-     * @param overlay l'InventoryOverlay à associer à ce contrôleur
-     */
-    public void setInventoryOverlay(InventoryOverlay overlay){
-        this.inventoryOverlay = overlay;
-    }
-
-    /**
-     * Sets the game frame for this controller, allowing it to manage window operations.
-     * @param frame the JFrame instance representing the game window
-     */
-    public void setGameFrame(JFrame frame){
-        this.gameFrame = frame;
-    }
-
-    /**
-     * Définit l'overlay HUD pour ce contrôleur.
-     *
-     * @param hudOverlay HUD du jeu
-     */
-    public void setHudOverlay(HUDOverlay hudOverlay) {
-        this.hudOverlay = hudOverlay;
-    }
-
-    /**
-     * Définit l'overlay de pause pour ce contrôleur.
-     * @param overlay
-     */
-    public void setPauseOverlay(PauseOverlay overlay) {
-        this.pauseOverlay = overlay;
-    }
- 
-    /**
-     * Définit l'overlay d'aide pour ce contrôleur.
-     * @param overlay
-     */
-    public void setHelpOverlay(HelpOverlay overlay) {
-        this.helpOverlay = overlay;
-    }
-
-    /**
      * Définit le gestionnaire d'overlays
      *
      * @param overlayManager gestionnaire des overlays
@@ -151,7 +100,22 @@ public class SwingInputController extends JPanel{
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                //System.out.println("key pressed");
+                //Ici on gère les overlays avant tout le reste
+                if (overlayManager != null) {
+                    if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                        overlayManager.togglePause();
+                        return;
+                    }
+                    if (e.getKeyCode() == KeyEvent.VK_I) {
+                        overlayManager.toggleInventory();
+                        return;
+                    }
+                }
+                //Overlays bloquent les entrées de gameplay
+                if (overlayManager != null && overlayManager.isBlockingGameplayInput()) {
+                    return;
+                }
+                
                 switch(e.getKeyCode()) {
                     // Personnage
                     case KeyEvent.VK_Q:
@@ -162,26 +126,6 @@ public class SwingInputController extends JPanel{
                         break;
                     case KeyEvent.VK_Z:
                         personnageController.activateJump();
-                        break;
-
-                    // contrôle du viseur - UP/DOWN pour rotation circulaire (0-360°)
-                    case KeyEvent.VK_UP:
-                        // augmenter l'angle (viser plus haut)
-                        shootingAngle += 10;  // +10 degrés
-                        if (shootingAngle >= 360) {
-                            shootingAngle -= 360;  // revenir à 0 si dépassement
-                        }
-                        isAiming = true;
-                        updateTrajectory();
-                        break;
-                    case KeyEvent.VK_DOWN:
-                        // diminuer l'angle (viser plus bas)
-                        shootingAngle -= 10;  // -10 degrés
-                        if (shootingAngle < 0) {
-                            shootingAngle += 360;  // revenir à 360 si négatif
-                        }
-                        isAiming = true;
-                        updateTrajectory();
                         break;
 
                     // Caméra déplacements
@@ -218,18 +162,6 @@ public class SwingInputController extends JPanel{
                     case KeyEvent.VK_P:
                         personnageController.toggleFlyMode();
                         System.out.println("SUPERMAAAAAAAAAAAAN (todo : ajouter cape)");
-                        break;
-                    // Touche Echap pour ouvrir les parametres
-                    case KeyEvent.VK_ESCAPE:
-                        if (overlayManager != null) {
-                            boolean v = (pauseOverlay != null && pauseOverlay.isPauseVisible());
-                            overlayManager.togglePause();
-                        }
-                        break;
-                    case KeyEvent.VK_I:
-                        if (overlayManager != null) {
-                            overlayManager.toggleInventory();
-                        }
                         break;
                     
                     // Touche H pour ajouter un item de test au nametag
@@ -287,17 +219,19 @@ public class SwingInputController extends JPanel{
             @Override
             public void mousePressed(MouseEvent e) {
                 requestFocusInWindow();  // Récupérer le focus au clic
-                if (overlayManager != null && overlayManager.isBlockingGameplayInput()) {
-                    return;
+
+                if (overlayManager != null) {
+                    // si overlay bloque le gameplay → pas de tir
+                    if (overlayManager.isBlockingGameplayInput()) return;
+
+                    // si clic sur HUD → pas de tir
+                    if (overlayManager.isHudHit(e.getX(), e.getY())) return;
+
+                    // si inventaire ouvert → pas de tir (l'inventaire gère ses clics)
+                    if (overlayManager.isInventoryVisible()) return;
                 }
-                if (hudOverlay != null && hudOverlay.contains(e.getX(), e.getY())) {    // Si le clic tombe sur un élément UI du HUD , ne pas tirer
-                    return;
-                }
+
                 if (e.getButton() == MouseEvent.BUTTON1) {
-                    // Vérifier que l'inventaire n'est pas ouvert pour éviter le double tir
-                    if (inventoryOverlay != null && inventoryOverlay.isInventoryVisible()) {
-                        return;  // L'inventaire gère le tir
-                    }
                     handleFireAt(e.getX(), e.getY());
                 }
             }

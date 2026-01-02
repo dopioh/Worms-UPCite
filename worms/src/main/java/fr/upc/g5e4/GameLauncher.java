@@ -245,9 +245,12 @@ public class GameLauncher{
 
         hudOverlay = new HUDOverlay(gameManager);
         hudOverlay.setBounds(0, 0, width, height);
+        hudOverlay.setInventoryOverlay(inventoryOverlay);
 
         inventoryOverlay = new InventoryOverlay(new java.util.ArrayList<>());
         inventoryOverlay.setBounds(0, 0, width, height);
+        inventoryOverlay.setGameManager(gameManager);
+        inventoryOverlay.setInventory(gameManager.getCurrentTeam().getInventory());
 
         pauseOverlay = new PauseOverlay();
         pauseOverlay.setBounds(0, 0, width, height);
@@ -270,7 +273,7 @@ public class GameLauncher{
         gameLayeredPane.add(pauseOverlay, JLayeredPane.POPUP_LAYER);
         gameLayeredPane.add(helpOverlay, JLayeredPane.DRAG_LAYER);
 
-        OverlayManager overlayManager = new OverlayManager(gameLayeredPane,pauseOverlay,helpOverlay,inventoryOverlay,hudOverlay);
+        OverlayManager overlayManager = new OverlayManager(gameLayeredPane,pauseOverlay,helpOverlay,inventoryOverlay,hudOverlay, gameManager);
         overlayManager.installListeners();
         overlayManager.bringToFront();  
         
@@ -283,9 +286,15 @@ public class GameLauncher{
         
         // Créer et démarrer la game loop
         this.gameLoop = new GameLoop(gameManager);
-        this.gameLoop.setWindOverlay(windOverlay);
-        this.gameLoop.setOnRoundChanged(() -> {inventoryOverlay.setInventory(gameManager.getCurrentTeam().getInventory());});
         gameManager.setGameLoop(gameLoop);
+        
+        this.gameLoop.setWindOverlay(windOverlay);
+        this.gameLoop.setHudOverlay(hudOverlay);
+        //Update de l'inventaire à chaque changement de round
+        this.gameLoop.setOnRoundChanged(() -> {
+            inventoryOverlay.setInventory(gameManager.getCurrentTeam().getInventory());
+            overlayManager.setInventoryVisible(false);
+        });
         
         // Timer pour vérifier la fin de partie
         Timer checkGameOverTimer = new Timer(1000, e -> {
@@ -298,6 +307,8 @@ public class GameLauncher{
             }
         });
         checkGameOverTimer.start();
+        gameLayeredPane.revalidate();
+        gameLayeredPane.repaint();
     }
 
     private void setupGlobalKeyBindings() {

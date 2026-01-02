@@ -7,7 +7,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale.Category;
 
 import fr.upc.g5e4.model.InventoryModel.InventoryJson;
 import fr.upc.g5e4.controller.SwingInputController;
@@ -35,7 +34,7 @@ public class InventoryOverlay extends JComponent {
     private enum Category {
         ARMES, GADGET, CRAFT
     }
-
+    
     private String equippedItemKey = null; 
     private Category currentCategory = Category.ARMES;
 
@@ -44,7 +43,7 @@ public class InventoryOverlay extends JComponent {
     private boolean visible = false;
     private MouseAdapter fireListener; 
     private List<InventoryJson> lastFiltered = new ArrayList<>();
-
+    
     // liste des items
     private final List<Rectangle> itemBounds = new ArrayList<>();
     private int selectedIndex = -1;
@@ -52,6 +51,8 @@ public class InventoryOverlay extends JComponent {
 
     // zone du panneau inventaire
     private Rectangle panelBounds;
+
+    private Rectangle closeButtonBounds;   // bouton pour fermer
 
     private GameManager gameManager;
 
@@ -104,6 +105,7 @@ public class InventoryOverlay extends JComponent {
 
     public InventoryOverlay(List<InventoryJson> inventory) {
         this.inventory = inventory;
+        setVisible(false);  
         setOpaque(false);
         loadItemImages(); //Pour les icones des armes/gadgets
         
@@ -212,7 +214,13 @@ public class InventoryOverlay extends JComponent {
         
         computeLayout();
 
-        // === CLIC SUR CATEGORIES ===
+        // Ferme au clic sur le bouton X
+        if (closeButtonBounds != null && closeButtonBounds.contains(x, y)) {
+            setInventoryVisible(false);
+            return;
+        }
+
+        // Clic sur Catégories
         if (armesTab != null && armesTab.contains(x, y)) {
             currentCategory = Category.ARMES;
             selectedIndex = -1;
@@ -239,7 +247,7 @@ public class InventoryOverlay extends JComponent {
 
 
         // inventaire ouvert
-        // clic dans le panneau -> sélection / équipement
+        // clic dans le panneau
         if (panelBounds != null && panelBounds.contains(x, y)) {
             for (int i = 0; i < itemBounds.size(); i++) {
                 Rectangle r = itemBounds.get(i);
@@ -250,10 +258,9 @@ public class InventoryOverlay extends JComponent {
                     return;
                 }
             }
-            return; // clic dans le panneau mais pas sur un item -> rien
+            return; 
         }
 
-        // clic en dehors du panneau -> bloqué quand l'inventaire est ouvert
         return;
     }
 
@@ -284,6 +291,22 @@ public class InventoryOverlay extends JComponent {
 
         g2.setColor(Color.WHITE);
         g2.drawString("INVENTAIRE", panelX + 20, panelY + 30);
+
+
+        // Bouton pour fermer
+        int closeSize = 26;
+        int closeX = panelX + panelW - closeSize - 12;
+        int closeY = panelY + 10;
+
+        closeButtonBounds = new Rectangle(closeX, closeY, closeSize, closeSize);
+
+        g2.setColor(new Color(180, 60, 60));
+        g2.fillRoundRect(closeX, closeY, closeSize, closeSize, 8, 8);
+
+        g2.setColor(Color.WHITE);
+        g2.setStroke(new BasicStroke(2.2f));
+        g2.drawLine(closeX + 7, closeY + 7, closeX + closeSize - 7, closeY + closeSize - 7);
+        g2.drawLine(closeX + closeSize - 7, closeY + 7, closeX + 7, closeY + closeSize - 7);
 
         int tabY = panelY + 35;
         int tabW = 90;
@@ -355,33 +378,64 @@ public class InventoryOverlay extends JComponent {
             }
         }
 
-        // --- Description (hover > équipé) ---
+        // Description sur Hover
         InventoryJson infoItem = null;
         if (hoveredIndex >= 0 && hoveredIndex < lastFiltered.size()) {
-            infoItem = lastFiltered.get(hoveredIndex);
+                infoItem = lastFiltered.get(hoveredIndex);
         } else if (equippedItem != null) {
             infoItem = equippedItem;
         }
 
         if (infoItem != null) {
-            String key = infoItem.name.toLowerCase();
-            String desc = itemDescriptions.getOrDefault(key, ""); 
+            String key = infoItem.name == null ? "" : infoItem.name.toLowerCase();
+            String baseDesc = itemDescriptions.getOrDefault(key, "");
+
+            // Stock total
+            String stockText = (infoItem.isInfinite || infoItem.remainingUses == null) ? "∞" : String.valueOf(infoItem.remainingUses);
+
+            // Tour
+            String tourText = infoItem.isInfinite? "∞" : (Math.max(0, infoItem.getRemainingUseThisTurn()) + "/" + infoItem.getMaxUsages());
 
             int boxX = panelX + 20;
             int boxW = panelW - 40;
             int boxH = 60;
             int boxY = panelY + panelH - boxH - 15;
 
+            // fond
             g2.setColor(new Color(0,0,0,120));
             g2.fillRoundRect(boxX, boxY, boxW, boxH, 12, 12);
 
+            int leftPad = 10;
+            int rightPad = 10;
+
+            // on réserve une zone à droite pour Tour/Stock
+            //int rightBlockW = 120;  
+            //int leftW = boxW - rightBlockW - leftPad - rightPad; 
+
+            // nom
             g2.setColor(Color.WHITE);
             g2.setFont(g2.getFont().deriveFont(Font.BOLD, 12f));
-            g2.drawString(infoItem.name, boxX + 10, boxY + 20);
+            g2.drawString(infoItem.name, boxX + leftPad, boxY + 20);
 
+            // description 
             g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 11f));
-            g2.drawString(desc, boxX + 10, boxY + 40);
+            g2.drawString(baseDesc, boxX + leftPad, boxY + 40);
+
+            // Zone STOCK et TOUR a droite 
+            g2.setColor(new Color(255, 220, 80)); // jaune
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 13.5f));
+
+            String line1 = "Tour: " + tourText;
+            String line2 = "Stock: " + stockText;
+
+            FontMetrics fm = g2.getFontMetrics();
+            int rightX = boxX + boxW - rightPad;
+
+            // aligner à droite
+            g2.drawString(line1, rightX - fm.stringWidth(line1), boxY + 22);
+            g2.drawString(line2, rightX - fm.stringWidth(line2), boxY + 44);
         }
+
     }
 
     /**
@@ -403,17 +457,13 @@ public class InventoryOverlay extends JComponent {
      * @param visible true pour afficher l'inventaire, false pour le masquer
      */
     public void setInventoryVisible(boolean visible){
-        this.visible = visible;
+        this.visible = visible;super.setVisible(visible);
 
         if (visible) {
             computeLayout();
             resyncEquippedFromInventory();    
         } else {
             selectedIndex = -1;
-            // Re-synchroniser l'arme équipée quand on ferme l'inventaire
-            if (equippedItem != null) {
-                equipItem(equippedItem);
-            }
         }
         repaint();
     }
@@ -467,7 +517,7 @@ public class InventoryOverlay extends JComponent {
 
 
 
-    private void computeLayout() {
+    private void computeLayout() {  
         int w = getWidth();
         int h = getHeight();
 
@@ -509,6 +559,12 @@ public class InventoryOverlay extends JComponent {
                 row++;
             }
         }
+
+        int closeSize = 26;
+        int closeX = panelX + panelW - closeSize - 12;
+        int closeY = panelY + 10;
+        closeButtonBounds = new Rectangle(closeX, closeY, closeSize, closeSize);
+
     }
 
     /**
@@ -521,11 +577,13 @@ public class InventoryOverlay extends JComponent {
     }
 
     private void equipItem(InventoryJson item) {
+        if (item == null || item.name == null) return;
+
         equippedItemKey = item.name.toLowerCase();
         equippedItem = item;
-        if (gameManager != null) {
-            gameManager.setObjectFromInventory(item.name);
-        }
+
+        //Renvoie au Overlaymanager
+        if (listener != null) listener.onItemEquipped(item);
     }
 
     private void resyncEquippedFromInventory() {

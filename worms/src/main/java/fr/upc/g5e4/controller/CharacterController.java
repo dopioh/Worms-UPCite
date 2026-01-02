@@ -6,6 +6,8 @@ import org.jbox2d.dynamics.World;
 
 import fr.upc.g5e4.model.CharacterModel;
 import fr.upc.g5e4.model.Weapon;
+import fr.upc.g5e4.model.InventoryModel.InventoryJson;
+
 
 /**
  * Contrôleur pour le worm
@@ -26,6 +28,7 @@ public class CharacterController {
     private World world;
     private CharacterModel[] allWorms;
     private Weapon currentWeapon;
+    private InventoryJson equippedInventoryItem;
 
     /**
      * Constructeur de la classe PersonnageController
@@ -66,6 +69,22 @@ public class CharacterController {
      */
     public void setCurrentWeapon(Weapon weapon) {
         this.currentWeapon = weapon;
+    }
+
+    /**
+     * Définit l'arme équipée dans l'inventaire
+     * @param item
+     */
+    public void setEquippedInventoryItem(InventoryJson item) {
+        this.equippedInventoryItem = item;
+    }
+
+    /**
+     * Renvoie l'arme équipée dans l'inventaire
+     * @return
+     */
+    public InventoryJson getEquippedInventoryItem() {
+        return equippedInventoryItem;
     }
 
     /**
@@ -218,7 +237,14 @@ public class CharacterController {
         if (itemController == null || world == null || allWorms == null || currentWeapon == null) { 
             return;
         }
-        
+
+        if (equippedInventoryItem != null) {
+            if (!equippedInventoryItem.registerUseThisTurn()) {
+                System.out.println("[Weapon] Plus d'utilisations disponibles (Tour/Stock).");
+                return;
+            }
+        }
+
         // tirer avec l'arme 
         itemController.useWeaponOnTarget(currentWeapon, model, direction);
     }
@@ -230,6 +256,13 @@ public class CharacterController {
     public void fireWeapon(int direction) {
         if (itemController == null || world == null || allWorms == null || currentWeapon == null) { 
             return;
+        }
+
+        if (equippedInventoryItem != null) {
+            if (!equippedInventoryItem.registerUseThisTurn()) {
+                System.out.println("[Weapon] Plus d'utilisations disponibles (Tour/Stock).");
+                return;
+            }
         }
         
         // tirer avec l'arme 
