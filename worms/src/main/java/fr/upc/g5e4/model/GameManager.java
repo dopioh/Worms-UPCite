@@ -17,6 +17,7 @@ import fr.upc.g5e4.model.weapons.*;
 import fr.upc.g5e4.model.InventoryModel.InventoryJson;
 import fr.upc.g5e4.model.InventoryModel.InventoryRoot;
 import fr.upc.g5e4.model.PhysicsWorld.WaterSensorListener;
+import fr.upc.g5e4.model.io.CustomTeamData;
 //import fr.upc.g5e4.model.WindModel.Dir;
 import fr.upc.g5e4.model.camera.CameraModel;
 import fr.upc.g5e4.model.io.SaveData;
@@ -105,7 +106,7 @@ public class GameManager {
      * @see GameLauncher
      * @see PhysicsWorld#createGroundFromModel()
      */
-    public GameManager(int nbrEquipe) {
+    public GameManager() {
         // Initialiser le système audio en arrière-plan pour éviter le lag au premier tir
         //this.saveDataBool = false;
         SoundPlayer.initialize();
@@ -162,18 +163,18 @@ public class GameManager {
         this.listTeamInital = new ArrayList<>();
 
         // initialise le nbr de worm par equipe
-        this.nbrWormsByTeam = 3;
+        this.nbrWormsByTeam = TeamConfig.NBR_WORM_EQUIPE;
 
         // Récupérer le skin sélectionné dans les paramètres
         String selectedSkin = SkinSettings.getCurrentSkin();
 
         // creation des equipes selon le nombre que on veut
-        createTeam(nbrEquipe, selectedSkin);
+        createTeam(TeamConfig.NBR_EQUIPE, TeamConfig.aCustomForATeam);
 
         // initialisation des index 
         currentTeamIndex = 0;
         this.currentTeam = listTeamInital.get(currentTeamIndex).getTeamModel();
-        this.teamCursor = new int[nbrEquipe];
+        this.teamCursor = new int[TeamConfig.NBR_EQUIPE];
         this.activeWormIndex = 0;
         this.activeWormController = new CharacterController(listTeamInital.get(currentTeamIndex).getTeamModel().getWorm(activeWormIndex));
         
@@ -691,7 +692,7 @@ public class GameManager {
     }
     
     // Initialiser un nombre N d'equipes avec un skin spécifique
-    public void createTeam(int number, String skinPath){
+    public void createTeam(int number, ArrayList<CustomTeamData> customTeam){
         int mapWidth = model.getWidth();
         int margin = 100; // Marge pour ne pas spawner au bord
         int usableWidth = mapWidth - (2 * margin); // Espace utilisable
@@ -699,7 +700,20 @@ public class GameManager {
         int index = 0;
 
         for (int i = 0; i < number; i++){
+
+            String skinPath;
+            CustomTeamData ctd;
+            if (customTeam != null && i < customTeam.size()){
+                ctd = customTeam.get(i);
+                skinPath = ctd.getSkin().getFilePath();
+            } else {
+                ctd = new CustomTeamData();
+                skinPath = "/worm.png";
+            }
+            
+
             this.nbrTeams++;
+            
 
             // Répartir les équipes uniformément sur la map
             //int startX = margin + sectionWidth * (i + 1);
@@ -714,7 +728,7 @@ public class GameManager {
 
             index++;
 
-            String name = "Team " + this.nbrTeams;
+            String name = ctd.getTeamName();
 
             TeamInitialisation temp = new TeamInitialisation(model, world, name, this.nbrWormsByTeam, startX, skinPath);
     

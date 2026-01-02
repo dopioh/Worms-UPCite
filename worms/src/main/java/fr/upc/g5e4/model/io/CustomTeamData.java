@@ -45,13 +45,36 @@ public class CustomTeamData {
     // Que on fou dans un json
     // et ca sera assembler quand on va charger une game
 
-    private ArrayList<String> WormsName; // pour x worms
+    private ArrayList<String> wormsName; // pour x worms
 
-    public CustomTeamData(String teamName, SkinModel skin, int nbrWorms, ArrayList<String> WormsName) {
+    public CustomTeamData(String teamName, SkinModel skin, int nbrWorms, ArrayList<String> wormsName) {
         this.teamName = teamName;
         this.skin = skin;
         this.nbrWorms = nbrWorms;
-        this.WormsName = WormsName;
+        this.wormsName = wormsName;
+    }
+
+    /**
+     * Constructeur avec un nombre fixe de Worms (6)
+     * @param teamName Nom de l'equipe
+     * @param skin skin attribue a l'equipe
+     * @param wormsName ArrayList de nom des Worms
+     */
+    public CustomTeamData(String teamName, SkinModel skin, ArrayList<String> wormsName){
+        this(teamName,skin,6,wormsName);
+    }
+
+    /**
+     * Equipe par defaut
+     */
+    public CustomTeamData(){
+        teamName = "Default";
+        skin = new SkinModel("default", "/wormPixel.png", true);
+        nbrWorms = 6;
+        wormsName = new ArrayList<>();
+        for (int i = 0 ; i < nbrWorms ; i++){
+            wormsName.add(String.valueOf(i));
+        }
     }
 
     // Getter
@@ -68,7 +91,7 @@ public class CustomTeamData {
     }
 
     public ArrayList<String> getWormsName() {
-        return this.WormsName;
+        return this.wormsName;
     }
 
 }

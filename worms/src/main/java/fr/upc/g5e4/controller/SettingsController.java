@@ -3,6 +3,7 @@ package fr.upc.g5e4.controller;
 import fr.upc.g5e4.GameLauncher;
 import fr.upc.g5e4.model.MapConfig;
 import fr.upc.g5e4.view.SettingsView;
+import fr.upc.g5e4.view.TeamSettingsView;
 
 /**
  * Contrôleur pour la vue des réglages
@@ -13,9 +14,9 @@ public class SettingsController {
     private SettingsView view;
     private GameLauncher gameLauncher;
     
-    public SettingsController(GameLauncher gameLauncher) {
+    public SettingsController(GameLauncher gameLauncher, TeamSettingsView teamSettingsView) {
         this.gameLauncher = gameLauncher;
-        this.view = new SettingsView();
+        this.view = new SettingsView(teamSettingsView);
         initializeMapSettings();
         addListeners();
     }

@@ -1,5 +1,5 @@
 {
-  "name": "NassNass",
+  "name": "Joueur",
   "xp": 0,
   "money": 0,
   "tabSkinPlayer": [
@@ -19,25 +19,23 @@
       "unlocked": false
     },
     {
-      "skinName": "Base",
-      "filePath": "/wormPixel.png",
+      "skinName": "Worm Nerd Edition",
+      "filePath": "/wormNerd.png",
       "unlocked": false
     },
     {
-      "skinName": "Base",
-      "filePath": "/wormPixel.png",
+      "skinName": "Worm Cuisto Edition",
+      "filePath": "/wormCuisto.png",
       "unlocked": false
     },
     {
-      "skinName": "Base",
-      "filePath": "/wormPixel.png",
-      "unlocked": false
-    },
-    {
-      "skinName": "Base",
-      "filePath": "/wormPixel.png",
+      "skinName": "Worm Costar Edition",
+      "filePath": "/wormCostar.png",
       "unlocked": false
     }
   ],
-  "customTeamManager": {}
+  "customTeamManager": {
+    "nbrCustomTeam": 0,
+    "listCustomTeamData": []
+  }
 }

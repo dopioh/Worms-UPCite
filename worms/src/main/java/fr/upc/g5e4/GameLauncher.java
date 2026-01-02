@@ -71,13 +71,12 @@ public class GameLauncher{
      */
     public GameLauncher(boolean screen, boolean skipMenu) throws IOException {
         attributionPlayerDataController();
-        testModifPlayerData();
 
         this.screen = screen;
         
         if (!screen) {
             // Mode headless pour les tests (pas d'interface graphique)
-            this.gameManager = new GameManager(2);
+            this.gameManager = new GameManager();
             this.gamePanel = gameManager.getGamePanel();
             this.gameLoop = new GameLoop(gameManager);
             this.gameLoop.timerStart();
@@ -229,7 +228,7 @@ public class GameLauncher{
         if (save){
             this.gameManager = new GameManager(saveData);
         } else {
-            this.gameManager = new GameManager(3);  // 3 équipes pour tester le scroll
+            this.gameManager = new GameManager();  // 3 équipes pour tester le scroll
         }
 
         this.gamePanel = gameManager.getGamePanel();
@@ -452,24 +451,18 @@ public class GameLauncher{
         this.playerDataController = new PlayerDataController();
 
         if (playerSave){
+            System.out.println("Il y'a une save");
             this.playerDataController.chargerJoueur();
         } else {
+            System.out.println("Il y'a pas de save");
             this.playerDataController.nouveauJoueur();
             this.playerDataController.sauvegarderJoueur();
         }
     }
 
-    /**
-     * Methode useless juste pour te montrer comment ecrire dans le PlayerData
-     * Pense a tjr save des que tu modifies une valeur, le joueur peut quitter le jeu a n'importe quel moment
-     * 
-     * J'appelle cette methode dans gameLauncher mais toi tu peux recup PlayerDataController en la passant en parametre 
-     * Et la recup pour tes fichiers Boutiques BattlePass
-     */
-    public void testModifPlayerData(){
-        this.playerDataController.getPlayerData().setName("NassNass");
-        this.playerDataController.sauvegarderJoueur();
-    }
+    public PlayerDataController getPlayerDataController(){
+        return this.playerDataController;
+    } 
 
     public static void main(String[] args) throws IOException{
 
