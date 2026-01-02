@@ -856,7 +856,7 @@ public class GameManager {
                 newWeapon = new Grenade();
                 System.out.println("[Inventaire] Arme équipée depuis inventaire : Grenade");
                 break;
-            case "rocketlauncher":
+            case "bazooka":
                 newWeapon = new RocketLauncher();
                 System.out.println("[Inventaire] Arme équipée depuis inventaire : Rocket Launcher");
                 break;
@@ -866,11 +866,109 @@ public class GameManager {
         }
 
         if (newWeapon != null && activeWormController != null) {
+            // Déséquiper le gadget (on ne peut pas avoir 2 choses dans les mains)
+            clearGadgetSprite();
+            
             activeWormController.setCurrentWeapon(newWeapon);
             // Met à jour la trajectoire
             gamePanel.getTrajectoryView().setWeapon(newWeapon);
             // met à jour l'arme dans la vue
             updateWeaponInView(activeWormController.getModel(), newWeapon);
+        }
+    }
+    
+    /**
+     * équipe un gadget depuis l'inventaire et affiche son sprite
+     * @param gadgetName Le nom du gadget à équiper
+     */
+    public void setGadgetFromInventory(String gadgetName) {
+        if (activeWormController == null || activeWormController.getModel() == null) {
+            return;
+        }
+
+        System.out.println("[Inventaire] Gadget équipé depuis inventaire : " + gadgetName);
+        
+        // déséquiper l'arme (on ne peut pas avoir 2 choses dans les mains)
+        clearWeaponSprite();
+        
+        // récupérer la vue du worm pour afficher le sprite du gadget
+        fr.upc.g5e4.view.CharacterView charView = null;
+        int wormIndex = getActiveWormIndex();
+        int teamIndex = getCurrentTeamIndex();
+        if (wormIndex >= 0 && teamIndex >= 0 && teamIndex < getListTeamInit().size()) {
+            charView = getListTeamInit().get(teamIndex).getTeamView().getCharacterView(wormIndex);
+        }
+        
+        // afficher le sprite du gadget
+        if (charView != null) {
+            charView.setCurrentGadgetSprite(gadgetName);
+        }
+    }
+    
+    /**
+     * Utilise un gadget depuis l'inventaire (potions, bumper, etc)
+     * @param itemName Le nom du gadget à utiliser
+     */
+    public void useGadgetFromInventory(String itemName) {
+        if (activeWormController == null || activeWormController.getModel() == null) {
+            return;
+        }
+        
+        CharacterModel currentWorm = activeWormController.getModel();
+        
+        // récupérer la vue du worm pour ajouter l'étiquette au nametag et afficher le sprite du gadget
+        fr.upc.g5e4.view.CharacterView charView = null;
+        int wormIndex = getActiveWormIndex();
+        int teamIndex = getCurrentTeamIndex();
+        if (wormIndex >= 0 && teamIndex >= 0 && teamIndex < getListTeamInit().size()) {
+            charView = getListTeamInit().get(teamIndex).getTeamView().getCharacterView(wormIndex);
+        }   
+        
+        // afficher le sprite du gadget
+        if (charView != null) {
+            charView.setCurrentGadgetSprite(itemName);
+        }
+        
+        switch (itemName) {
+            case "PotionHeal":
+                currentWorm.setHealth(Math.min(100, currentWorm.getHealth() + 50));
+                currentWorm.healEffect();
+                // Pas d'étiquette pour le heal
+                System.out.println("[Gadget] Potion Heal : +50 HP");
+                SoundPlayer.play("/sfx/potionheal-sound.wav");
+                break;
+            case "PotionShield":
+                currentWorm.setShield(Math.min(100, currentWorm.getShield() + 25));
+                currentWorm.shieldEffect();
+                // Pas d'étiquette pour le shield
+                System.out.println("[Gadget] Potion Shield : +25 Shield");
+                SoundPlayer.play("/sfx/potionshield-sound.wav");
+                break;
+            case "PotionSpeed":
+                currentWorm.applySpeedBuff();
+                // ajouter l'étiquette via la vue du worm avec timer (20 secondes)
+                if (charView != null) {
+                    charView.getNameTagView().addItemFromResource("/buffs/speed_buff.png", "speed_buff_icon", 20000);
+                }
+                System.out.println("[Gadget] Potion Speed : +50% vitesse");
+                SoundPlayer.play("/sfx/potionspeed-sound.wav");
+                break;
+            case "PotionJump":
+                currentWorm.applyJumpBuff();
+                // ajouter l'étiquette via la vue du worm avec timer (20 secondes)
+                if (charView != null) {
+                    charView.getNameTagView().addItemFromResource("/buffs/jump_buff.png", "jump_buff_icon", 20000);
+                }
+                System.out.println("[Gadget] Potion Jump : +50% saut");
+                SoundPlayer.play("/sfx/potionjump-sound.wav");
+                break;
+            case "Bumper":
+                System.out.println("[Gadget] Bumper utilisé");
+                // SoundPlayer.play("/sfx/bumper-sound.wav");
+                break;
+            default:
+                System.out.println("[Gadget] Gadget inconnu : " + itemName);
+                break;
         }
     }
 
@@ -970,6 +1068,62 @@ public class GameManager {
                         CharacterView characterView = teamView.getCharacterView(i);
                         if (characterView != null) {
                             characterView.setCurrentWeaponSprite(weapon);
+                        }
+                    }
+                    return;
+                }
+            }
+        }
+    }
+
+    /**
+     * désactive le sprite du gadget pour tous les worms de l'équipe active
+     */
+    private void clearGadgetSprite() {
+        if (activeWormController == null || activeWormController.getModel() == null) {
+            return;
+        }
+
+        CharacterModel worm = activeWormController.getModel();
+        for (TeamInitialisation teamInit : listTeamInital) {
+            TeamModel teamModel = teamInit.getTeamModel();
+            CharacterModel[] worms = teamModel.getTabWorms();
+
+            for (int i = 0; i < worms.length; i++) {
+                if (worms[i] == worm) {
+                    TeamView teamView = teamInit.getTeamView();
+                    if (teamView != null) {
+                        CharacterView characterView = teamView.getCharacterView(i);
+                        if (characterView != null) {
+                            characterView.setCurrentGadgetSprite(null);
+                        }
+                    }
+                    return;
+                }
+            }
+        }
+    }
+
+    /**
+     * desactive le sprite de l'arme pour tous les worms de l'équipe active
+     */
+    private void clearWeaponSprite() {
+        if (activeWormController == null || activeWormController.getModel() == null) {
+            return;
+        }
+
+        CharacterModel worm = activeWormController.getModel();
+        for (TeamInitialisation teamInit : listTeamInital) {
+            TeamModel teamModel = teamInit.getTeamModel();
+            CharacterModel[] worms = teamModel.getTabWorms();
+
+            for (int i = 0; i < worms.length; i++) {
+                if (worms[i] == worm) {
+                    TeamView teamView = teamInit.getTeamView();
+                    if (teamView != null) {
+                        CharacterView characterView = teamView.getCharacterView(i);
+                        if (characterView != null) {
+                            characterView.setCurrentWeaponSprite(null);
                         }
                     }
                     return;

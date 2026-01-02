@@ -16,8 +16,36 @@
         {
             "objectType" : "GADGET",
             "name" : "bumper",
-            "maxUsages" : 1,
+            "maxUsages" : 5,
             "isInfinite" : true    
+        },
+        {
+            "objectType" : "GADGET",
+            "name" : "PotionHeal",
+            "maxUsages" : 3,
+            "isInfinite" : false,
+            "remainingUses" : 3
+        },
+        {
+            "objectType" : "GADGET",
+            "name" : "PotionShield",
+            "maxUsages" : 3,
+            "isInfinite" : false,
+            "remainingUses" : 3
+        },
+        {
+            "objectType" : "GADGET",
+            "name" : "PotionSpeed",
+            "maxUsages" : 2,
+            "isInfinite" : false,
+            "remainingUses" : 2
+        },
+        {
+            "objectType" : "GADGET",
+            "name" : "PotionJump",
+            "maxUsages" : 2,
+            "isInfinite" : false,
+            "remainingUses" : 2
         },
         {
             "objectType" : "WEAPON",
