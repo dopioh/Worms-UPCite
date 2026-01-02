@@ -176,7 +176,12 @@
 - Potion (Speed, jump, heal, shield)
 - sprites pour gagdets 
 - sons pour les gadgets
+- Degats de zone 
 
 ### Fixed
 - Double tir
+- Fix tir lié au zoom
+
+### Changed 
+- Suppression des fleches haut et bas, pour une trajectoire seulement avec la souris
 

@@ -17,44 +17,44 @@ public class TerrainDamageWeaponsTest {
     public void testAk47TerrainDamage() {
         Ak47 ak47 = new Ak47();
         
-        // AK-47 doit faire 1 PV de dégâts terrain
-        assertEquals(1, ak47.getTerrainDamage());
+        // AK-47 doit faire 5 PV de dégâts terrain
+        assertEquals(5, ak47.getTerrainDamage());
         
-        // Rayon de blast: 0.5 bloc
-        assertEquals(0.5, ak47.getTerrainBlastRadius(), 0.01);
+        // Rayon de blast: 1.0 bloc
+        assertEquals(1.0, ak47.getTerrainBlastRadius(), 0.01);
     }
 
     @Test
     public void testGrenadeTerrainDamage() {
         Grenade grenade = new Grenade();
         
-        // Grenade doit faire 3 PV de dégâts terrain
-        assertEquals(3, grenade.getTerrainDamage());
+        // Grenade doit faire 7 PV de dégâts terrain
+        assertEquals(7, grenade.getTerrainDamage());
         
-        // Rayon de blast: 2.0 blocs
-        assertEquals(2.0, grenade.getTerrainBlastRadius(), 0.01);
+        // Rayon de blast: 5.0 blocs
+        assertEquals(5.0, grenade.getTerrainBlastRadius(), 0.01);
     }
 
     @Test
     public void testRocketLauncherTerrainDamage() {
         RocketLauncher rocket = new RocketLauncher();
         
-        // RocketLauncher doit faire 5 PV de dégâts terrain
-        assertEquals(5, rocket.getTerrainDamage());
+        // RocketLauncher doit faire 9 PV de dégâts terrain
+        assertEquals(9, rocket.getTerrainDamage());
         
-        // Rayon de blast: 3.0 blocs
-        assertEquals(3.0, rocket.getTerrainBlastRadius(), 0.01);
+        // Rayon de blast: 7.0 blocs
+        assertEquals(7.0, rocket.getTerrainBlastRadius(), 0.01);
     }
 
     @Test
     public void testBaseballBatTerrainDamage() {
         BaseballBat bat = new BaseballBat();
         
-        // le baseball bat fait 1 PV de dégâts terrain (arme de mêlée)
-        assertEquals(1, bat.getTerrainDamage());
+        // le baseball bat fait 5 PV de dégâts terrain (arme de mêlée)
+        assertEquals(5, bat.getTerrainDamage());
         
-        // rayon de blast: 0.5 bloc
-        assertEquals(0.5, bat.getTerrainBlastRadius(), 0.01);
+        // rayon de blast: 0.0 bloc (pas d'explosion)
+        assertEquals(0.0, bat.getTerrainBlastRadius(), 0.01);
     }
 
     @Test
@@ -63,7 +63,7 @@ public class TerrainDamageWeaponsTest {
         Grenade grenade = new Grenade();
         RocketLauncher rocket = new RocketLauncher();
         
-        // vérifier l'ordre: AK-47 (1) < Grenade (3) < RocketLauncher (5)
+        // vérifier l'ordre: AK-47 (5) < Grenade (7) < RocketLauncher (9)
         assertTrue(ak47.getTerrainDamage() < grenade.getTerrainDamage());
         assertTrue(grenade.getTerrainDamage() < rocket.getTerrainDamage());
     }
@@ -74,7 +74,7 @@ public class TerrainDamageWeaponsTest {
         Grenade grenade = new Grenade();
         RocketLauncher rocket = new RocketLauncher();
         
-        // vérifier l'ordre: AK-47 (0.5) < Grenade (2.0) < RocketLauncher (3.0)
+        // vérifier l'ordre: AK-47 (1.0) < Grenade (5.0) < RocketLauncher (7.0)
         assertTrue(ak47.getTerrainBlastRadius() < grenade.getTerrainBlastRadius());
         assertTrue(grenade.getTerrainBlastRadius() < rocket.getTerrainBlastRadius());
     }
