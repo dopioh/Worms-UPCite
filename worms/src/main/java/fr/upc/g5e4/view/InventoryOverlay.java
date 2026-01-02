@@ -7,12 +7,31 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale.Category;
 
 import fr.upc.g5e4.model.InventoryModel.InventoryJson;
 import fr.upc.g5e4.controller.SwingInputController;
 import fr.upc.g5e4.model.GameManager;
-
+/**
+ * Overlay Swing affichant l'inventaire du joueur
+ *
+ *   Affichage des objets filtrés par catégories (armes, gadgets, craft)
+ *   Sélection et équipement d'un objet
+ *   Survol (hover) pour afficher une description
+ * 
+ * @author Hugo
+ * @version 1.0
+ */
 public class InventoryOverlay extends JComponent {
+
+    /**
+     * Listener permettant à l'overlay d'inventaire de signaler
+     * des actions utilisateur à un contrôleur externe.
+     */
+    public interface Listener {
+        void onItemEquipped(InventoryJson item); //Quand un item est équipé
+    }
+
     private enum Category {
         ARMES, GADGET, CRAFT
     }
@@ -20,6 +39,7 @@ public class InventoryOverlay extends JComponent {
     private String equippedItemKey = null; 
     private Category currentCategory = Category.ARMES;
 
+    private Listener listener;
     private List<InventoryJson> inventory;
     private boolean visible = false;
     private MouseAdapter fireListener; 
@@ -88,8 +108,6 @@ public class InventoryOverlay extends JComponent {
         loadItemImages(); //Pour les icones des armes/gadgets
         
         loadDescriptions();
-        ToolTipManager.sharedInstance().registerComponent(this); // optionnel (tooltips Swing)
-
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -136,12 +154,19 @@ public class InventoryOverlay extends JComponent {
 
     }
 
+    /**
+     * Associe le GameManager afin de synchroniser l'objet équipé avec le jeu.
+     *
+     * @param gameManager gestionnaire principal du jeu
+     */
     public void setGameManager(GameManager gameManager) {
         this.gameManager = gameManager;
     }
 
     /**
-     * FireListener basé sur le SwingInputController (tir vers la souris)
+     * Définit le listener de tir utilisé lorsque l'inventaire est fermé.
+     *
+     * @param inputController contrôleur gérant le tir vers la souris
      */
     public void setFireListener(SwingInputController inputController){      // Listener par défaut
         this.fireListener = new MouseAdapter() {
@@ -153,11 +178,24 @@ public class InventoryOverlay extends JComponent {
             }
         };
     }
-
+    
+    /**
+     * Définit un listener de tir personnalisé (utilisé lorsque l'inventaire est fermé).
+     *
+     * @param listener listener souris
+     */
     public void setFireListener(MouseAdapter listener){        
         this.fireListener = listener;
     }
 
+    /**
+     * Définit le listener qui recevra les événements de l'inventaire.
+     *
+     * @param listener contrôleur chargé de traiter les actions utilisateur
+     */
+    public void setListener(Listener listener) {
+        this.listener = listener;
+    }
     
     private void handleClick(int x, int y) {
         // inventaire fermé -> clic = tir normal
@@ -346,6 +384,11 @@ public class InventoryOverlay extends JComponent {
         }
     }
 
+    /**
+     * Met à jour la liste des objets d'inventaire affichés.
+     *
+     * @param inventory liste des objets (provenant du modèle)
+     */
     public void setInventory(List<InventoryJson> inventory){
         this.inventory = inventory;
         itemBounds.clear();
@@ -354,6 +397,11 @@ public class InventoryOverlay extends JComponent {
         repaint();
     }
     
+    /**
+     * Affiche ou masque l'inventaire.
+     *
+     * @param visible true pour afficher l'inventaire, false pour le masquer
+     */
     public void setInventoryVisible(boolean visible){
         this.visible = visible;
 
@@ -370,7 +418,11 @@ public class InventoryOverlay extends JComponent {
         repaint();
     }
 
-    
+    /**
+     * Indique si l'inventaire est visible.
+     *
+     * @return true si l'inventaire est affiché
+     */
     public boolean isInventoryVisible(){
         return visible;
     }
@@ -459,6 +511,11 @@ public class InventoryOverlay extends JComponent {
         }
     }
 
+    /**
+     * Retourne l'objet actuellement équipé via l'inventaire.
+     *
+     * @return objet équipé, ou null si aucun
+     */
     public InventoryJson getEquippedItem() {
         return equippedItem;
     }
@@ -467,7 +524,7 @@ public class InventoryOverlay extends JComponent {
         equippedItemKey = item.name.toLowerCase();
         equippedItem = item;
         if (gameManager != null) {
-            gameManager.setWeaponFromInventory(item.name);
+            gameManager.setObjectFromInventory(item.name);
         }
     }
 

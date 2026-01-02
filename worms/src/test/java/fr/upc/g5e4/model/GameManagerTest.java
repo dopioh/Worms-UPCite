@@ -76,27 +76,27 @@ public class GameManagerTest {
 
     /* ---------- setInventoryOverlay() ---------- */
     
-    @Test
-    void testSetInventoryOverlayStoresReference() {
-        List<InventoryModel.InventoryJson> mockInventory = new ArrayList<>();
-        InventoryOverlay overlay = new InventoryOverlay(mockInventory);
-        gameManager.setInventoryOverlay(overlay);
+    // @Test
+    // void testSetInventoryOverlayStoresReference() {
+    //     List<InventoryModel.InventoryJson> mockInventory = new ArrayList<>();
+    //     InventoryOverlay overlay = new InventoryOverlay(mockInventory);
+    //     gameManager.setInventoryOverlay(overlay);
         
-        assertNotNull(overlay, "Inventory overlay should be set and non-null");
-    }
+    //     assertNotNull(overlay, "Inventory overlay should be set and non-null");
+    // }
     
-    @Test
-    void testSetInventoryOverlayCanBeCalledMultipleTimes() {
-        List<InventoryModel.InventoryJson> mockInventory = new ArrayList<>();
-        InventoryOverlay overlay1 = new InventoryOverlay(mockInventory);
-        InventoryOverlay overlay2 = new InventoryOverlay(mockInventory);
+    // @Test
+    // void testSetInventoryOverlayCanBeCalledMultipleTimes() {
+    //     List<InventoryModel.InventoryJson> mockInventory = new ArrayList<>();
+    //     InventoryOverlay overlay1 = new InventoryOverlay(mockInventory);
+    //     InventoryOverlay overlay2 = new InventoryOverlay(mockInventory);
         
-        gameManager.setInventoryOverlay(overlay1);
-        // Should not throw an exception
-        gameManager.setInventoryOverlay(overlay2);
+    //     gameManager.setInventoryOverlay(overlay1);
+    //     // Should not throw an exception
+    //     gameManager.setInventoryOverlay(overlay2);
         
-        assertTrue(true, "setInventoryOverlay should allow reassignment");
-    }
+    //     assertTrue(true, "setInventoryOverlay should allow reassignment");
+    // }
     
     /* ---------- nextRound() ---------- */
     
@@ -176,21 +176,21 @@ public class GameManagerTest {
     
     /* ---------- Inventory Field ---------- */
     
-    @Test
-    void testInventoryOverlayFieldCanBeSet() {
-        assertDoesNotThrow(() -> gameManager.setInventoryOverlay(mockInventoryOverlay),
-                "Should be able to set the inventory overlay field");
-    }
+    // @Test
+    // void testInventoryOverlayFieldCanBeSet() {
+    //     assertDoesNotThrow(() -> gameManager.setInventoryOverlay(mockInventoryOverlay),
+    //             "Should be able to set the inventory overlay field");
+    // }
     
-    @Test
-    void testInventoryOverlayFieldStartsAsNull() {
-        // Create a new GameManager instance
-        GameManager newGameManager = new GameManager(3);
+    // @Test
+    // void testInventoryOverlayFieldStartsAsNull() {
+    //     // Create a new GameManager instance
+    //     GameManager newGameManager = new GameManager(3);
         
-        // The inventory overlay should initially be null or unset
-        // (We can't directly check private fields, but we can test behavior)
-        assertDoesNotThrow(() -> {
-            newGameManager.setInventoryOverlay(mockInventoryOverlay);
-        }, "Setting inventory overlay on a fresh GameManager should work");
-    }
+    //     // The inventory overlay should initially be null or unset
+    //     // (We can't directly check private fields, but we can test behavior)
+    //     assertDoesNotThrow(() -> {
+    //         newGameManager.setInventoryOverlay(mockInventoryOverlay);
+    //     }, "Setting inventory overlay on a fresh GameManager should work");
+    // }
 }

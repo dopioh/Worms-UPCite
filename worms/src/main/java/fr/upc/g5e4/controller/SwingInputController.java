@@ -29,10 +29,12 @@ public class SwingInputController extends JPanel{
     private boolean isAiming = false;  // affichage de la trajectoire
     private double shootingAngle = 0;  // angle de visée en degrés
 
+    private HUDOverlay hudOverlay;
     private InventoryOverlay inventoryOverlay; 
     private JFrame gameFrame;
     private PauseOverlay pauseOverlay;
     private HelpOverlay helpOverlay;
+    private OverlayManager overlayManager;
 
 
     /**
@@ -108,13 +110,38 @@ public class SwingInputController extends JPanel{
         this.gameFrame = frame;
     }
 
+    /**
+     * Définit l'overlay HUD pour ce contrôleur.
+     *
+     * @param hudOverlay HUD du jeu
+     */
+    public void setHudOverlay(HUDOverlay hudOverlay) {
+        this.hudOverlay = hudOverlay;
+    }
+
+    /**
+     * Définit l'overlay de pause pour ce contrôleur.
+     * @param overlay
+     */
     public void setPauseOverlay(PauseOverlay overlay) {
         this.pauseOverlay = overlay;
     }
  
-    
+    /**
+     * Définit l'overlay d'aide pour ce contrôleur.
+     * @param overlay
+     */
     public void setHelpOverlay(HelpOverlay overlay) {
         this.helpOverlay = overlay;
+    }
+
+    /**
+     * Définit le gestionnaire d'overlays
+     *
+     * @param overlayManager gestionnaire des overlays
+     */
+    public void setOverlayManager(OverlayManager overlayManager) {
+        this.overlayManager = overlayManager;
     }
 
     //@Override
@@ -181,12 +208,6 @@ public class SwingInputController extends JPanel{
                         if(gameManager != null) gameManager.nextRound();
                         break;
 
-                    // Changement d'arme (touche E)
-                    case KeyEvent.VK_E:
-                        if(gameManager != null) gameManager.switchWeapon();
-                        System.out.println("switch");
-                        break;
-
                     // Sauvegarde de la partie actuel
                     case KeyEvent.VK_J:
                         gameManager.actionPerformed();
@@ -200,21 +221,14 @@ public class SwingInputController extends JPanel{
                         break;
                     // Touche Echap pour ouvrir les parametres
                     case KeyEvent.VK_ESCAPE:
-                        if (pauseOverlay != null) {
-                            boolean v = pauseOverlay.isPauseVisible();
-                            pauseOverlay.setPauseVisible(!v);
-
-                            // si on ferme pause, on ferme aussi help
-                            if (v && helpOverlay != null) {
-                                helpOverlay.setHelpVisible(false);
-                            }
+                        if (overlayManager != null) {
+                            boolean v = (pauseOverlay != null && pauseOverlay.isPauseVisible());
+                            overlayManager.togglePause();
                         }
                         break;
-
                     case KeyEvent.VK_I:
-                        if (inventoryOverlay != null) {
-                        boolean visible = inventoryOverlay.isInventoryVisible();
-                        inventoryOverlay.setInventoryVisible(!visible);
+                        if (overlayManager != null) {
+                            overlayManager.toggleInventory();
                         }
                         break;
                     
@@ -273,6 +287,12 @@ public class SwingInputController extends JPanel{
             @Override
             public void mousePressed(MouseEvent e) {
                 requestFocusInWindow();  // Récupérer le focus au clic
+                if (overlayManager != null && overlayManager.isBlockingGameplayInput()) {
+                    return;
+                }
+                if (hudOverlay != null && hudOverlay.contains(e.getX(), e.getY())) {    // Si le clic tombe sur un élément UI du HUD , ne pas tirer
+                    return;
+                }
                 if (e.getButton() == MouseEvent.BUTTON1) {
                     // Vérifier que l'inventaire n'est pas ouvert pour éviter le double tir
                     if (inventoryOverlay != null && inventoryOverlay.isInventoryVisible()) {

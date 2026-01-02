@@ -4,9 +4,18 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-
+/**
+ * Overlay affichant les commandes d'aide du jeu
+ *  
+ * @author Hugo
+ * @version 1.0
+ */
 public class HelpOverlay extends JComponent {
+    public interface Listener {
+        void onCloseClicked(); // Si close est cliqué
+    }
     private Rectangle closeButtonBounds;    // bouton FERMER
+    private Listener listener;
 
     public HelpOverlay() { // Constructeur
         setOpaque(false);
@@ -18,20 +27,43 @@ public class HelpOverlay extends JComponent {
                 if (!isVisible()) return;
 
                 if (closeButtonBounds != null && closeButtonBounds.contains(e.getPoint())) {
-                    setHelpVisible(false);
+                    if (listener != null) {
+                        listener.onCloseClicked();
+                        return;
+                    }
                 }
                 // aucun autre clic ne fait rien
             }
         });
     }
 
+
+    /**
+     * Affiche ou masque l'overlay d'aide.
+     *
+     * @param v true pour afficher l'aide, false pour la masquer
+     */
     public void setHelpVisible(boolean v) {
         setVisible(v);  
         repaint();
     }
 
+    /**
+     * Indique si l'overlay d'aide est visible.
+     *
+     * @return true si l'overlay est affiché
+     */
     public boolean isHelpVisible() {
         return isVisible();
+    }
+
+    /**
+     * Définit le listener recevant les événements de l'overlay d'aide.
+     *
+     * @param listener contrôleur 
+     */
+    public void setListener(Listener listener) {
+        this.listener = listener;
     }
 
     @Override

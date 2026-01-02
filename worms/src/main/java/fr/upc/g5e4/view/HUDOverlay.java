@@ -9,14 +9,30 @@ import java.awt.image.BufferedImage;
 import fr.upc.g5e4.model.GameManager;
 import fr.upc.g5e4.model.InventoryModel.InventoryJson;
 import fr.upc.g5e4.model.CharacterModel;
-
+/**
+ * OVerlayHUD affichant les informations de l'interface utilisateur pendant le jeu.
+ * 
+ * Affiche les barres de vie et bouclier du personnage actif, l'arme équipée avec munitions
+ * ,un bouton pour ouvrir l'inventaire et un bouton pour finir le tour 
+ * 
+ * @author Hugo
+ * @version 1.0
+ */
 public class HUDOverlay extends JComponent {
+    /**
+     * Listener permettant à l'overlay d'inventaire de signaler
+     * des actions utilisateur à un contrôleur externe.
+     */
+    public interface Listener {
+        void onBagClicked();
+    }
+
+    private Listener listener;
 
     private final GameManager gameManager;
     private InventoryOverlay inventoryOverlay;
     
     // --- Weapon HUD ---
-    private BufferedImage weaponIcon;
     private final java.util.Map<String, BufferedImage> weaponImages = new java.util.HashMap<>();
 
     private void loadWeaponImages() {
@@ -70,11 +86,31 @@ public class HUDOverlay extends JComponent {
         });
     }
 
+    /**
+     * Associe l'overlay d'inventaire au HUD afin de récupérer l'objet équipé
+     * et permettre l'ouverture/fermeture via le bouton sac.
+     *
+     * @param inv overlay d'inventaire
+     */
     public void setInventoryOverlay(InventoryOverlay inv) {
         this.inventoryOverlay = inv;
     }
 
-    // appelé par GameLoop chaque frame mais ne marche pas pour le moment
+    /**
+    * Définit le listener recevant les événements du HUD.
+    *
+    * @param listener contrôleur (ou gestionnaire) qui traitera les clics sur le HUD
+    */
+    public void setListener(Listener listener) {
+        this.listener = listener;
+    }
+
+    // /**
+    // * Met à jour le timer affiché dans le HUD.
+    // *
+    // * @param remainingSeconds temps restant (en secondes)
+    // * @param totalSeconds durée totale du tour (en secondes)
+    // */
     // public void setTimer(int remainingSeconds, int totalSeconds) {
     //     this.timerRemaining = Math.max(0, remainingSeconds);
     //     this.timerTotal = Math.max(1, totalSeconds);
@@ -115,10 +151,8 @@ public class HUDOverlay extends JComponent {
         g2.drawString(timerRemaining + "s", timerX + timerW + 10, timerY + 12);
 
         // ---------- Fond HUD ----------
-        g2.setColor(new Color(255,255,255,235));
+        g2.setColor(new Color(0, 0, 0, 120));
         g2.fillRoundRect(hudX, hudY, hudW, hudH, 18, 18);
-        g2.setColor(new Color(0,0,0,120));
-        g2.drawRoundRect(hudX, hudY, hudW, hudH, 18, 18);
 
         // ---------- Lire PV / Shield ----------
         double hp = 0;
@@ -132,12 +166,8 @@ public class HUDOverlay extends JComponent {
         }
 
         if (worm != null) {
-            try {
-                hp = worm.getHealth();
-                shield = worm.getShield();
-            } catch (Exception ignored) {
-                // worm null ou autre erreur
-            }
+            hp = worm.getHealth();
+            shield = worm.getShield();     
         }
 
         // ---------- Barres PV / Shield ----------
@@ -164,7 +194,7 @@ public class HUDOverlay extends JComponent {
 
         // récupérer l'arme courante
         String weaponName = null;
-        Integer ammo = null; // null = inconnu / infini
+        Integer ammo = null; // null = infini
 
         InventoryJson eq = (inventoryOverlay != null) ? inventoryOverlay.getEquippedItem() : null;
 
@@ -222,7 +252,7 @@ public class HUDOverlay extends JComponent {
 
         bagBounds = new Rectangle(bagX, bagY, bagSize, bagSize);
 
-        g2.setColor(new Color(255,255,255,235));
+        g2.setColor(new Color(0, 0, 0, 120));
         g2.fillRoundRect(bagX, bagY, bagSize, bagSize, 18, 18);
         g2.setColor(new Color(0,0,0,120));
         g2.drawRoundRect(bagX, bagY, bagSize, bagSize, 18, 18);
@@ -250,9 +280,9 @@ public class HUDOverlay extends JComponent {
     private void handleMousePressed(MouseEvent e) { // Clic sur le sac à dos
         computeLayout();
         if (bagBounds != null && bagBounds.contains(e.getPoint())) {
-            if (inventoryOverlay != null) {
-                inventoryOverlay.setInventoryVisible(!inventoryOverlay.isInventoryVisible());
-                repaint();
+            if (listener != null) {
+                listener.onBagClicked();
+                return;
             }
         }
     }
@@ -272,7 +302,7 @@ public class HUDOverlay extends JComponent {
 
         bagBounds = new Rectangle(bagX, bagY, bagSize, bagSize);
     }
-
+    
     @Override
     public boolean contains(int x, int y) { // Clics uniquement si sur le sac à dos
         computeLayout();  //met à jour les positions des éléments

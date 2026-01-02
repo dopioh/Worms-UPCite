@@ -5,6 +5,7 @@ package fr.upc.g5e4.model;
 //import fr.upc.g5e4.model.*;
 //import fr.upc.g5e4.view.*;
 import fr.upc.g5e4.view.GamePanel;
+import fr.upc.g5e4.view.WindOverlay;
 
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -23,6 +24,9 @@ public class GameLoop{
 
     // 30s à 60 FPS
     private int roundTimeRemaining;
+
+    private WindOverlay windOverlay;
+    private Runnable onRoundChanged;
 
     /** Toute les update de Timer se font dans le Constructeur de GameLoop, pas besoin de creer de methode ici*/
 
@@ -58,8 +62,8 @@ public class GameLoop{
                 }
                 
                 // met a jour l'animation du vent
-                if (gameManager.getWindOverlay() != null) {
-                    gameManager.getWindOverlay().update(FIXHZ);
+                if (windOverlay != null) {
+                    windOverlay.update(FIXHZ);
                 }
                 
                 // met a jour le worm actif
@@ -106,6 +110,7 @@ public class GameLoop{
                         CharacterModel activeWorm = currentTeam.getWorm(activeIndex);
                         if (activeWorm == null || activeWorm.isDead()) {
                             gameManager.nextRound();
+                            if (onRoundChanged != null) onRoundChanged.run();
                             roundTimeRemaining = 1800;
                             gamePanel.setRoundTimer(30);
                         }
@@ -122,7 +127,8 @@ public class GameLoop{
                     gamePanel.setRoundTimer(Math.max(0, secondsLeft));
                 }
                 if (roundTimeRemaining <= 0) {
-                    gameManager.nextRound();        
+                    gameManager.nextRound();    
+                    if (onRoundChanged != null) onRoundChanged.run();    
                     roundTimeRemaining = 1800;      // reset
                     gamePanel.setRoundTimer(30);    // reset affichage
                 }
@@ -154,5 +160,13 @@ public class GameLoop{
     
     public String getWinner() {
         return gameManager.checkGameOver();
+    }
+
+    public void setWindOverlay(WindOverlay windOverlay) {
+        this.windOverlay = windOverlay;
+    }
+    
+    public void setOnRoundChanged(Runnable r) {
+        this.onRoundChanged = r;
     }
 }

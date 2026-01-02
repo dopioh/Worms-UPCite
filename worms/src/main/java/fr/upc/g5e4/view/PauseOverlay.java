@@ -5,10 +5,30 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+/**
+ * Overlay affichant le menu de pause du jeu. (Paramètres, aide, etc.)
+ * 
+ * L'overlay intercepte les clics souris uniquement lorsqu'il est visible
+ * {@link #contains(int, int)}
+ * 
+ * @author Hugo
+ * @version 1.0
+ */
 public class PauseOverlay extends JComponent {
+
+    /**
+     * Listener permettant à la vue {@link PauseOverlay} de signaler des actions
+     * au contrôleur 
+     */
+    public interface Listener {
+        void onHelpClicked(); 
+        void onVentClicked();
+        void onSaveClicked();
+    }
+
+    private Listener listener;
     private boolean visible = false;
     private Rectangle helpButtonBounds;
-    private HelpOverlay helpOverlay;
 
     private Rectangle ventButtonBounds; // bouton placeholder
     private Rectangle saveButtonBounds; // bouton placeholder
@@ -20,43 +40,43 @@ public class PauseOverlay extends JComponent {
             public void mouseClicked(MouseEvent e) {
                 if (!visible) return;
 
-                // Clic uniquement sur le bouton HELP
                 if (helpButtonBounds != null && helpButtonBounds.contains(e.getPoint())) {
-                    if (helpOverlay != null) {
-                        boolean v = helpOverlay.isHelpVisible();
-                        helpOverlay.setHelpVisible(!v);
-
-                        // Remonter Help au-dessus 
-                        Container parent = helpOverlay.getParent();
-                        if (parent instanceof JLayeredPane lp) {
-                            lp.moveToFront(helpOverlay);
-                            lp.repaint();
-                        }
-                    }
+                    if (listener != null) listener.onHelpClicked();
                 }
-                if (ventButtonBounds != null && ventButtonBounds.contains(e.getPoint())) {                       // A changer par l'activation du vent MEIIII
-                    System.out.println("[PauseOverlay] Bouton vent placeholder cliqué !");
-                    return; 
+                else if (ventButtonBounds != null && ventButtonBounds.contains(e.getPoint())) {
+                    if (listener != null) listener.onVentClicked();
                 }
-                if (saveButtonBounds != null && saveButtonBounds.contains(e.getPoint())) {                       // A changer par la sauvegarde MEIIII
-                    System.out.println("[PauseOverlay] Bouton save placeholder cliqué !");
-                    return; 
+                else if (saveButtonBounds != null && saveButtonBounds.contains(e.getPoint())) {
+                    if (listener != null) listener.onSaveClicked();
                 }
             }
         });
     }
 
+
+    /**
+     * Associe un listener pour gérer les clics sur les boutons de l'overlay.
+     * @param listener
+     */
+    public void setListener(Listener listener) {
+        this.listener = listener;
+    }
+
+    /**
+     * Affiche ou masque l'overlay de pause.
+     *
+     * @param v true pour afficher la pause, false pour la masquer
+     */
     public void setPauseVisible(boolean v) {
         this.visible = v;
         repaint();
     }
 
-
-    public void setHelpOverlay(HelpOverlay helpOverlay) {
-        this.helpOverlay = helpOverlay;
-    }
-
-
+    /**
+     * Indique si l'overlay de pause est visible.
+     *
+     * @return true si l'overlay est affiché
+     */
     public boolean isPauseVisible() {
         return visible;
     }
@@ -77,7 +97,6 @@ public class PauseOverlay extends JComponent {
         // Panneau
         int panelW = 520;
         int panelH = 360;
-        int footerH = 70; 
         int x = (w - panelW) / 2;
         int y = (h - panelH) / 2;
 
@@ -90,7 +109,6 @@ public class PauseOverlay extends JComponent {
 
         g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 14f));
         int ty = y + 70;
-        //if (ty > y + panelH - footerH) return;                                En cas de debordement
 
         g2.drawString("Audio : (placeholder)", x + 20, ty); ty += 24;
         g2.drawString("Graphismes : (placeholder)", x + 20, ty); ty += 24;
@@ -147,9 +165,9 @@ public class PauseOverlay extends JComponent {
         g2.drawString("Save", saveX + 35, saveY + 22);
     }
 
+    //Garanti que le clic ne soit pris en compte que si l'overlay est visible
     @Override
     public boolean contains(int x, int y) {
-        // Quand la pause n'est pas visible, on laisse passer la souris aux overlays dessous
         return visible && super.contains(x, y);
     }
 }

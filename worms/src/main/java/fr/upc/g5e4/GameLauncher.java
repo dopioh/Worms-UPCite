@@ -242,7 +242,6 @@ public class GameLauncher{
         // VENT
         windOverlay = new WindOverlay(gameManager.getWindModel());
         windOverlay.setBounds(0, 0, width, height);
-        gameManager.setWindOverlay(windOverlay);
         //HUD
         this.hudOverlay = new HUDOverlay(gameManager);
         this.hudOverlay.setBounds(0, 0, width, height);
@@ -253,11 +252,9 @@ public class GameLauncher{
         //How to play
         this.helpOverlay = new HelpOverlay();
         this.helpOverlay.setBounds(0, 0, width, height);
-        this.pauseOverlay.setHelpOverlay(this.helpOverlay);
         
         // Placer les composants dans le layered pane
         gamePanel.setBounds(0, 0, width, height);
-        inventoryOverlay.setBounds(0, 0, width, height);
 
         
         gameLayeredPane.add(gamePanel, JLayeredPane.DEFAULT_LAYER);
@@ -267,17 +264,10 @@ public class GameLauncher{
         gameLayeredPane.add(inventoryOverlay, JLayeredPane.MODAL_LAYER);  
         gameLayeredPane.add(pauseOverlay, JLayeredPane.POPUP_LAYER);
         gameLayeredPane.add(helpOverlay, JLayeredPane.DRAG_LAYER);
-        
-        inventoryOverlay.setGameManager(gameManager);    
-        inventoryOverlay.setFireListener(gameManager.getImputController());
-        gameManager.setInventoryOverlay(inventoryOverlay);
-        gameManager.setHudOverlay(this.hudOverlay); 
 
-        input.setGameFrame(mainFrame);
-        input.setInventoryOverlay(inventoryOverlay);
-        input.setGameManager(gameManager);
-        input.setPauseOverlay(pauseOverlay);
-        input.setHelpOverlay(helpOverlay);  
+        OverlayManager overlayManager = new OverlayManager(gameLayeredPane,pauseOverlay,helpOverlay,inventoryOverlay,hudOverlay);
+        overlayManager.installListeners();
+        overlayManager.bringToFront();  
         
         // Mettre à jour la caméra avec les dimensions actuelles (important si en plein écran)
         if (gameManager.getCamera() != null) {
@@ -286,6 +276,8 @@ public class GameLauncher{
         
         // Créer et démarrer la game loop
         this.gameLoop = new GameLoop(gameManager);
+        this.gameLoop.setWindOverlay(windOverlay);
+        this.gameLoop.setOnRoundChanged(() -> {inventoryOverlay.setInventory(gameManager.getCurrentTeam().getInventory());});
         gameManager.setGameLoop(gameLoop);
         
         // Timer pour vérifier la fin de partie
@@ -413,7 +405,8 @@ public class GameLauncher{
 
     public GameLoop getGameLoop(){
         return this.gameLoop;
-    }
+    }   
+
     
     /**
      * Affiche l'écran de fin de partie avec animation
