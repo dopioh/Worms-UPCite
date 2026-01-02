@@ -231,37 +231,42 @@ public class GameLauncher{
 
         this.gamePanel = gameManager.getGamePanel();
         SwingInputController input = gameManager.getImputController();
+
+        gamePanel.setBounds(0,0,width,height);
         input.setBounds(0, 0, width, height);
         input.setOpaque(false);
 
         
         // Inventaire Initialisation -> GameManager
 
-        this.inventoryOverlay = new InventoryOverlay(gameManager.getListTeamInit().get(0).getTeamModel().getInventory());
-        this.inventoryOverlay.setBounds(0, 0, width, height);
-        // VENT
+        // --- Overlays ---
         windOverlay = new WindOverlay(gameManager.getWindModel());
         windOverlay.setBounds(0, 0, width, height);
-        //HUD
-        this.hudOverlay = new HUDOverlay(gameManager);
-        this.hudOverlay.setBounds(0, 0, width, height);
-        this.hudOverlay.setInventoryOverlay(inventoryOverlay);
-        //Menu parametres 
-        this.pauseOverlay = new PauseOverlay();
-        this.pauseOverlay.setBounds(0, 0, width, height);
-        //How to play
-        this.helpOverlay = new HelpOverlay();
-        this.helpOverlay.setBounds(0, 0, width, height);
-        
-        // Placer les composants dans le layered pane
-        gamePanel.setBounds(0, 0, width, height);
+
+        hudOverlay = new HUDOverlay(gameManager);
+        hudOverlay.setBounds(0, 0, width, height);
+
+        inventoryOverlay = new InventoryOverlay(new java.util.ArrayList<>());
+        inventoryOverlay.setBounds(0, 0, width, height);
+
+        pauseOverlay = new PauseOverlay();
+        pauseOverlay.setBounds(0, 0, width, height);
+
+        helpOverlay = new HelpOverlay();
+        helpOverlay.setBounds(0, 0, width, height);
+
+        pauseOverlay.setPauseVisible(false);
+        helpOverlay.setHelpVisible(false);
+        inventoryOverlay.setInventoryVisible(false);
 
         
         gameLayeredPane.add(gamePanel, JLayeredPane.DEFAULT_LAYER);
         gameLayeredPane.add(input, JLayeredPane.DEFAULT_LAYER);
-        gameLayeredPane.add(windOverlay, JLayeredPane.PALETTE_LAYER);   
+
+        gameLayeredPane.add(windOverlay, JLayeredPane.PALETTE_LAYER);
         gameLayeredPane.add(hudOverlay, JLayeredPane.PALETTE_LAYER);
-        gameLayeredPane.add(inventoryOverlay, JLayeredPane.MODAL_LAYER);  
+
+        gameLayeredPane.add(inventoryOverlay, JLayeredPane.MODAL_LAYER);
         gameLayeredPane.add(pauseOverlay, JLayeredPane.POPUP_LAYER);
         gameLayeredPane.add(helpOverlay, JLayeredPane.DRAG_LAYER);
 
@@ -269,6 +274,8 @@ public class GameLauncher{
         overlayManager.installListeners();
         overlayManager.bringToFront();  
         
+        input.setOverlayManager(overlayManager);
+
         // Mettre à jour la caméra avec les dimensions actuelles (important si en plein écran)
         if (gameManager.getCamera() != null) {
             gameManager.getCamera().setViewSize(width, height);
