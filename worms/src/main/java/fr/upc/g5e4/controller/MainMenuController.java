@@ -39,6 +39,9 @@ public class MainMenuController {
         view.getBtnResume().addActionListener(e -> resumeGame());
         view.getBtnConfig().addActionListener(e -> openConfig());
         view.getBtnQuit().addActionListener(e -> quitGame());
+        
+        // Bouton d'achat de la boutique
+        view.getShopView().getBuyButton().addActionListener(e -> handlePurchase());
     }
 
     private void startNewGame() throws IOException {
@@ -65,6 +68,10 @@ public class MainMenuController {
             SaveLoad sv = new SaveLoad();
             this.gameLauncher.startFromGameSave(sv.getSaveData());
         } catch (IOException e) {
+            JOptionPane.showMessageDialog(gameLauncher.getMainFrame(), 
+            "Impossible de lancer une sauvegarde", 
+            "A Report A Mei", 
+            JOptionPane.INFORMATION_MESSAGE); //determine l'icône qui s'affiche à gauche du texte
             System.out.println(e.getMessage());
         }
 
@@ -83,6 +90,17 @@ public class MainMenuController {
 
         // Afficher les réglages via GameLauncher qui gère la navigation
         gameLauncher.showSettings(settingsController.getView());
+    }
+
+    private void handlePurchase() {
+        // TODO: Implémenter la logique
+        // verif si le joueur a assez d'argent
+        // ajouter l'item à l'inventaire
+        
+        JOptionPane.showMessageDialog(gameLauncher.getMainFrame(), 
+            "Achat effectué avec succès !", 
+            "Boutique", 
+            JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void quitGame() {

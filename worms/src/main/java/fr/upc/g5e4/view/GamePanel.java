@@ -35,6 +35,9 @@ public class GamePanel extends JPanel {
     private BlockGridView blockGridView;
     // ajout: label pour afficher le temps restant (vue)
     private final JLabel roundTimerLabel = new JLabel("Temps restant : 30s");
+
+    //accès direct au GameManager pour le pointeur graphique 
+    private final fr.upc.g5e4.model.GameManager gameManager;
     
     // Pré-création des objets graphiques pour éviter les allocations à chaque frame + access facile aux couleurs
     private static final Color SKY_COLOR = new Color(135, 206, 235);
@@ -50,14 +53,18 @@ public class GamePanel extends JPanel {
      * Constructeur pour N équipes
      */
     public GamePanel(GroundModel model, CameraModel camera, CameraController cameraController, ArrayList<TeamInitialisation> listTeamInitialisation) {
+        this(model, camera, cameraController, listTeamInitialisation, null);
+    }
+
+    // Nouveau constructeur avec GameManager
+    public GamePanel(GroundModel model, CameraModel camera, CameraController cameraController, ArrayList<TeamInitialisation> listTeamInitialisation, fr.upc.g5e4.model.GameManager gameManager) {
         this.model = model;
         this.camera = camera;
-        // init BlockGridView
         this.cameraController = cameraController;
         this.listTeamInitialisation = listTeamInitialisation;
-
         this.trajectoryView = new TrajectoryView();
         this.blockGridView = new BlockGridView();
+        this.gameManager = gameManager;
         initializePanel();
     }
 
@@ -211,9 +218,42 @@ public class GamePanel extends JPanel {
             g2.fill(path);
         }
 
+
         // Équipes de worms
         for (TeamInitialisation t : listTeamInitialisation){
             t.draw(g2);
+        }
+
+        // --- Flèche sur le joueur actif ---
+        try {
+            if (gameManager != null) {
+                int teamIdx = gameManager.getCurrentTeamIndex();
+                int wormIdx = gameManager.getActiveWormIndex();
+                TeamInitialisation teamInit = listTeamInitialisation.get(teamIdx);
+                fr.upc.g5e4.model.TeamModel teamModel = teamInit.getTeamModel();
+                fr.upc.g5e4.model.CharacterModel worm = teamModel.getTabWorms()[wormIdx];
+                if (worm != null && !worm.isDead()) {
+                    org.jbox2d.dynamics.Body body = worm.getBody();
+                    org.jbox2d.common.Vec2 pos = body.getPosition();
+                    int x = (int)(pos.x * fr.upc.g5e4.model.CharacterModel.getPPM());
+                    int y = (int)((24 - pos.y) * fr.upc.g5e4.model.CharacterModel.getPPM());
+                    // Flèche rouge, petite, inversée (pointe vers le bas), et plus haut
+                    int arrowW = 8;
+                    int arrowH = 14;
+                    int yOffset = 60;
+                    int[] xPoints = {x, x - arrowW/2, x + arrowW/2};
+                    int[] yPoints = {y - yOffset + arrowH, y - yOffset, y - yOffset};
+
+
+                    // Flèche
+                    g2.setColor(Color.RED);
+                    g2.fillPolygon(xPoints, yPoints, 3);
+                    g2.setColor(Color.BLACK);
+                    g2.drawPolygon(xPoints, yPoints, 3);
+                }
+            }
+        } catch (Exception e) {
+            // fail silent si pas de GameManager ou worm actif
         }
 
         // Trajectoire de tir (Angry Birds style)

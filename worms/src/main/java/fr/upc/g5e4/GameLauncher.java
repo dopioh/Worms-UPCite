@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 
 //import fr.upc.g5e4.model.InventoryModel.*;
 import fr.upc.g5e4.model.io.SaveData;
+import fr.upc.g5e4.model.io.SaveLoad;
 //import fr.upc.g5e4.model.io.SaveLoad;
 import fr.upc.g5e4.model.console.ConsoleLauncher;
 import fr.upc.g5e4.view.*;
@@ -23,8 +24,12 @@ public class GameLauncher{
     private GamePanel gamePanel;
     private GameLoop gameLoop;
 
-    private InventoryOverlay inventoryOverlay;
     private WindOverlay windOverlay;
+    private InventoryOverlay inventoryOverlay; 
+    private PauseOverlay pauseOverlay;
+    private HelpOverlay helpOverlay;
+    private HUDOverlay hudOverlay;
+
 
     private boolean screen;
     
@@ -198,11 +203,13 @@ public class GameLauncher{
      * @see SaveData
      */
     public void startFromGameSave(SaveData saveData) throws IOException{
-        this.saveData = saveData;
-
         resetGame(); // au cas ou 
-
-        initializeGame(true);
+        if (saveData == null){
+            initializeGame(false);
+        } else {
+            this.saveData = saveData;
+            initializeGame(true);
+        }
 
         cardLayout.show(cardPanel, GAME_CARD); // afficher le jeu 
 
@@ -232,34 +239,54 @@ public class GameLauncher{
         }
 
         this.gamePanel = gameManager.getGamePanel();
+        SwingInputController input = gameManager.getImputController();
+        input.setBounds(0, 0, width, height);
+        input.setOpaque(false);
+
         
+        // Inventaire Initialisation -> GameManager
+
+        this.inventoryOverlay = new InventoryOverlay(gameManager.getListTeamInit().get(0).getTeamModel().getInventory());
+        this.inventoryOverlay.setBounds(0, 0, width, height);
         // VENT
         windOverlay = new WindOverlay(gameManager.getWindModel());
         windOverlay.setBounds(0, 0, width, height);
         gameManager.setWindOverlay(windOverlay);
-
-        // Inventaire Initialisation -> GameManager
-
-        //Créer l'overlay
-        this.inventoryOverlay = new InventoryOverlay(gameManager.getListTeamInit().get(0).getTeamModel().getInventory());  
-
+        //HUD
+        this.hudOverlay = new HUDOverlay(gameManager);
+        this.hudOverlay.setBounds(0, 0, width, height);
+        this.hudOverlay.setInventoryOverlay(inventoryOverlay);
+        //Menu parametres 
+        this.pauseOverlay = new PauseOverlay();
+        this.pauseOverlay.setBounds(0, 0, width, height);
+        //How to play
+        this.helpOverlay = new HelpOverlay();
+        this.helpOverlay.setBounds(0, 0, width, height);
+        this.pauseOverlay.setHelpOverlay(this.helpOverlay);
         
         // Placer les composants dans le layered pane
         gamePanel.setBounds(0, 0, width, height);
         inventoryOverlay.setBounds(0, 0, width, height);
 
+        
         gameLayeredPane.add(gamePanel, JLayeredPane.DEFAULT_LAYER);
-        gameLayeredPane.add(windOverlay, JLayeredPane.PALETTE_LAYER);
-        gameLayeredPane.add(inventoryOverlay, JLayeredPane.PALETTE_LAYER);
+        gameLayeredPane.add(input, JLayeredPane.DEFAULT_LAYER);
+        gameLayeredPane.add(windOverlay, JLayeredPane.PALETTE_LAYER);   
+        gameLayeredPane.add(hudOverlay, JLayeredPane.PALETTE_LAYER);
+        gameLayeredPane.add(inventoryOverlay, JLayeredPane.MODAL_LAYER);  
+        gameLayeredPane.add(pauseOverlay, JLayeredPane.POPUP_LAYER);
+        gameLayeredPane.add(helpOverlay, JLayeredPane.DRAG_LAYER);
         
         inventoryOverlay.setGameManager(gameManager);    
         inventoryOverlay.setFireListener(gameManager.getImputController());
         gameManager.setInventoryOverlay(inventoryOverlay);
+        gameManager.setHudOverlay(this.hudOverlay); 
 
-        SwingInputController input = gameManager.getImputController();
         input.setGameFrame(mainFrame);
         input.setInventoryOverlay(inventoryOverlay);
         input.setGameManager(gameManager);
+        input.setPauseOverlay(pauseOverlay);
+        input.setHelpOverlay(helpOverlay);  
         
         // Mettre à jour la caméra avec les dimensions actuelles (important si en plein écran)
         if (gameManager.getCamera() != null) {
@@ -360,7 +387,21 @@ public class GameLauncher{
         if (windOverlay != null) {
             windOverlay.setBounds(0, 0, width, height);
         }
-        
+        // Mets à jour les bounds du overlay pause
+        if (pauseOverlay != null) {
+            pauseOverlay.setBounds(0, 0, width, height);
+        }
+
+        // Mets à jour les bounds du overlay aide
+        if (helpOverlay != null) {
+            helpOverlay.setBounds(0, 0, width,height);
+        }
+
+        // Mets à jour les bounds du overlay HUD
+        if (hudOverlay != null) {
+            hudOverlay.setBounds(0, 0, width, height);
+        }
+
         if (gameManager != null && gameManager.getCamera() != null) {
             gameManager.getCamera().setViewSize(width, height);
             // Notifier le CameraController pour éviter le glissement du au followPlayer
@@ -435,6 +476,8 @@ public class GameLauncher{
         this.gameLoop = null;
         this.inventoryOverlay = null;
         this.windOverlay = null;
+        this.hudOverlay = null;
+        this.pauseOverlay = null;
         if (gameLayeredPane != null) {
             gameLayeredPane.removeAll();
             gameLayeredPane.repaint();

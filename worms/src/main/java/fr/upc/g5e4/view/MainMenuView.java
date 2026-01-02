@@ -5,8 +5,14 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.image.BufferedImage;
 
-import javax.swing.BorderFactory;
+import javax.imageio.ImageIO;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -32,15 +38,69 @@ public class MainMenuView extends JPanel {
     private JButton btnConfig;
     private JButton btnQuit;
     private JLabel titleLabel;
+    private ShopView shopView;
+    private JPanel centerPanel;
+    private BufferedImage backgroundImage;
 
     public MainMenuView() {
+        loadBackgroundImage();
         initComponents();
         setupLayout();
+        setupResizeListener();
+    }
+    
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        if (backgroundImage != null) {
+            Graphics2D g2d = (Graphics2D) g;
+
+            // rendu de haute qualité
+            g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+            
+            // Calcul du ratio pour zoomer (cover) plutôt que stretch
+            int panelWidth = getWidth();
+            int panelHeight = getHeight();
+            int imgWidth = backgroundImage.getWidth();
+            int imgHeight = backgroundImage.getHeight();
+            
+            double panelRatio = (double) panelWidth / panelHeight;
+            double imgRatio = (double) imgWidth / imgHeight;
+            
+            int drawWidth, drawHeight, drawX, drawY;
+            
+            if (panelRatio > imgRatio) {
+                // Panel plus large que l'image : remplir en largeur
+                drawWidth = panelWidth;
+                drawHeight = (int) (panelWidth / imgRatio);
+                drawX = 0;
+                drawY = (panelHeight - drawHeight) / 2;
+            } else {
+                // Panel plus haut que l'image : remplir en hauteur
+                drawHeight = panelHeight;
+                drawWidth = (int) (panelHeight * imgRatio);
+                drawX = (panelWidth - drawWidth) / 2;
+                drawY = 0;
+            }
+            
+            g2d.drawImage(backgroundImage, drawX, drawY, drawWidth, drawHeight, this);
+        }
+    }
+    
+    private void loadBackgroundImage() {
+        try {
+            java.net.URL url = getClass().getResource("/background.png");
+            if (url != null) {
+                backgroundImage = ImageIO.read(url);
+            }
+        } catch (Exception e) {
+            System.err.println("Erreur lors du chargement de l'image de fond: " + e.getMessage());
+        }
     }
     
     public void updateSizes(boolean fullScreen) {
         // Tailles pour plein écran vs fenêtré
-        int titleWidth = fullScreen ? 550 : 400;
+        int titleWidth = fullScreen ? 450 : 400; // si on agrandi le title il est coupé
         int buttonWidth = fullScreen ? 380 : 280;
         int buttonHeight = fullScreen ? 60 : 45;
         int fontSize = fullScreen ? 24 : 18;
@@ -64,13 +124,21 @@ public class MainMenuView extends JPanel {
     }
 
     private void initComponents() {
-        // Création du panneau de fond
-        JLabel background = createBackground();
-        setLayout(new java.awt.BorderLayout());
-        add(background, java.awt.BorderLayout.CENTER);
+        // Utilise un layout null pour positionnement absolu
+        setLayout(null);
+        setOpaque(true);
 
+        // Boutique à gauche en position absolue
+        shopView = new ShopView();
+        add(shopView);
+        
+        // Panel au centre avec titre et boutons
+        centerPanel = new JPanel();
+        centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
+        centerPanel.setOpaque(false);
+        
         // Titre
-        addTitle(background);
+        addTitle(centerPanel);
 
         // Création des boutons
         btnNewGame = createMenuButton("Nouvelle Partie");
@@ -78,29 +146,45 @@ public class MainMenuView extends JPanel {
         btnConfig = createMenuButton("Reglages");
         btnQuit = createMenuButton("Quitter");
 
-        // Ajout des boutons au panneau
-        background.add(btnNewGame);
-        background.add(Box.createVerticalStrut(10));
-        background.add(btnResume);
-        background.add(Box.createVerticalStrut(10));
-        background.add(btnConfig);
-        background.add(Box.createVerticalStrut(10));
-        background.add(btnQuit);
+        // Ajout des boutons au panneau central
+        centerPanel.add(btnNewGame);
+        centerPanel.add(Box.createVerticalStrut(10));
+        centerPanel.add(btnResume);
+        centerPanel.add(Box.createVerticalStrut(10));
+        centerPanel.add(btnConfig);
+        centerPanel.add(Box.createVerticalStrut(10));
+        centerPanel.add(btnQuit);
+        
+        add(centerPanel);
     }
 
     private void setupLayout() {
         setPreferredSize(new Dimension(1280, 720));
     }
-
-    private JLabel createBackground() {
-        ImageIcon bgIcon = loadImage("/background.png");
-        JLabel bg = (bgIcon != null) ? new JLabel(bgIcon) : new JLabel();
-        bg.setLayout(new BoxLayout(bg, BoxLayout.Y_AXIS));
-        bg.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
-        return bg;
+    
+    private void setupResizeListener() {
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                repositionComponents();
+            }
+        });
+    }
+    
+    private void repositionComponents() {
+        int width = getWidth();
+        int height = getHeight();
+        
+        // la boutique à gauche
+        shopView.setBounds(20, 100, 350, Math.min(520, height - 200));
+        
+        // le panel au centre
+        int centerPanelWidth = 400;
+        int centerPanelX = (width - centerPanelWidth) / 2;
+        centerPanel.setBounds(centerPanelX, 20, centerPanelWidth, height - 40);
     }
 
-    private void addTitle(JLabel parent) {
+    private void addTitle(JPanel parent) {
         ImageIcon titleIcon = loadImage("/title.png");
         
         if (titleIcon != null) {
@@ -151,5 +235,9 @@ public class MainMenuView extends JPanel {
 
     public JButton getBtnQuit() {
         return btnQuit;
+    }
+    
+    public ShopView getShopView() {
+        return shopView;
     }
 }

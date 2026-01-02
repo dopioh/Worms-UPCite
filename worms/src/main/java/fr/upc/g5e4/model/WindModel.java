@@ -2,7 +2,7 @@
 package fr.upc.g5e4.model;
 
 public class WindModel {
-    public enum Dir {
+    public enum Dir {               // Directions cardinales
         N(0, -1, "N"),
         NE(1, -1, "NE"),
         E(1, 0, "E"),
@@ -22,8 +22,8 @@ public class WindModel {
         }
     }
 
-    private Dir dir = Dir.E;
-    private float strength = 0.5f; // 0..1
+    private Dir dir = Dir.E;      // Direction par défaut
+    private float strength = 0.5f; // Valeur entre 0 (calme) et 1 (tempête)
 
     public Dir getDir() { return dir; }
     public float getStrength() { return strength; }

@@ -72,7 +72,7 @@ public class TeamData {
      * @return  un TeamInit a integreer dans un GameManager
      */
     public TeamInitialisation dataToInit(GroundModel groundModel,World world){
-        TeamInitialisation tm = new TeamInitialisation(groundModel, world, teamID, teamName, wormsNumber, dataTabCharacter, COLORTEAM,"/worm.png",inventory);
+        TeamInitialisation tm = new TeamInitialisation(groundModel, world, teamID, teamName, wormsNumber, dataTabCharacter, COLORTEAM,"/wormPixel.png",inventory); // a modifier pour que ca soit le meme que celui save
         return tm;
     }
 
