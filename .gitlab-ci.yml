@@ -56,10 +56,12 @@ deploy:
   stage: deploy
   script:
     - cd worms
+    - export PROJECT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
     - mvn $MAVEN_CLI_OPTS clean package
+    - mv target/worms-${PROJECT_VERSION}.jar target/worms-app.jar
   artifacts:
     paths:
-      - worms/target/worms-SNAPSHOT-jar-with-dependencies.jar
+      - worms/target/worms-app.jar
     expire_in: 1 week
   only:
    - main 
@@ -85,4 +87,4 @@ release_job:
     assets:
       links:
         - name: 'worms-app.jar'
-          url: '$CI_PROJECT_URL/-/jobs/artifacts/$CI_COMMIT_TAG/raw/worms/target/worms-SNAPSHOT-jar-with-dependencies.jar?job=deploy'
+          url: '$CI_PROJECT_URL/-/jobs/artifacts/$CI_COMMIT_TAG/raw/worms/target/worms-app.jar?job=deploy'
