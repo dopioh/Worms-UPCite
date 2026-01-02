@@ -1,53 +1,49 @@
 
 # Changelog
 
-## v.0.0 Configuration : (Avant le premier sprint)
----
-
-- Création de la base Maven
+## v.0.0 Configuration (Avant le premier sprint)
 
 ### Added
+
+- Création de la base Maven
 - CONTRIBUTING.md
 - .gitignore
 - LICENSE (MIT)
 - gitlab-ci.yml
 - DESIGN.md
 
-
 ## [v.0.1 : SPRINT 1](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/1)
----
 
-### Added Java
+### Added
 
-- format **MVC** 
-- Des tests unitaires pour une grande partie des classes  
-- La physique du jeu (Gravite et eau qui detruit le worms)  
-- GameManager, GameLoop et GameLauncher initialiser pour lancer une partie  
-    - GameManager : genere tous les elements que necessite une partie (physique, perso etc)  
-    - GameLoop : Timer principale du jeu (60 fps) pour faire avancer la partie  
-    - GameLauncher : initialise GameManager et GameLoop pour lancer une partie (avec ou sans fenetre)  
-- Un Worms (pour le moment Character, est un carre rouge)  
-    - Peut se deplacer et sauter
-    - Est integrer a la physique du monde
+- Format **MVC**
+- Tests unitaires pour une grande partie des classes
+- La physique du jeu (gravité et eau qui détruit le worms)
+- GameManager, GameLoop et GameLauncher pour lancer une partie
+    - GameManager : génère tous les éléments nécessaires (physique, perso, etc.)
+    - GameLoop : Timer principal du jeu (60 fps)
+    - GameLauncher : initialise GameManager et GameLoop
+- Un Worms (Character, carré rouge initialement)
+    - Peut se déplacer et sauter
+    - Intégré à la physique du monde
 - Classe Item
-    - Weapon (AK-47, Grenade, Rocket Launcher, Baseball Bat)
-    - Gadget (Bumper)
-- Classe inventaire
+    - Weapons : AK-47, Grenade, Rocket Launcher, Baseball Bat
+    - Gadget : Bumper
+- Classe Inventaire
 - Classe Donnée Joueur
-    - Système de sauvegarde des données (JSON)
+    - Système de sauvegarde (JSON)
 - Classe Camera
 
-### Added/Modified Configuration
+### Configuration
 
-- Passage du projet sur **Java 23** (anciennement Java 17)  
- - Modification de pom.xml  
-    - Ajout de plugin et de librairies  
-- Modification de gitlab-ci.yml  
-    - Ajout de la phase `deploy`, qui genere un .jar
+- Passage du projet sur **Java 23** (anciennement Java 17)
+- Modification de pom.xml
+    - Ajout de plugins et de librairies
+- Modification de gitlab-ci.yml
+    - Ajout de la phase `deploy` qui génère un .jar
 
 
 ## [v.0.2 : SPRINT 2](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/2)
----
 
 ### Added
 - Écran d'accueil
@@ -72,138 +68,118 @@
     - Les déplacements, le zoom et le recentrage de la caméra se font maintenant avec un glissement fluide
 
 ## [v.0.3 : SPRINT 3](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/3)
----
 
 ### Added
-- Mode plein ecran
-    - passage du jeu en 16:9
-- MAP Procédurale 
-    - avec bruit de perlin et amplification des bruits
-- SPRITES 
-    - les worms ont des sprites via le constructeur de leur equipe
-- Sauvegarde (partielle)
-    - Une partie peut être enregistrée dans un fichier `sauvegarde.txt` en json avec la touche **_J_**
-- Système de visée amélioré
-    - Arc de cercle de tir (rayon)
+
+- Mode plein écran (16:9)
+- MAP procédurale avec bruit de Perlin
+- Sprites pour les worms via le constructeur d'équipe
+- Sauvegarde partielle
+    - Enregistrement dans `sauvegarde.txt` (JSON) avec la touche `J`
+- Système de visée amélioré avec arc de cercle
 - Liaison tir & armes
     - L'angle de l'arme suit la position de la souris
-    - balle physique
-- Effet sonore pour le tir des armes
-- Collision
-    - Désactivation des collisions entre worms via des catégories de collision
-- Vent
-    - Affichage graphique de la direction du vent
+    - Balles physiques
+- Effets sonores pour les armes
+- Désactivation des collisions entre worms
+- Vent avec affichage graphique
 - Documentation
-    - Fichier `ARCHITECTURE.md` traçant l'arborescence du projet
-    - Amélioration du `CONTRIBUTING.md` (création d'issues et merge requests)
-- Nouveau construteur `TeamView` et `CharacterView` qui demandent le chemin vers le sprite cible
-- La fonction `loadSprite` qui charge le sprite dans un BufferImage et attrape les erreurs d'ouverture/lecture avec IOException
-    - SI une erreur se produit dans loadingSprite, on dessine un carré de la couleur de la team à la place du sprite
-- afficheage du sprite dans la bonne direction
+    - Fichier `ARCHITECTURE.md`
+    - Amélioration du `CONTRIBUTING.md`
+- Constructeurs `TeamView` et `CharacterView` avec chemin vers sprite
+- Fonction `loadSprite` avec gestion d'erreurs
+- Affichage du sprite dans la bonne direction
 
 ### Modified
-- Focus de la caméra
-    - Le centrage se fait maintenant sur le personnage jouant durant le round
-- Système de rounds
-    - Support pour N équipes au lieu de 2 équipes seulement
+
+- Focus caméra sur le personnage actif
+- Système de rounds pour N équipes (au lieu de 2)
 - Structure du projet
-    - Séparation du `GameLauncher` de la partie Overlay
+    - Séparation du `GameLauncher` et des Overlays
     - Séparation du JFrame
-    - Suppression de la classe parent `Entity.java` devenue obsolète
+    - Suppression de `Entity.java` obsolète
 
 ### Fixed
+
 - `.jar` injouable à cause du chargement de `inventory.json`
-- Comportement worm
-    - le worm est totalement supprimé de la map quand il meurt (sprite + body physique)
+- Suppression complète du worm mort (sprite + body physique)
 
 
 ## [v.0.4 : SPRINT 4](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/4)
----
 
 ### Added
-- **Cinématique d'introduction** : Animation de présentation avant le début du combat
-    - Affichage des équipes participantes avec nombre de worms
-    - Présentation du terrain généré procéduralement
-    - Affichage des conditions météorologiques (vent)
-    - Animation avec effets de fade et transitions fluides
-    - Durée de 5 secondes avant lancement automatique du jeu
+
+- Cinématique d'introduction (5 secondes)
+    - Affichage des équipes et nombre de worms
+    - Présentation du terrain et conditions météo
+    - Effets de fade et transitions fluides
 - Nametag
-    - Affichage des itemes (potions...) sur le nametag
-- Nouveau systeme de map 
-    - MAP en tableau 2D remplie d'objet "block"
-- **Cinématique d'introduction** : Animation de présentation avant le début du combat
-    - Affichage des équipes participantes avec nombre de worms
-    - Présentation du terrain généré procéduralement
-    - Affichage des conditions météorologiques (vent)
-    - Animation avec effets de fade et transitions fluides
-    - Durée de 5 secondes avant lancement automatique du jeu
-- Écran de fin de partie avec animation
-  - Animation des worms gagnants marchant vers le trophée
-  - Affichage des statistiques de jeu (dégâts, précision de tir, éliminations, rounds joué)
-  - Particules et effets visuels
-  - Bouton retour au menu
-  - Support du plein écran
-  - Support du N equipe
-  - Stat box glissable avec scroll
-- Système de statistiques pour tracker des actions pendant la partie
-- Endroit pour stocker les paramètres du jeu
-    - `current_skin`
-- Une sauvegarde peut desormais etre lancer depuis le menu d'acceuil en cliquant sur "Poursuivre une partie"
-- Possibilitee de tirer/faire des degats/tuer un worm dans la version Console du jeu (tire assez limiter)
+    - Affichage des items (potions, etc.)
+- Nouveau système de map (tableau 2D de blocks)
+- Écran de fin de partie
+    - Animation des worms gagnants vers le trophée
+    - Statistiques de jeu (dégâts, précision, éliminations, rounds)
+    - Particules et effets visuels
+    - Bouton retour au menu
+    - Support N équipes et plein écran
+    - Stat box scrollable
+- Système de statistiques pendant la partie
+- Paramètres du jeu (`current_skin`)
+- Chargement des sauvegardes depuis le menu ("Poursuivre une partie")
+- Tir/dégâts dans la version Console
 
 ### Modified
-- Support pour N équipes au lieu de 2 équipes hardcodées
-    - Refactorisation de GameManager, GameLoop et GamePanel pour utiliser des listes dynamiques
-    - Possibilité d'ajouter dynamiquement des équipes via GameManager.addTeam()
-- Nametag
-    - Affichage de HP et Shield en chiffre -> barre horizontale
-- `CONTRIBUTING.md`
-    - Guide d'utilisation sur le nametag
-- Touche full screen F11 -> F
-- Implémentation de la physique de recul sur les worms touchés
-- Support pour N équipes au lieu de 2 équipes hardcodées
-    - Refactorisation de GameManager, GameLoop et GamePanel pour utiliser des listes dynamiques
-    - Possibilité d'ajouter dynamiquement des équipes via GameManager.addTeam()
+
+- Support pour N équipes (au lieu de 2 hardcodées)
+    - Refactorisation GameManager, GameLoop et GamePanel avec listes dynamiques
+- Nametag : HP et Shield en barres horizontales (au lieu de chiffres)
+- `CONTRIBUTING.md` : Guide nametag
+- Touche plein écran : `F` (au lieu de F11)
+- Physique de recul sur les worms touchés
 
 ### Fixed
-- Tout le jeu est désormais en une seule fenêtre
+
+- Tout le jeu en une seule fenêtre
 - Emplacement overlay vent
-- Nouveau systeme de map 
-    - MAP en tableau 2D remplie d'objet "block"
-- **N equipes** fonctionnelles desormais (2 auparavant)
-- Retour aux mouvements originaux
-- Retour du saut (avec Z)
-- Initialisation de l'overlay Inventaire decaler dans GameManager (precedemment GameLauncher)
+- Système de map avec tableau 2D
+- N équipes fonctionnelles
+- Retour aux mouvements originaux et du saut (`Z`)
+- Initialisation overlay Inventaire dans GameManager
 
 ### Optimisation
-- **Performance**
-    - Centralisation de repaint dans un seul Timer (gameLoop) pour avoir un seul repaint()
-    - pré-création d'objets graphiques réutilisables (couleurs, strokes) pour réduire les allocations mémoire pour chaque cube
-- **Lag Audio** : Système de cache avec pré-chargement des sons en mémoire pour éliminer le lag au premier tir
+
+- Performance
+    - Centralisation repaint dans un seul Timer
+    - Pré-création d'objets graphiques réutilisables
+- Lag Audio : Système de cache avec pré-chargement
 
 
 ## [v.0.5 : SPRINT 5](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/5) (unreleased)
----
 
 ### Added
-- Algorithme FloodFill
-    - permet de supprimer les blocks qui ne sont pas liés au sol
+
+- Algorithme FloodFill pour supprimer les blocks non liés au sol
 - Fixture unique par block
 - Boutique
-- Arme/Item graphiquement attachés au worm
+- Armes/Items graphiquement attachés au worm
 - Sons pour chaque arme
 - Plusieurs buffs (Speed, jump)
 - Potion (Speed, jump, heal, shield)
 - sprites pour gagdets 
 - sons pour les gadgets
 - Degats de zone 
+- Readme.md expliquant le projet (comment jouer etc)
 
 ### Fixed
+
 - Double tir
 - Fix tir lié au zoom
 - body des blocks invisible après destruction
 - l'image de fond dans main menu qui ne redimentionne pas bien lors du passage en full screen sur un grand ecran
 
-### Modified 
+### Modified
+
 - Suppression des fleches haut et bas, pour une trajectoire seulement avec la souris
 - Maj du DIAGRAMME.MD
+- Maj du ARCHITECTURE.md
+- Amélioration de CHANGELOG.md
