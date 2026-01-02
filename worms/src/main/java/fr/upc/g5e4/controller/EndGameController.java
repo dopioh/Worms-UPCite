@@ -109,8 +109,8 @@ public class EndGameController {
             int offsetX = (endGameView.getWidth() - scaledWidth) / 2;
             int offsetY = (endGameView.getHeight() - scaledHeight) / 2;
             
-            // Utiliser RoundedButton
-            fr.upc.g5e4.view.RoundedButton returnButton = new fr.upc.g5e4.view.RoundedButton("Retour au Menu", (int)(24 * scale));
+            // Utiliser PillButton
+            fr.upc.g5e4.view.PillButton returnButton = new fr.upc.g5e4.view.PillButton("Retour au Menu");
             returnButton.setFont(googleSansFont.deriveFont((float)(20 * scale)));
             
             // Positionner le bouton avec offset et scaling - centré sous le trophée
@@ -123,9 +123,6 @@ public class EndGameController {
             
             returnButton.setFocusable(true);
             returnButton.setVisible(true);
-            returnButton.setForeground(Color.WHITE);
-            returnButton.setBackground(new Color(131, 172, 140));
-            returnButton.setHoverColor(new Color(92, 121, 98));
             returnButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
             returnButton.addActionListener(e -> {
                 // Retourner au menu

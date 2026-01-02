@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 
 //import fr.upc.g5e4.model.InventoryModel.*;
 import fr.upc.g5e4.model.io.SaveData;
+import fr.upc.g5e4.model.io.SaveLoad;
 //import fr.upc.g5e4.model.io.SaveLoad;
 import fr.upc.g5e4.model.console.ConsoleLauncher;
 import fr.upc.g5e4.view.*;
@@ -23,8 +24,12 @@ public class GameLauncher{
     private GamePanel gamePanel;
     private GameLoop gameLoop;
 
-    private InventoryOverlay inventoryOverlay;
     private WindOverlay windOverlay;
+    private InventoryOverlay inventoryOverlay; 
+    private PauseOverlay pauseOverlay;
+    private HelpOverlay helpOverlay;
+    private HUDOverlay hudOverlay;
+
 
     private boolean screen;
     
@@ -44,6 +49,10 @@ public class GameLauncher{
     public static final String GAME_CARD = "game";
 
     private SaveData saveData; // si il y'a un fichier de sauvegarde
+
+    private PlayerDataController playerDataController;
+
+    //private boolean firstTimeLaunch = true ; -> on va juste checker si il y'a une sauvegarde deja presente de PlayerData
 
     /**
      * Constructeur normal : affiche le menu principal
@@ -66,6 +75,9 @@ public class GameLauncher{
      * @param skipMenu true = lance le jeu directement, false = affiche le menu (ignoré si screen=false)
      */
     public GameLauncher(boolean screen, boolean skipMenu) throws IOException {
+        attributionPlayerDataController();
+        testModifPlayerData();
+
         this.screen = screen;
         
         if (!screen) {
@@ -218,34 +230,54 @@ public class GameLauncher{
         }
 
         this.gamePanel = gameManager.getGamePanel();
+        SwingInputController input = gameManager.getImputController();
+        input.setBounds(0, 0, width, height);
+        input.setOpaque(false);
+
         
+        // Inventaire Initialisation -> GameManager
+
+        this.inventoryOverlay = new InventoryOverlay(gameManager.getListTeamInit().get(0).getTeamModel().getInventory());
+        this.inventoryOverlay.setBounds(0, 0, width, height);
         // VENT
         windOverlay = new WindOverlay(gameManager.getWindModel());
         windOverlay.setBounds(0, 0, width, height);
         gameManager.setWindOverlay(windOverlay);
-
-        // Inventaire Initialisation -> GameManager
-
-        //Créer l'overlay
-        this.inventoryOverlay = new InventoryOverlay(gameManager.getListTeamInit().get(0).getTeamModel().getInventory());  
-
+        //HUD
+        this.hudOverlay = new HUDOverlay(gameManager);
+        this.hudOverlay.setBounds(0, 0, width, height);
+        this.hudOverlay.setInventoryOverlay(inventoryOverlay);
+        //Menu parametres 
+        this.pauseOverlay = new PauseOverlay();
+        this.pauseOverlay.setBounds(0, 0, width, height);
+        //How to play
+        this.helpOverlay = new HelpOverlay();
+        this.helpOverlay.setBounds(0, 0, width, height);
+        this.pauseOverlay.setHelpOverlay(this.helpOverlay);
         
         // Placer les composants dans le layered pane
         gamePanel.setBounds(0, 0, width, height);
         inventoryOverlay.setBounds(0, 0, width, height);
 
+        
         gameLayeredPane.add(gamePanel, JLayeredPane.DEFAULT_LAYER);
-        gameLayeredPane.add(windOverlay, JLayeredPane.PALETTE_LAYER);
-        gameLayeredPane.add(inventoryOverlay, JLayeredPane.PALETTE_LAYER);
+        gameLayeredPane.add(input, JLayeredPane.DEFAULT_LAYER);
+        gameLayeredPane.add(windOverlay, JLayeredPane.PALETTE_LAYER);   
+        gameLayeredPane.add(hudOverlay, JLayeredPane.PALETTE_LAYER);
+        gameLayeredPane.add(inventoryOverlay, JLayeredPane.MODAL_LAYER);  
+        gameLayeredPane.add(pauseOverlay, JLayeredPane.POPUP_LAYER);
+        gameLayeredPane.add(helpOverlay, JLayeredPane.DRAG_LAYER);
         
         inventoryOverlay.setGameManager(gameManager);    
         inventoryOverlay.setFireListener(gameManager.getImputController());
         gameManager.setInventoryOverlay(inventoryOverlay);
+        gameManager.setHudOverlay(this.hudOverlay); 
 
-        SwingInputController input = gameManager.getImputController();
         input.setGameFrame(mainFrame);
         input.setInventoryOverlay(inventoryOverlay);
         input.setGameManager(gameManager);
+        input.setPauseOverlay(pauseOverlay);
+        input.setHelpOverlay(helpOverlay);  
         
         // Mettre à jour la caméra avec les dimensions actuelles (important si en plein écran)
         if (gameManager.getCamera() != null) {
@@ -280,17 +312,6 @@ public class GameLauncher{
             @Override
             public void actionPerformed(ActionEvent e) {
                 toggleFullScreen();
-            }
-        });
-        
-        // ESC -> quitter ou retour au menu
-        im.put(KeyStroke.getKeyStroke("ESCAPE"), "handleEscape");
-        am.put("handleEscape", new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Si dans le menu, quitter
-                // Si dans le jeu, on peut ajouter un comportement différent plus tard
-                System.exit(0);
             }
         });
     }
@@ -346,7 +367,21 @@ public class GameLauncher{
         if (windOverlay != null) {
             windOverlay.setBounds(0, 0, width, height);
         }
-        
+        // Mets à jour les bounds du overlay pause
+        if (pauseOverlay != null) {
+            pauseOverlay.setBounds(0, 0, width, height);
+        }
+
+        // Mets à jour les bounds du overlay aide
+        if (helpOverlay != null) {
+            helpOverlay.setBounds(0, 0, width,height);
+        }
+
+        // Mets à jour les bounds du overlay HUD
+        if (hudOverlay != null) {
+            hudOverlay.setBounds(0, 0, width, height);
+        }
+
         if (gameManager != null && gameManager.getCamera() != null) {
             gameManager.getCamera().setViewSize(width, height);
             // Notifier le CameraController pour éviter le glissement du au followPlayer
@@ -421,10 +456,41 @@ public class GameLauncher{
         this.gameLoop = null;
         this.inventoryOverlay = null;
         this.windOverlay = null;
+        this.hudOverlay = null;
+        this.pauseOverlay = null;
         if (gameLayeredPane != null) {
             gameLayeredPane.removeAll();
             gameLayeredPane.repaint();
         }
+    }
+
+    /**
+     * Methode pour charger une sauvegarde de Player
+     * Ou en creer une si il n'en existe pas
+     */
+    public void attributionPlayerDataController(){
+
+        boolean playerSave = PlayerDataController.isThereSavePlayer(); // tjr l'appeler avant this.playerDataController = new PlayerDataController()
+        this.playerDataController = new PlayerDataController();
+
+        if (playerSave){
+            this.playerDataController.chargerJoueur();
+        } else {
+            this.playerDataController.nouveauJoueur();
+            this.playerDataController.sauvegarderJoueur();
+        }
+    }
+
+    /**
+     * Methode useless juste pour te montrer comment ecrire dans le PlayerData
+     * Pense a tjr save des que tu modifies une valeur, le joueur peut quitter le jeu a n'importe quel moment
+     * 
+     * J'appelle cette methode dans gameLauncher mais toi tu peux recup PlayerDataController en la passant en parametre 
+     * Et la recup pour tes fichiers Boutiques BattlePass
+     */
+    public void testModifPlayerData(){
+        this.playerDataController.getPlayerData().setName("NassNass");
+        this.playerDataController.sauvegarderJoueur();
     }
 
     public static void main(String[] args) throws IOException{

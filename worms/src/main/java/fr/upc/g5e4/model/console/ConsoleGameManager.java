@@ -136,7 +136,7 @@ public class ConsoleGameManager {
         this.itemController.setAllWorms(this.allWormsCharacter);
         activeWormController.setItemController(this.itemController);
 
-        activeWormController.setCurrentWeapon(new Ak47());
+        activeWormController.setCurrentWeapon(null);
 
         activeWormController.setWorld(world);
         activeWormController.setAllWorms(this.allWormsCharacter);
@@ -214,7 +214,7 @@ public class ConsoleGameManager {
                 activeWormController.setItemController(this.itemController);
                 activeWormController.setWorld(world);
                 activeWormController.setAllWorms(this.allWormsCharacter);
-                activeWormController.setCurrentWeapon(new Ak47());
+                activeWormController.setCurrentWeapon(null);
 
                 consoleInputController.setCharacterController(activeWormController);
                 // cameraController.setTargetCharacter(worm);
