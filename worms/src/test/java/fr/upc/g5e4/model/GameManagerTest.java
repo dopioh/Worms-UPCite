@@ -21,7 +21,12 @@ public class GameManagerTest {
     
     @BeforeEach
     void setUp() {
-        gameManager = new GameManager(2); // on test pour 2 equipes ici
+        TeamConfig.NBR_EQUIPE = 2;
+        
+        if (TeamConfig.aCustomForATeam == null) {
+            TeamConfig.aCustomForATeam = new ArrayList<>();
+        }
+        gameManager = new GameManager(); // on test pour 2 equipes ici
         // Create a mock inventory list for testing
         List<InventoryModel.InventoryJson> mockInventory = new ArrayList<>();
         mockInventoryOverlay = new InventoryOverlay(mockInventory);
@@ -185,7 +190,7 @@ public class GameManagerTest {
     @Test
     void testInventoryOverlayFieldStartsAsNull() {
         // Create a new GameManager instance
-        GameManager newGameManager = new GameManager(3);
+        GameManager newGameManager = new GameManager();
         
         // The inventory overlay should initially be null or unset
         // (We can't directly check private fields, but we can test behavior)

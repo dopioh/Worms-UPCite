@@ -4,6 +4,8 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
+import fr.upc.g5e4.view.UI.*;
+
 /**
  * Vue de la boutique du jeu (version compacte pour le menu)
  * Affiche les items disponibles à l'achat avec leurs descriptions

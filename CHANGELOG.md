@@ -182,31 +182,55 @@
 - **Lag Audio** : Système de cache avec pré-chargement des sons en mémoire pour éliminer le lag au premier tir
 
 
-## [v.1.0 : SPRINT 5](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/5) (unreleased)
----
+## [v.0.5 : SPRINT 5](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/5) (unreleased)
 
 ### Added
-- Algorithme FloodFill
-    - permet de supprimer les blocks qui ne sont pas liés au sol
+
+- **Page réglages**
+    - Système d'onglets : Map, Équipes, Autre
+    - Support du plein écran avec scaling automatique
+    - Bouton retour vers le menu principal
+- **Composants UI** : PillButton, PillComboBox, PillTextField
+- **Onglet Map** : Prévisualisation en temps réel de la map
+- **Customisation d'équipe**
+    - Sauvegarde dans `player_save.txt` 
+    - Choix nom d'equipe, skin et nom des 6 worms
+- **Onglet Equipe**
+    - Configuration nombre d'equipes/worms et attribution des CustomTeams
+    - Lancement possible sans configuration
+- **Skins** : Ajout des 5 skins debloquables
+- Algorithme FloodFill pour supprimer les blocks non liés au sol
 - Fixture unique par block
 - Boutique
-- Arme/Item graphiquement attachés au worm
+- Armes/Items graphiquement attachés au worm
 - Sons pour chaque arme
 - Plusieurs buffs (Speed, jump)
-- Potion (Speed, jump, heal, shield)
-- sprites pour gagdets 
-- sons pour les gadgets
-- Degats de zone 
-
-### Fixed
-- body des blocks invisible après destruction
-- l'image de fond dans main menu qui ne redimentionne pas bien lors du passage en full screen sur un grand ecran
-- Création de deux .jar lors du compilation
-- Double tir
-- Fix tir lié au zoom
-- body des blocks invisible après destruction
-- l'image de fond dans main menu qui ne redimentionne pas bien lors du passage en full screen sur un grand ecran
+- Potions (Speed, jump, heal, shield)
+- Sprites et sons pour gadgets
+- Dégâts de zone 
+- README.md expliquant le projet
+- Pointeur graphique (flèche rouge) au-dessus du joueur actif
 
 ### Modified
-- Suppression des fleches haut et bas, pour une trajectoire seulement avec la souris
+
+- **Système de plein écran**
+    - Passage au plein écran simulé
+    - Gestion du notch macOS et du dock
+- Suppression des fleches haut et bas, trajectoire uniquement avec la souris
 - Maj du DIAGRAMME.MD
+- Maj du ARCHITECTURE.md
+- Amélioration de CHANGELOG.md
+
+### Fixed
+
+- JComboBox invisibles en plein écran
+- Problème du notch et menu macOS
+- Image de prévisualisation pas mise à jour au retour dans les settings
+- Coins pixelisés sur les images arrondies
+- Suppression de touche Echap dans main menu
+- Adaptation des tests pour le nouveau système d'équipe
+- Double tir
+- Tir lié au zoom
+- Body des blocks invisible après destruction
+- Image de fond dans main menu en plein ecran
+- Création de deux .jar lors de la compilation

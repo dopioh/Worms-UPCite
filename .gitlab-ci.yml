@@ -31,7 +31,6 @@ stages:
 build:
   stage: build
   script: 
-
     # force la suppression du proxy au cas où il reste en mémoire
     - unset MAVEN_OPTS || true
     - rm -f /root/.m2/settings.xml || true
