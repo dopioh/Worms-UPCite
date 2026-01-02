@@ -14,7 +14,7 @@ import fr.upc.g5e4.model.GameManager;
 
 public class InventoryOverlay extends JComponent {
     private enum Category {
-        ARMES, GADGET, CRAFT
+        ARMES, GADGET, BOUTIQUE
     }
 
     private String equippedItemKey = null; 
@@ -42,10 +42,33 @@ public class InventoryOverlay extends JComponent {
 
     private Rectangle armesTab;
     private Rectangle gadgetTab;
-    private Rectangle craftTab;
+    private Rectangle boutiqueTab;
+    
+    // Boutique
+    private fr.upc.g5e4.controller.PlayerDataController playerDataController;
+    private int selectedShopIndex = -1;
+    private final List<Rectangle> buyButtons = new ArrayList<>();
+    private WormRaceOverlay wormRaceOverlay;
+    private WormGuessOverlay wormGuessOverlay;
+    private WormJackOverlay wormJackOverlay;
+    
+    // Items de la boutique
+    private static class ShopItem {
+        String name;
+        String imagePath;
+        int price;
+        
+        ShopItem(String name, String imagePath, int price) {
+            this.name = name;
+            this.imagePath = imagePath;
+            this.price = price;
+        }
+    }
+    
+    private final List<ShopItem> shopItems = new ArrayList<>();
 
     
-    //Icon Armes/Gadget
+    //Icon Armes/Gadget/Boutique
     private final java.util.Map<String, BufferedImage> itemImages = new java.util.HashMap<>();
     private void loadItemImages() {
         loadImage("AK47", "/ak.png");
@@ -53,6 +76,13 @@ public class InventoryOverlay extends JComponent {
         loadImage("Bazooka", "/bazooka.png");
         loadImage("BaseballBat", "/baseballbat.png");
         //loadImage("Bumper", "/"); Pas encore fait
+        
+        // Boutique
+        loadImage("luckyblock", "/luckyblock.png");
+        loadImage("stickygamble", "/stick-ticket.png");
+        loadImage("wormjack", "/wormjack.png");
+        loadImage("wormrace", "/wormrace.png");
+        loadImage("wormguess", "/wormguess.png");
     }
 
     private void loadImage(String name, String path) {
@@ -89,6 +119,15 @@ public class InventoryOverlay extends JComponent {
         
         loadDescriptions();
         ToolTipManager.sharedInstance().registerComponent(this); // optionnel (tooltips Swing)
+        
+        // init la boutique
+        playerDataController = new fr.upc.g5e4.controller.PlayerDataController();
+        playerDataController.chargerJoueur();
+        
+        shopItems.add(new ShopItem("LuckyBlock", "luckyblock", 50));
+        shopItems.add(new ShopItem("WORMRACE", "wormrace", 0));
+        shopItems.add(new ShopItem("WORMJACK", "wormjack", 0));
+        shopItems.add(new ShopItem("WORMGUESS", "wormguess", 0));
 
         addMouseListener(new MouseAdapter() {
             @Override
@@ -113,7 +152,7 @@ public class InventoryOverlay extends JComponent {
                 // Tabs
                 if (armesTab != null && armesTab.contains(x, y)) newHoveredTab = Category.ARMES;
                 else if (gadgetTab != null && gadgetTab.contains(x, y)) newHoveredTab = Category.GADGET;
-                else if (craftTab != null && craftTab.contains(x, y)) newHoveredTab = Category.CRAFT;
+                else if (boutiqueTab != null && boutiqueTab.contains(x, y)) newHoveredTab = Category.BOUTIQUE;
 
                 // Cases
                 if (newHoveredTab == null) {
@@ -178,6 +217,10 @@ public class InventoryOverlay extends JComponent {
         if (armesTab != null && armesTab.contains(x, y)) {
             currentCategory = Category.ARMES;
             selectedIndex = -1;
+            // Reprendre le timer si on quitte la boutique
+            if (gameManager != null && gameManager.getGameLoop() != null) {
+                gameManager.getGameLoop().resumeTimer();
+            }
             computeLayout();  
             repaint();
             return;
@@ -186,14 +229,23 @@ public class InventoryOverlay extends JComponent {
         if (gadgetTab != null && gadgetTab.contains(x, y)) {
             currentCategory = Category.GADGET;
             selectedIndex = -1;
+            // resume le timer quand on quitte la boutique
+            if (gameManager != null && gameManager.getGameLoop() != null) {
+                gameManager.getGameLoop().resumeTimer();
+            }
             computeLayout();
             repaint();
             return;
         }
 
-        if (craftTab != null && craftTab.contains(x, y)) {
-            currentCategory = Category.CRAFT;
+        if (boutiqueTab != null && boutiqueTab.contains(x, y)) {
+            currentCategory = Category.BOUTIQUE;
             selectedIndex = -1;
+            selectedShopIndex = -1;
+            // pause timer dans la boutique
+            if (gameManager != null && gameManager.getGameLoop() != null) {
+                gameManager.getGameLoop().pauseTimer();
+            }
             computeLayout();
             repaint();
             return;
@@ -203,11 +255,25 @@ public class InventoryOverlay extends JComponent {
         // inventaire ouvert
         // clic dans le panneau -> sélection / équipement
         if (panelBounds != null && panelBounds.contains(x, y)) {
+            if (currentCategory == Category.BOUTIQUE) {
+                for (int i = 0; i < buyButtons.size(); i++) {
+                    if (buyButtons.get(i).contains(x, y)) {
+                        selectedShopIndex = i;
+                        handlePurchase();
+                        return;
+                    }
+                }
+            }
+            
             for (int i = 0; i < itemBounds.size(); i++) {
                 Rectangle r = itemBounds.get(i);
                 if (r.contains(x, y)) {
-                    selectedIndex = i;
-                    equipItem(lastFiltered.get(i));
+                    if (currentCategory == Category.BOUTIQUE) {
+                        selectedShopIndex = i;
+                    } else {
+                        selectedIndex = i;
+                        equipItem(lastFiltered.get(i));
+                    }
                     repaint();
                     return;
                 }
@@ -246,6 +312,19 @@ public class InventoryOverlay extends JComponent {
 
         g2.setColor(Color.WHITE);
         g2.drawString("INVENTAIRE", panelX + 20, panelY + 30);
+        
+        // affiche l'argent du joueur dans la boutique
+        if (currentCategory == Category.BOUTIQUE) {
+            int money = playerDataController.getPlayerData().getMoney();
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 14f));
+            g2.setColor(new Color(255, 215, 0));
+            String moneyText = "Argent: " + money + " $";
+            FontMetrics fm = g2.getFontMetrics();
+            int moneyW = fm.stringWidth(moneyText);
+            g2.drawString(moneyText, panelX + panelW - moneyW - 20, panelY + 30);
+            g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 12f));
+            g2.setColor(Color.WHITE);
+        }
 
         int tabY = panelY + 35;
         int tabW = 90;
@@ -253,22 +332,102 @@ public class InventoryOverlay extends JComponent {
 
         armesTab  = new Rectangle(panelX + 20, tabY, tabW, tabH);
         gadgetTab = new Rectangle(panelX + 120, tabY, tabW, tabH);
-        craftTab  = new Rectangle(panelX + 220, tabY, tabW, tabH);
+        boutiqueTab  = new Rectangle(panelX + 220, tabY, tabW, tabH);
 
         drawTab(g2, armesTab,  "ARMES",  currentCategory == Category.ARMES,  hoveredTab == Category.ARMES);
         drawTab(g2, gadgetTab, "GADGET", currentCategory == Category.GADGET, hoveredTab == Category.GADGET);
-        drawTab(g2, craftTab,  "CRAFT",  currentCategory == Category.CRAFT,  hoveredTab == Category.CRAFT);
+        drawTab(g2, boutiqueTab,  "BOUTIQUE",  currentCategory == Category.BOUTIQUE,  hoveredTab == Category.BOUTIQUE);
 
         itemBounds.clear();
+        buyButtons.clear();
 
         int startX = panelX + 20;
         int startY = panelY + 80;
 
         int col = 0;
         int row = 0;
+        
+        // si on est dans la boutique on affiche les items de la boutique
+        if (currentCategory == Category.BOUTIQUE) {
+            int btnHeight = 24;
+            int btnMargin = 8;
+            int totalCellHeight = CELL_SIZE + btnHeight + btnMargin + CELL_GAP;
+            
+            for (int i = 0; i < shopItems.size(); i++) {
+                ShopItem shopItem = shopItems.get(i);
 
-        for (int i = 0; i < lastFiltered.size(); i++) {
-            InventoryJson item = lastFiltered.get(i);
+                int x = startX + col * (CELL_SIZE + CELL_GAP);
+                int y = startY + row * totalCellHeight;
+
+                Rectangle r = new Rectangle(x, y, CELL_SIZE, CELL_SIZE);
+                itemBounds.add(r);
+
+                // fond sélectionné
+                if (i == selectedShopIndex) {
+                    g2.setColor(new Color(80, 120, 80));
+                } else {
+                    g2.setColor(new Color(60, 60, 60));
+                }
+                g2.fillRoundRect(x, y, CELL_SIZE, CELL_SIZE, 12, 12);
+
+                // bordure
+                g2.setColor(Color.WHITE);
+                g2.drawRoundRect(x, y, CELL_SIZE, CELL_SIZE, 12, 12);
+
+                // image
+                int imgSize = CELL_SIZE - 20;
+                int imgX = x + (CELL_SIZE - imgSize) / 2;
+                int imgY = y + 10;
+
+                BufferedImage img = itemImages.get(shopItem.imagePath.toLowerCase());
+                if (img != null) {
+                    g2.drawImage(img, imgX, imgY, imgSize, imgSize, null);
+                }
+
+                // nom & prix
+                g2.setFont(g2.getFont().deriveFont(10f));
+                g2.setColor(Color.WHITE);
+                FontMetrics fm = g2.getFontMetrics();
+                int textW = fm.stringWidth(shopItem.name);
+
+                g2.drawString(shopItem.name, x + (CELL_SIZE - textW) / 2, y + CELL_SIZE - 20);
+                
+                g2.setColor(new Color(255, 215, 0));
+                String priceText = shopItem.price + " $";
+                int priceW = fm.stringWidth(priceText);
+                g2.drawString(priceText, x + (CELL_SIZE - priceW) / 2, y + CELL_SIZE - 6);
+                
+                // Bouton acheter sous l'item
+                int btnW = CELL_SIZE;
+                int btnH = 24;
+                int btnX = x;
+                int btnY = y + CELL_SIZE + 8;
+                
+                Rectangle buyBtn = new Rectangle(btnX, btnY, btnW, btnH);
+                buyButtons.add(buyBtn);
+                
+                g2.setColor(new Color(76, 175, 80));
+                g2.fillRoundRect(btnX, btnY, btnW, btnH, 8, 8);
+                
+                g2.setColor(Color.WHITE);
+                g2.drawRoundRect(btnX, btnY, btnW, btnH, 8, 8);
+                
+                g2.setFont(g2.getFont().deriveFont(Font.BOLD, 11f));
+                String btnText = "ACHETER";
+                FontMetrics btnFm = g2.getFontMetrics();
+                int btnTextW = btnFm.stringWidth(btnText);
+                g2.drawString(btnText, btnX + (btnW - btnTextW) / 2, btnY + 16);
+
+                col++;
+                if (col >= GRID_COLS) {
+                    col = 0;
+                    row++;
+                }
+            }
+        } else {
+            // Affichage normal pour armes et gadgets
+            for (int i = 0; i < lastFiltered.size(); i++) {
+                InventoryJson item = lastFiltered.get(i);
 
             int x = startX + col * (CELL_SIZE + CELL_GAP);
             int y = startY + row * (CELL_SIZE + CELL_GAP);
@@ -316,33 +475,38 @@ public class InventoryOverlay extends JComponent {
                 row++;
             }
         }
-
-        // --- Description (hover > équipé) ---
-        InventoryJson infoItem = null;
-        if (hoveredIndex >= 0 && hoveredIndex < lastFiltered.size()) {
-            infoItem = lastFiltered.get(hoveredIndex);
-        } else if (equippedItem != null) {
-            infoItem = equippedItem;
         }
 
-        if (infoItem != null) {
-            String key = infoItem.name.toLowerCase();
-            String desc = itemDescriptions.getOrDefault(key, ""); 
+        // --- Description (hover > équipé) - UNIQUEMENT pour armes et gadgets
+        if (currentCategory != Category.BOUTIQUE) {
+            InventoryJson infoItem = null;
+            
+            if (hoveredIndex >= 0 && hoveredIndex < lastFiltered.size()) {
+                infoItem = lastFiltered.get(hoveredIndex);
+            } else if (equippedItem != null) {
+                infoItem = equippedItem;
+            }
 
-            int boxX = panelX + 20;
-            int boxW = panelW - 40;
-            int boxH = 60;
-            int boxY = panelY + panelH - boxH - 15;
+            if (infoItem != null) {
+                String itemName = infoItem.name;
+                String key = infoItem.name.toLowerCase();
+                String desc = itemDescriptions.getOrDefault(key, "");
 
-            g2.setColor(new Color(0,0,0,120));
-            g2.fillRoundRect(boxX, boxY, boxW, boxH, 12, 12);
+                int boxX = panelX + 20;
+                int boxW = panelW - 40;
+                int boxH = 60;
+                int boxY = panelY + panelH - boxH - 15;
 
-            g2.setColor(Color.WHITE);
-            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 12f));
-            g2.drawString(infoItem.name, boxX + 10, boxY + 20);
+                g2.setColor(new Color(0,0,0,120));
+                g2.fillRoundRect(boxX, boxY, boxW, boxH, 12, 12);
 
-            g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 11f));
-            g2.drawString(desc, boxX + 10, boxY + 40);
+                g2.setColor(Color.WHITE);
+                g2.setFont(g2.getFont().deriveFont(Font.BOLD, 12f));
+                g2.drawString(itemName, boxX + 10, boxY + 20);
+
+                g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 11f));
+                g2.drawString(desc, boxX + 10, boxY + 40);
+            }
         }
     }
 
@@ -359,12 +523,20 @@ public class InventoryOverlay extends JComponent {
 
         if (visible) {
             computeLayout();
-            resyncEquippedFromInventory();    
+            resyncEquippedFromInventory();
+            // pause timer dans la boutique
+            if (currentCategory == Category.BOUTIQUE && gameManager != null && gameManager.getGameLoop() != null) {
+                gameManager.getGameLoop().pauseTimer();
+            }
         } else {
             selectedIndex = -1;
             // Re-synchroniser l'arme équipée quand on ferme l'inventaire
             if (equippedItem != null) {
                 equipItem(equippedItem);
+            }
+            // resume le timer quand l'inventaire est fermé
+            if (gameManager != null && gameManager.getGameLoop() != null) {
+                gameManager.getGameLoop().resumeTimer();
             }
         }
         repaint();
@@ -379,7 +551,7 @@ public class InventoryOverlay extends JComponent {
         return switch (currentCategory) {
             case ARMES  -> item.objectType.equalsIgnoreCase("weapon");
             case GADGET -> item.objectType.equalsIgnoreCase("gadget");
-            case CRAFT  -> item.objectType.equalsIgnoreCase("craft");
+            case BOUTIQUE  -> item.objectType.equalsIgnoreCase("craft");
         };
     }
 
@@ -433,7 +605,7 @@ public class InventoryOverlay extends JComponent {
 
         armesTab  = new Rectangle(panelX + 20,  tabY, tabW, tabH);
         gadgetTab = new Rectangle(panelX + 120, tabY, tabW, tabH);
-        craftTab  = new Rectangle(panelX + 220, tabY, tabW, tabH);
+        boutiqueTab  = new Rectangle(panelX + 220, tabY, tabW, tabH);
 
         // grille
         int startX = panelX + 20;
@@ -492,6 +664,67 @@ public class InventoryOverlay extends JComponent {
                 break;
             }
         }
+    }
+    
+    private void handlePurchase() {
+        if (selectedShopIndex < 0 || selectedShopIndex >= shopItems.size()) {
+            return;
+        }
+        
+        ShopItem shopItem = shopItems.get(selectedShopIndex);
+        int currentMoney = playerDataController.getPlayerData().getMoney();
+        
+        if (currentMoney < shopItem.price) {
+            System.out.println("Pas assez d'argent pour acheter " + shopItem.name);
+            return;
+        }
+        
+        // Déduire l'argent
+        playerDataController.getPlayerData().setMoney(currentMoney - shopItem.price);
+        playerDataController.sauvegarderJoueur();
+        
+        System.out.println("Achat réussi: " + shopItem.name + " pour " + shopItem.price + "$");
+        
+        if ("WORMRACE".equalsIgnoreCase(shopItem.name)) {
+            System.out.println("Déclenchement de WORMRACE");
+            if (wormRaceOverlay != null) {
+                wormRaceOverlay.showRace();
+            } else {
+                System.err.println("ERREUR: wormRaceOverlay est null!");
+            }
+        }
+        
+        if ("WORMGUESS".equalsIgnoreCase(shopItem.name)) {
+            System.out.println("Déclenchement de WORMGUESS");
+            if (wormGuessOverlay != null) {
+                wormGuessOverlay.showGame();
+            } else {
+                System.err.println("ERREUR: wormGuessOverlay est null!");
+            }
+        }
+        
+        if ("WORMJACK".equalsIgnoreCase(shopItem.name)) {
+            System.out.println("Déclenchement de WORMJACK");
+            if (wormJackOverlay != null) {
+                wormJackOverlay.showGame();
+            } else {
+                System.err.println("ERREUR: wormJackOverlay est null!");
+            }
+        }
+        
+        repaint();
+    }
+    
+    public void setWormRaceOverlay(WormRaceOverlay overlay) {
+        this.wormRaceOverlay = overlay;
+    }
+    
+    public void setWormGuessOverlay(WormGuessOverlay overlay) {
+        this.wormGuessOverlay = overlay;
+    }
+    
+    public void setWormJackOverlay(WormJackOverlay overlay) {
+        this.wormJackOverlay = overlay;
     }
 
 }

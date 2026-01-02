@@ -32,7 +32,7 @@
     },
     {
       "objectType": "WEAPON",
-      "name": "bazooka",
+      "name": "rocketlauncher",
       "maxUsages": 1,
       "isInfinite": false,
       "remainingUses": 2,

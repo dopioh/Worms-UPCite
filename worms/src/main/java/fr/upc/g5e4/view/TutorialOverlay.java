@@ -88,6 +88,16 @@ public class TutorialOverlay extends JPanel {
                 "• Potion Bouclier : Réduit les dégâts subis pendant une durée limitée",
                 "• Potion Vitesse : Augmente la vitesse de déplacement pendant une durée limitée",
                 "• Potion Saut : Augmente la hauteur de saut pendant une durée limitée",
+            },
+            {
+                "CREDITS",
+                "Ce jeu a été développé par le groupe G5E4 dont les membres sont : ",
+                "• MILITON Mei",
+                "• MAZRI Nassim",
+                "• WU Billy",
+                "• DESROQUES Ian",
+                "• SHAN Hugo",
+                "• ROSE Raphael",
             }
         };
         

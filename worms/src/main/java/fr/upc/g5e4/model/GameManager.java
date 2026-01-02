@@ -692,6 +692,10 @@ public class GameManager {
     public void setGameLoop(GameLoop loop) {
         this.gameLoop = loop;
     }
+    
+    public GameLoop getGameLoop() {
+        return this.gameLoop;
+    }
 
     public void nextRound() {
         roundNumber++;
