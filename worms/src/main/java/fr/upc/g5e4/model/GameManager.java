@@ -222,7 +222,7 @@ public class GameManager {
         // Contrôleur fusionné avec le worm actif
         this.imputController = new SwingInputController(activeWormController, cameraController);
         // GamePanel avec tout ce qui est nécessaire
-        this.gamePanel = new GamePanel(model, camera, cameraController, listTeamInital); 
+        this.gamePanel = new GamePanel(model, camera, cameraController, listTeamInital, this); 
         // Passer le BlockGridModel au GamePanel pour le rendu en blocs
         this.gamePanel.setBlockGridModel(this.blockGridModel);
         // Passer l'ItemController au GamePanel pour dessiner les projectiles
@@ -361,7 +361,7 @@ public class GameManager {
         this.imputController = new SwingInputController(activeWormController, cameraController);
 
         // GamePanel avec tout ce qui est nécessaire
-        this.gamePanel = new GamePanel(model, camera, cameraController, listTeamInital); 
+        this.gamePanel = new GamePanel(model, camera, cameraController, listTeamInital, this); 
         
         // Passer le BlockGridModel au GamePanel pour le rendu en blocs
         this.gamePanel.setBlockGridModel(this.blockGridModel);

@@ -169,6 +169,7 @@
 - sons pour les gadgets
 - Degats de zone 
 - Readme.md expliquant le projet (comment jouer etc)
+- Ajout d’un pointeur graphique (flèche rouge) au-dessus du joueur actif dans la vue GamePanel pour indiquer visuellement le worm en cours de jeu.
 
 ### Fixed
 
