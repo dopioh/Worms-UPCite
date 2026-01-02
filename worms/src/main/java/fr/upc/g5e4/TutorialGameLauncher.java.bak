@@ -1,8 +1,6 @@
 package fr.upc.g5e4;
 
 import java.awt.Color;
-import java.util.ArrayList;
-
 import javax.swing.*;
 import org.jbox2d.dynamics.World;
 
@@ -63,11 +61,8 @@ public class TutorialGameLauncher {
         CharacterController wormController = new CharacterController(team.getWorm(0));
         SwingInputController inputController = new SwingInputController(wormController, cameraController);
         
-        ArrayList<TeamInitialisation> tm = new ArrayList<>();
-        tm.add(new TeamInitialisation(groundModel, world, "team1", 3, sizeX));
-        tm.add(new TeamInitialisation(groundModel, world, "team2", 3, sizeX));
-        
-        GamePanel gamePanel = new GamePanel(groundModel, camera, cameraController, tm);
+        GamePanel gamePanel = new GamePanel(groundModel, camera, cameraController, 
+                                           team, teamView, teamTest, teamViewTest);
         
         // activer le mode blueprint
         gamePanel.setBlueprintMode(true);
@@ -101,4 +96,3 @@ public class TutorialGameLauncher {
         System.out.println("Contrôles : Q/D = gauche/droite, Z = sauter, Flèches = caméra");
     }
 }
-

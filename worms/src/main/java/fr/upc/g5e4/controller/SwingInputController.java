@@ -8,8 +8,10 @@ import org.jbox2d.common.Vec2;
 
 import fr.upc.g5e4.model.GameManager;
 import fr.upc.g5e4.model.CharacterModel;
-import fr.upc.g5e4.view.InventoryOverlay;
-import fr.upc.g5e4.view.TrajectoryRenderer;
+import fr.upc.g5e4.view.*;
+import fr.upc.g5e4.controller.SwingInputController;
+import fr.upc.g5e4.controller.CharacterController;
+
 import javax.swing.JFrame;
 
 /** 
@@ -23,12 +25,16 @@ public class SwingInputController extends JPanel{
     private CharacterController personnageController;
     private CameraController cameraController;
     private GameManager gameManager; 
-    private TrajectoryRenderer trajectoryRenderer;
+    private TrajectoryView trajectoryRenderer;
     private boolean isAiming = false;  // affichage de la trajectoire
+    private boolean mouseButtonPressed = false;  // regarde si la souris est appuyé
     private double shootingAngle = 0;  // angle de visée en degrés
 
     private InventoryOverlay inventoryOverlay; 
     private JFrame gameFrame;
+    private PauseOverlay pauseOverlay;
+    private HelpOverlay helpOverlay;
+
 
     /**
      * Constructeur pour gérer uniquement le personnage
@@ -58,7 +64,7 @@ public class SwingInputController extends JPanel{
     /**
     * Définit le rendu de la trajectoire
     */
-    public void setTrajectoryRenderer(TrajectoryRenderer renderer) {
+    public void setTrajectoryRenderer(TrajectoryView renderer) {
         this.trajectoryRenderer = renderer;
     }
     
@@ -103,6 +109,15 @@ public class SwingInputController extends JPanel{
         this.gameFrame = frame;
     }
 
+    public void setPauseOverlay(PauseOverlay overlay) {
+        this.pauseOverlay = overlay;
+    }
+ 
+    
+    public void setHelpOverlay(HelpOverlay overlay) {
+        this.helpOverlay = overlay;
+    }
+
     //@Override
     public void addControls() {    
         //System.out.println("addControls() called");
@@ -121,26 +136,6 @@ public class SwingInputController extends JPanel{
                         break;
                     case KeyEvent.VK_Z:
                         personnageController.activateJump();
-                        break;
-
-                    // contrôle du viseur - UP/DOWN pour rotation circulaire (0-360°)
-                    case KeyEvent.VK_UP:
-                        // augmenter l'angle (viser plus haut)
-                        shootingAngle += 10;  // +10 degrés
-                        if (shootingAngle >= 360) {
-                            shootingAngle -= 360;  // revenir à 0 si dépassement
-                        }
-                        isAiming = true;
-                        updateTrajectory();
-                        break;
-                    case KeyEvent.VK_DOWN:
-                        // diminuer l'angle (viser plus bas)
-                        shootingAngle -= 10;  // -10 degrés
-                        if (shootingAngle < 0) {
-                            shootingAngle += 360;  // revenir à 360 si négatif
-                        }
-                        isAiming = true;
-                        updateTrajectory();
                         break;
 
                     // Caméra déplacements
@@ -173,7 +168,7 @@ public class SwingInputController extends JPanel{
                         System.out.println("switch");
                         break;
 
-                    // Ouverture de l'inventaire
+                    // Sauvegarde de la partie actuel
                     case KeyEvent.VK_J:
                         gameManager.actionPerformed();
                         System.out.println("Save Buttun Pressed");
@@ -184,19 +179,25 @@ public class SwingInputController extends JPanel{
                         personnageController.toggleFlyMode();
                         System.out.println("SUPERMAAAAAAAAAAAAN (todo : ajouter cape)");
                         break;
-                    // Touche Echap pour quitter le jeu !!!!!!!!!!!!!!!!!!!!!!!!! A modifier pour le menu plus tard
+                    // Touche Echap pour ouvrir les parametres
                     case KeyEvent.VK_ESCAPE:
-                        if(gameFrame != null){
-                            gameFrame.dispose();
+                        if (pauseOverlay != null) {
+                            boolean v = pauseOverlay.isPauseVisible();
+                            pauseOverlay.setPauseVisible(!v);
+
+                            // si on ferme pause, on ferme aussi help
+                            if (v && helpOverlay != null) {
+                                helpOverlay.setHelpVisible(false);
+                            }
                         }
-                        System.exit(0);
                         break;
+
                     case KeyEvent.VK_I:
                         if (inventoryOverlay != null) {
                         boolean visible = inventoryOverlay.isInventoryVisible();
                         inventoryOverlay.setInventoryVisible(!visible);
-                    }
-                    break;
+                        }
+                        break;
                     
                     // Touche H pour ajouter un item de test au nametag
                     case KeyEvent.VK_H:
@@ -211,7 +212,7 @@ public class SwingInputController extends JPanel{
                             charView = gameManager.getListTeamInit().get(teamIndex).getTeamView().getCharacterView(wormIndex);
                             
                             if (charView != null) {
-                                charView.getNameTagView().addItemFromResource("/worm.png", "test_item");
+                                charView.getNameTagView().addItemFromResource("/wormPinky.png", "test_item");
                                 System.out.println("Item ajouté au nametag");
                             }
                         }
@@ -247,24 +248,89 @@ public class SwingInputController extends JPanel{
                 }
             }
         });
-        
+
         // Tir au clic gauche -> vers la souris
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 requestFocusInWindow();  // Récupérer le focus au clic
                 if (e.getButton() == MouseEvent.BUTTON1) {
-                    handleFireAt(e.getX(), e.getY());
+                    // Vérifier que l'inventaire n'est pas ouvert pour éviter le double tir
+                    if (inventoryOverlay != null && inventoryOverlay.isInventoryVisible()) {
+                        return;  // L'inventaire gère le tir
+                    }
+                    mouseButtonPressed = true;
+                    updateTrajectoryFromMouse(e.getX(), e.getY());
+                }
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON1 && mouseButtonPressed) {
+                    mouseButtonPressed = false;
+                    fireWeaponAtAngle(e.getX(), e.getY());
+                }
+            }
+        });
+
+        // Mise à jour continue de la trajectoire quand la souris bouge 
+        addMouseMotionListener(new java.awt.event.MouseMotionListener() {
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                if (mouseButtonPressed) {
+                    updateTrajectoryFromMouse(e.getX(), e.getY());
+                }
+            }
+
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                if (mouseButtonPressed) {
+                    updateTrajectoryFromMouse(e.getX(), e.getY());
                 }
             }
         });
     }
     
     /**
-     * Tirer vers la position écran (x, y)
+     * désactive l'affichage de la trajectoire
      */
-    public void handleFireAt(int x, int y) {
+    public void disableTrajectory() {
+        isAiming = false;
+        mouseButtonPressed = false;
+        if (trajectoryRenderer != null) {
+            trajectoryRenderer.setAiming(false);
+        }
+    }
+    
+    /**
+     * met à jour la trajectoire basée sur la position écran
+     * version simplifiée sans vérification de focus
+     * n'active que si une arme est équipée
+     */
+    public void updateTrajectoryFromMouseMotion(int x, int y) {
+        // vérifier qu'une arme est équipée et pas un gadget
+        if (personnageController == null || personnageController.getCurrentWeapon() == null) {
+            return;
+        }
+        
+        if (inventoryOverlay != null && inventoryOverlay.getEquippedGadget() != null) {
+            return;
+        }
+        
+        updateTrajectoryFromMouse(x, y);
+    }
+    
+    /**
+     * MAJ la trajectoire basée sur la position écran
+     * affiche la trajectoire sans tirer
+     */
+    public void updateTrajectoryFromMouse(int x, int y) {
         if (personnageController == null || personnageController.getModel() == null) {
+            return;
+        }
+
+        // ne pas afficher la trajectoire si un gadget est équipé
+        if (inventoryOverlay != null && inventoryOverlay.getEquippedGadget() != null) {
             return;
         }
 
@@ -275,32 +341,116 @@ public class SwingInputController extends JPanel{
         // Position du worm en coordonnées monde
         Vec2 pos = model.getBody().getPosition();
 
-        // Position écran approximative
-        float wormScreenX = pos.x * ppm;
-        float wormScreenY = (worldHeightMeters - pos.y) * ppm;  // inversion Y
+        //info de la caméra
+        double zoomFactor = 1.0;
+        double cameraX = 0.0;
+        double cameraY = 0.0;
+        
+        if (cameraController != null) {
+            zoomFactor = cameraController.getCamera().getZoomFactor();
+            cameraX = cameraController.getCamera().getX();
+            cameraY = cameraController.getCamera().getY();
+        }
+        
+        // obtenir les coordonnées monde
+        //convertir les pixel écran (x, y) en coordonnées monde:
 
-        double dx = x - wormScreenX;
-        double dy = wormScreenY - y; // inversion Y
+        // inverser le zoom d'abord 
+        double xAfterZoom = x / zoomFactor;
+        double yAfterZoom = y / zoomFactor;
+        
+        //compenser le décalage de la caméra
+        double clickWorldX_temp = xAfterZoom + cameraX;
+        double clickWorldY_temp = yAfterZoom + cameraY;
+        
+        //convertir pixels en mètres
+        float clickWorldX = (float)(clickWorldX_temp / ppm);
+        float clickWorldY = (float)(clickWorldY_temp / ppm);
+        
+        // Inverser l'axe Y
+        clickWorldY = (float)(worldHeightMeters - clickWorldY);
+
+        // calculer l'angle entre le worm et le clic
+        double dx = clickWorldX - pos.x;
+        double dy = clickWorldY - pos.y;
 
         shootingAngle = Math.toDegrees(Math.atan2(dy, dx));
         if (shootingAngle < 0) {
             shootingAngle += 360;
         }
 
-        isAiming = true;
-        updateTrajectory();
-
-        // désactiver la visée juste après le tir
-        if (trajectoryRenderer != null) {
-            trajectoryRenderer.setAiming(false);
-        }
-        isAiming = false;
-
+        // mettre à jour l'arme avec le nouvel angle
         if (personnageController.getCurrentWeapon() != null) {
             personnageController.getCurrentWeapon().setShootingAngle(shootingAngle);
         }
 
-        personnageController.fireWeapon(1);  // direction ignorée, l'angle est dans l'arme
+        // afficher la trajectoire en temps réel
+        isAiming = true;
+        updateTrajectory();
+    }
+
+    /**
+     * effectue le tir avec l'angle actuel
+     */
+    public void fireWeaponAtAngle(int x, int y) {
+        if (personnageController == null || personnageController.getModel() == null) {
+            return;
+        }
+
+        // vérifier si un gadget est équipé au lieu d'une arme
+        if (inventoryOverlay != null && inventoryOverlay.getEquippedGadget() != null) {
+            inventoryOverlay.useEquippedGadget();
+            return;
+        }
+
+        CharacterModel model = personnageController.getModel();
+        
+        // position du worm en coordonnées monde
+        Vec2 pos = model.getBody().getPosition();
+
+        //info de la caméra
+        double zoomFactor = 1.0;
+        double cameraX = 0.0;
+        double cameraY = 0.0;
+        
+        if (cameraController != null) {
+            zoomFactor = cameraController.getCamera().getZoomFactor();
+            cameraX = cameraController.getCamera().getX();
+            cameraY = cameraController.getCamera().getY();
+        }
+        
+        float ppm = CharacterModel.getPPM();
+        float worldHeightMeters = 24f;
+
+        // obtenir les coordonnées monde
+        // inverser le zoom d'abord (diviser par le zoom)
+        double xAfterZoom = x / zoomFactor;
+        double yAfterZoom = y / zoomFactor;
+        
+        //compenser le décalage de la caméra
+        double clickWorldX_temp = xAfterZoom + cameraX;
+        double clickWorldY_temp = yAfterZoom + cameraY;
+        
+        //convertir pixels en mètres
+        float clickWorldX = (float)(clickWorldX_temp / ppm);
+        float clickWorldY = (float)(clickWorldY_temp / ppm);
+        
+        // Inverser l'axe Y
+        clickWorldY = (float)(worldHeightMeters - clickWorldY);
+
+        // calculer la direction basée sur l'angle
+        double dx = clickWorldX - pos.x;
+        int direction = (dx > 0) ? 1 : -1;
+
+        // désactiver l'affichage de la trajectoire
+        isAiming = false;
+        if (trajectoryRenderer != null) {
+            trajectoryRenderer.setAiming(false);
+        }
+
+        // Convertir l'angle en radians pour fireWeaponWithAngle
+        double angleInRadians = Math.toRadians(shootingAngle);
+        personnageController.fireWeaponWithAngle(angleInRadians, direction);
     }
     
     /**

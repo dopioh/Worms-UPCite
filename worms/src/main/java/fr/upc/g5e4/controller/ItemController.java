@@ -6,6 +6,9 @@ import fr.upc.g5e4.model.CharacterModel;
 import fr.upc.g5e4.model.Item;
 import fr.upc.g5e4.model.Weapon;
 import fr.upc.g5e4.model.Projectile;
+import fr.upc.g5e4.model.BlockGridModel;
+import fr.upc.g5e4.model.PhysicsWorld;
+import fr.upc.g5e4.model.WindModel;
 import fr.upc.g5e4.model.GameManager;
 import fr.upc.g5e4.view.ItemView;
 import java.util.ArrayList;
@@ -15,7 +18,10 @@ import fr.upc.g5e4.model.SoundPlayer;
 public class ItemController {
     private final ItemView view;
     private World world;
+    private PhysicsWorld physicsWorld;
     private CharacterModel[] allWorms;
+    private BlockGridModel blockGridModel;
+    private WindModel windModel;
     private List<Projectile> activeProjectiles;
     private GameManager gameManager;
 
@@ -39,6 +45,22 @@ public class ItemController {
     public void setWorld(World world) {
         this.world = world;
     }
+    
+    /**
+     * définit le PhysicsWorld pour reconstruire le terrain après destruction
+     * @param physicsWorld Le gestionnaire de physique
+     */
+    public void setPhysicsWorld(PhysicsWorld physicsWorld) {
+        this.physicsWorld = physicsWorld;
+    }
+
+    /**
+     * définit le modele du vent
+     * @param windModel le modele du vent
+     */
+    public void setWindModel(WindModel windModel) {
+        this.windModel = windModel;
+    }
 
     /**
      * Définit le tableau de tous les worms pour la détection de collision
@@ -46,6 +68,14 @@ public class ItemController {
      */
     public void setAllWorms(CharacterModel[] allWorms) {
         this.allWorms = allWorms;
+    }
+    
+    /**
+     * définit le BlockGridModel pour les dégâts au terrain
+     * @param blockGridModel Le modèle de grille de blocs
+     */
+    public void setBlockGridModel(BlockGridModel blockGridModel) {
+        this.blockGridModel = blockGridModel;
     }
 
     /**
@@ -70,9 +100,13 @@ public class ItemController {
         }
 
         if (weapon.use()) {
-            SoundPlayer.play("/sfx/gunshot.wav");
+            // on fait jouer le son de l'arme
+            String soundPath = getWeaponSoundPath(weapon);
+            if (soundPath != null) {
+                SoundPlayer.play(soundPath);
+            }
 
-            Projectile projectile = weapon.fire(shooter, world, allWorms, direction);
+            Projectile projectile = weapon.fire(shooter, world, allWorms, direction, windModel);
             if (projectile != null) {
                 activeProjectiles.add(projectile);
                 System.out.println("Projectile lancé à l'angle: " + String.format("%.0f°", projectile.getShootingAngle()));
@@ -96,7 +130,15 @@ public class ItemController {
         List<Projectile> toRemove = new ArrayList<>();
         // met à jour chaque projectile
         for (Projectile projectile : activeProjectiles) {
-            if (!projectile.update(deltaTime)) {
+            if (!projectile.update(deltaTime)) { // retourne faux si le projectile a dépassé sa portée
+                applyTerrainDamage(projectile); 
+                toRemove.add(projectile);
+                continue;
+            }
+            
+            // permet de détecter le sol
+            if (hitGround(projectile)) {
+                applyTerrainDamage(projectile);
                 toRemove.add(projectile);
                 continue;
             }
@@ -146,6 +188,7 @@ public class ItemController {
                         System.out.println("Cible " + worm.getName() + " touchée avec " + 
                                          damage + " damage (impact: " + 
                                          String.format("%.2f", impactForce) + ")");
+                        applyTerrainDamage(projectile);
                         toRemove.add(projectile);
                         break;
                     }
@@ -158,9 +201,179 @@ public class ItemController {
     }
     
     /**
+     * vérifie si un projectile a touché le sol
+     * @param projectile le projectile
+     * @return true si le projectile a touché le sol
+     */
+    private boolean hitGround(Projectile projectile) {
+        if (blockGridModel == null) {
+            return false;
+        }
+        
+        Vec2 pos = projectile.getCurrentPosition();
+        float PPM = 30f; // pixel par mètre
+        
+        //convertit la position monde en pixels
+        int pixelX = (int)(pos.x * PPM);
+        int pixelY = (int)(blockGridModel.getPixelHeight() - pos.y * PPM);
+        
+        // verifie si le projectile touche un bloc solide de la grille
+        return blockGridModel.isSolidAt(pixelX, pixelY);
+    }
+    
+    /**
+     * applique les degats au terrain quand le projectile touche le sol
+     * @param projectile Le projectile qui impacte le terrain
+     */
+    private void applyTerrainDamage(Projectile projectile) {
+        if (blockGridModel == null) {
+            return;
+        }
+        
+        Weapon weapon = projectile.getSourceWeapon(); // arme qui a tiré le projectile
+        if (weapon == null || weapon.getTerrainDamage() == 0) {
+            return;
+        }
+        
+        Vec2 projectilePos = projectile.getCurrentPosition();
+        
+        // convertit la position du monde (JBox2D en mètres) en coordonnées de grille
+        float PPM = 30f;
+        
+        // convertir de metres en pixels
+        int pixelX = (int)(projectilePos.x * PPM);
+        // Y est inversé entre JBox2D (Y augmente vers le haut) et pixels (Y augmente vers le bas)
+        int pixelY = (int)(blockGridModel.getPixelHeight() - projectilePos.y * PPM);
+        
+        // convertir de pixels en coordonnées de grille
+        int centerGridX = blockGridModel.pixelToGridX(pixelX);
+        int centerGridY = blockGridModel.pixelToGridY(pixelY);
+        
+        boolean modified = false; // indique si le terrain a été modifié
+        
+        System.out.println("[TERRAIN] Impact à gridX=" + centerGridX + ", gridY=" + centerGridY);
+        System.out.println("[TERRAIN] PhysicsWorld est " + (physicsWorld == null ? "NULL" : "défini"));
+        
+        // appliquer les degats au terrain
+        if (weapon.getTerrainBlastRadius() > 0) {
+            // dégats en zone 
+            blockGridModel.damageBlocksInRadius(centerGridX, centerGridY, weapon.getTerrainBlastRadius(), weapon.getTerrainDamage());
+            System.out.println("[" + weapon.getName() + "] Dégâts terrain en zone : " + weapon.getTerrainDamage() + " PV, rayon " + weapon.getTerrainBlastRadius());
+            modified = true;
+        } else {
+            // dégats ponctuels
+            if (blockGridModel.damageBlock(centerGridX, centerGridY, weapon.getTerrainDamage())) {
+                modified = true;
+            }
+            System.out.println("[" + weapon.getName() + "] Dégâts terrain ponctuels : " + weapon.getTerrainDamage() + " PV");
+        }
+        
+        System.out.println("[TERRAIN] Modified = " + modified);
+        
+        // appliquer les dégats d'explosion 
+        applyExplosionDamageToWorms(projectile);
+        
+        // on supprime les blocks flottants après destruction
+        if (modified) {
+            // int searchRadius = weapon.getTerrainBlastRadius() > 0 ? (int)(weapon.getTerrainBlastRadius() * 4) : 20; // SI ON MANQUE DE RESSOURCES
+            int floatingRemoved = blockGridModel.removeFloatingBlocks(centerGridX, centerGridY, 200);
+            if (floatingRemoved > 0) {
+                System.out.println("[TERRAIN] " + floatingRemoved + " blocs flottants supprimés (rayon de recherche: 200)");
+            }
+        }
+        
+        // Reconstruire la physique si des blocs ont été détruits
+        if (modified && physicsWorld != null) {
+            System.out.println("[TERRAIN] Appel de rebuildGroundPhysics...");
+            physicsWorld.rebuildGroundPhysics(blockGridModel);
+        } else if (modified && physicsWorld == null) {
+            System.out.println("[TERRAIN] ERROR: physicsWorld est NULL !");
+        }
+    }
+    
+    /**
+     * applique les dégats de zone
+     * @param projectile Le projectile qui a explosé
+     */
+    private void applyExplosionDamageToWorms(Projectile projectile) {
+        if (allWorms == null) {
+            return;
+        }
+        
+        Weapon weapon = projectile.getSourceWeapon(); // arme qui a tiré le projectile
+        if (weapon == null || weapon.getBlastRadius() <= 0) {
+            return; // pas d'explosion de zone
+        }
+        
+        Vec2 explosionCenter = projectile.getCurrentPosition();
+        float blastRadiusInMeters = (float) weapon.getBlastRadius();
+        int baseDamage = weapon.getDamage();
+        double knockbackMultiplier = weapon.getKnockbackMultiplier();
+        
+        CharacterModel shooter = projectile.getShooter();
+        
+        // parcourir tous les worms
+        for (CharacterModel worm : allWorms) {
+            if (worm == null || worm.isDead()) {
+                continue;
+            }
+            
+            // calculer la distance entre le centre de l'explosion et le worm
+            Vec2 wormPos = worm.getBody().getPosition();
+            float distanceX = wormPos.x - explosionCenter.x;
+            float distanceY = wormPos.y - explosionCenter.y;
+            float distance = (float) Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+            
+            // vérifier si le worm est dans le rayon d'explosion
+            if (distance <= blastRadiusInMeters) {
+                // les dégats diminuent avec la distance (plus proche = plus de dégats)
+                double damageMultiplier = 1.0 - (distance / blastRadiusInMeters);
+                int actualDamage = Math.max(1, (int) (baseDamage * damageMultiplier));
+                
+                // appliquer les dégats
+                worm.dealDamage(actualDamage, shooter);
+                System.out.println("[EXPLOSION] " + worm.getName() + " prend " + actualDamage + " dégâts (distance: " + String.format("%.2f", distance) + "m)");
+                
+                // appliquer un impact de recul
+                if (distance > 0) {
+                    // direction de l'impact (depuis le centre vers le worm)
+                    Vec2 impactDirection = new Vec2(distanceX / distance, distanceY / distance);
+                    float impactForce = (float) (knockbackMultiplier * (1.0 - (distance / blastRadiusInMeters)) * 10.0f);
+                    worm.applyImpact(impactDirection, impactForce);
+                    System.out.println("[EXPLOSION] Impact appliqué avec force " + String.format("%.2f", impactForce));
+                }
+            }
+        }
+    }
+    
+    /**
      * retourne la liste des projectiles actifs
      */
     public List<Projectile> getActiveProjectiles() {
         return activeProjectiles;
+    }
+    
+    /**
+     * Retourne le chemin du son pour une arme donnée
+     * @param weapon l'arme pour laquelle obtenir le son
+     * @return le chemin du son dans resources/sfx/ ou null si non trouvé
+     */
+    private String getWeaponSoundPath(Weapon weapon) {
+        if (weapon == null) {
+            return null;
+        }
+
+        String className = weapon.getClass().getSimpleName();
+        String fileName = className.toLowerCase();
+        String wavPath = "/sfx/" + fileName + "-sound.wav";
+        
+        // si le fichier son existe (obligatoirement en .wav)
+        if (SoundPlayer.class.getResourceAsStream(wavPath) != null) {
+            return wavPath;
+        }
+        
+        // si on trouve pas le fichier son
+        System.err.println("Aucun fichier son trouvé pour l'arme: " + className);
+        return null;
     }
 }

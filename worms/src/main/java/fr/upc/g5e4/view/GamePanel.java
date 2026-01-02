@@ -21,10 +21,12 @@ public class GamePanel extends JPanel {
     private final GroundModel model;  // Gardé pour compatibilité
     private BlockGridModel blockGridModel;  // système de terrain en blocs
     private final CameraModel camera;
+
+    private final TrajectoryView trajectoryView;
     private final CameraController cameraController; // Ajouté pour le timer
     private ArrayList<TeamInitialisation> listTeamInitialisation;
     private boolean blueprintMode = false;
-    private final TrajectoryRenderer trajectoryRenderer;
+
     private ItemController itemController;
     private JButton saveButton;
     private static final float PPM = 30f;
@@ -50,9 +52,11 @@ public class GamePanel extends JPanel {
     public GamePanel(GroundModel model, CameraModel camera, CameraController cameraController, ArrayList<TeamInitialisation> listTeamInitialisation) {
         this.model = model;
         this.camera = camera;
+        // init BlockGridView
         this.cameraController = cameraController;
         this.listTeamInitialisation = listTeamInitialisation;
-        this.trajectoryRenderer = new TrajectoryRenderer();
+
+        this.trajectoryView = new TrajectoryView();
         this.blockGridView = new BlockGridView();
         initializePanel();
     }
@@ -60,13 +64,17 @@ public class GamePanel extends JPanel {
     private void initializePanel() {
         setPreferredSize(new Dimension(model.getWidth(), model.getHeight()));
         setLayout(null);
+        /*
         // Charger la texture du ground
         try {
             groundTexture = ImageIO.read(getClass().getResourceAsStream("/ground_texture.png"));
         } catch (IOException | IllegalArgumentException e) {
             System.err.println("impossible de charger la texture du ground : " + e.getMessage());
             groundTexture = null;
+            
         }
+             */
+
         // ajout: configuration du label chrono
         roundTimerLabel.setFont(new Font("Arial", Font.BOLD, 18));
         roundTimerLabel.setForeground(Color.WHITE);
@@ -82,10 +90,8 @@ public class GamePanel extends JPanel {
         this.add(saveButton);
         */
 
-        // Timer pour update régulier de la caméra (repaint géré par GameLoop)
-        new javax.swing.Timer(16, e -> {
-            cameraController.update();
-        }).start();
+        // La mise à jour de la caméra est maintenant gérée directement dans GameLoop
+        // Pas besoin de Timer supplémentaire ici
     }
 
     public static float getPPM() {
@@ -105,8 +111,8 @@ public class GamePanel extends JPanel {
     /**
      * Retourne le renderer de trajectoire pour que d'autres composants puissent l'utiliser
      */
-    public TrajectoryRenderer getTrajectoryRenderer() {
-        return trajectoryRenderer;
+    public TrajectoryView getTrajectoryView() {
+        return trajectoryView;
     }
     
     /**
@@ -211,7 +217,9 @@ public class GamePanel extends JPanel {
         }
 
         // Trajectoire de tir (Angry Birds style)
-        trajectoryRenderer.draw(g2, null);
+        trajectoryView.draw(g2, null);
+        
+
         // Projectiles en vol
         if (itemController != null) {
             ProjectileView.drawProjectiles(g2, itemController.getActiveProjectiles());

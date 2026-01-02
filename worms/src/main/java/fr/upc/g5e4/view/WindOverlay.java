@@ -1,3 +1,5 @@
+
+
 package fr.upc.g5e4.view;
 
 import fr.upc.g5e4.model.WindModel;
@@ -15,7 +17,6 @@ public class WindOverlay extends JComponent {
 
     // animation
     private float animPhase = 0f;
-    private boolean needsRedraw = false;
     
     // Pré-création des objets graphiques pour éviter les allocations à chaque frame + access facile aux couleurs
     private static final Color BG_COLOR = new Color(0, 0, 0, 120);
@@ -34,15 +35,10 @@ public class WindOverlay extends JComponent {
         for (int i = 0; i < 30; i++) {
             particles.add(spawnParticle());
         }
+    
 
-        // timer d'animation (discret) - repaint seulement si nécessaire
-        new Timer(16, e -> {
-            tick(0.016f);
-            if (needsRedraw) {
-                repaint();
-                needsRedraw = false;
-            }
-        }).start();
+        // L'animation est maintenant gérée via un appel externe depuis GameLoop
+        // pour synchroniser avec le reste du jeu et éviter les repaints excessifs
     }
 
     private Particle spawnParticle() {
@@ -54,10 +50,17 @@ public class WindOverlay extends JComponent {
         p.alpha = 0.2f + rng.nextFloat() * 0.35f;
         return p;
     }
+    
+    /**
+     * Méthode publique pour animer le vent depuis GameLoop
+     * @param dt delta time en secondes
+     */
+    public void update(float dt) {
+        tick(dt);
+    }
 
     private void tick(float dt) {
         animPhase += dt;
-        needsRedraw = true;
 
         // direction normalisée (dx,dy dans {-1,0,1})
         WindModel.Dir d = wind.getDir();
@@ -193,3 +196,5 @@ public class WindOverlay extends JComponent {
         float alpha;
     }
 }
+
+

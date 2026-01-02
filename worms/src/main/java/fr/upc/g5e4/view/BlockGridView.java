@@ -78,8 +78,13 @@ public class BlockGridView {
                 int pixelX = gridX * blockSize; 
                 int pixelY = gridY * blockSize;
                 
+                // obtenir la santé actuelle et max du bloc
+                int currentHealth = model.getHealthGrid().getHealth(gridX, gridY);
+                int maxHealth = block.getMaxHealth();
+                double healthPercent = model.getHealthGrid().getHealthPercent(gridX, gridY, maxHealth);
+                
                 // on peut alors dessiner le bloc
-                drawBlock(g2d, block, pixelX, pixelY, blockSize);
+                drawBlock(g2d, block, pixelX, pixelY, blockSize, healthPercent, currentHealth, maxHealth);
             }
         }
     }
@@ -91,16 +96,21 @@ public class BlockGridView {
      * @param x position X en pixels
      * @param y position Y en pixels
      * @param size taille du bloc en pixels
+     * @param healthPercent pourcentage de santé (0.0 = mort, 1.0 = pleine santé)
+     * @param currentHealth santé actuelle du bloc
+     * @param maxHealth santé max du bloc
      */
-    private void drawBlock(Graphics2D g2d, BlockType block, int x, int y, int size) {
+    private void drawBlock(Graphics2D g2d, BlockType block, int x, int y, int size, double healthPercent, int currentHealth, int maxHealth) {
         // on vérifie si on a une texture spécifique pour ce type (grace a Map)
         BufferedImage texture = textures.get(block);
         
         if (texture != null) { // si on a une texture spécifique on la dessine
             g2d.drawImage(texture, x, y, size, size, null);
         } else {
-            // Utiliser la couleur par défaut
-            g2d.setColor(block.getColor());
+            // Utiliser la couleur par défaut, modifiée selon la santé
+            Color blockColor = block.getColor();
+            Color colorToUse = adjustColorByHealth(blockColor, healthPercent, currentHealth);
+            g2d.setColor(colorToUse);
             g2d.fillRect(x, y, size, size);
         }
         
@@ -109,6 +119,33 @@ public class BlockGridView {
             g2d.setColor(BORDER_COLOR);
             g2d.drawRect(x, y, size - 1, size - 1);
         }
+    }
+    
+    /**
+     * ajuste la couleur d'un bloc selon son état de santé
+     * les blocs ayant subit des dégats deviennent plus clairs
+     * @param originalColor couleur originale du bloc
+     * @param healthPercent pourcentage de santé (0.0 à 1.0)
+     * @param currentHealth santé actuelle du bloc
+     * @return la couleur ajustée
+     */
+    private Color adjustColorByHealth(Color originalColor, double healthPercent, int currentHealth) {
+        if (healthPercent >= 1.0) {
+            return originalColor;  // pleine santé = couleur originale
+        }
+        
+        // éclaircie progressivement vers une couleur grise pâle quand endommagé
+        // plus la santé diminue, plus ça devient clair/pâle
+        int r = (int) (originalColor.getRed() * healthPercent + 200 * (1 - healthPercent));
+        int g = (int) (originalColor.getGreen() * healthPercent + 200 * (1 - healthPercent));
+        int b = (int) (originalColor.getBlue() * healthPercent + 200 * (1 - healthPercent));
+        
+        return new Color(
+            Math.min(255, r),
+            Math.min(255, g),
+            Math.min(255, b),
+            originalColor.getAlpha()
+        );
     }
     
     /**

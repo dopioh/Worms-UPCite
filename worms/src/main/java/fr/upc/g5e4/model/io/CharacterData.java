@@ -1,8 +1,15 @@
 package fr.upc.g5e4.model.io;
+
+import fr.upc.g5e4.model.*;
+
+import org.jbox2d.dynamics.*;
+
+
 /**
  * Recupere les donnees essentiels
  * pour recreer une partie 
  * avec un fichier sauvegarde
+ * En utilisant Gson et Json
  */
 public class CharacterData {
     private int ID;
@@ -19,6 +26,8 @@ public class CharacterData {
 
     private boolean isDead;
 
+    private boolean facingRight;
+
     /**
      * 
      * @param ID ID du CharaModel
@@ -29,7 +38,7 @@ public class CharacterData {
      * @param shield ses points de bouclier
      * @param isDead son statut (mort ou vivant)
      */
-    public CharacterData(int ID, String name, double xcord, double ycord, double health, double shield, boolean isDead){
+    public CharacterData(int ID, String name, double xcord, double ycord, double health, double shield, boolean isDead,boolean facingRight){
             this.ID = ID;
             this.name = name;
             this.xcord =xcord;
@@ -37,6 +46,7 @@ public class CharacterData {
             this.health = health;
             this.shield = shield;
             this.isDead = isDead;
+            this.facingRight = facingRight;
     }
 
     public int getID(){
@@ -65,5 +75,14 @@ public class CharacterData {
 
     public boolean getIsDead(){
         return isDead;
+    }
+
+    public boolean getFacingRight(){
+        return this.facingRight;
+    }
+
+    public CharacterModel dataToModel(GroundModel model, World world){
+        CharacterModel cm = new CharacterModel(model, world, ID, name, xcord, ycord, health, shield, isDead,facingRight);
+        return cm;
     }
 }

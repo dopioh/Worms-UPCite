@@ -8,6 +8,8 @@ import fr.upc.g5e4.model.InventoryModel.InventoryJson;
 
 import fr.upc.g5e4.model.io.*;
 
+//import java.awt.Color;
+
 /**
  * Modèle pour une équipe de worms
  */
@@ -21,7 +23,11 @@ public class TeamModel {
 
     private static int TEAMSNUMBER = 0;
 
+    private int COLORTEAM; // permet de le stocker dans sauvegarde.txt
+
     private List<InventoryJson> inventory;
+
+    private boolean facingRight;
     
     /**
      * Constructeur de la classe TeamModel avec initialisation automatique des worms
@@ -35,14 +41,15 @@ public class TeamModel {
      * @param facingRight Direction initiale des worms (true = droite, false = gauche)
      * @param withCollision Active les collisions entre worms (true = avec collisions, false = sans)
      */
-    public TeamModel(GroundModel groundModel, World world, String teamName, double startX, double spacing, int wormNumber, boolean console, boolean facingRight, boolean withCollision) {
+    public TeamModel(GroundModel groundModel, World world, String teamName, double startX, double spacing, int wormNumber, boolean console, boolean facingRight, boolean withCollision,int COLORTEAM) {
         if (wormNumber < 1) {
             throw new IllegalArgumentException("Une équipe doit avoir au moins 1 worm");
         }
+        this.facingRight = facingRight;
         this.teamName = teamName;
         this.number = wormNumber;
         this.tabModelWorms = new CharacterModel[number];
-        this.teamName = teamName;
+        this.COLORTEAM = COLORTEAM;
 
         TEAMSNUMBER++;
         this.teamID = TEAMSNUMBER;
@@ -62,7 +69,7 @@ public class TeamModel {
                 yPosition, 
                 100.0,  // health
                 50.0,   // shield
-                15.0,   // speed
+                4,      // speed
                 5.0,     // jump
                 console,
                 withCollision
@@ -70,6 +77,22 @@ public class TeamModel {
             
             // Définir la direction initiale
             tabModelWorms[i].setFacingRight(facingRight);
+        }
+    }
+
+    /**
+     * Constructeur pour le load d'une sauvegarde 
+     */
+    public TeamModel(GroundModel groundModel, World world, String teamName, int wormNumber, int teamID, CharacterData[] characterDatas,int COLORTEAM,List<InventoryJson> inventory ){
+        this.teamName = teamName;
+        this.number = wormNumber;
+        this.teamID = teamID;
+        this.COLORTEAM = COLORTEAM;
+        this.inventory = inventory;
+        
+        this.tabModelWorms = new CharacterModel[number];
+        for (int i = 0 ; i < tabModelWorms.length ; i++){
+            tabModelWorms[i] = characterDatas[i].dataToModel(groundModel, world);
         }
     }
     
@@ -124,8 +147,9 @@ public class TeamModel {
 
     // Getter Data
     public TeamData toData(){
-        return new TeamData(teamID, number, tabModelWorms,teamName);
+        return new TeamData(teamID, number, tabModelWorms,teamName,COLORTEAM, inventory);
     }
+    
 
     // Setter Data
     public void loadFromData(TeamData teamData){

@@ -1,3 +1,4 @@
+
 # Changelog
 
 ## v.0.0 Configuration : (Avant le premier sprint)
@@ -79,18 +80,44 @@
 - MAP Procédurale 
     - avec bruit de perlin et amplification des bruits
 - SPRITES 
-    - les worms ont des sprites via le constucteur de leur equipe
-- Comportement worm
-    - le worm est totalement supprimé de la map quand il meurt (sprite + body physique) 
-- Sauvegarde
-    - une partie peut etre enregistree dans un fichier `sauvegarde.txt` en json avec la touche **_J_**
+    - les worms ont des sprites via le constructeur de leur equipe
+- Sauvegarde (partielle)
+    - Une partie peut être enregistrée dans un fichier `sauvegarde.txt` en json avec la touche **_J_**
+- Système de visée amélioré
+    - Arc de cercle de tir (rayon)
+- Liaison tir & armes
+    - L'angle de l'arme suit la position de la souris
+    - balle physique
+- Effet sonore pour le tir des armes
+- Collision
+    - Désactivation des collisions entre worms via des catégories de collision
+- Vent
+    - Affichage graphique de la direction du vent
+- Documentation
+    - Fichier `ARCHITECTURE.md` traçant l'arborescence du projet
+    - Amélioration du `CONTRIBUTING.md` (création d'issues et merge requests)
+- Nouveau construteur `TeamView` et `CharacterView` qui demandent le chemin vers le sprite cible
+- La fonction `loadSprite` qui charge le sprite dans un BufferImage et attrape les erreurs d'ouverture/lecture avec IOException
+    - SI une erreur se produit dans loadingSprite, on dessine un carré de la couleur de la team à la place du sprite
+- afficheage du sprite dans la bonne direction
+
+### Modified
+- Focus de la caméra
+    - Le centrage se fait maintenant sur le personnage jouant durant le round
+- Système de rounds
+    - Support pour N équipes au lieu de 2 équipes seulement
+- Structure du projet
+    - Séparation du `GameLauncher` de la partie Overlay
+    - Séparation du JFrame
+    - Suppression de la classe parent `Entity.java` devenue obsolète
 
 ### Fixed
-- `.jar` injouable
+- `.jar` injouable à cause du chargement de `inventory.json`
+- Comportement worm
+    - le worm est totalement supprimé de la map quand il meurt (sprite + body physique)
 
---------- a completer ----------
 
-## [v.0.4 : SPRINT 4](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/4) (unreleased)
+## [v.0.4 : SPRINT 4](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/4)
 ---
 
 ### Added
@@ -104,6 +131,12 @@
     - Affichage des itemes (potions...) sur le nametag
 - Nouveau systeme de map 
     - MAP en tableau 2D remplie d'objet "block"
+- **Cinématique d'introduction** : Animation de présentation avant le début du combat
+    - Affichage des équipes participantes avec nombre de worms
+    - Présentation du terrain généré procéduralement
+    - Affichage des conditions météorologiques (vent)
+    - Animation avec effets de fade et transitions fluides
+    - Durée de 5 secondes avant lancement automatique du jeu
 - Écran de fin de partie avec animation
   - Animation des worms gagnants marchant vers le trophée
   - Affichage des statistiques de jeu (dégâts, précision de tir, éliminations, rounds joué)
@@ -115,7 +148,8 @@
 - Système de statistiques pour tracker des actions pendant la partie
 - Endroit pour stocker les paramètres du jeu
     - `current_skin`
- **Diagramme de classes** : Ajout et documentation du diagramme de classes du projet (GameManager, GameLoop, GamePanel, etc.)
+- Une sauvegarde peut desormais etre lancer depuis le menu d'acceuil en cliquant sur "Poursuivre une partie"
+- Possibilitee de tirer/faire des degats/tuer un worm dans la version Console du jeu (tire assez limiter)
 
 ### Modified
 - Support pour N équipes au lieu de 2 équipes hardcodées
@@ -127,6 +161,9 @@
     - Guide d'utilisation sur le nametag
 - Touche full screen F11 -> F
 - Implémentation de la physique de recul sur les worms touchés
+- Support pour N équipes au lieu de 2 équipes hardcodées
+    - Refactorisation de GameManager, GameLoop et GamePanel pour utiliser des listes dynamiques
+    - Possibilité d'ajouter dynamiquement des équipes via GameManager.addTeam()
 
 ### Fixed
 - Tout le jeu est désormais en une seule fenêtre
@@ -136,15 +173,42 @@
 - **N equipes** fonctionnelles desormais (2 auparavant)
 - Retour aux mouvements originaux
 - Retour du saut (avec Z)
+- Initialisation de l'overlay Inventaire decaler dans GameManager (precedemment GameLauncher)
 
 ### Optimisation
 - **Performance**
-    - Suppression du double `repaint()`
-    - pré-création d'objets graphiques réutilisables (couleurs, strokes) pour réduire les allocations mémoire
+    - Centralisation de repaint dans un seul Timer (gameLoop) pour avoir un seul repaint()
+    - pré-création d'objets graphiques réutilisables (couleurs, strokes) pour réduire les allocations mémoire pour chaque cube
 - **Lag Audio** : Système de cache avec pré-chargement des sons en mémoire pour éliminer le lag au premier tir
 
-## [v.0.5 : SPRINT 5](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/4) (unreleased)
+
+## [v.0.5 : SPRINT 5](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/5) (unreleased)
 ---
 
-### Modified
+### Added
+- Algorithme FloodFill
+    - permet de supprimer les blocks qui ne sont pas liés au sol
+- Fixture unique par block
+- Boutique
+- Arme/Item graphiquement attachés au worm
+- Sons pour chaque arme
+
+### Fixed
+- body des blocks invisible après destruction
+
+
+### Added
+- Plusieurs buffs (Speed, jump)
+- Potion (Speed, jump, heal, shield)
+- sprites pour gagdets 
+- sons pour les gadgets
+- Degats de zone 
+
+### Fixed
+- Double tir
+- Fix tir lié au zoom
+
+### Changed 
+- Suppression des fleches haut et bas, pour une trajectoire seulement avec la souris
 - Maj du DIAGRAMME.MD
+

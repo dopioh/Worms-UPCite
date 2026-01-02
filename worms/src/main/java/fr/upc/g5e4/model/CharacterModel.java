@@ -1,6 +1,8 @@
 package fr.upc.g5e4.model;
 
 import fr.upc.g5e4.model.InventoryModel.InventoryJson;
+
+import org.jbox2d.collision.shapes.CircleShape;
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
@@ -10,6 +12,8 @@ import org.jbox2d.dynamics.FixtureDef;
 import org.jbox2d.dynamics.World;
 
 import fr.upc.g5e4.model.io.CharacterData;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Modèle du Personnage
@@ -56,6 +60,18 @@ public class CharacterModel{
     //Armes équipées
     private InventoryJson equippedItem;
 
+    // cela permet de voir le statut actuel du perso
+    public enum StatusEffect { NONE, DAMAGE, HEAL, SHIELD, BUFF, SPEED_BUFF, JUMP_BUFF }
+    private StatusEffect currentStatus = StatusEffect.NONE;
+    private long statusStartTime = 0;
+    private static final long STATUS_DURATION = 1000; // en milliseconde 
+    
+    // buffs temporaires - support multiple buffs simultanés
+    private List<BuffEffect> activeBuffs = new ArrayList<>();
+    
+    // Référence optionnelle à la vue du worm pour afficher les icônes de buff
+    private fr.upc.g5e4.view.CharacterView characterView = null;
+
     //private static final int sizePerso = 40;
 
     /**
@@ -75,7 +91,7 @@ public class CharacterModel{
         this.ycord = ycord;
         this.health = 100.0;
         this.shield = 50.0;
-        this.speed = 5.0;  // defini à 3 à la base
+        this.speed = 4;  // vitesse de base
         this.jump = 5.0;
         this.isDead = false;
         this.facingRight = true;
@@ -112,6 +128,41 @@ public class CharacterModel{
         this.withCollision = withCollision;
 
         this.persoBody = createBody(console);
+    }
+
+    /**
+     * Constructeur pour le chargement d'une sauvegarde (parametres adapte)
+     * @param model GroundModel (terrain donnes)
+     * @param world Physique du jeu
+     * @param ID ID unique du Worm
+     * @param name nom du worm
+     * @param xcord position x actuelle
+     * @param ycord position y actuelle
+     * @param health vie actuelle 
+     * @param shield shield actuelle 
+     * @param isDead true si le worm est mort
+     * @param facingRight true si il regarde a droite
+     */
+    public CharacterModel(GroundModel model, World world,int ID, String name, double xcord, double ycord, double health, double shield, boolean isDead, boolean facingRight){
+        this.model = model;
+        this.world = world;
+        this.ID = ID;
+        this.name = name;
+        this.xcord = xcord;
+        this.ycord = ycord;
+        this.health = health;
+        this.shield = shield;
+        this.speed = 4;
+        this.jump = 5.0;
+        this.withCollision = false;
+        this.isDead = isDead;
+        this.facingRight = facingRight;
+
+        if (isDead){
+            this.persoBody = null;
+        } else {
+            this.persoBody = createBody(false);
+        }
     }
 
     /**
@@ -154,11 +205,51 @@ public class CharacterModel{
     }
 
     public double getSpeed() {
-        return speed;
+        // nettoie les buffs expirés
+        cleanExpiredBuffs();
+        
+        // Appliquer tous les buffs de speed actifs
+        double finalSpeed = speed;
+        for (BuffEffect buff : activeBuffs) {
+            if (buff.isActive() && buff.getType() == BuffEffect.BuffType.SPEED_BOOST) {
+                finalSpeed *= buff.getMultiplier();
+            }
+        }
+        return finalSpeed;
     }
 
     public double getJump() {
-        return jump;
+        // nettoie les buffs expirés
+        cleanExpiredBuffs();
+        
+        // Appliquer tous les buffs de jump actifs
+        double finalJump = jump;
+        for (BuffEffect buff : activeBuffs) {
+            if (buff.isActive() && buff.getType() == BuffEffect.BuffType.JUMP_BOOST) {
+                finalJump *= buff.getMultiplier();
+            }
+        }
+        return finalJump;
+    }
+
+    /**
+     * nettoie les buffs expirés et supprime leurs étiquettes du nametag
+     */
+    private void cleanExpiredBuffs() {
+        activeBuffs.removeIf(buff -> {
+            if (!buff.isActive()) {
+                // supprime l'étiquette du buff qui expire
+                if (characterView != null) {
+                    if (buff.getType() == BuffEffect.BuffType.SPEED_BOOST) {
+                        characterView.getNameTagView().removeItem("speed_buff_icon");
+                    } else if (buff.getType() == BuffEffect.BuffType.JUMP_BOOST) {
+                        characterView.getNameTagView().removeItem("jump_buff_icon");
+                    }
+                }
+                return true;
+            }
+            return false;
+        });
     }
 
     public boolean isDead() {
@@ -187,10 +278,18 @@ public class CharacterModel{
     }
 
     public void setHealth(double health) {
+        // vérifie la guérison (augmentation de vie)
+        if (health > this.health) {
+            healEffect();
+        }
         this.health = health;
     }
 
     public void setShield(double shield) {
+        // vérifie l'ajout d'un shield
+        if (shield > this.shield) {
+            shieldEffect();
+        }
         this.shield = shield;
     }
 
@@ -230,6 +329,10 @@ public class CharacterModel{
         this.facingRight = facingRight;
     }
 
+    public boolean getFacingRight(){
+        return facingRight;
+    }
+
         public Body getBody(){
         return persoBody;
     }
@@ -263,6 +366,13 @@ public class CharacterModel{
 
     public void setEquippedItem(InventoryJson item){
         this.equippedItem = item;
+    }
+    
+    /**
+     * setter pour la vue du worm (utilisé pour afficher les icônes de buff au NameTag)
+     */
+    public void setCharacterView(fr.upc.g5e4.view.CharacterView charView) {
+        this.characterView = charView;
     }
 
     /**
@@ -298,7 +408,7 @@ public class CharacterModel{
         double timeSinceLastJump = (currentTime - lastJumpTime) / 1000.0; //Chronometre le dernier saut
         
         if (isOnGround() && timeSinceLastJump >= JUMP_COOLDOWN) {
-            float jumpForce = (float)(jump);
+            float jumpForce = (float)(getJump());
             Vec2 impulse = new Vec2(0, jumpForce);
             Vec2 point = persoBody.getWorldCenter();
             persoBody.applyLinearImpulse(impulse, point);
@@ -341,6 +451,9 @@ public class CharacterModel{
      * @param attacker Le worm qui a infligé les dégâts
      */
     public void dealDamage(double damageAmount, CharacterModel attacker) {
+        // Déclencher l'effet visuel de dégâts
+        damageEffect();
+        
         double actualDamage = damageAmount - this.shield; //Dégats apres le shield
         if (actualDamage > 0) {
             this.health -= actualDamage;
@@ -374,8 +487,13 @@ public class CharacterModel{
 
         FixtureDef fixtureWorm = new FixtureDef();
 
-        PolygonShape square = new PolygonShape();
-        square.setAsBox(m_WidthPerso/2, m_HeightPerso/2);   
+        //PolygonShape square = new PolygonShape();
+        //square.setAsBox(m_WidthPerso/2, m_HeightPerso/2);
+        
+        CircleShape square = new CircleShape();
+        square.setRadius(m_WidthPerso/2);
+
+        //square.m_p.set(0, -0.1f);
 
         if (console){
             //System.out.println("Console Version");
@@ -406,21 +524,173 @@ public class CharacterModel{
         return bWorm;
     }
 
-    // Getter Data
-    public CharacterData toData(){
-        return new CharacterData(ID, name, xcord, ycord, health, shield, isDead);
-    }
+    /**
+     * Transforme un CharacterModel en CharacterData
+     * Pour sauvegarder les donnees d'un CharacterModel
+     * 
+     * Agit comme un Getter
+     * 
+     * @return un CharacterData stockable dans sauvegarde.txt grace a Gson
+     */
+    public CharacterData toData() {
+        double currentX = this.xcord;
+        double currentY = this.ycord;
+    
+        if (persoBody != null) {
 
-    // Setter Data
-    public void loadFromData(CharacterData characterData){
-        this.ID = characterData.getID();
-        this.name = characterData.getName();
-        this.xcord = characterData.getXcord();
-        this.ycord = characterData.getYcord();
-        this.health = characterData.getHealth();
-        this.shield = characterData.getShield();
-        this.isDead = characterData.getIsDead();
-    }
+            // Obliger de re convertir puisque xcord et ycord ne sont pas actualiser apres que les CharacterM soient initialises
+            // -> il faut recup la position du Body en metres qui lui est tjr actualisee
+            // et ensuite le convertir en pixel
+            currentX = persoBody.getPosition().x * PPM; 
+            currentY = model.getHeight() - (persoBody.getPosition().y * PPM);
+        }
+        System.out.println("[SAVE] " + name + " -> x=" + currentX + ", y=" + currentY);
+        System.out.println("[SAVE] " + name + " -> xcord=" + xcord + ", ycord=" + ycord);
 
+        return new CharacterData(ID, name, currentX, currentY, health, shield, isDead, this.facingRight);
+    }
+    
+    // ==================== Partie qui permet de voir visuellement les status du perso ====================
+    
+    /**
+     * effet visuel de dégâts (rouge)
+     */
+    public void damageEffect() {
+        this.currentStatus = StatusEffect.DAMAGE;
+        this.statusStartTime = System.currentTimeMillis();
+    }
+    
+    /**
+     * effet visuel de guérison (vert)
+     */
+    public void healEffect() {
+        this.currentStatus = StatusEffect.HEAL;
+        this.statusStartTime = System.currentTimeMillis();
+    }
+    
+    /**
+     * effet visuel du shield (cyan)
+     */
+    public void shieldEffect() {
+        this.currentStatus = StatusEffect.SHIELD;
+        this.statusStartTime = System.currentTimeMillis();
+    }
+    
+    /**
+     * effet visuel du buff (bleu)
+     */
+    public void buffEffect() {
+        this.currentStatus = StatusEffect.BUFF;
+        this.statusStartTime = System.currentTimeMillis();
+    }
+    
+    /**
+     * effet visuel du buff speed (rose)
+     */
+    public void speedBuffEffect() {
+        this.currentStatus = StatusEffect.SPEED_BUFF;
+        this.statusStartTime = System.currentTimeMillis();
+    }
+    
+    /**
+     * effet visuel du buff jump (jaune)
+     */
+    public void jumpBuffEffect() {
+        this.currentStatus = StatusEffect.JUMP_BUFF;
+        this.statusStartTime = System.currentTimeMillis();
+    }
+    
+    /**
+     * @return effet actuel (avec vérif de la durée)
+     */
+    public StatusEffect getCurrentStatus() {
+        long elapsed = System.currentTimeMillis() - statusStartTime;
+        if (elapsed > STATUS_DURATION) {
+            currentStatus = StatusEffect.NONE;
+        }
+        return currentStatus;
+    }
+    
+    /**
+     * @return progression de l'animation (0 à 1)
+     */
+    public float getStatusEffect() {
+        long elapsed = System.currentTimeMillis() - statusStartTime;
+        if (elapsed > STATUS_DURATION) {
+            return 0f; 
+        }
+        return 1f;
+    }
+    
+    // ==================== buffs temporaires ====================
+    
+    /**
+     * applique un buff au worm
+     * @param buffType le type de buff à appliquer
+     * @param duration la durée du buff en milliseconde
+     */
+    public void applyBuff(BuffEffect.BuffType buffType, long duration) {
+        activeBuffs.add(new BuffEffect(buffType, duration));
+        buffEffect();  // déclenche l'animation visuelle bleue
+        System.out.println("[BUFF] " + name + " reçoit " + buffType.getName() + " pour " + (duration / 1000.0) + "s");
+    }
+    
+    /**
+     * applique un buff speed(vitesse +50%) 
+     */
+    public void applySpeedBuff() {
+        activeBuffs.add(new BuffEffect(BuffEffect.BuffType.SPEED_BOOST, 20000));
+        speedBuffEffect();  // déclenche l'animation visuelle rose
+        System.out.println("[BUFF] " + name + " reçoit Speed Boost pour 20s");
+        
+        // affichage l'icône de buff speed au NameTag
+        if (characterView != null) {
+            characterView.getNameTagView().addItemFromResource("/buffs/speed_buff.png", "speed_buff_icon");
+        }
+    }
+    
+    /**
+     * applique un buff jump (saut +50%) pendant 20 secondes
+     */
+    public void applyJumpBuff() {
+        activeBuffs.add(new BuffEffect(BuffEffect.BuffType.JUMP_BOOST, 20000));
+        jumpBuffEffect();  // déclenche l'animation visuelle jaune
+        System.out.println("[BUFF] " + name + " reçoit Jump Boost pour 20s");
+        
+        // affichage l'icône de buff jump au NameTag
+        if (characterView != null) {
+            characterView.getNameTagView().addItemFromResource("/buffs/jump_buff.png", "jump_buff_icon");
+        }
+    }
+    
+    /**
+     * @return le buff actif actuellement (ou null)
+     */
+    public BuffEffect getActiveBuff() {
+        // nettoie les buffs expirés
+        cleanExpiredBuffs();
+        
+        // Retourner le premier buff speed ou jump s'il existe
+        if (!activeBuffs.isEmpty()) {
+            return activeBuffs.get(0);
+        }
+        return null;
+    }
+    
+    /**
+     * @return le multiplicateur du buff actif (1.0 si pas de buff)
+     */
+    public double getBuffMultiplier() {
+        // nettoie les buffs expirés
+        cleanExpiredBuffs();
+        
+        // Retourner le multiplicateur du premier buff s'il existe
+        if (!activeBuffs.isEmpty()) {
+            return activeBuffs.get(0).getMultiplier();
+        }
+        return 1.0;
+    }
     
 }
+
+

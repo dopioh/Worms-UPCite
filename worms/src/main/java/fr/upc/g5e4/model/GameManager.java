@@ -3,10 +3,10 @@ package fr.upc.g5e4.model;
 
 //import java.awt.Color;
 import java.util.ArrayList;
-import javax.swing.Timer;
 import java.util.Random;
 import java.util.HashMap;
 import java.util.Map;
+import javax.swing.Timer;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.World;
 
@@ -14,7 +14,10 @@ import fr.upc.g5e4.GameLauncher;
 import fr.upc.g5e4.controller.*;
 //import fr.upc.g5e4.model.WindModel;
 import fr.upc.g5e4.model.weapons.*;
+import fr.upc.g5e4.model.InventoryModel.InventoryJson;
+import fr.upc.g5e4.model.InventoryModel.InventoryRoot;
 import fr.upc.g5e4.model.PhysicsWorld.WaterSensorListener;
+//import fr.upc.g5e4.model.WindModel.Dir;
 import fr.upc.g5e4.model.camera.CameraModel;
 import fr.upc.g5e4.model.io.SaveData;
 import fr.upc.g5e4.model.io.TeamData;
@@ -22,8 +25,10 @@ import fr.upc.g5e4.model.io.TeamData;
 import fr.upc.g5e4.view.GamePanel;
 import fr.upc.g5e4.view.ItemView;
 import fr.upc.g5e4.view.TeamView;
+import fr.upc.g5e4.view.CharacterView;
 //import fr.upc.g5e4.view.TeamView;
 import fr.upc.g5e4.view.InventoryOverlay;
+import fr.upc.g5e4.view.HUDOverlay;
 
 import java.io.*;
 import com.google.gson.*;
@@ -66,6 +71,9 @@ public class GameManager {
     private TeamModel currentTeam;
 
     private int currentWeaponIndex = 0;  // 0=AK47, 1=Baseball, 2=Grenade, 3=Rocket    
+    
+    private String weaponUsedThisTurn = null;  // Nom de l'arme déjà utilisée ce tour 
+    private int gadgetsUsedThisTurn = 0;  // Compte le nombre de gadgets utilisés
 
     // ajout minimal: gestion des rounds
     private int roundNumber = 1;
@@ -77,12 +85,17 @@ public class GameManager {
 
     
     private InventoryOverlay inventoryOverlay;
+    private HUDOverlay hudOverlay;
+    private fr.upc.g5e4.view.WindOverlay windOverlay;
 
     private final WindModel windModel = new WindModel();
     private final Random windRng = new Random();
     
     // Statistiques de jeu - support pour un nombre variable d'équipes
     private Map<String, GameStats> teamStats = new HashMap<>();
+
+    //private boolean saveDataBool;
+    //private SaveData saveData;
 
     /**
      * Initialise le terrain du jeu.
@@ -100,20 +113,23 @@ public class GameManager {
      */
     public GameManager(int nbrEquipe) {
         // Initialiser le système audio en arrière-plan pour éviter le lag au premier tir
+        //this.saveDataBool = false;
         SoundPlayer.initialize();
 
-        int sizeX = 1280;  // Taille du terrain
-        int sizeY = 720;
-        int waterLevel = 800;
+        // ========== CONFIGURATION DU TERRAIN ==========
+        // Pour changer le type de terrain et la taille, voir MapConfig.java
+        int sizeX = MapConfig.getMapWidth();
+        int sizeY = MapConfig.getMapHeight();
+        // Eau uniquement pour le mode ISLANDS
+        int waterLevel = (MapConfig.getMapType() == MapConfig.MapType.ISLANDS) ? 480 : sizeY + 100;
+        // =============================================
         
         // generation procédurale du terrain avec seed (le temps de la machine)
         TerrainGenerator generator = new TerrainGenerator(System.currentTimeMillis());
-        int[] groundY = generator.generateTerrainWithPlatforms(
+        int[] groundY = generator.generateTerrainByType(
             200,          // nombre de points pour la génération
             250,          // hauteur minimale (depuis le haut)
-            650,          // hauteur maximale
-            280,          // hauteur des plateformes aux bords
-            15            // largeur des plateformes en %
+            650           // hauteur maximale
         );
         /*
          * Ancienne méthode : terrain manuel
@@ -137,7 +153,7 @@ public class GameManager {
         this.world = physic.getWorld();
         
         // nouveau sol
-        physic.createGroundFromBlockGrid(blockGridModel);
+        physic.recreateGroundFromBlockGrid(blockGridModel);
         physic.limitPanel(blockGridModel);
         
         // création de l'eau
@@ -155,7 +171,7 @@ public class GameManager {
         this.nbrWormsByTeam = 3;
 
         // Récupérer le skin sélectionné dans les paramètres
-        String selectedSkin = SettingsModel.getCurrentSkin();
+        String selectedSkin = SkinSettings.getCurrentSkin();
 
         // creation des equipes selon le nombre que on veut
         createTeam(nbrEquipe, selectedSkin);
@@ -166,6 +182,7 @@ public class GameManager {
         this.teamCursor = new int[nbrEquipe];
         this.activeWormIndex = 0;
         this.activeWormController = new CharacterController(listTeamInital.get(currentTeamIndex).getTeamModel().getWorm(activeWormIndex));
+        activeWormController.setGameManager(this);
         
         // Créer une liste de tous les worms pour le WaterSensorListener
         ArrayList<CharacterModel> allWorms = new ArrayList<>();
@@ -179,6 +196,9 @@ public class GameManager {
         // Initialisation du système de tir
         this.itemController = new ItemController(new ItemView());
         this.itemController.setWorld(world);
+        this.itemController.setPhysicsWorld(this.physic); // pour reconstruire le terrain
+        this.itemController.setBlockGridModel(this.blockGridModel);// pour les dégats sur le terrain
+        this.itemController.setWindModel(this.windModel); // pour le vent
         this.itemController.setGameManager(this);  // Pour le tracking des stats
         
         // Créer un tableau de tous les worms (N equipes)
@@ -191,7 +211,10 @@ public class GameManager {
         activeWormController.setWorld(world);
         activeWormController.setAllWorms(this.allWorms);
         // Équiper une arme par défaut (AK-47)
-        activeWormController.setCurrentWeapon(new Ak47());
+        Weapon defaultWeapon = null;
+        activeWormController.setCurrentWeapon(defaultWeapon);
+        // Mettre à jour l'arme dans la vue
+        updateWeaponInView(activeWormController.getModel(), defaultWeapon);
         // Initialisation caméra avec le worm actif (fenêtre 1280x720, terrain 6000x720)
         this.cameraController = new CameraController(camera,listTeamInital.get(currentTeamIndex).getTeamModel().getWorm(activeWormIndex));
         // Centrer la caméra sur le worm actif au démarrage
@@ -205,23 +228,183 @@ public class GameManager {
         // Passer l'ItemController au GamePanel pour dessiner les projectiles
         this.gamePanel.setItemController(this.itemController);
         // Ajoute le contrôleur pour capter les touches
-        this.gamePanel.add(imputController);
+        //this.gamePanel.add(imputController);
         imputController.setGameManager(this); // connecte inputController au GameManager
         // Connecter le renderer de trajectoire
-        imputController.setTrajectoryRenderer(gamePanel.getTrajectoryRenderer());
-        gamePanel.getTrajectoryRenderer().setShooter(activeWormController.getModel());
-        gamePanel.getTrajectoryRenderer().setWeapon(activeWormController.getCurrentWeapon());
+        imputController.setTrajectoryRenderer(gamePanel.getTrajectoryView());
+        gamePanel.getTrajectoryView().setShooter(activeWormController.getModel());
+        gamePanel.getTrajectoryView().setWeapon(activeWormController.getCurrentWeapon());
         // pour ne pas que gamePanel et imputController se disputent le focus
         this.gamePanel.setFocusable(false);  // le panel ne prend pas le focus
         imputController.setFocusable(true);   // l'inputController prend le focus    
-        
 
-        // Timer pour update régulier de la caméra et projectiles (repaint géré par GameLoop)
+        initialiseInventory();
+        
+        // La mise à jour de la caméra et des projectiles est maintenant gérée dans GameLoop
+    }
+
+    /**
+     * Constructeur pour lancer a partir d'un fichier json sauvegarde
+     * On part du principe que elle sera tjr appele si saveData est vrai 
+     * Et jamais appele si saveData est faux
+     * 
+     * Initialise les donnees de la partie depuis saveData au lieu d'en creer
+     * 
+     * @param saveData donnees minimal qui viennent d'un sauvegarde.txt
+     * 
+     * @see GameManager#GameManager(int nbrEquipe) pour plus de precision sur comment fonctionne le constructeur
+     */
+    public GameManager(SaveData saveData){
+        //this.saveDataBool = true;
+        //this.saveData = saveData;
+
+        // On part du principe que la taille du terrain ne changera jamais 
+        int sizeX = 1280;  // Taille du terrain
+        int sizeY = 720;
+        int waterLevel = 800;
+
+        System.out.println("Ca marche ?"); // oui, ca casse a la ligne de en dessous
+
+        int[] groundY = saveData.getGroundModel().getGroundY();
+        this.blockGridModel = new BlockGridModel(sizeX, sizeY, waterLevel);
+        blockGridModel.generateWithGroundY(groundY);
+
+        this.model = saveData.getGroundModel();
+
+        this.physic = new PhysicsWorld();
+        this.world = physic.getWorld();
+
+        physic.recreateGroundFromBlockGrid(blockGridModel);
+        physic.limitPanel(blockGridModel);
+
+        this.water = physic.createBodyWater(model);
+
+        SoundPlayer.initialize();
+
+        this.roundTimeRemaining = saveData.getRoundTimeRemaining();
+
+        this.camera = new CameraModel(1280, 720, model.getWidth(), model.getHeight(), 1);
+        physic.limitPanel(model);
+
+        // Au lieu de creer des nouvelles equipes, on prend celle de la save
+        this.listTeamInital = new ArrayList<>();
+        this.listTeamModel = new ArrayList<>();
+
+            for (TeamData td : saveData.getListTeamData()){
+                TeamInitialisation tm = td.dataToInit(model, world);
+                this.listTeamInital.add(tm);
+                listTeamModel.add(tm.getTeamModel());
+
+                // c'est pas grave de le reecrire plusieurs fois, toutes les equipes auront le meme nbr de worms
+                this.nbrWormsByTeam = td.getWormsNumber();
+            }
+        this.currentTeamIndex = saveData.getCurrentTeamIndex();
+        this.currentTeam = listTeamInital.get(currentTeamIndex).getTeamModel();
+
+        // Pour avoir la pos de chaque worm qui a jouee pour la derniere fois dans chaque equipe
+        this.teamCursor = saveData.getTeamCursor();
+
+        this.activeWormIndex = saveData.getActiveWormIndex();
+        this.activeWormController =  new CharacterController(listTeamInital.get(currentTeamIndex).getTeamModel().getWorm(activeWormIndex));
+        activeWormController.setGameManager(this);
+
+        // GameStats : 
+        this.teamStats = saveData.getAllTeamStats();
+        
+        // pour le WaterSensorListener
+        ArrayList<CharacterModel> allWorms = new ArrayList<>();
+        for (int i = 0; i < listTeamInital.size(); i++) {
+            for (int j = 0 ; j < listTeamInital.get(i).getTeamModel().getTabWorms().length; j++){
+                allWorms.add(listTeamInital.get(i).getTeamModel().getTabWorms()[j]);
+            }
+        }
+
+        this.wSL = physic.new WaterSensorListener(water, allWorms, new ArrayList<CharacterModel>());
+        world.setContactListener(wSL);
+
+        // initialisation des rounds
+        this.roundNumber = saveData.getRound();
+
+        // Initialisation du système de tir
+        this.itemController = new ItemController(new ItemView());
+        this.itemController.setWorld(world);
+        this.itemController.setPhysicsWorld(this.physic); // pour reconstruire le terrain
+        this.itemController.setBlockGridModel(this.blockGridModel);// pour les dégats sur le terrain
+        this.itemController.setWindModel(this.windModel); // pour le vent
+        this.itemController.setGameManager(this);  // Pour le tracking des stats
+        
+        // Créer un tableau de tous les worms (N equipes)
+        this.allWorms = new CharacterModel[allWorms.size()];
+        for (int i = 0 ; i < this.allWorms.length ; i++){
+            this.allWorms[i] = allWorms.get(i);
+        }
+
+        
+        this.itemController.setAllWorms(this.allWorms);
+        activeWormController.setItemController(this.itemController);
+        activeWormController.setWorld(world);
+        activeWormController.setAllWorms(this.allWorms);
+
+        // Équiper une arme par défaut (AK-47)
+        Weapon defaultWeapon = null;
+        activeWormController.setCurrentWeapon(defaultWeapon);
+        // Mettre à jour l'arme dans la vue
+        updateWeaponInView(activeWormController.getModel(), defaultWeapon);
+
+        // Initialisation caméra avec le worm actif (fenêtre 1280x720, terrain 6000x720)
+        this.cameraController = new CameraController(camera,listTeamInital.get(currentTeamIndex).getTeamModel().getWorm(activeWormIndex));
+        
+        // Centrer la caméra sur le worm actif au démarrage
+        this.cameraController.centerOnCharacter();
+        
+        // Contrôleur fusionné avec le worm actif
+        this.imputController = new SwingInputController(activeWormController, cameraController);
+
+        // GamePanel avec tout ce qui est nécessaire
+        this.gamePanel = new GamePanel(model, camera, cameraController, listTeamInital); 
+        
+        // Passer le BlockGridModel au GamePanel pour le rendu en blocs
+        this.gamePanel.setBlockGridModel(this.blockGridModel);
+        
+        // Passer l'ItemController au GamePanel pour dessiner les projectiles
+        this.gamePanel.setItemController(this.itemController);
+
+        // Ajoute le contrôleur pour capter les touches
+        //this.gamePanel.add(imputController);
+        imputController.setGameManager(this); // connecte inputController au GameManager
+                                             //  pour que inputController puisse appeler switchToNextWorm()
+        
+        // Connecter le renderer de trajectoire
+        imputController.setTrajectoryRenderer(gamePanel.getTrajectoryView());
+        gamePanel.getTrajectoryView().setShooter(activeWormController.getModel());
+        gamePanel.getTrajectoryView().setWeapon(activeWormController.getCurrentWeapon());
+        
+        // pour ne pas que gamePanel et imputController se disputent le focus
+        // en lancant le jeu, certaines fois rien n'était controllable mais c'est fix maintenant
+        this.gamePanel.setFocusable(false);  // le panel ne prend pas le focus
+        imputController.setFocusable(true);   // l'inputController prend le focus    
+
+        // Timer pour update régulier de la caméra, projectiles et repaint
         new Timer(16, e -> {
             cameraController.update();
             // mettre à jour les projectiles (16ms = 0.016s par frame)
             itemController.updateProjectiles(0.016f);
+            
+            // recréer le terrain physique si la grille a changé (blocs détruits)
+            if (blockGridModel.isDirty()) {
+                physic.recreateGroundFromBlockGrid(blockGridModel);
+                blockGridModel.clearDirty();
+            }
+            
+            gamePanel.repaint();
         }).start();
+
+        //initialiseInventory();
+
+        if (saveData.getWindData() != null) {
+            saveData.getWindData().applyToWindModel(this.windModel);
+        }
+
     }
 
     /**
@@ -259,6 +442,10 @@ public class GameManager {
     
     public CameraModel getCamera() {
         return this.camera;
+    }
+    
+    public ItemController getItemController() {
+        return this.itemController;
     }
     
     public int getActiveWormIndex() {
@@ -308,6 +495,15 @@ public class GameManager {
     public WindModel getWindModel(){
         return this.windModel;
     }
+
+    public void setHudOverlay(HUDOverlay hud) {
+        this.hudOverlay = hud;
+    }
+
+    public HUDOverlay getHudOverlay() {
+        return hudOverlay;
+    }
+    
     public Map<String, GameStats> getAllTeamStats() {
         return teamStats;
     }
@@ -319,6 +515,10 @@ public class GameManager {
     public GameStats getCurrentTeamStats() {
         String currentTeamName = getCurrentTeamName();
         return teamStats.get(currentTeamName);
+    }
+
+    public int[] getTeamCursor(){
+        return this.teamCursor;
     }
 
     /**
@@ -371,15 +571,19 @@ public class GameManager {
                 activeWormController.setItemController(this.itemController);
                 activeWormController.setWorld(world);
                 activeWormController.setAllWorms(this.allWorms);
-                activeWormController.setCurrentWeapon(new Ak47());
+                Weapon defaultWeapon = null;
+                activeWormController.setCurrentWeapon(defaultWeapon);
                 
                 imputController.setCharacterController(activeWormController);
                 cameraController.setTargetCharacter(worm);
                 cameraController.centerOnCharacter();
                 
                 // mettre à jour la trajectoire avec le nouveau worm et son arme
-                gamePanel.getTrajectoryRenderer().setShooter(worm);
-                gamePanel.getTrajectoryRenderer().setWeapon(activeWormController.getCurrentWeapon());
+                gamePanel.getTrajectoryView().setShooter(worm);
+                gamePanel.getTrajectoryView().setWeapon(defaultWeapon);
+                
+                // mettre à jour l'arme dans la vue
+                updateWeaponInView(worm, defaultWeapon);
                 
                 return;
             }
@@ -393,13 +597,15 @@ public class GameManager {
     }
 
     /**
+     * FONCTION MAL CODER - QUI A FAIT CA ????
+     * 
      * Ajoute une nouvelle équipe au jeu (pour supporter N équipes)
      * IMPORTANT: À appeler AVANT le démarrage du jeu
      *
      * @param team L'équipe à ajouter
      * @param view La vue correspondante de l'équipe
      */
-    public void addTeam(TeamModel team,TeamView view) {
+    public void addTeam(TeamModel team,TeamView view) { // Pourquoi ? Alors que on a createTeam, et puis on a TeamInitialisation
         if (team != null && view != null) {
             // Extraction des paramètres nécessaires
             String teamName = team.getTeamName();
@@ -413,7 +619,7 @@ public class GameManager {
             } catch (Exception e) {
                 // fallback sur la valeur par défaut
             }
-            String skinPath = "/worm.png";
+            String skinPath = "/wormPixel.png";
             // Si la TeamView possède un sprite personnalisé, on peut tenter de le récupérer
             // (à adapter si TeamView expose ce champ)
             // Construction de TeamInitialisation
@@ -456,18 +662,23 @@ public class GameManager {
                 this.activeWormIndex = cursor;
             
                 activeWormController = new CharacterController(worm);
+                activeWormController.setGameManager(this);
                 activeWormController.setItemController(this.itemController);
                 activeWormController.setWorld(world);
                 activeWormController.setAllWorms(this.allWorms);
-                activeWormController. setCurrentWeapon(new Ak47());
+                Weapon defaultWeapon = null;
+                activeWormController.setCurrentWeapon(defaultWeapon);
 
                 imputController.setCharacterController(activeWormController);
                 cameraController.setTargetCharacter(worm);
                 cameraController.centerOnCharacter();
-            
-                gamePanel.getTrajectoryRenderer().setShooter(worm);
-                gamePanel. getTrajectoryRenderer().setWeapon(activeWormController.getCurrentWeapon());
-            
+                
+                // mettre à jour la trajectoire avec le nouveau worm et son arme
+                gamePanel.getTrajectoryView().setShooter(worm);
+                gamePanel.getTrajectoryView().setWeapon(defaultWeapon);
+                
+                // mettre à jour l'arme dans la vue
+                updateWeaponInView(worm, defaultWeapon);
                 return;
             }   
         
@@ -481,12 +692,28 @@ public class GameManager {
     /**
      * passe au round suivant et alterne les équipes
      */
+    // Ajout d'une référence à GameLoop pour synchroniser le timer
+    private GameLoop gameLoop;
+
+    public void setGameLoop(GameLoop loop) {
+        this.gameLoop = loop;
+    }
+
     public void nextRound() {
         roundNumber++;
         currentTeamIndex = (currentTeamIndex + 1) % listTeamInital.size(); 
         currentTeam = listTeamInital.get(currentTeamIndex).getTeamModel();
         if (currentTeam != null) {
             currentTeam.resetInventoryTurn();
+        }
+        // réinitialise le flag d'utilisation d'arme pour le nouveau tour
+        resetWeaponUsedFlag();
+        // réinitialise le compteur de gadgets utilisés
+        gadgetsUsedThisTurn = 0;
+        // Réinitialise le timer à 30 secondes
+        roundTimeRemaining = roundTimeSave; // ou 1800
+        if (gameLoop != null) {
+            gameLoop.resetRoundTimer();
         }
         //switch worm dans cette équipe
         switchToNextWorm(currentTeam);
@@ -495,8 +722,19 @@ public class GameManager {
         if (inventoryOverlay != null) {
             inventoryOverlay.setInventory(getCurrentTeamInventory());
         }
-    }
 
+        
+        // --- Vent : change à chaque tour (fixe pendant le tour) ---
+        WindModel.Dir[] dirs = WindModel.Dir.values();
+        windModel.setDir(dirs[windRng.nextInt(dirs.length)]);
+
+        // force entre 0.15 et 1.0 (évite vent invisible)
+        float strength = 0.15f + windRng.nextFloat() * 0.85f;
+        windModel.setStrength(strength,false);
+
+        System.out.println("[VENT] " + windModel.getDir().label + " | force=" + String.format("%.2f", windModel.getStrength()));
+
+    }
     
     /**
      * Change l'arme équipée du worm actif (cycliquement)
@@ -529,13 +767,10 @@ public class GameManager {
         if (newWeapon != null && activeWormController != null) {
             activeWormController.setCurrentWeapon(newWeapon);
             // mettre à jour la trajectoire avec la nouvelle arme
-            gamePanel.getTrajectoryRenderer().setWeapon(newWeapon);
+            gamePanel.getTrajectoryView().setWeapon(newWeapon);
+            // met à jour l'arme dans la vue
+            updateWeaponInView(activeWormController.getModel(), newWeapon);
         }
-    }
-
-    // Initialiser un nombre N d'equipes
-    public void createTeam(int number){
-        createTeam(number, "/worm.png"); // Utilise le skin par défaut
     }
     
     // Initialiser un nombre N d'equipes avec un skin spécifique
@@ -582,12 +817,13 @@ public class GameManager {
     public void save(){
         // creer une sauvegarde automatiquement
         SaveData saveData = new SaveData(this);
+        //System.out.println("coucou"); 
 
         try {
             File dossier = new File("sauvegardes");
             File file = new File(dossier, "sauvegarde.txt");
             FileWriter fileWriter = new FileWriter(file);
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            Gson gson = new GsonBuilder().setPrettyPrinting().create(); // rajouter serializeNulls()
             gson.toJson(saveData,fileWriter);
             System.out.println(file.getAbsolutePath());
             System.out.println(file.getCanonicalPath());
@@ -595,87 +831,197 @@ public class GameManager {
 
             fileWriter.close();
         } catch (Exception e) {
-            e.getMessage();
-        }
-    }
-
-    /**
-     * Charge la game a partir d'un fichier json (.txt lu en json)
-     * @param filePath chemin du fichier json
-     */
-    public void loadGame(String filePath){
-        try {
-            Gson gson = new Gson();
-            FileReader fileReader = new FileReader(filePath);
-
-            SaveData saveData = gson.fromJson(fileReader, SaveData.class);
-
-            //// On remplace :
-
-            // Donnees Partie :
-            this.roundNumber = saveData.getRound();
-            this.currentTeamIndex = saveData.getCurrentTeamIndex();
-            this.activeWormIndex = saveData.getActiveWormIndex();
-            this.roundTimeRemaining = saveData.getRoundTimeRemaining();
-
-            // Terrain :
-            this.model = saveData.getGroundModel();
-
-            // Worms : 
-
-            // Comment attribuer les equipes ? -> Le code n'est pas modulable pour les equipes 
-            // A corriger Sprint 4
-
-            for (TeamData td : saveData.getListTeamData()){
-                listTeamModel.add(td.dataToModel(model, world));
-            }
-
-            // a finir 
-        } catch (Exception e) {
-            e.getMessage();
+            System.out.println(e.getMessage()); 
+            //"Failed making field 'java.awt.Color#value' accessible; either increase its visibility or write a custom TypeAdapter for its declaring type."
         }
     }
 
     /**
      * Sauvegarde la partie
      * Est called dans le controller
+     * Pourquoi ne pas juste appeler save() dans le controller ?
      */
     public void actionPerformed(){
         save();
-        //System.out.println("JSON Creer");
+        System.out.println("JSON Creer");
     }
 
     /*Selection d'inventaire depuis l'inventaire*/
     public void setWeaponFromInventory(String itemName) {
+        // Permet de changer d'arme même si une arme a été utilisée, mais avertir si c'est une arme différente
+        if (weaponUsedThisTurn != null && !weaponUsedThisTurn.equalsIgnoreCase(itemName)) {
+            System.out.println("[Inventaire] Une autre arme a déjà été utilisée ce tour. Vous pouvez changer mais pas tirer!");
+        }
+        
         Weapon newWeapon = null;
 
-        switch (itemName) {
-            case "Ak47":
-            case "AK47":
+        // Empeche la casse 
+        String normalizedName = itemName.toLowerCase();
+
+        switch (normalizedName) {
+            case "ak47":
                 newWeapon = new Ak47();
                 System.out.println("[Inventaire] Arme équipée depuis inventaire : AK-47");
                 break;
-            case "BaseballBat":
+            case "baseballbat":
                 newWeapon = new BaseballBat();
                 System.out.println("[Inventaire] Arme équipée depuis inventaire : Baseball Bat");
                 break;
-            case "Grenade":
+            case "grenade":
                 newWeapon = new Grenade();
                 System.out.println("[Inventaire] Arme équipée depuis inventaire : Grenade");
                 break;
-            case "RocketLauncher":
+            case "bazooka":
                 newWeapon = new RocketLauncher();
                 System.out.println("[Inventaire] Arme équipée depuis inventaire : Rocket Launcher");
                 break;
             default:
-                System.out.println("[Inventaire] Aucun mapping d’arme pour : " + itemName);
+                System.out.println("[Inventaire] Arme non reconnue: " + itemName);
                 break;
         }
 
         if (newWeapon != null && activeWormController != null) {
+            // Déséquiper le gadget (on ne peut pas avoir 2 choses dans les mains)
+            clearGadgetSprite();
+            
+            // trouver l'arme dans l'inventaire 
+            InventoryJson weaponInventory = findWeaponInInventory(itemName);
+            
             activeWormController.setCurrentWeapon(newWeapon);
+            activeWormController.setCurrentWeaponInventory(weaponInventory);
             // Met à jour la trajectoire
-            gamePanel.getTrajectoryRenderer().setWeapon(newWeapon);
+            gamePanel.getTrajectoryView().setWeapon(newWeapon);
+            // met à jour l'arme dans la vue
+            updateWeaponInView(activeWormController.getModel(), newWeapon);
+        }
+    }
+    
+    /**
+     * équipe un gadget depuis l'inventaire et affiche son sprite
+     * @param gadgetName Le nom du gadget à équiper
+     */
+    public void setGadgetFromInventory(String gadgetName) {
+        if (activeWormController == null || activeWormController.getModel() == null) {
+            return;
+        }
+
+        System.out.println("[Inventaire] Gadget équipé depuis inventaire : " + gadgetName);
+        
+        // déséquiper l'arme (on ne peut pas avoir 2 choses dans les mains)
+        clearWeaponSprite();
+        
+        // récupérer la vue du worm pour afficher le sprite du gadget
+        fr.upc.g5e4.view.CharacterView charView = null;
+        int wormIndex = getActiveWormIndex();
+        int teamIndex = getCurrentTeamIndex();
+        if (wormIndex >= 0 && teamIndex >= 0 && teamIndex < getListTeamInit().size()) {
+            charView = getListTeamInit().get(teamIndex).getTeamView().getCharacterView(wormIndex);
+        }
+        
+        // afficher le sprite du gadget
+        if (charView != null) {
+            charView.setCurrentGadgetSprite(gadgetName);
+        }
+    }
+    
+    /**
+     * Utilise un gadget depuis l'inventaire (potions, bumper, etc)
+     * @param itemName Le nom du gadget à utiliser
+     */
+    public void useGadgetFromInventory(String itemName) {
+        if (activeWormController == null || activeWormController.getModel() == null) {
+            return;
+        }
+        
+        // vérifier si on peut encore utiliser un gadget ce tour
+        if (gadgetsUsedThisTurn >= 2) {
+            System.out.println("[Gadget] Limite atteinte! Vous avez déjà utilisé 2 gadgets ce tour.");
+            return;
+        }
+        
+        CharacterModel currentWorm = activeWormController.getModel();
+        
+        // récupérer la vue du worm pour ajouter l'étiquette au nametag et afficher le sprite du gadget
+        fr.upc.g5e4.view.CharacterView charView = null;
+        int wormIndex = getActiveWormIndex();
+        int teamIndex = getCurrentTeamIndex();
+        if (wormIndex >= 0 && teamIndex >= 0 && teamIndex < getListTeamInit().size()) {
+            charView = getListTeamInit().get(teamIndex).getTeamView().getCharacterView(wormIndex);
+        }   
+        
+        // afficher le sprite du gadget
+        if (charView != null) {
+            charView.setCurrentGadgetSprite(itemName);
+        }
+        
+        // trouver le gadget dans l'inventaire pour enregistrer son utilisation
+        InventoryJson gadgetFromInventory = findGadgetInInventory(itemName);
+        
+        switch (itemName) {
+            case "PotionHeal":
+                currentWorm.setHealth(Math.min(100, currentWorm.getHealth() + 50));
+                currentWorm.healEffect();
+                // Pas d'étiquette pour le heal
+                System.out.println("[Gadget] Potion Heal : +50 HP");
+                SoundPlayer.play("/sfx/potionheal-sound.wav");
+                gadgetsUsedThisTurn++;
+                // enregistrer l'utilisation du gadget
+                if (gadgetFromInventory != null && gadgetFromInventory.canUseThisTurn()) {
+                    gadgetFromInventory.registerUseThisTurn();
+                }
+                break;
+            case "PotionShield":
+                currentWorm.setShield(Math.min(100, currentWorm.getShield() + 25));
+                currentWorm.shieldEffect();
+                // Pas d'étiquette pour le shield
+                System.out.println("[Gadget] Potion Shield : +25 Shield");
+                SoundPlayer.play("/sfx/potionshield-sound.wav");
+                gadgetsUsedThisTurn++;
+                // enregistrer l'utilisation du gadget
+                if (gadgetFromInventory != null && gadgetFromInventory.canUseThisTurn()) {
+                    gadgetFromInventory.registerUseThisTurn();
+                }
+                break;
+            case "PotionSpeed":
+                currentWorm.applySpeedBuff();
+                // ajouter l'étiquette via la vue du worm avec timer (20 secondes)
+                if (charView != null) {
+                    charView.getNameTagView().addItemFromResource("/buffs/speed_buff.png", "speed_buff_icon", 20000);
+                }
+                System.out.println("[Gadget] Potion Speed : +50% vitesse");
+                SoundPlayer.play("/sfx/potionspeed-sound.wav");
+                gadgetsUsedThisTurn++;
+                // enregistrer l'utilisation du gadget
+                if (gadgetFromInventory != null && gadgetFromInventory.canUseThisTurn()) {
+                    gadgetFromInventory.registerUseThisTurn();
+                }
+                break;
+            case "PotionJump":
+                currentWorm.applyJumpBuff();
+                // ajouter l'étiquette via la vue du worm avec timer (20 secondes)
+                if (charView != null) {
+                    charView.getNameTagView().addItemFromResource("/buffs/jump_buff.png", "jump_buff_icon", 20000);
+                }
+                System.out.println("[Gadget] Potion Jump : +50% saut");
+                SoundPlayer.play("/sfx/potionjump-sound.wav");
+                gadgetsUsedThisTurn++;
+                // enregistrer l'utilisation du gadget
+                if (gadgetFromInventory != null && gadgetFromInventory.canUseThisTurn()) {
+                    gadgetFromInventory.registerUseThisTurn();
+                }
+                break;
+            case "Bumper":
+                System.out.println("[Gadget] Bumper utilisé");
+                // SoundPlayer.play("/sfx/bumper-sound.wav");
+                gadgetsUsedThisTurn++;
+                // enregistrer l'utilisation du gadget
+                if (gadgetFromInventory != null && gadgetFromInventory.canUseThisTurn()) {
+                    gadgetFromInventory.registerUseThisTurn();
+                }
+                break;
+            default:
+                System.out.println("[Gadget] Gadget inconnu : " + itemName);
+                break;
         }
     }
 
@@ -683,9 +1029,51 @@ public class GameManager {
         TeamModel team = getCurrentTeam();
         return (team != null) ? team.getInventory() : null;
     }
+    
+    /**
+     * trouve un gadget dans l'inventaire de l'équipe actuelle par son nom
+     * @param itemName Le nom du gadget
+     * @return L'objet inventoryJson du gadget ou null si non trouvé
+     */
+    private InventoryJson findGadgetInInventory(String itemName) {
+        java.util.List<InventoryJson> inventory = getCurrentTeamInventory();
+        if (inventory == null) return null;
+        
+        for (InventoryJson item : inventory) {
+            if (itemName.equals(item.name) && "GADGET".equals(item.objectType)) {
+                return item;
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * trouve une arme dans l'inventaire de l'équipe actuelle par son nom
+     * @param itemName Le nom de l'arme
+     * @return L'objet inventoryJson de l'arme ou null si non trouvé
+     */
+    private InventoryJson findWeaponInInventory(String itemName) {
+        java.util.List<InventoryJson> inventory = getCurrentTeamInventory();
+        if (inventory == null) return null;
+        
+        for (InventoryJson item : inventory) {
+            if (itemName.equalsIgnoreCase(item.name) && "WEAPON".equals(item.objectType)) {
+                return item;
+            }
+        }
+        return null;
+    }
 
     public void setInventoryOverlay(InventoryOverlay overlay){
         this.inventoryOverlay = overlay;
+    }
+    
+    public void setWindOverlay(fr.upc.g5e4.view.WindOverlay overlay) {
+        this.windOverlay = overlay;
+    }
+    
+    public fr.upc.g5e4.view.WindOverlay getWindOverlay() {
+        return this.windOverlay;
     }
 
     private void resetCurrentTeamInventoryTurn() {
@@ -695,6 +1083,38 @@ public class GameManager {
         }
     }
 
+    // On passe la partie inventaire overlay ici (precedemment dans Gamelauncher)
+    public void initialiseInventory(){
+
+            try {
+                InventoryRoot root = InventoryModel.load("/inventory.json");
+                int index = 0;
+
+                for (TeamInitialisation tm : listTeamInital){
+                    java.util.List<InventoryJson> teamInventory = copyInventory(root.inventory);
+                    listTeamInital.get(index).getTeamModel().setInventory(teamInventory);
+                    index++;
+                }
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+            }
+        
+    }
+
+    private java.util.List<InventoryModel.InventoryJson> copyInventory(java.util.List<InventoryModel.InventoryJson> src) {
+                java.util.List<InventoryModel.InventoryJson> res = new java.util.ArrayList<>();
+                for (InventoryModel.InventoryJson it : src) {
+                    InventoryModel.InventoryJson c = new InventoryModel.InventoryJson();
+                    c.objectType = it.objectType;
+                    c.name = it.name;
+                    c.maxUsages = it.maxUsages;
+                    c.isInfinite = it.isInfinite;
+                    c.remainingUses = it.remainingUses;
+                    // useThisTurn reste à 0
+                    res.add(c);
+                }
+                return res;
+            }
     /**
      * Construit une ArrayList de tous les vers de toutes les équipes
      * Utile pour le WaterSensorListener et autres systèmes globaux
@@ -711,6 +1131,93 @@ public class GameManager {
         }
         return allWorms;
     }
+    
+    /**
+     * Met à jour l'arme affichee dans la vue pour un worm en parametre
+     * @param worm le modèle du worm
+     * @param weapon l'arme à afficher (peut être null)
+     */
+    private void updateWeaponInView(CharacterModel worm, Weapon weapon) {
+        if (worm == null || listTeamInital == null) {
+            return;
+        }
+        
+        // chercher le worm a travers les equipes en jeu
+        for (TeamInitialisation teamInit : listTeamInital) {
+            TeamModel teamModel = teamInit.getTeamModel();
+            CharacterModel[] worms = teamModel.getTabWorms();
+            
+            // chercher l'index du worm dans l'equipe qu'on est entrain de parcourir
+            for (int i = 0; i < worms.length; i++) {
+                if (worms[i] == worm) {
+                    TeamView teamView = teamInit.getTeamView();
+                    if (teamView != null) {
+                        CharacterView characterView = teamView.getCharacterView(i);
+                        if (characterView != null) {
+                            characterView.setCurrentWeaponSprite(weapon);
+                        }
+                    }
+                    return;
+                }
+            }
+        }
+    }
+
+    /**
+     * désactive le sprite du gadget pour tous les worms de l'équipe active
+     */
+    private void clearGadgetSprite() {
+        if (activeWormController == null || activeWormController.getModel() == null) {
+            return;
+        }
+
+        CharacterModel worm = activeWormController.getModel();
+        for (TeamInitialisation teamInit : listTeamInital) {
+            TeamModel teamModel = teamInit.getTeamModel();
+            CharacterModel[] worms = teamModel.getTabWorms();
+
+            for (int i = 0; i < worms.length; i++) {
+                if (worms[i] == worm) {
+                    TeamView teamView = teamInit.getTeamView();
+                    if (teamView != null) {
+                        CharacterView characterView = teamView.getCharacterView(i);
+                        if (characterView != null) {
+                            characterView.setCurrentGadgetSprite(null);
+                        }
+                    }
+                    return;
+                }
+            }
+        }
+    }
+
+    /**
+     * desactive le sprite de l'arme pour tous les worms de l'équipe active
+     */
+    private void clearWeaponSprite() {
+        if (activeWormController == null || activeWormController.getModel() == null) {
+            return;
+        }
+
+        CharacterModel worm = activeWormController.getModel();
+        for (TeamInitialisation teamInit : listTeamInital) {
+            TeamModel teamModel = teamInit.getTeamModel();
+            CharacterModel[] worms = teamModel.getTabWorms();
+
+            for (int i = 0; i < worms.length; i++) {
+                if (worms[i] == worm) {
+                    TeamView teamView = teamInit.getTeamView();
+                    if (teamView != null) {
+                        CharacterView characterView = teamView.getCharacterView(i);
+                        if (characterView != null) {
+                            characterView.setCurrentWeaponSprite(null);
+                        }
+                    }
+                    return;
+                }
+            }
+        }
+    }
 
     /**
      * Construit un tableau de tous les vers de toutes les équipes
@@ -719,6 +1226,38 @@ public class GameManager {
     private CharacterModel[] buildAllWormsArray() {
         ArrayList<CharacterModel> wormsList = buildAllWormsList();
         return wormsList.toArray(new CharacterModel[0]);
+    }
+    
+    /**
+     * Marque qu'une arme a été utilisée ce tour
+     * @param weaponName Le nom de l'arme utilisée
+     */
+    public void markWeaponUsed(String weaponName) {
+        if (weaponUsedThisTurn == null) {
+            weaponUsedThisTurn = weaponName;
+            System.out.println("[Arme] " + weaponName + " utilisée ce tour!");
+        }
+    }
+    
+    /**
+     * retourne le nom de l'arme utilisée ce tour 
+     */
+    public String getWeaponUsedThisTurn() {
+        return weaponUsedThisTurn;
+    }
+    
+    /**
+     * Réinitialise le flag d'utilisation d'arme (appelé au début du tour)
+     */
+    public void resetWeaponUsedFlag() {
+        weaponUsedThisTurn = null;
+    }
+    
+    /**
+     * Retourne le nombre de gadgets restants ce tour
+     */
+    public int getRemainingGadgetsThisTurn() {
+        return 2 - gadgetsUsedThisTurn;
     }
 
 }

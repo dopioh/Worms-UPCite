@@ -6,22 +6,22 @@ import org.jbox2d.common.Vec2;
 
 import fr.upc.g5e4.model.CharacterModel;
 import fr.upc.g5e4.model.Weapon;
+import fr.upc.g5e4.model.TrajectoryInterface;
 
 /**
  * classe pour afficher la trajectoire de tir
  * système de visée 360°
  */
-public class TrajectoryRenderer {
+public class TrajectoryView {
     private CharacterModel shooter;
     private Weapon currentWeapon;
     private double shootingAngle = 0;  // angle en degrés (0-360)
     private boolean isAiming = false;
     private static final int TRAJECTORY_POINTS = 50;
-    private static final Color TRAJECTORY_COLOR = new Color(255, 200, 0, 180); // Orange semi-transparent
-    private static final Color TRAJECTORY_LINE_COLOR = new Color(255, 150, 0, 200); // Orange foncé
+    private static final Color TRAJECTORY_COLOR = new Color(80, 80, 80); // Gris clair
     private static final float PPM = 30f;
 
-    public TrajectoryRenderer() {
+    public TrajectoryView() {
     }
 
     /**
@@ -80,25 +80,29 @@ public class TrajectoryRenderer {
 
         trajectoryWorldX[0] = shooterPos.x;
         trajectoryWorldY[0] = shooterPos.y;
-        System.out.println("Renderer curve=" + currentWeapon.getCurveAmplitude() + " weapon=" + currentWeapon.getName());
+        System.out.println(" weapon=" + currentWeapon.getName());
 
-        // générer les points avec trajectoire parabolique
+        // générer les points avec la trajectoire spécifique à l'arme
         for (int i = 1; i <= TRAJECTORY_POINTS; i++) {
             float t = (float) i / TRAJECTORY_POINTS;  // t entre 0 et 1
             
-            //la trajectoire parcourt la distance 'range' toujours horizontalement
-            float horizontalDistance = (float)(range * t);
+            Vec2 position;
             
-            //position basée sur l'angle
-            float worldX = shooterPos.x + (float)(horizontalDistance * Math.cos(angleRad));
-            float worldY = shooterPos.y + (float)(horizontalDistance * Math.sin(angleRad));
+            // Utiliser le calculateur de trajectoire de l'arme s'il existe
+            if (currentWeapon.getTrajectoryCalculator() != null) {
+                position = currentWeapon.getTrajectoryCalculator().calculatePosition(
+                    t, shooterPos, range, angleRad
+                );
+            } else {
+                // Trajectoire par défaut (compatibilité arrière)
+                float horizontalDistance = (float)(range * t);
+                float worldX = shooterPos.x + (float)(horizontalDistance * Math.cos(angleRad));
+                float worldY = shooterPos.y + (float)(horizontalDistance * Math.sin(angleRad));
+                position = new Vec2(worldX, worldY);
+            }
             
-            //apliquer la courbe parabolique
-            double curveEffect = currentWeapon.getCurveAmplitude();
-            worldY -= (float)(curveEffect * 4 * t * (1 - t));
-
-            trajectoryWorldX[i] = worldX;
-            trajectoryWorldY[i] = worldY;
+            trajectoryWorldX[i] = position.x;
+            trajectoryWorldY[i] = position.y;
         }
 
         //convertir en coordonnées écran pour affichage
@@ -110,20 +114,18 @@ public class TrajectoryRenderer {
             trajectoryY[i] = (24 - trajectoryWorldY[i]) * PPM;  // Conversion et inversion Y
         }
 
-        // déssiner la ligne de trajectoire
-        g2.setColor(TRAJECTORY_LINE_COLOR);
-        g2.setStroke(new BasicStroke(2.0f));
-        for (int i = 0; i < TRAJECTORY_POINTS; i++) {
-            g2.drawLine(
-                (int) trajectoryX[i], (int) trajectoryY[i],
-                (int) trajectoryX[i + 1], (int) trajectoryY[i + 1]
-            );
-        }
-
         //dessiner les points de trajectoire
         g2.setColor(TRAJECTORY_COLOR);
-        int pointSize = 4;
-        for (int i = 0; i <= TRAJECTORY_POINTS; i++) {
+        int pointSize = 3;  // Points réduits
+        int maxPoints;
+        //réduire davantage pour l'AK-47
+        if (currentWeapon.getName() != null && currentWeapon.getName().equals("AK-47")) {
+            maxPoints = (int)(TRAJECTORY_POINTS * 0.10);  // 1/10 de la trajectoire pour AK-47
+        } else {
+            maxPoints = (int)(TRAJECTORY_POINTS * 0.67);  // 2/3 pour les autres armes
+        }
+        
+        for (int i = 0; i <= maxPoints; i++) {
             g2.fillOval(
                 (int) (trajectoryX[i] - pointSize / 2),
                 (int) (trajectoryY[i] - pointSize / 2),
@@ -133,3 +135,4 @@ public class TrajectoryRenderer {
         }
     }
 }
+

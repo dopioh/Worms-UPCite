@@ -25,10 +25,20 @@ public class GameLoop{
     private int roundTimeRemaining;
 
     /** Toute les update de Timer se font dans le Constructeur de GameLoop, pas besoin de creer de methode ici*/
+
+    // Ajout : méthode publique pour reset le timer
+    public void resetRoundTimer() {
+        this.roundTimeRemaining = 1800;
+        gamePanel.setRoundTimer(30);
+    }
     public GameLoop(GameManager gameManager){
         this.gameManager = gameManager;
         this.gamePanel = this.gameManager.getGamePanel();
         this.roundTimeRemaining = gameManager.getRoundTimeRemaining();
+
+        // pour pas que 30 passe par dessus le temps sauvegardee dans le cas de resumeGame()
+        int initialSeconds = roundTimeRemaining / 60;
+        this.gamePanel.setRoundTimer(initialSeconds);
 
         // Initialiser l'affichage du chrono dans la vue -> Ca sert a rien ? 
         //this.gamePanel.setRoundTimer(30);
@@ -37,6 +47,21 @@ public class GameLoop{
         this.timer = new Timer((int)(FIXHZ*1000),new ActionListener() {         
             @Override
             public void actionPerformed(ActionEvent e){
+                // met a jour la caméra
+                if (gameManager.getCameraController() != null) {
+                    gameManager.getCameraController().update();
+                }
+                
+                // met a jour les projectiles
+                if (gameManager.getItemController() != null) {
+                    gameManager.getItemController().updateProjectiles(FIXHZ);
+                }
+                
+                // met a jour l'animation du vent
+                if (gameManager.getWindOverlay() != null) {
+                    gameManager.getWindOverlay().update(FIXHZ);
+                }
+                
                 // met a jour le worm actif
                 if (gameManager.getActiveWormController() != null) {
                     gameManager.getActiveWormController().update();
