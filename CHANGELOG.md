@@ -210,4 +210,5 @@
 
 ### Changed 
 - Suppression des fleches haut et bas, pour une trajectoire seulement avec la souris
+- Maj du DIAGRAMME.MD
 
