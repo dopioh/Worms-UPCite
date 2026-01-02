@@ -104,13 +104,27 @@ public class InventoryOverlay extends JComponent {
             public void mousePressed(MouseEvent e) {
                 handleClick(e.getX(), e.getY());
             }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                // Quand inventaire fermé, passer l'événement au controller
+                if (!visible && inputControllerRef != null && e.getButton() == MouseEvent.BUTTON1) {
+                    inputControllerRef.fireWeaponAtAngle(e.getX(), e.getY());
+                }
+            }
         });
 
-        // HOVER 
+        // HOVER + Deleguer les événements au controller quand inventaire fermé
         addMouseMotionListener(new MouseAdapter() {
             @Override
             public void mouseMoved(MouseEvent e) {
-                if (!visible) return;
+                if (!visible) {
+                    // Passer l'événement au controller de tir
+                    if (inputControllerRef != null) {
+                        inputControllerRef.updateTrajectoryFromMouseMotion(e.getX(), e.getY());
+                    }
+                    return;
+                }
 
                 computeLayout();
                 int x = e.getX();
@@ -140,6 +154,14 @@ public class InventoryOverlay extends JComponent {
 
                 if (changed) repaint();
             }
+
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                // Quand inventaire fermé, passer l'événement au controller
+                if (!visible && inputControllerRef != null) {
+                    inputControllerRef.updateTrajectoryFromMouseMotion(e.getX(), e.getY());
+                }
+            }
         });
 
 
@@ -156,15 +178,25 @@ public class InventoryOverlay extends JComponent {
         this.onGadgetUse = callback;
     }
 
+    private SwingInputController inputControllerRef;
+
     /**
      * FireListener basé sur le SwingInputController (tir vers la souris)
      */
     public void setFireListener(SwingInputController inputController){      // Listener par défaut
+        this.inputControllerRef = inputController;
         this.fireListener = new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON1) {
-                    inputController.handleFireAt(e.getX(), e.getY());
+                    inputController.updateTrajectoryFromMouse(e.getX(), e.getY());
+                }
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON1) {
+                    inputController.fireWeaponAtAngle(e.getX(), e.getY());
                 }
             }
         };
@@ -486,6 +518,10 @@ public class InventoryOverlay extends JComponent {
             // appeler la bonne méthode selon le type d'objet
             if ("GADGET".equalsIgnoreCase(item.objectType)) {
                 gameManager.setGadgetFromInventory(item.name);
+                // Désactiver la trajectoire quand un gadget est équipé
+                if (inputControllerRef != null) {
+                    inputControllerRef.disableTrajectory();
+                }
             } else {
                 // WEAPON par défaut
                 gameManager.setWeaponFromInventory(item.name);

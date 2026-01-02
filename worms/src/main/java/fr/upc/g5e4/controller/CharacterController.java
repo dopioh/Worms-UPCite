@@ -239,6 +239,15 @@ public class CharacterController {
             return;
         }
         
+        // vérifier si une autre arme a déjà été utilisée ce tour
+        if (gameManager != null) {
+            String usedWeapon = gameManager.getWeaponUsedThisTurn();
+            if (usedWeapon != null && currentWeaponInventory != null && !usedWeapon.equalsIgnoreCase(currentWeaponInventory.name)) {
+                System.out.println("[Arme] Vous avez déjà utilisé " + usedWeapon + " ce tour! Vous ne pouvez utiliser que cette arme.");
+                return;
+            }
+        }
+        
         // vérifier si on peut tirer avec cette arme ce tour
         if (currentWeaponInventory != null && !currentWeaponInventory.canUseThisTurn()) {
             System.out.println("[Arme] Limite d'utilisation atteinte pour cette arme ce tour!");
@@ -254,8 +263,8 @@ public class CharacterController {
         }
         
         // marquer que l'arme a été utilisée ce tour
-        if (gameManager != null) {
-            gameManager.markWeaponUsed();
+        if (gameManager != null && currentWeaponInventory != null) {
+            gameManager.markWeaponUsed(currentWeaponInventory.name);
         }
     }
     
@@ -268,6 +277,15 @@ public class CharacterController {
             return;
         }
         
+        // vérifier si une autre arme a déjà été utilisée ce tour
+        if (gameManager != null) {
+            String usedWeapon = gameManager.getWeaponUsedThisTurn();
+            if (usedWeapon != null && currentWeaponInventory != null && !usedWeapon.equalsIgnoreCase(currentWeaponInventory.name)) {
+                System.out.println("[Arme] Vous avez déjà utilisé " + usedWeapon + " ce tour! Vous ne pouvez utiliser que cette arme.");
+                return;
+            }
+        }
+        
         // vérifier si on peut tirer avec cette arme ce tour
         if (currentWeaponInventory != null && !currentWeaponInventory.canUseThisTurn()) {
             System.out.println("[Arme] Limite d'utilisation atteinte pour cette arme ce tour!");
@@ -283,8 +301,8 @@ public class CharacterController {
         }
         
         // marquer que l'arme a été utilisée ce tour
-        if (gameManager != null) {
-            gameManager.markWeaponUsed();
+        if (gameManager != null && currentWeaponInventory != null) {
+            gameManager.markWeaponUsed(currentWeaponInventory.name);
         }
     }
 }

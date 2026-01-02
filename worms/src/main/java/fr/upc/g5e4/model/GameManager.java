@@ -72,7 +72,7 @@ public class GameManager {
 
     private int currentWeaponIndex = 0;  // 0=AK47, 1=Baseball, 2=Grenade, 3=Rocket    
     
-    private boolean weaponUsedThisTurn = false;  //empêche de changer d'arme après avoir tiré
+    private String weaponUsedThisTurn = null;  // Nom de l'arme déjà utilisée ce tour 
     private int gadgetsUsedThisTurn = 0;  // Compte le nombre de gadgets utilisés
 
     // ajout minimal: gestion des rounds
@@ -848,10 +848,9 @@ public class GameManager {
 
     /*Selection d'inventaire depuis l'inventaire*/
     public void setWeaponFromInventory(String itemName) {
-        // vérifier si une arme a déjà été utilisée ce tour
-        if (weaponUsedThisTurn) {
-            System.out.println("[Inventaire] Impossible de changer d'arme après avoir tiré ce tour!");
-            return;
+        // Permet de changer d'arme même si une arme a été utilisée, mais avertir si c'est une arme différente
+        if (weaponUsedThisTurn != null && !weaponUsedThisTurn.equalsIgnoreCase(itemName)) {
+            System.out.println("[Inventaire] Une autre arme a déjà été utilisée ce tour. Vous pouvez changer mais pas tirer!");
         }
         
         Weapon newWeapon = null;
@@ -1231,18 +1230,27 @@ public class GameManager {
     
     /**
      * Marque qu'une arme a été utilisée ce tour
-     * Empêche les changements d'arme après un tir
+     * @param weaponName Le nom de l'arme utilisée
      */
-    public void markWeaponUsed() {
-        weaponUsedThisTurn = true;
-        System.out.println("[Arme] Vous ne pouvez plus changer d'arme ce tour!");
+    public void markWeaponUsed(String weaponName) {
+        if (weaponUsedThisTurn == null) {
+            weaponUsedThisTurn = weaponName;
+            System.out.println("[Arme] " + weaponName + " utilisée ce tour!");
+        }
+    }
+    
+    /**
+     * retourne le nom de l'arme utilisée ce tour 
+     */
+    public String getWeaponUsedThisTurn() {
+        return weaponUsedThisTurn;
     }
     
     /**
      * Réinitialise le flag d'utilisation d'arme (appelé au début du tour)
      */
     public void resetWeaponUsedFlag() {
-        weaponUsedThisTurn = false;
+        weaponUsedThisTurn = null;
     }
     
     /**
