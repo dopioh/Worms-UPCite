@@ -327,36 +327,37 @@ public class TeamSettingsView extends JPanel{
 
             float scaleW = screenW/2560f;
             float scaleH = screenH/1440f; // mon ecran actuel
-            
 
-            //  (int)(1000 * scaleH), (int)(1050 * scaleH)
+            float globalScale = Math.min(scaleW, scaleH);
 
-            this.contentPanel.setPreferredSize(new Dimension((int)(2200 * scaleW), (int)(1150 * scaleH)));
-            this.zoneChoice.setPreferredSize(new Dimension((int)(1000 * scaleW), (int)(1050 * scaleH))); 
-            this.zoneCustom.setPreferredSize(new Dimension((int)(1000 * scaleW), (int)(1050 * scaleH))); 
-            this.dynamicTeamContainer.setPreferredSize(new Dimension((int)(500 * scaleW), (int)(500 * scaleH)));
+            //  (int)(1000 * globalScale), (int)(1050 * globalScale)
 
-            Dimension bigBtnSize = new Dimension((int)(400 * scaleW), (int)(100 * scaleH));
+            this.contentPanel.setPreferredSize(new Dimension((int)(2200 * globalScale), (int)(1150 * globalScale)));
+            this.zoneChoice.setPreferredSize(new Dimension((int)(1000 * globalScale), (int)(1050 * globalScale))); 
+            this.zoneCustom.setPreferredSize(new Dimension((int)(1000 * globalScale), (int)(1050 * globalScale))); 
+            this.dynamicTeamContainer.setPreferredSize(new Dimension((int)(500 * globalScale), (int)(500 * globalScale)));
+
+            Dimension bigBtnSize = new Dimension((int)(400 * globalScale), (int)(100 * globalScale));
             this.saveCustom.setPreferredSize(bigBtnSize); // on met tout comme ca on est sure que il se redimensionne bien
             this.saveCustom.setMinimumSize(bigBtnSize);
             this.saveCustom.setMaximumSize(bigBtnSize); 
-            this.saveCustom.setFont(new Font("googleSansFont", Font.BOLD, (int)(30*scaleH)));
+            this.saveCustom.setFont(new Font("googleSansFont", Font.BOLD, (int)(30*globalScale)));
 
             this.saveNextGame.setPreferredSize(new Dimension(400, 100));
-            this.saveNextGame.setFont(new Font("googleSansFont", Font.BOLD,(int)(30*scaleH)));
+            this.saveNextGame.setFont(new Font("googleSansFont", Font.BOLD,(int)(30*globalScale)));
 
             gbcChoice.insets = new Insets(20, 70, 20, 0);
             gbcCustom.insets = new Insets(20, 0, 20, 70);
 
             this.nomEquipeCustom.setPreferredSize(new Dimension(500, 80));
-            this.nomEquipeCustom.setFont(new Font("googleSansFont", Font.BOLD, (int)(40*scaleH)));
+            this.nomEquipeCustom.setFont(new Font("googleSansFont", Font.BOLD, (int)(40*globalScale)));
 
-            Font labelFullScreen = new Font("googleSansFont", Font.BOLD, (int)(40*scaleH));
+            Font labelFullScreen = new Font("googleSansFont", Font.BOLD, (int)(40*globalScale));
 
-            this.skinChooseUnlocked.setPreferredSize( new Dimension((int)(600 * scaleW), (int)(100 * scaleH)));
+            this.skinChooseUnlocked.setPreferredSize( new Dimension((int)(600 * globalScale), (int)(100 * globalScale)));
             skinChooseUnlocked.setFont(labelFullScreen);
 
-            int imgSize = (int)(100*scaleH); 
+            int imgSize = (int)(100*globalScale); 
             this.skinPreviewImage.setPreferredSize(new Dimension(imgSize, imgSize));
             updateSkin(currentSkin, imgSize);
 
@@ -369,11 +370,11 @@ public class TeamSettingsView extends JPanel{
             }
 
             for (PillComboBox<Object> pill : allPillComboBox){
-                pill.setPreferredSize(new Dimension((int)(200 * scaleW), (int)(80 * scaleH)));
+                pill.setPreferredSize(new Dimension((int)(200 * globalScale), (int)(80 * globalScale)));
                 pill.setFont(labelFullScreen);
             }
 
-            Dimension d = new Dimension((int)(40 * scaleW), (int)(90 * scaleH));
+            Dimension d = new Dimension((int)(40 * globalScale), (int)(90 * globalScale));
             for (PillTextField ptf : this.allChooseResizeText){
                 ptf.setPreferredSize(d);
                 ptf.setMaximumSize(d);
