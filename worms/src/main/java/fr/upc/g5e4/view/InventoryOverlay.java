@@ -8,6 +8,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.upc.g5e4.model.InventoryModel;
 import fr.upc.g5e4.model.InventoryModel.InventoryJson;
 import fr.upc.g5e4.controller.SwingInputController;
 import fr.upc.g5e4.model.GameManager;
@@ -86,7 +87,7 @@ public class InventoryOverlay extends JComponent {
         loadImage("wormjack", "/wormjack.png");
         loadImage("wormrace", "/wormrace.png");
         loadImage("wormguess", "/wormguess.png");
-        
+
         // gadget & boutique
         loadImage("PotionSpeed", "/gadgets/potion_speed.png");
         loadImage("PotionJump", "/gadgets/potion_jump.png");
@@ -138,13 +139,19 @@ public class InventoryOverlay extends JComponent {
         playerDataController = new fr.upc.g5e4.controller.PlayerDataController();
         playerDataController.chargerJoueur();
         
-        shopItems.add(new ShopItem("LuckyBlock", "luckyblock", 50));
         shopItems.add(new ShopItem("Worm OG", "wormog", 20));
         shopItems.add(new ShopItem("Worm Pinky Edition", "wormpinky", 20));
         shopItems.add(new ShopItem("Worm Noel Edition", "wormnoel", 20));
         shopItems.add(new ShopItem("WORMRACE", "wormrace", 0));
         shopItems.add(new ShopItem("WORMJACK", "wormjack", 0));
         shopItems.add(new ShopItem("WORMGUESS", "wormguess", 0));
+        shopItems.add(new ShopItem("PotionHeal", "potionheal", 20));
+        shopItems.add(new ShopItem("PotionShield", "potionshield", 30));
+        shopItems.add(new ShopItem("PotionSpeed", "potionspeed", 40));
+        shopItems.add(new ShopItem("PotionJump", "potionjump", 40));
+        shopItems.add(new ShopItem("Balles AK47 x10", "ak47", 20));
+        shopItems.add(new ShopItem("Rocket Bazooka x1", "bazooka", 200));
+        shopItems.add(new ShopItem("Grenade x1", "grenade", 50));
 
         addMouseListener(new MouseAdapter() {
             @Override
@@ -356,7 +363,7 @@ public class InventoryOverlay extends JComponent {
 
         // panneau inventaire à gauche (plus large si boutique)
         int panelW = currentCategory == Category.BOUTIQUE ? 600 : 360;
-        int panelH = 520;
+        int panelH = currentCategory == Category.BOUTIQUE ? 640 : 520;
         int panelX = 20;
         int panelY = (h - panelH) / 2;
 
@@ -414,12 +421,6 @@ public class InventoryOverlay extends JComponent {
             int btnMargin = 12;
             int nameSpacing = 30; // Espace pour le nom et le prix
             int totalCellHeight = CELL_SIZE + nameSpacing + btnHeight + btnMargin + CELL_GAP;
-            
-            // Créer une zone de clipping pour le scroll
-            Rectangle clipBounds = new Rectangle(startX - 10, startY, 
-                gridCols * (CELL_SIZE + CELL_GAP), 
-                panelBounds.height - (startY - panelBounds.y) - 40);
-            g2.setClip(clipBounds);
             
             for (int i = 0; i < shopItems.size(); i++) {
                 ShopItem shopItem = shopItems.get(i);
@@ -705,9 +706,9 @@ public class InventoryOverlay extends JComponent {
         int w = getWidth();
         int h = getHeight();
 
-        // panneau inventaire à gauche
-        int panelW = 600;
-        int panelH = 520;
+        // panneau inventaire à gauche (adapté selon la catégorie)
+        int panelW = currentCategory == Category.BOUTIQUE ? 600 : 360;
+        int panelH = currentCategory == Category.BOUTIQUE ? 640 : 520;
         int panelX = 20;
         int panelY = (h - panelH) / 2;
 
@@ -828,6 +829,9 @@ public class InventoryOverlay extends JComponent {
         if (isSkin) {
             playerDataController.getPlayerData().unlockSkin(shopItem.name);
             System.out.println("Skin débloqué: " + shopItem.name);
+        } else if (!shopItem.name.startsWith("WORM")) { //filtre pour ajouter WORMRACE, WORMJACK, WORMGUESS
+            // Ajout des items (potions/balles) à l'inventaire de l'équipe
+            addItemToTeamInventory(shopItem);
         }
         
         playerDataController.sauvegarderJoueur();
@@ -862,6 +866,67 @@ public class InventoryOverlay extends JComponent {
         }
         
         repaint();
+    }
+    
+    /**
+     * Ajoute l'item acheté à l'inventaire de l'équipe active
+     * @param shopItem l'item acheté
+     */
+    private void addItemToTeamInventory(ShopItem shopItem) {
+        if (gameManager == null || gameManager.getCurrentTeam() == null) {
+            System.err.println("Erreur: pas d'équipe active pour ajouter l'item");
+            return;
+        }
+        
+        List<InventoryJson> teamInventory = gameManager.getCurrentTeam().getInventory();
+        String objectType = null;
+        int quantityToAdd = 0;
+        
+        if (shopItem.imagePath.equals("potionheal")) {
+            objectType = "potion";
+            quantityToAdd = 1;
+        } else if (shopItem.imagePath.equals("potionshield")) {
+            objectType = "potion";
+            quantityToAdd = 1;
+        } else if (shopItem.imagePath.equals("potionspeed")) {
+            objectType = "potion";
+            quantityToAdd = 1;
+        } else if (shopItem.imagePath.equals("potionjump")) {
+            objectType = "potion";
+            quantityToAdd = 1;
+        } else if (shopItem.imagePath.equals("ak47")) {
+            objectType = "weapon";
+            quantityToAdd = 10;
+        } else if (shopItem.imagePath.equals("bazooka")) {
+            objectType = "weapon";
+            quantityToAdd = 1;
+        } else if (shopItem.imagePath.equals("grenade")) {
+            objectType = "weapon";
+            quantityToAdd = 1;
+        }
+        
+        // securité si l'item n'est pas reconnu
+        if (objectType == null) {
+            System.out.println("Item introuvable dans l'inventaire: " + shopItem.name);
+            return;
+        }
+        
+        // recherche si l'item existe déjà dans l'inventaire
+        InventoryJson existingItem = null;
+        for (InventoryJson item : teamInventory) {
+            if (item.name.equalsIgnoreCase(shopItem.imagePath)) {
+                existingItem = item;
+                break;
+            }
+        }
+        
+        if (existingItem != null) {
+            // on augmente le remainingUses de l'item
+            if (!existingItem.isInfinite && existingItem.remainingUses != null) {
+                existingItem.remainingUses += quantityToAdd;
+                System.out.println("Item ajouté à l'inventaire: " + shopItem.name + " (+" + quantityToAdd + " → total: " + existingItem.remainingUses + ")");
+            }
+        }
     }
     
     public void setWormRaceOverlay(WormRaceOverlay overlay) {
