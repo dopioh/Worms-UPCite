@@ -355,11 +355,11 @@ public class SwingInputController extends JPanel{
         // obtenir les coordonnées monde
         //convertir les pixel écran (x, y) en coordonnées monde:
 
-        // Inverser le zoom d'abord (diviser par le zoom)
+        // inverser le zoom d'abord 
         double xAfterZoom = x / zoomFactor;
         double yAfterZoom = y / zoomFactor;
         
-        // Puis compenser le décalage de la caméra
+        //compenser le décalage de la caméra
         double clickWorldX_temp = xAfterZoom + cameraX;
         double clickWorldY_temp = yAfterZoom + cameraY;
         
@@ -378,11 +378,6 @@ public class SwingInputController extends JPanel{
         if (shootingAngle < 0) {
             shootingAngle += 360;
         }
-
-        // DEBUG
-        System.out.println("[TRAJECTORY] Screen: (" + x + ", " + y + ") | Zoom: " + zoomFactor + 
-                         " | Camera: (" + cameraX + ", " + cameraY + ") | World: (" + clickWorldX + ", " + clickWorldY + 
-                         ") | Worm: (" + pos.x + ", " + pos.y + ") | Angle: " + String.format("%.1f°", shootingAngle));
 
         // mettre à jour l'arme avec le nouvel angle
         if (personnageController.getCurrentWeapon() != null) {
@@ -428,11 +423,11 @@ public class SwingInputController extends JPanel{
         float worldHeightMeters = 24f;
 
         // obtenir les coordonnées monde
-        // Inverser le zoom d'abord (diviser par le zoom)
+        // inverser le zoom d'abord (diviser par le zoom)
         double xAfterZoom = x / zoomFactor;
         double yAfterZoom = y / zoomFactor;
         
-        // Puis compenser le décalage de la caméra
+        //compenser le décalage de la caméra
         double clickWorldX_temp = xAfterZoom + cameraX;
         double clickWorldY_temp = yAfterZoom + cameraY;
         
