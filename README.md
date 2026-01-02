@@ -123,8 +123,7 @@ worms/
 │   └── test/
 │       └── java/          # Tests unitaires
 ├── sauvegardes/           # Fichiers de sauvegarde
-├── pom.xml                # Configuration Maven
-└── ARCHITECTURE.md        # Documentation technique
+└── pom.xml                # Configuration Maven
 ```
 Voir [ARCHITECTURE.md](worms/ARCHITECTURE.md) pour la structure complète
 
