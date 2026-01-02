@@ -1,42 +1,66 @@
 {
-  "inventory": [
-    {
-      "objectType": "WEAPON",
-      "name": "baseballbat",
-      "maxUsages": 1,
-      "isInfinite": true,
-      "useThisTurn": 0
-    },
-    {
-      "objectType": "WEAPON",
-      "name": "grenade",
-      "maxUsages": 1,
-      "isInfinite": false,
-      "remainingUses": 6,
-      "useThisTurn": 0
-    },
-    {
-      "objectType": "GADGET",
-      "name": "bumper",
-      "maxUsages": 1,
-      "isInfinite": true,
-      "useThisTurn": 0
-    },
-    {
-      "objectType": "WEAPON",
-      "name": "ak47",
-      "maxUsages": 3,
-      "isInfinite": false,
-      "remainingUses": 30,
-      "useThisTurn": 0
-    },
-    {
-      "objectType": "WEAPON",
-      "name": "bazooka",
-      "maxUsages": 1,
-      "isInfinite": false,
-      "remainingUses": 2,
-      "useThisTurn": 0
-    }
-  ]
+    "inventory":[   
+        {
+            "objectType" : "WEAPON",
+            "name" : "baseballbat",
+            "maxUsages" : 1,
+            "isInfinite" : true
+        },
+        {
+            "objectType" : "WEAPON",
+            "name" : "grenade",
+            "maxUsages" : 1,
+            "isInfinite" : false,
+            "remainingUses" : 3
+        },
+        {
+            "objectType" : "GADGET",
+            "name" : "bumper",
+            "maxUsages" : 5,
+            "isInfinite" : true    
+        },
+        {
+            "objectType" : "GADGET",
+            "name" : "PotionHeal",
+            "maxUsages" : 3,
+            "isInfinite" : false,
+            "remainingUses" : 3
+        },
+        {
+            "objectType" : "GADGET",
+            "name" : "PotionShield",
+            "maxUsages" : 3,
+            "isInfinite" : false,
+            "remainingUses" : 3
+        },
+        {
+            "objectType" : "GADGET",
+            "name" : "PotionSpeed",
+            "maxUsages" : 2,
+            "isInfinite" : false,
+            "remainingUses" : 2
+        },
+        {
+            "objectType" : "GADGET",
+            "name" : "PotionJump",
+            "maxUsages" : 2,
+            "isInfinite" : false,
+            "remainingUses" : 2
+        },
+        {
+            "objectType" : "WEAPON",
+            "name" : "ak47",
+            "maxUsages" : 3,
+            "isInfinite" : false,
+            "remainingUses" : 30
+        },
+        {
+            "objectType" : "WEAPON",
+            "name" : "bazooka",
+            "maxUsages" : 1,
+            "isInfinite" : false,
+            "remainingUses" : 2    
+        }
+
+    ]
 }

@@ -76,13 +76,12 @@ public class GameLauncher{
      */
     public GameLauncher(boolean screen, boolean skipMenu) throws IOException {
         attributionPlayerDataController();
-        testModifPlayerData();
 
         this.screen = screen;
         
         if (!screen) {
             // Mode headless pour les tests (pas d'interface graphique)
-            this.gameManager = new GameManager(2);
+            this.gameManager = new GameManager();
             this.gamePanel = gameManager.getGamePanel();
             this.gameLoop = new GameLoop(gameManager);
             this.gameLoop.timerStart();
@@ -141,6 +140,14 @@ public class GameLauncher{
     }
     
     /**
+     * Affiche settings
+     */
+    public void showSettings(SettingsView settingsView) {
+        cardPanel.add(settingsView, "SETTINGS");
+        cardLayout.show(cardPanel, "SETTINGS");
+    }
+    
+    /**
      * Lance le jeu avec une cinématique d'introduction
      */
     public void startGame() throws IOException {
@@ -196,11 +203,13 @@ public class GameLauncher{
      * @see SaveData
      */
     public void startFromGameSave(SaveData saveData) throws IOException{
-        this.saveData = saveData;
-
         resetGame(); // au cas ou 
-
-        initializeGame(true);
+        if (saveData == null){
+            initializeGame(false);
+        } else {
+            this.saveData = saveData;
+            initializeGame(true);
+        }
 
         cardLayout.show(cardPanel, GAME_CARD); // afficher le jeu 
 
@@ -226,7 +235,7 @@ public class GameLauncher{
         if (save){
             this.gameManager = new GameManager(saveData);
         } else {
-            this.gameManager = new GameManager(3);  // 3 équipes pour tester le scroll
+            this.gameManager = new GameManager();  // 3 équipes pour tester le scroll
         }
 
         this.gamePanel = gameManager.getGamePanel();
@@ -314,30 +323,41 @@ public class GameLauncher{
                 toggleFullScreen();
             }
         });
+        
     }
     
     private void toggleFullScreen() {
-        GraphicsDevice device = GraphicsEnvironment
-            .getLocalGraphicsEnvironment().getDefaultScreenDevice();
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice gd = ge.getDefaultScreenDevice();
+        GraphicsConfiguration gc = gd.getDefaultConfiguration();
+        
+        // Obtenir la taille de l'écran sans le notch(mac), menu bar/dock
+        Rectangle screenBounds = gc.getBounds();
+        Insets screenInsets = Toolkit.getDefaultToolkit().getScreenInsets(gc);
+        
+        int usableX = screenBounds.x + screenInsets.left;
+        int usableY = screenBounds.y + screenInsets.top;
+        int usableWidth = screenBounds.width - screenInsets.left - screenInsets.right;
+        int usableHeight = screenBounds.height - screenInsets.top - screenInsets.bottom;
         
         if (isFullScreen) {
             // Sortir du plein écran
-            device.setFullScreenWindow(null);
             mainFrame.dispose();
             mainFrame.setUndecorated(false);
+            mainFrame.setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+            mainFrame.setLocationRelativeTo(null);
             mainFrame.setVisible(true);
             isFullScreen = false;
             updateAllSizes(DEFAULT_WIDTH, DEFAULT_HEIGHT);
         } else {
-            // Entrer en plein écran
+            // Entrer en plein écran (simulé, respecte le notch et le dock)
             mainFrame.dispose();
             mainFrame.setUndecorated(true);
+            mainFrame.setBounds(usableX, usableY, usableWidth, usableHeight);
             mainFrame.setVisible(true);
-            device.setFullScreenWindow(mainFrame);
             isFullScreen = true;
             
-            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-            updateAllSizes(screenSize.width, screenSize.height);
+            updateAllSizes(usableWidth, usableHeight);
         }
         
         // Redonner le focus
@@ -474,24 +494,18 @@ public class GameLauncher{
         this.playerDataController = new PlayerDataController();
 
         if (playerSave){
+            System.out.println("Il y'a une save");
             this.playerDataController.chargerJoueur();
         } else {
+            System.out.println("Il y'a pas de save");
             this.playerDataController.nouveauJoueur();
             this.playerDataController.sauvegarderJoueur();
         }
     }
 
-    /**
-     * Methode useless juste pour te montrer comment ecrire dans le PlayerData
-     * Pense a tjr save des que tu modifies une valeur, le joueur peut quitter le jeu a n'importe quel moment
-     * 
-     * J'appelle cette methode dans gameLauncher mais toi tu peux recup PlayerDataController en la passant en parametre 
-     * Et la recup pour tes fichiers Boutiques BattlePass
-     */
-    public void testModifPlayerData(){
-        this.playerDataController.getPlayerData().setName("NassNass");
-        this.playerDataController.sauvegarderJoueur();
-    }
+    public PlayerDataController getPlayerDataController(){
+        return this.playerDataController;
+    } 
 
     public static void main(String[] args) throws IOException{
 

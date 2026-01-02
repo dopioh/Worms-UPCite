@@ -6,7 +6,7 @@
 
     <groupId>fr.upc.g5e4</groupId>
     <artifactId>worms</artifactId>
-    <version>0.3-SNAPSHOT</version>
+    <version>SNAPSHOT</version>
 
     <properties>
         <maven.compiler.source>23</maven.compiler.source>
@@ -71,7 +71,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>fr.upc.g5e4.TutorialLauncher</mainClass>
+                            <mainClass>fr.upc.g5e4.GameLauncher</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
