@@ -34,7 +34,7 @@ public class SaveLoad {
 
             // j'ai pris 10 en valeurs au cas ou mais on aurait tres bien pu mettre = 1
             if(file.length() < 10){
-                new GameManager(2); // je mets 2 ici mais ca sera modif quand on aura les custom team
+                new GameManager(); // je mets 2 ici mais ca sera modif quand on aura les custom team
             } else {
                 System.out.println(file.getAbsolutePath());
                 System.out.println(file.getCanonicalPath());

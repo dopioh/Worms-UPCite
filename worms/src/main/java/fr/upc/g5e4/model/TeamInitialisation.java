@@ -34,7 +34,7 @@ public class TeamInitialisation {
     private String name;
 
     
-    private static int SPACING = 30;
+    private static int SPACING = 25;
     public static int[] alreadyUsed = new int[5];
     
     
@@ -69,7 +69,7 @@ public class TeamInitialisation {
         colorGiving();
         teamModel = new TeamModel(groundModel, world, name, startX, SPACING, teamNumber, false, facingRight, false,COLORTEAM);
         teamView = new TeamView(teamNumber,color, skinPath, facingRight);
-        SPACING += 5; // pour que si il y'a plus de 2 equipes, les worms ne se superposent pas
+        SPACING += 3; // pour que si il y'a plus de 2 equipes, les worms ne se superposent pas
     }
     
 
