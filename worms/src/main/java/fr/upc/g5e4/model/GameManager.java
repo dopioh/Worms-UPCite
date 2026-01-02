@@ -741,8 +741,17 @@ public class GameManager {
         int index = 0;
 
         for (int i = 0; i < number; i++){
-            CustomTeamData ctd = customTeam.get(i);
-            String skinPath = ctd.getSkin().getFilePath();
+
+            String skinPath;
+            CustomTeamData ctd;
+            if (customTeam != null && i < customTeam.size()){
+                ctd = customTeam.get(i);
+                skinPath = ctd.getSkin().getFilePath();
+            } else {
+                ctd = new CustomTeamData();
+                skinPath = "/worm.png";
+            }
+            
 
             this.nbrTeams++;
             
