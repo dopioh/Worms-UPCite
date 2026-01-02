@@ -72,25 +72,17 @@ public class MainMenuController {
     }
 
     private void openConfig() {
-
         TeamSettingsView teamSettingsView = new TeamSettingsView(gameLauncher.getPlayerDataController()); // creer la vue 
-        // Créer la vue des réglages
-        SettingsView settingsView = new SettingsView(teamSettingsView);
+
+        // Créer le contrôleur des réglages qui gère les listeners
+        SettingsController settingsController = new SettingsController(gameLauncher, teamSettingsView);
 
         // Creer la partie Terminal 
         TeamSettingsModel teamSettingsModel = new TeamSettingsModel(teamSettingsView,gameLauncher.getPlayerDataController());
         TeamSettingsController teamSettingsController = teamSettingsModel.getTeamSettingsController();
-        
-        // Ajouter un listener pour le bouton retour
-        settingsView.getBtnBack().addActionListener(e -> {
-            // Retour au menu principal en utilisant showMenu()
-            gameLauncher.showMenu();
-        });
-        
-        // Afficher la vue des réglages via le CardPanel
-        gameLauncher.getCardPanel().add(settingsView, "SETTINGS");
-        java.awt.CardLayout cl = (java.awt.CardLayout) gameLauncher.getCardPanel().getLayout();
-        cl.show(gameLauncher.getCardPanel(), "SETTINGS");
+
+        // Afficher les réglages via GameLauncher qui gère la navigation
+        gameLauncher.showSettings(settingsController.getView());
     }
 
     private void quitGame() {

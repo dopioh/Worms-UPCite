@@ -19,7 +19,6 @@ variables:
 #      </proxies>
 #    </settings>' > /root/.m2/settings.xml
 
-
 stages:
   - build
   - test

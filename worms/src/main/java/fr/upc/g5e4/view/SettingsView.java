@@ -8,7 +8,9 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.RenderingHints;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -61,6 +63,13 @@ public class SettingsView extends JPanel {
     private JPanel mapPanel;
     private JPanel teamsPanel;
     private JPanel otherPanel;
+    
+    // Composants du panel Map
+    private PillComboBox<String> sizeComboBox;
+    private PillComboBox<String> terrainComboBox;
+    private PillComboBox<String> styleComboBox;
+    private JLabel mapPreviewLabel;
+    private JPanel mapPreviewPanel;
     
     private Image backgroundImage;
     private String currentTab = "Map";
@@ -128,6 +137,34 @@ public class SettingsView extends JPanel {
 
         if (externalTeamsView != null) {
             externalTeamsView.update(fullScreen);
+        }
+        
+        // Mise à jour des combobox de la map
+        int comboWidth = (int)(220 * scale);
+        int comboHeight = (int)(50 * scale);
+        
+        if (sizeComboBox != null) {
+            sizeComboBox.setPreferredSize(new Dimension(comboWidth, comboHeight));
+            sizeComboBox.setMaximumSize(new Dimension(comboWidth, comboHeight));
+            sizeComboBox.setFont(sizeComboBox.getFont().deriveFont((float)fontSize));
+        }
+        if (terrainComboBox != null) {
+            terrainComboBox.setPreferredSize(new Dimension(comboWidth, comboHeight));
+            terrainComboBox.setMaximumSize(new Dimension(comboWidth, comboHeight));
+            terrainComboBox.setFont(terrainComboBox.getFont().deriveFont((float)fontSize));
+        }
+        if (styleComboBox != null) {
+            styleComboBox.setPreferredSize(new Dimension(comboWidth, comboHeight));
+            styleComboBox.setMaximumSize(new Dimension(comboWidth, comboHeight));
+            styleComboBox.setFont(styleComboBox.getFont().deriveFont((float)fontSize));
+        }
+        
+        // Mise à jour du panneau de prévisualisation
+        if (mapPreviewPanel != null) {
+            int previewWidth = (int)(500 * scale);
+            int previewHeight = (int)(350 * scale);
+            mapPreviewPanel.setPreferredSize(new Dimension(previewWidth, previewHeight));
+            updateMapPreview(); // Recharger l'image avec la bonne taille
         }
         
         // Forcer le rafraîchissement
@@ -200,11 +237,6 @@ public class SettingsView extends JPanel {
         btnTeamsTab = createButton("Equipes");
         btnOtherTab = createButton("Autre");
 
-        // Ajout des actions pour changer d'onglet
-        btnMapTab.addActionListener(e -> showPanel("Map"));
-        btnTeamsTab.addActionListener(e -> showPanel("Equipes"));
-        btnOtherTab.addActionListener(e -> showPanel("Autre"));
-
         tabsPanel.add(btnMapTab);
         tabsPanel.add(btnTeamsTab);
         tabsPanel.add(btnOtherTab);
@@ -227,15 +259,186 @@ public class SettingsView extends JPanel {
 
     // ========== ONGLET MAP ==========
     private JPanel createMapPanel() {
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 200));
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 80, 100));
         panel.setOpaque(false);
         
-        // Bouton test
-        JButton testButton = createButton("Test");
-        testButton.addActionListener(e -> System.out.println("Test appuié"));
-        panel.add(testButton);
+        // Panel gauche pour la prévisualisation de la map
+        mapPreviewPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g.create();
+                
+                // Fond arrondi
+                g2.setColor(new Color(41, 59, 45, 180));
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 70, 70);
+                g2.dispose();
+            }
+        };
+        mapPreviewPanel.setOpaque(false);
+        mapPreviewPanel.setPreferredSize(new Dimension(500, 350));
+        mapPreviewPanel.setLayout(new BorderLayout());
+        mapPreviewPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        
+        mapPreviewLabel = new JLabel();
+        mapPreviewLabel.setHorizontalAlignment(JLabel.CENTER);
+        mapPreviewLabel.setVerticalAlignment(JLabel.CENTER);
+        mapPreviewPanel.add(mapPreviewLabel, BorderLayout.CENTER);
+        
+        // Panel droite pour les options
+        JPanel optionsPanel = new JPanel();
+        optionsPanel.setOpaque(false);
+        optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.Y_AXIS));
+        
+        // Options de taille
+        String[] sizes = {"Petit", "Moyen", "Grand"};
+        sizeComboBox = new PillComboBox<>(sizes);
+        sizeComboBox.setSelectedItem("Moyen");
+        sizeComboBox.setPreferredSize(new Dimension(220, 50));
+        sizeComboBox.setMaximumSize(new Dimension(220, 50));
+        
+        // Options de terrain
+        String[] terrains = {"Standard", "Plat", "Montagnes", "Iles"};
+        terrainComboBox = new PillComboBox<>(terrains);
+        terrainComboBox.setSelectedItem("Standard");
+        terrainComboBox.setPreferredSize(new Dimension(220, 50));
+        terrainComboBox.setMaximumSize(new Dimension(220, 50));
+        
+        // Options de style
+        String[] styles = {"Grotte"};
+        styleComboBox = new PillComboBox<>(styles);
+        styleComboBox.setSelectedItem("Grotte");
+        styleComboBox.setPreferredSize(new Dimension(220, 50));
+        styleComboBox.setMaximumSize(new Dimension(220, 50));
+        
+        // Ajout des labels et combos avec espacement
+        optionsPanel.add(createOptionGroup("Taille", sizeComboBox));
+        optionsPanel.add(Box.createVerticalStrut(20));
+        optionsPanel.add(createOptionGroup("Terrain", terrainComboBox));
+        optionsPanel.add(Box.createVerticalStrut(20));
+        optionsPanel.add(createOptionGroup("Style", styleComboBox));
+        
+        panel.add(mapPreviewPanel);
+        panel.add(optionsPanel);
+        
+        // Charger l'image initiale
+        updateMapPreview();
         
         return panel;
+    }
+    
+    /**
+     * Crée un groupe label + combobox pour les options de la map
+     */
+    private JPanel createOptionGroup(String labelText, PillComboBox<?> comboBox) {
+        JPanel group = new JPanel();
+        group.setOpaque(false);
+        group.setLayout(new BoxLayout(group, BoxLayout.Y_AXIS));
+        group.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        JLabel label = new JLabel(labelText);
+        label.setForeground(TEXT_COLOR);
+        label.setAlignmentX(Component.LEFT_ALIGNMENT);
+        try {
+            Font baseFont = Font.createFont(Font.TRUETYPE_FONT,
+                getClass().getResourceAsStream("/GoogleSans-Bold.ttf"));
+            label.setFont(baseFont.deriveFont(16f));
+        } catch (Exception e) {
+            label.setFont(new Font("Arial", Font.BOLD, 16));
+        }
+        
+        comboBox.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        group.add(label);
+        group.add(Box.createVerticalStrut(8));
+        group.add(comboBox);
+        
+        return group;
+    }
+    
+    /**
+     * Met à jour l'image de prévisualisation de la map selon les options sélectionnées
+     */
+    public void updateMapPreview() {
+        String size = (String) sizeComboBox.getSelectedItem();
+        String terrain = (String) terrainComboBox.getSelectedItem();
+        
+        // Convertir les noms en anglais pour le nom de fichier
+        String sizeEng = switch (size) {
+            case "Petit" -> "Small";
+            case "Moyen" -> "Medium";
+            case "Grand" -> "Large";
+            default -> "Medium";
+        };
+        
+        String terrainEng = switch (terrain) {
+            case "Standard" -> "standard";
+            case "Plat" -> "flat";
+            case "Montagnes" -> "mountains";
+            case "Iles" -> "islands";
+            default -> "standard";
+        };
+        
+        // Construire le chemin de l'image
+        String imagePath = "/Map_shots/" + sizeEng + "_" + terrainEng + ".png";
+        
+        try {
+            java.net.URL url = getClass().getResource(imagePath);
+            if (url != null) {
+                ImageIcon icon = new ImageIcon(url);
+                Image originalImg = icon.getImage();
+                
+                // Récupérer les dimensions de l'image originale
+                int originalWidth = icon.getIconWidth();
+                int originalHeight = icon.getIconHeight();
+                
+                // Crop le haut de l'image (enlever la barre macOS)
+                int cropTop = 55;
+                int croppedHeight = originalHeight - cropTop;
+                
+                // Créer une image croppée
+                java.awt.image.BufferedImage croppedImg = new java.awt.image.BufferedImage(
+                    originalWidth, croppedHeight, java.awt.image.BufferedImage.TYPE_INT_ARGB);
+                Graphics2D g2d = croppedImg.createGraphics();
+                g2d.drawImage(originalImg, 0, 0, originalWidth, croppedHeight,
+                              0, cropTop, originalWidth, originalHeight, null);
+                g2d.dispose();
+                
+                // Redimensionner l'image croppée pour qu'elle tienne dans le panel
+                int imgWidth = mapPreviewPanel.getPreferredSize().width - 30;
+                int imgHeight = mapPreviewPanel.getPreferredSize().height - 30;
+                Image scaledImg = croppedImg.getScaledInstance(imgWidth, imgHeight, Image.SCALE_SMOOTH);
+                
+                // Appliquer des coins arrondis à l'image
+                java.awt.image.BufferedImage finalImg = new java.awt.image.BufferedImage(
+                    imgWidth, imgHeight, java.awt.image.BufferedImage.TYPE_INT_ARGB);
+                Graphics2D g2 = finalImg.createGraphics();
+                
+                // Fix 1 Antialiasing pour des bords lisses
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                // Fix 2 coins lisses (enfin)
+                int cornerRadius = 50;
+                java.awt.geom.RoundRectangle2D roundedRect = new java.awt.geom.RoundRectangle2D.Float(0, 0, imgWidth, imgHeight, cornerRadius, cornerRadius);
+                // Dessiner le masque arrondi puis l'image par-dessus
+                g2.setComposite(java.awt.AlphaComposite.Src);
+                g2.fill(roundedRect);
+                g2.setComposite(java.awt.AlphaComposite.SrcAtop);
+                g2.drawImage(scaledImg, 0, 0, imgWidth, imgHeight, null);
+                g2.dispose();
+                
+                mapPreviewLabel.setIcon(new ImageIcon(finalImg));
+                mapPreviewLabel.setText(null);
+            } else {
+                mapPreviewLabel.setIcon(null);
+                mapPreviewLabel.setText("Aperçu non disponible");
+                mapPreviewLabel.setForeground(TEXT_COLOR);
+            }
+        } catch (Exception e) {
+            mapPreviewLabel.setIcon(null);
+            mapPreviewLabel.setText("Erreur de chargement");
+            mapPreviewLabel.setForeground(TEXT_COLOR);
+        }
     }
 
     // ========== ONGLET EQUIPES ==========
@@ -267,7 +470,7 @@ public class SettingsView extends JPanel {
     /**
      * Affiche le panel correspondant à l'onglet sélectionné
      */
-    private void showPanel(String tabName) {
+    public void showPanel(String tabName) {
         currentTab = tabName;
         
         // Mise à jour des couleurs et hover des onglets
@@ -329,4 +532,27 @@ public class SettingsView extends JPanel {
     public String getCurrentTab() {
         return currentTab;
     }
+    
+    // Getters pour les options de map
+    public PillComboBox<String> getSizeComboBox() {
+        return sizeComboBox;
+    }
+    
+    public PillComboBox<String> getTerrainComboBox() {
+        return terrainComboBox;
+    }
+    
+    public PillComboBox<String> getStyleComboBox() {
+        return styleComboBox;
+    }
+    
+    public String getSelectedSize() {
+        return (String) sizeComboBox.getSelectedItem();
+    }
+    
+    public String getSelectedTerrain() {
+        return (String) terrainComboBox.getSelectedItem();
+    }
+    // ------------------------------------------
+    
 }
