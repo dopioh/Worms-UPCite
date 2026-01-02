@@ -77,7 +77,7 @@ public class GameLauncher{
         
         if (!screen) {
             // Mode headless pour les tests (pas d'interface graphique)
-            this.gameManager = new GameManager(2);
+            this.gameManager = new GameManager();
             this.gamePanel = gameManager.getGamePanel();
             this.gameLoop = new GameLoop(gameManager);
             this.gameLoop.timerStart();
@@ -221,7 +221,7 @@ public class GameLauncher{
         if (save){
             this.gameManager = new GameManager(saveData);
         } else {
-            this.gameManager = new GameManager(3);  // 3 équipes pour tester le scroll
+            this.gameManager = new GameManager();  // 3 équipes pour tester le scroll
         }
 
         this.gamePanel = gameManager.getGamePanel();
@@ -450,6 +450,10 @@ public class GameLauncher{
             this.playerDataController.sauvegarderJoueur();
         }
     }
+
+    public PlayerDataController getPlayerDataController(){
+        return this.playerDataController;
+    } 
 
     /**
      * Methode useless juste pour te montrer comment ecrire dans le PlayerData

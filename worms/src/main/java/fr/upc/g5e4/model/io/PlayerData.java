@@ -1,6 +1,9 @@
 package fr.upc.g5e4.model.io;
 
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+
 import fr.upc.g5e4.model.SkinModel;
 
 /**
@@ -45,6 +48,25 @@ public class PlayerData {
         this.money = 0;
         createtanSkinFULLLOCK();
         this.customTeamManager = new CustomGameManager();
+    }
+
+    public ArrayList<String> onlyUnlocked(){
+        ArrayList<String> unlocked = new ArrayList<>();
+        for (int i = 0 ; i < tabSkinPlayer.length ; i++){
+            if (tabSkinPlayer[i].isUnlocked()){
+                unlocked.add(tabSkinPlayer[i].getName());
+            }
+        }
+        return unlocked;
+    }
+
+    public SkinModel findSkinModelByName(String name){
+        for (SkinModel sk : tabSkinPlayer){
+            if (sk.getName().equals(name)){
+                return sk;
+            }
+        }
+        return tabSkinPlayer[0]; // dans le cas ou il trouve pas le skin, il renvoie celui par defaut (le premier)
     }
     
 
@@ -105,18 +127,16 @@ public class PlayerData {
      * Car c'est le skin de base
      */
     public void createtanSkinFULLLOCK(){
-        this.tabSkinPlayer = new SkinModel[7]; // 7 Skin, le premier est unlocked car c'est celui de base
+        this.tabSkinPlayer = new SkinModel[6]; // 6 Skin, le premier est unlocked car c'est celui de base
         
         // Obliger d'initialiser a la main sans boucle car chaque SkinModel a des param diff pour chaque
-        tabSkinPlayer[0] = new SkinModel("Worm de base","/wormPixel.png", true);
+        tabSkinPlayer[0] = new SkinModel("Worm de base","/wormPixel.png", false);
         tabSkinPlayer[1] = new SkinModel("Worm Noel Edition","/wormNoel.png", false);
         tabSkinPlayer[2] = new SkinModel("Worm Pinky Edition","/wormPinky.png", false);
-
-        // J'ai pas encore importer/dessiner le reste donc je garde ceux de base ici (faite genre que c'est des skins svp..)
-        tabSkinPlayer[3] = new SkinModel("Base","/wormPixel.png", false);
-        tabSkinPlayer[4] = new SkinModel("Base","/wormPixel.png", false);
-        tabSkinPlayer[5] = new SkinModel("Base","/wormPixel.png", false);
-        tabSkinPlayer[6] = new SkinModel("Base","/wormPixel.png", false);
+        tabSkinPlayer[3] = new SkinModel("Worm Nerd Edition","/wormNerd.png", false);
+        tabSkinPlayer[4] = new SkinModel("Worm Cuisto Edition","/wormCuisto.png", false);
+        tabSkinPlayer[5] = new SkinModel("Worm Costar Edition","/wormCostar.png", false);
+        //tabSkinPlayer[6] = new SkinModel("Base","/wormPixel.png", false); // on supp 1 skin car pas de battlepass
 
     }
 }

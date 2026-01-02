@@ -31,6 +31,7 @@ public class CustomGameManager {
     public void createCustomTeam(String teamName, SkinModel skin, int nbrWorms, ArrayList<String> WormsName){
         CustomTeamData cs = new CustomTeamData(teamName, skin, nbrWorms, WormsName);
         this.listCustomTeamData.add(cs);
+        nbrCustomTeam++;
     }
 
     // Getter 
@@ -40,5 +41,10 @@ public class CustomGameManager {
 
     public ArrayList<CustomTeamData> getListCustomTeamData(){
         return this.listCustomTeamData;
+    }
+
+    //setter
+    public void setArrayList(ArrayList<CustomTeamData> listCustomTeamData){
+        this.listCustomTeamData = listCustomTeamData;
     }
 }

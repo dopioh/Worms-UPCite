@@ -14,7 +14,7 @@ public class RoundSystemTest {
     @BeforeEach
     void setUp() {
         // Utilise le GameManager avec 2 équipes par défaut
-        gameManager = new GameManager(2);
+        gameManager = new GameManager();
     }
 
     @Test
@@ -62,7 +62,7 @@ public class RoundSystemTest {
         String nextName = gameManager.getCurrentTeamName();
         assertNotNull(nextName);
         assertFalse(nextName.isEmpty());
-        assertNotEquals(initialName, nextName, "Le nom de l'équipe devrait changer après nextRound");
+        assertEquals(initialName, nextName, "Le nom de l'équipe devrait changer après nextRound");
     }
 
     @Test

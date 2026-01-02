@@ -73,12 +73,12 @@ public class MainMenuController {
 
     private void openConfig() {
 
-        TeamSettingsView teamSettingsView = new TeamSettingsView(); // creer la vue 
+        TeamSettingsView teamSettingsView = new TeamSettingsView(gameLauncher.getPlayerDataController()); // creer la vue 
         // Créer la vue des réglages
         SettingsView settingsView = new SettingsView(teamSettingsView);
 
         // Creer la partie Terminal 
-        TeamSettingsModel teamSettingsModel = new TeamSettingsModel(teamSettingsView);
+        TeamSettingsModel teamSettingsModel = new TeamSettingsModel(teamSettingsView,gameLauncher.getPlayerDataController());
         TeamSettingsController teamSettingsController = teamSettingsModel.getTeamSettingsController();
         
         // Ajouter un listener pour le bouton retour
