@@ -204,6 +204,9 @@
 - Création de deux .jar lors du compilation
 - Double tir
 - Fix tir lié au zoom
+- body des blocks invisible après destruction
+- l'image de fond dans main menu qui ne redimentionne pas bien lors du passage en full screen sur un grand ecran
 
 ### Modified
 - Suppression des fleches haut et bas, pour une trajectoire seulement avec la souris
+- Maj du DIAGRAMME.MD
