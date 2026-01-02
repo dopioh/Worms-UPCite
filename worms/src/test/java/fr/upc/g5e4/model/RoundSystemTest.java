@@ -4,6 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.ArrayList;
+
 /**
  * Tests unitaires pour le système de rounds avec support N équipes
  */
@@ -14,6 +16,10 @@ public class RoundSystemTest {
     @BeforeEach
     void setUp() {
         // Utilise le GameManager avec 2 équipes par défaut
+        TeamConfig.NBR_EQUIPE = 2;
+        if (TeamConfig.aCustomForATeam == null) {
+            TeamConfig.aCustomForATeam = new ArrayList<>();
+        }
         gameManager = new GameManager();
     }
 

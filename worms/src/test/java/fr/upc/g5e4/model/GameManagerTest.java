@@ -21,6 +21,11 @@ public class GameManagerTest {
     
     @BeforeEach
     void setUp() {
+        TeamConfig.NBR_EQUIPE = 2;
+        
+        if (TeamConfig.aCustomForATeam == null) {
+            TeamConfig.aCustomForATeam = new ArrayList<>();
+        }
         gameManager = new GameManager(); // on test pour 2 equipes ici
         // Create a mock inventory list for testing
         List<InventoryModel.InventoryJson> mockInventory = new ArrayList<>();
