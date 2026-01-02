@@ -80,18 +80,44 @@
 - MAP Procédurale 
     - avec bruit de perlin et amplification des bruits
 - SPRITES 
-    - les worms ont des sprites via le constucteur de leur equipe
-- Comportement worm
-    - le worm est totalement supprimé de la map quand il meurt (sprite + body physique) 
-- Sauvegarde
-    - une partie peut etre enregistree dans un fichier `sauvegarde.txt` en json avec la touche **_J_**
+    - les worms ont des sprites via le constructeur de leur equipe
+- Sauvegarde (partielle)
+    - Une partie peut être enregistrée dans un fichier `sauvegarde.txt` en json avec la touche **_J_**
+- Système de visée amélioré
+    - Arc de cercle de tir (rayon)
+- Liaison tir & armes
+    - L'angle de l'arme suit la position de la souris
+    - balle physique
+- Effet sonore pour le tir des armes
+- Collision
+    - Désactivation des collisions entre worms via des catégories de collision
+- Vent
+    - Affichage graphique de la direction du vent
+- Documentation
+    - Fichier `ARCHITECTURE.md` traçant l'arborescence du projet
+    - Amélioration du `CONTRIBUTING.md` (création d'issues et merge requests)
+- Nouveau construteur `TeamView` et `CharacterView` qui demandent le chemin vers le sprite cible
+- La fonction `loadSprite` qui charge le sprite dans un BufferImage et attrape les erreurs d'ouverture/lecture avec IOException
+    - SI une erreur se produit dans loadingSprite, on dessine un carré de la couleur de la team à la place du sprite
+- afficheage du sprite dans la bonne direction
+
+### Modified
+- Focus de la caméra
+    - Le centrage se fait maintenant sur le personnage jouant durant le round
+- Système de rounds
+    - Support pour N équipes au lieu de 2 équipes seulement
+- Structure du projet
+    - Séparation du `GameLauncher` de la partie Overlay
+    - Séparation du JFrame
+    - Suppression de la classe parent `Entity.java` devenue obsolète
 
 ### Fixed
-- `.jar` injouable
+- `.jar` injouable à cause du chargement de `inventory.json`
+- Comportement worm
+    - le worm est totalement supprimé de la map quand il meurt (sprite + body physique)
 
---------- a completer ----------
 
-## [v.0.4 : SPRINT 4](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/4) (unreleased)
+## [v.0.4 : SPRINT 4](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/4)
 ---
 
 ### Added
