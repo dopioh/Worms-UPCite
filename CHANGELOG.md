@@ -192,7 +192,17 @@
 - Boutique
 - Arme/Item graphiquement attachés au worm
 - Sons pour chaque arme
+- Plusieurs buffs (Speed, jump)
+- Potion (Speed, jump, heal, shield)
+- sprites pour gagdets 
+- sons pour les gadgets
+- Degats de zone 
 
 ### Fixed
+- Double tir
+- Fix tir lié au zoom
 - body des blocks invisible après destruction
 - l'image de fond dans main menu qui ne redimentionne pas bien lors du passage en full screen sur un grand ecran
+
+### Modified 
+- Suppression des fleches haut et bas, pour une trajectoire seulement avec la souris
