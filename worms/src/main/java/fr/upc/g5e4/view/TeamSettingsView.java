@@ -40,7 +40,7 @@ public class TeamSettingsView extends JPanel{
 
 
     // Zone Custom 
-    private PillTestField nomEquipeCustom;
+    private PillTextField nomEquipeCustom;
     private ArrayList<String> skinChoose; // faut que ca affiche que les skinModel unlocked
     private PillComboBox skinChooseUnlocked;
 
@@ -48,11 +48,11 @@ public class TeamSettingsView extends JPanel{
     private HashMap<String,Image> imagesLoad; 
 
     // noms des 6 worms a custom
-    private ArrayList<PillTestField> allWormsName;
+    private ArrayList<PillTextField> allWormsName;
 
     // Pour resize les noms de worms et noms d'equipes
 
-    private ArrayList<PillTestField> allChooseResizeText;
+    private ArrayList<PillTextField> allChooseResizeText;
     private ArrayList<PillComboBox> allChooseResizeBOX;
 
 
@@ -214,7 +214,7 @@ public class TeamSettingsView extends JPanel{
     zoneCustom.add(createLabel("Nom de l'Equipe :"), gbc2);
 
     // textField nom equipe
-    this.nomEquipeCustom = new PillTestField(10);
+    this.nomEquipeCustom = new PillTextField(10);
     gbc2.gridx = 1;
     gbc2.gridy = 1;
     gbc2.gridwidth = 2;  // Prend 2 colonnes pour plus d'espace
@@ -362,7 +362,7 @@ public class TeamSettingsView extends JPanel{
             }
 
             Dimension d = new Dimension(40,90);
-            for (PillTestField ptf : this.allChooseResizeText){
+            for (PillTextField ptf : this.allChooseResizeText){
                 ptf.setPreferredSize(d);
                 ptf.setMaximumSize(d);
                 ptf.setMinimumSize(d);
@@ -435,7 +435,7 @@ public class TeamSettingsView extends JPanel{
             //this.skinPreviewImage.setMaximumSize(bigImage);
 
             Dimension d = new Dimension(40,35);
-            for (PillTestField ptf : this.allChooseResizeText){
+            for (PillTextField ptf : this.allChooseResizeText){
                 ptf.setPreferredSize(d);
                 ptf.setMaximumSize(d);
                 ptf.setMinimumSize(d);
@@ -523,7 +523,7 @@ public class TeamSettingsView extends JPanel{
 
     private void setUpWormsNameTextField(int gridY){
         GridBagConstraints gbcWorms = new GridBagConstraints();
-        PillTestField worm = new PillTestField(10);
+        PillTextField worm = new PillTextField(10);
         gbcWorms.gridx = 2;
         gbcWorms.gridy = gridY;
         gbcWorms.weightx = 0;
@@ -657,7 +657,7 @@ public class TeamSettingsView extends JPanel{
 
     public ArrayList<String> getAllWormsName(){
         ArrayList<String> result = new ArrayList<>();
-        for (PillTestField wormName : allWormsName){
+        for (PillTextField wormName : allWormsName){
             String temp = wormName.getText();
             System.out.println(temp);
             if (temp == null || temp.equals("") || temp.equals(" ")){

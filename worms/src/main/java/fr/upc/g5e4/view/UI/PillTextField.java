@@ -3,16 +3,16 @@ package fr.upc.g5e4.view.UI;
 import javax.swing.*;
 import java.awt.*;
 
-public class PillTestField extends JTextField {
+public class PillTextField extends JTextField {
     private Color backgroundColor = new Color(66, 139, 82); // vert 
     //private int radius = 20; //bord arrondis
 
-    public PillTestField(String text){
+    public PillTextField(String text){
         super(text);
         setUpStyle();
     }
 
-    public PillTestField(int collums){
+    public PillTextField(int collums){
         super(collums);
         setUpStyle();
     }

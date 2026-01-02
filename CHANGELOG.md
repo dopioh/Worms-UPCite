@@ -176,6 +176,20 @@
     - Liste déroulante stylisée
 - **Onglet Map dans les réglages**
     - Prévisualisation en temps réel de la map
+- **Composant PillTextField**
+    - Entree de texte qui suit la DA
+- **Customisation d'equipe**
+    - Se save dans `player_save.txt` 
+    - Choix nom d'equipe, skin de l'equipe (parmi ceux debloquer) et nom des 6 worms de l'equipe
+- **Onglet Equipe**
+    A Gauche :  
+    - Choix du nombre d'equipe, de worms et attribution des CustomTeams pour la prochaine partie
+    - on peut lancer une game sans configurer (reglages des equipes par defaut)
+    A Droite :  
+    - Systeme de customisation d'equipe
+- **Skins**
+    - Ajout des 5 skins (hors wormPixel) debloquable
+
 
 ### Modified
 - **Système de plein écran**
@@ -188,4 +202,5 @@
 - Image de prévisualisation pas mise à jour au retour dans les settings
 - Coins pixelisés sur les images arrondies
 - Suppression de touche Echap dans main menu
+- Adaptation des Test pour le nouveau systeme d'equipe
 
