@@ -30,7 +30,7 @@ public class Grenade extends Weapon{
         );
         // Grenade : trajectoire parabolique standard
         this.setTrajectoryCalculator(new StandardTrajectory());
-        // dégats au terrain : 6 PV par bloc avec blast radius de 4.5 blocs
+        // dégats au terrain : 7 PV par bloc avec blast radius de 5 blocs
         this.setTerrainDamage(7);
         this.setTerrainBlastRadius(5);
     }
