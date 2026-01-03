@@ -11,7 +11,7 @@
     {
       "skinName": "Worm Noel Edition",
       "filePath": "/wormNoel.png",
-      "unlocked": false
+      "unlocked": true
     },
     {
       "skinName": "Worm Pinky Edition",
@@ -31,7 +31,7 @@
     {
       "skinName": "Worm Cuisto Edition",
       "filePath": "/wormCuisto.png",
-      "unlocked": false
+      "unlocked": true
     }
   ],
   "customTeamManager": {

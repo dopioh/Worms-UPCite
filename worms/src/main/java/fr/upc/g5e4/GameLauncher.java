@@ -294,9 +294,9 @@ public class GameLauncher{
         gameLayeredPane.add(inventoryOverlay, JLayeredPane.MODAL_LAYER);  
         gameLayeredPane.add(pauseOverlay, JLayeredPane.POPUP_LAYER);
         gameLayeredPane.add(helpOverlay, JLayeredPane.DRAG_LAYER);
-        gameLayeredPane.add(wormRaceOverlay, Integer.valueOf(1000)); //1000 pour etre sur que ce soit au dessus des autres overlays
-        gameLayeredPane.add(wormGuessOverlay, Integer.valueOf(1000));
-        gameLayeredPane.add(wormJackOverlay, Integer.valueOf(1000));
+        gameLayeredPane.add(wormRaceOverlay);
+        gameLayeredPane.add(wormGuessOverlay);
+        gameLayeredPane.add(wormJackOverlay);
         
         // redim WormRace / WormGuess / WormJack lors du resize de la fenêtre
         gameLayeredPane.addComponentListener(new java.awt.event.ComponentAdapter() {

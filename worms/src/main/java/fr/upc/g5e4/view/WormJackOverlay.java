@@ -24,12 +24,12 @@ public class WormJackOverlay extends JPanel {
     
     // systeme de cartes
     private List<Card> deck; // le set de cartes
-    private Card playerCard;
-    private Card wormbotCard;
+    private List<Card> playerCards;
+    private List<Card> wormbotCards;
     private int playerScore = 0;
     private int wormbotScore = 0;
-    private boolean playerHasUsableAce = false;
-    private boolean wormbotHasUsableAce = false; 
+    private int playerAceCount = 0;
+    private int wormbotAceCount = 0;
     
     private Rectangle hitButton;
     private Rectangle standButton;
@@ -42,7 +42,7 @@ public class WormJackOverlay extends JPanel {
     private fr.upc.g5e4.controller.PlayerDataController playerDataController;
     private fr.upc.g5e4.model.GameManager gameManager;
     
-    // Classe interne : chaque carte a une classe
+    // Classe interne : chaque carte a une instance de la classe Card
     private static class Card {
         String value; // de 1 a 10
         String color;  // "C", "D", "H", "P"
@@ -128,7 +128,7 @@ public class WormJackOverlay extends JPanel {
         String[] colors = {"C", "D", "H", "P"};
         
         for (String color : colors) {
-            for (int value = 1; value <= 14; value++) {
+            for (int value = 1; value <= 13; value++) {
                 try {
                     String filename = "/sprite_card/" + value + "-" + color + ".png";
                     BufferedImage img = javax.imageio.ImageIO.read(getClass().getResource(filename));
@@ -149,10 +149,10 @@ public class WormJackOverlay extends JPanel {
         playerTurn = true;
         playerScore = 0;
         wormbotScore = 0;
-        playerHasUsableAce = false;
-        wormbotHasUsableAce = false;
-        playerCard = null;
-        wormbotCard = null;
+        playerAceCount = 0;
+        wormbotAceCount = 0;
+        playerCards = new ArrayList<>();
+        wormbotCards = new ArrayList<>();
         currentBet = 0;
         
         initDeck();
@@ -207,19 +207,19 @@ public class WormJackOverlay extends JPanel {
         if (deck.isEmpty()) return;
         
         Card newCard = deck.remove(0); // on prend la carte et on l'enleve du deck
-        playerCard = newCard;
+        playerCards.add(newCard);
         int cardValue = newCard.getNumericValue();
         playerScore += cardValue;
         
         // cas c'est un As
-        if (cardValue == 14) {
-            playerHasUsableAce = true;
+        if (cardValue == 11) {
+            playerAceCount++;
         }
 
-        // gérer l'As si on depasse 21
-        if (playerScore > 21 && playerHasUsableAce) {
-            playerScore -= 10; // si on depasse 21, on compte l'As comme 1 au lieu de 11
-            playerHasUsableAce = false;
+        // cas As si on depasse 21
+        while (playerScore > 21 && playerAceCount > 0) {
+            playerScore -= 10;
+            playerAceCount--;
         }
         
         // Vérifier si bust
@@ -235,17 +235,17 @@ public class WormJackOverlay extends JPanel {
         if (deck.isEmpty()) return;
         
         Card newCard = deck.remove(0);
-        wormbotCard = newCard;
+        wormbotCards.add(newCard);
         int cardValue = newCard.getNumericValue();
         wormbotScore += cardValue;
         
         if (cardValue == 11) {
-            wormbotHasUsableAce = true;
+            wormbotAceCount++;
         }
         
-        if (wormbotScore > 21 && wormbotHasUsableAce) {
+        while (wormbotScore > 21 && wormbotAceCount > 0) {
             wormbotScore -= 10;
-            wormbotHasUsableAce = false;
+            wormbotAceCount--;
         }
         
         repaint();
@@ -386,11 +386,11 @@ public class WormJackOverlay extends JPanel {
         
         // Zone de jeu du wormbot
         int wormbotY = panelY + 100;
-        drawPlayerArea(g2, panelX + OVERLAY_WIDTH / 2, wormbotY, "WORMBOT", wormbotCard, wormbotScore, false);
+        drawPlayerArea(g2, panelX + OVERLAY_WIDTH / 2, wormbotY, "WORMBOT", wormbotCards, wormbotScore, false);
         
         // Zone de jeu du joueur
         int playerY = panelY + 280;
-        drawPlayerArea(g2, panelX + OVERLAY_WIDTH / 2, playerY, "VOUS", playerCard, playerScore, true);
+        drawPlayerArea(g2, panelX + OVERLAY_WIDTH / 2, playerY, "VOUS", playerCards, playerScore, true);
         
         // boutons
         int btnY = panelY + OVERLAY_HEIGHT - 60;
@@ -527,15 +527,16 @@ public class WormJackOverlay extends JPanel {
     
     /**
      * Dessine la zone de jeu d'un joueur (wormbot ou joueur)
+     * on chauqe fois que le player pioche on redessine la zone completement
      * @param g2 le contexte graphique
      * @param centerX le centre X de la zone
      * @param y le coin Y de la zone
      * @param label le label ("WORMBOT" ou "VOUS")
-     * @param card la carte actuelle du joueur
-     * @param score le score actuel du joueur
+     * @param cards la liste des cartes du joueur (nous ou wormbot)
+     * @param score le score actuel de la personne qui joue
      * @param isPlayer true si c'est le joueur / false si c'est le wormbot
      */
-    private void drawPlayerArea(Graphics2D g2, int centerX, int y, String label, Card card, int score, boolean isPlayer) {
+    private void drawPlayerArea(Graphics2D g2, int centerX, int y, String label, List<Card> cards, int score, boolean isPlayer) {
         // nom joueur
         g2.setColor(new Color(255, 215, 0));
         g2.setFont(new Font("Arial", Font.BOLD, 18));
@@ -547,14 +548,23 @@ public class WormJackOverlay extends JPanel {
         String scoreText = String.valueOf(score);
         g2.drawString(scoreText, centerX - 150, y + 80);
         
-        // carte jouée
-        int cardW = 100;
-        int cardH = 140;
-        int cardX = centerX - cardW / 2;
-        int cardY = y + 10;
+        // cartes jouées qu'on empile
+        int cardW = 80;
+        int cardH = 112;
+        int cardEspace = 30;
         
-        if (card != null && card.image != null) {
-            g2.drawImage(card.image, cardX, cardY, cardW, cardH, null);
+        if (cards != null && !cards.isEmpty()) {
+            int totalWidth = (cards.size() - 1) * cardEspace + cardW;
+            int startX = centerX - totalWidth / 2;
+            
+            for (int i = 0; i < cards.size(); i++) {
+                Card card = cards.get(i);
+                if (card != null && card.image != null) {
+                    int cardX = startX + i * cardEspace;
+                    int cardY = y + 10;
+                    g2.drawImage(card.image, cardX, cardY, cardW, cardH, null);
+                }
+            }
         }
         
         // indicateur tour

@@ -11,7 +11,7 @@ public class TutorialOverlay extends JPanel {
     private static final Color OVERLAY_BG = new Color(0, 0, 0, 200);
     private static final Color PANEL_BG = new Color(40, 40, 50);
     private static final Color TEXT_COLOR = new Color(230, 230, 230);
-    private static final Color BUTTON_BG = new Color(70, 130, 180);
+    private static final Color BUTTON_BG = new Color(66, 139, 82);
     private static final Color BUTTON_HOVER = new Color(100, 150, 200);
     private static final Font TITLE_FONT = new Font("Arial", Font.BOLD, 28);
     private static final Font TEXT_FONT = new Font("Arial", Font.PLAIN, 16);
@@ -68,13 +68,15 @@ public class TutorialOverlay extends JPanel {
             {
                 "INFORMATIONS IMPORTANTES",
                 "• Attention terrain destructible ! Plus la case de terrain est claire plus elle est fragile",
-                "",
                 "• Un worm ne peut jouer qu'une seule arme et deux objets maximum par tour",
-                "",
                 "• Le worm peut cumuler deux mêmes objets, les effets seront doublés mais la durée",
                 "ne sera pas augmentée",
-                "",
+                "• Les munitions ne sont pas illimitées et chaque arme a un nombre de munition limité à",
+                "chaque tour (EX : Bazooka a 2 munitions par equipe mais seulement 1 munition par tour)",
                 "• Tomber dans l'eau trop profondement entraîne la mort immédiate du worm",
+                "• Chaque equipe en vie gagne 5$ à la fin de son tour",
+                "• Tomber dans l'eau trop profondement entraîne la mort immédiate du worm",
+                
             },
             {
                 "Arsenal et objets spéciaux",
@@ -154,7 +156,6 @@ public class TutorialOverlay extends JPanel {
         button.setFocusPainted(false);
         button.setBorderPainted(false);
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
         
         return button;
     }
