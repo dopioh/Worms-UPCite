@@ -1,3 +1,5 @@
+
+
 package fr.upc.g5e4.view;
 
 import fr.upc.g5e4.model.WindModel;
@@ -7,19 +9,14 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-/** 
- * Overlay affichant la direction et la force du vent dans le jeu. @see WindModel.java
- * 
- * On y trouve une flèche indiquant la direction du vent, une barre de force, ainsi que des particules animées
- * 
- * L'animation est mise à jour via la méthode {@link #update(float)} appelée depuis la boucle principale du jeu.
- * @author Hugo
- * @version 1.0
- */
+
 public class WindOverlay extends JComponent {
-    private final WindModel wind;       // modèle du vent 
-    private final List<Particle> particles = new ArrayList<>(); //Particules de vent
-    private final Random rng = new Random(); 
+    private final WindModel wind;
+    private final List<Particle> particles = new ArrayList<>();
+    private final Random rng = new Random();
+
+    // animation
+    private float animPhase = 0f;
     
     // Pré-création des objets graphiques pour éviter les allocations à chaque frame + access facile aux couleurs
     private static final Color BG_COLOR = new Color(0, 0, 0, 120);
@@ -38,9 +35,12 @@ public class WindOverlay extends JComponent {
         for (int i = 0; i < 30; i++) {
             particles.add(spawnParticle());
         }
+    
+
+        // L'animation est maintenant gérée via un appel externe depuis GameLoop
+        // pour synchroniser avec le reste du jeu et éviter les repaints excessifs
     }
 
-    // Génère une particule de vent avec des propriétés aléatoires
     private Particle spawnParticle() {
         Particle p = new Particle();
         p.x = rng.nextFloat();
@@ -57,11 +57,10 @@ public class WindOverlay extends JComponent {
      */
     public void update(float dt) {
         tick(dt);
-        repaint();
     }
 
-    // Met à jour uniquement l'état interne de la vue (particules + phase)
     private void tick(float dt) {
+        animPhase += dt;
 
         // direction normalisée (dx,dy dans {-1,0,1})
         WindModel.Dir d = wind.getDir();
@@ -84,7 +83,7 @@ public class WindOverlay extends JComponent {
         }
     }
 
-    @Override   
+    @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         if (!(g instanceof Graphics2D g2)) return;
@@ -114,16 +113,12 @@ public class WindOverlay extends JComponent {
         // flèche + label direction
         WindModel.Dir dir = wind.getDir();
         float strength = wind.getStrength();
-        
-        //Centre de la zone de la flèche
-        int arrowAreaX = x + 15;
-        int arrowAreaY = y + 22;
-        int arrowAreaW = 80;
-        int arrowAreaH = 35;
 
-        int cx = arrowAreaX + arrowAreaW / 2;
-        int cy = arrowAreaY + arrowAreaH / 2;
-        
+        // Dessin flèche diagonale
+        int cx = x + 55;
+        int cy = y + 38;
+        int len = (int)(25 + 35 * strength);
+
         // direction en pixels (dx,dy)
         int dx = dir.dx;
         int dy = dir.dy;
@@ -133,24 +128,18 @@ public class WindOverlay extends JComponent {
         double ux = (norm == 0) ? 1 : dx / norm;
         double uy = (norm == 0) ? 0 : dy / norm;
 
-        int len = 36;      // longueur de la flèche
-        int headLen = 8;   // longueur de la tête
+        int x2 = cx + (int)(ux * len);
+        int y2 = cy + (int)(uy * len);
 
-        // demi-longueur utile en retirant la tête (sinon ça dépasse)
-        int half = (len / 2);
-
-        // Point de départ et point d'arrivée : centrés autour de (cx,cy)
-        int x1 = cx - (int)(ux * half);
-        int y1 = cy - (int)(uy * half);
-        int x2 = cx + (int)(ux * half);
-        int y2 = cy + (int)(uy * half);
-
+        // petite animation “pulse” très discrète
+        float pulse = 0.85f + 0.15f * (float)Math.sin(animPhase * 4.0);
         g2.setStroke(ARROW_STROKE);
-        g2.setColor(ARROW_COLOR_BASE);
-        g2.drawLine(x1, y1, x2, y2);
+        g2.setColor(new Color(ARROW_COLOR_BASE.getRed(), ARROW_COLOR_BASE.getGreen(), 
+                              ARROW_COLOR_BASE.getBlue(), (int)(200 * pulse)));
+        g2.drawLine(cx, cy, x2, y2);
 
-        // tête uniquement à l'extrémité "avant"
-        drawArrowHead(g2, x1, y1, x2, y2, headLen);
+        // tête de flèche
+        drawArrowHead(g2, cx, cy, x2, y2);
 
         // label direction (NE / SO / ...)
         g2.setColor(TEXT_COLOR);
@@ -185,8 +174,9 @@ public class WindOverlay extends JComponent {
         g2.setClip(oldClip);
     }
 
-    private void drawArrowHead(Graphics2D g2, int x1, int y1, int x2, int y2,int headLen) {
+    private void drawArrowHead(Graphics2D g2, int x1, int y1, int x2, int y2) {
         double angle = Math.atan2(y2 - y1, x2 - x1);
+        int headLen = 10;
         double a1 = angle + Math.toRadians(150);
         double a2 = angle - Math.toRadians(150);
 

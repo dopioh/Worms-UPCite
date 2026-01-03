@@ -8,8 +8,6 @@ import fr.upc.g5e4.model.CharacterModel;
 import fr.upc.g5e4.model.GameManager;
 import fr.upc.g5e4.model.InventoryModel.InventoryJson;
 import fr.upc.g5e4.model.Weapon;
-import fr.upc.g5e4.model.InventoryModel.InventoryJson;
-
 
 /**
  * Contrôleur pour le worm
@@ -93,14 +91,6 @@ public class CharacterController {
      */
     public Weapon getCurrentWeapon() {
         return this.currentWeapon;
-    }
-
-    /**
-     * retourne l'arme équipée dans l'inventrire
-     * @return
-     */
-    public InventoryJson getCurrentWeaponInventory() {
-        return this.currentWeaponInventory;
     }
 
     /**
@@ -248,25 +238,23 @@ public class CharacterController {
         if (itemController == null || world == null || allWorms == null || currentWeapon == null) { 
             return;
         }
-    
-        // Règle: une seule arme différente par tour
+        
+        // vérifier si une autre arme a déjà été utilisée ce tour
         if (gameManager != null) {
             String usedWeapon = gameManager.getWeaponUsedThisTurn();
-            if (usedWeapon != null && currentWeaponInventory != null
-                    && !usedWeapon.equalsIgnoreCase(currentWeaponInventory.name)) {
-                System.out.println("[Arme] Vous avez déjà utilisé " + usedWeapon
-                        + " ce tour! Vous ne pouvez utiliser que cette arme.");
+            if (usedWeapon != null && currentWeaponInventory != null && !usedWeapon.equalsIgnoreCase(currentWeaponInventory.name)) {
+                System.out.println("[Arme] Vous avez déjà utilisé " + usedWeapon + " ce tour! Vous ne pouvez utiliser que cette arme.");
                 return;
             }
         }
-
-        // Règles d'utilisation (maxUsages / remainingUses)
+        
+        // vérifier si on peut tirer avec cette arme ce tour
         if (currentWeaponInventory != null && !currentWeaponInventory.canUseThisTurn()) {
             System.out.println("[Arme] Limite d'utilisation atteinte pour cette arme ce tour!");
             return;
         }
-
-        // Tir
+        
+        // tirer avec l'arme 
         itemController.useWeaponOnTarget(currentWeapon, model, direction);
         
         // enregistrer l'utilisation de l'arme
@@ -285,6 +273,36 @@ public class CharacterController {
      * @param direction la direction
      */
     public void fireWeapon(int direction) {
-        fireWeaponWithAngle(0.0, direction);
+        if (itemController == null || world == null || allWorms == null || currentWeapon == null) { 
+            return;
+        }
+        
+        // vérifier si une autre arme a déjà été utilisée ce tour
+        if (gameManager != null) {
+            String usedWeapon = gameManager.getWeaponUsedThisTurn();
+            if (usedWeapon != null && currentWeaponInventory != null && !usedWeapon.equalsIgnoreCase(currentWeaponInventory.name)) {
+                System.out.println("[Arme] Vous avez déjà utilisé " + usedWeapon + " ce tour! Vous ne pouvez utiliser que cette arme.");
+                return;
+            }
+        }
+        
+        // vérifier si on peut tirer avec cette arme ce tour
+        if (currentWeaponInventory != null && !currentWeaponInventory.canUseThisTurn()) {
+            System.out.println("[Arme] Limite d'utilisation atteinte pour cette arme ce tour!");
+            return;
+        }
+        
+        // tirer avec l'arme 
+        itemController.useWeaponOnTarget(currentWeapon, model, direction);
+        
+        // enregistrer l'utilisation de l'arme
+        if (currentWeaponInventory != null) {
+            currentWeaponInventory.registerUseThisTurn();
+        }
+        
+        // marquer que l'arme a été utilisée ce tour
+        if (gameManager != null && currentWeaponInventory != null) {
+            gameManager.markWeaponUsed(currentWeaponInventory.name);
+        }
     }
 }

@@ -11,40 +11,20 @@ import java.util.List;
 import fr.upc.g5e4.model.InventoryModel.InventoryJson;
 import fr.upc.g5e4.controller.SwingInputController;
 import fr.upc.g5e4.model.GameManager;
-/**
- * Overlay Swing affichant l'inventaire du joueur
- *
- *   Affichage des objets filtrés par catégories (armes, gadgets, craft)
- *   Sélection et équipement d'un objet
- *   Survol (hover) pour afficher une description
- * 
- * @author Hugo
- * @version 1.0
- */
+
 public class InventoryOverlay extends JComponent {
-
-    /**
-     * Listener permettant à l'overlay d'inventaire de signaler
-     * des actions utilisateur à un contrôleur externe.
-     */
-    public interface Listener {
-        void onItemEquipped(InventoryJson item); //Quand un item est équipé
-    }
-
     private enum Category {
         ARMES, GADGET, CRAFT
     }
-    
+
     private String equippedItemKey = null; 
     private Category currentCategory = Category.ARMES;
 
-    private Listener listener;
     private List<InventoryJson> inventory;
     private boolean visible = false;
     private MouseAdapter fireListener; 
-    private SwingInputController inputControllerRef;
     private List<InventoryJson> lastFiltered = new ArrayList<>();
-    
+
     // liste des items
     private final List<Rectangle> itemBounds = new ArrayList<>();
     private int selectedIndex = -1;
@@ -52,8 +32,6 @@ public class InventoryOverlay extends JComponent {
 
     // zone du panneau inventaire
     private Rectangle panelBounds;
-
-    private Rectangle closeButtonBounds;   // bouton pour fermer
 
     private GameManager gameManager;
     private Runnable onGadgetUse;
@@ -73,7 +51,7 @@ public class InventoryOverlay extends JComponent {
     private void loadItemImages() {
         loadImage("AK47", "/ak.png");
         loadImage("Grenade", "/grenade.png");
-        loadImage("RocketLauncher", "/rocketlauncher.png");
+        loadImage("Bazooka", "/bazooka.png");
         loadImage("BaseballBat", "/baseballbat.png");
         loadImage("PotionSpeed", "/gadgets/potion_speed.png");
         loadImage("PotionJump", "/gadgets/potion_jump.png");
@@ -103,7 +81,7 @@ public class InventoryOverlay extends JComponent {
     private void loadDescriptions() {
         itemDescriptions.put("ak47", "rafales rapides, bonne portée");
         itemDescriptions.put("grenade", "Boom! Gros dégâts de zone");
-        itemDescriptions.put("rocketlauncher", "Gros dégâts");
+        itemDescriptions.put("bazooka", "Gros dégâts");
         itemDescriptions.put("baseballbat", "Cogne sauvagement tes ennemis");
         itemDescriptions.put("potionspeed", "Augmente la vitesse +50% pour 20s");
         itemDescriptions.put("potionjump", "Augmente le saut +50% pour 20s");
@@ -115,11 +93,12 @@ public class InventoryOverlay extends JComponent {
 
     public InventoryOverlay(List<InventoryJson> inventory) {
         this.inventory = inventory;
-        setVisible(false);  
         setOpaque(false);
         loadItemImages(); //Pour les icones des armes/gadgets
         
         loadDescriptions();
+        ToolTipManager.sharedInstance().registerComponent(this); // optionnel (tooltips Swing)
+
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -188,11 +167,6 @@ public class InventoryOverlay extends JComponent {
 
     }
 
-    /**
-     * Associe le GameManager afin de synchroniser l'objet équipé avec le jeu.
-     *
-     * @param gameManager gestionnaire principal du jeu
-     */
     public void setGameManager(GameManager gameManager) {
         this.gameManager = gameManager;
     }
@@ -204,11 +178,10 @@ public class InventoryOverlay extends JComponent {
         this.onGadgetUse = callback;
     }
 
+    private SwingInputController inputControllerRef;
+
     /**
-     * Définit le listener de tir utilisé lorsque l'inventaire est fermé.
-     *
-     * @param inputController contrôleur gérant le tir vers la souris
-     * définit un rappel quand un gadget est utilisé
+     * FireListener basé sur le SwingInputController (tir vers la souris)
      */
     public void setFireListener(SwingInputController inputController){      // Listener par défaut
         this.inputControllerRef = inputController;
@@ -228,24 +201,11 @@ public class InventoryOverlay extends JComponent {
             }
         };
     }
-    
-    /**
-     * Définit un listener de tir personnalisé (utilisé lorsque l'inventaire est fermé).
-     *
-     * @param listener listener souris
-     */
+
     public void setFireListener(MouseAdapter listener){        
         this.fireListener = listener;
     }
 
-    /**
-     * Définit le listener qui recevra les événements de l'inventaire.
-     *
-     * @param listener contrôleur chargé de traiter les actions utilisateur
-     */
-    public void setListener(Listener listener) {
-        this.listener = listener;
-    }
     
     private void handleClick(int x, int y) {
         // inventaire fermé -> clic = tir normal
@@ -262,13 +222,7 @@ public class InventoryOverlay extends JComponent {
         
         computeLayout();
 
-        // Ferme au clic sur le bouton X
-        if (closeButtonBounds != null && closeButtonBounds.contains(x, y)) {
-            setInventoryVisible(false);
-            return;
-        }
-
-        // Clic sur Catégories
+        // === CLIC SUR CATEGORIES ===
         if (armesTab != null && armesTab.contains(x, y)) {
             currentCategory = Category.ARMES;
             selectedIndex = -1;
@@ -295,7 +249,7 @@ public class InventoryOverlay extends JComponent {
 
 
         // inventaire ouvert
-        // clic dans le panneau
+        // clic dans le panneau -> sélection / équipement
         if (panelBounds != null && panelBounds.contains(x, y)) {
             for (int i = 0; i < itemBounds.size(); i++) {
                 Rectangle r = itemBounds.get(i);
@@ -306,7 +260,7 @@ public class InventoryOverlay extends JComponent {
                     return;
                 }
             }
-            return; 
+            return; // clic dans le panneau mais pas sur un item -> rien
         }
         
         // clic en dehors du panneau -> bloqué quand l'inventaire est ouvert
@@ -340,22 +294,6 @@ public class InventoryOverlay extends JComponent {
 
         g2.setColor(Color.WHITE);
         g2.drawString("INVENTAIRE", panelX + 20, panelY + 30);
-
-
-        // Bouton pour fermer
-        int closeSize = 26;
-        int closeX = panelX + panelW - closeSize - 12;
-        int closeY = panelY + 10;
-
-        closeButtonBounds = new Rectangle(closeX, closeY, closeSize, closeSize);
-
-        g2.setColor(new Color(180, 60, 60));
-        g2.fillRoundRect(closeX, closeY, closeSize, closeSize, 8, 8);
-
-        g2.setColor(Color.WHITE);
-        g2.setStroke(new BasicStroke(2.2f));
-        g2.drawLine(closeX + 7, closeY + 7, closeX + closeSize - 7, closeY + closeSize - 7);
-        g2.drawLine(closeX + closeSize - 7, closeY + 7, closeX + 7, closeY + closeSize - 7);
 
         int tabY = panelY + 35;
         int tabW = 90;
@@ -427,70 +365,35 @@ public class InventoryOverlay extends JComponent {
             }
         }
 
-        // Description sur Hover
+        // --- Description (hover > équipé) ---
         InventoryJson infoItem = null;
         if (hoveredIndex >= 0 && hoveredIndex < lastFiltered.size()) {
-                infoItem = lastFiltered.get(hoveredIndex);
+            infoItem = lastFiltered.get(hoveredIndex);
         } else if (equippedItem != null) {
             infoItem = equippedItem;
         }
 
         if (infoItem != null) {
-            String key = infoItem.name == null ? "" : infoItem.name.toLowerCase();
-            String baseDesc = itemDescriptions.getOrDefault(key, "");
-
-            // Stock total
-            String stockText = (infoItem.isInfinite || infoItem.remainingUses == null) ? "∞" : String.valueOf(infoItem.remainingUses);
-
-            // Tour
-            String tourText = infoItem.isInfinite? "∞" : (Math.max(0, infoItem.getRemainingUseThisTurn()) + "/" + infoItem.getMaxUsages());
+            String key = infoItem.name.toLowerCase();
+            String desc = itemDescriptions.getOrDefault(key, ""); 
 
             int boxX = panelX + 20;
             int boxW = panelW - 40;
             int boxH = 60;
             int boxY = panelY + panelH - boxH - 15;
 
-            // fond
             g2.setColor(new Color(0,0,0,120));
             g2.fillRoundRect(boxX, boxY, boxW, boxH, 12, 12);
 
-            int leftPad = 10;
-            int rightPad = 10;
-
-            //int rightBlockW = 120; Pas utile mais si besoin Zone a droite des munitions de la desc  
-            //int leftW = boxW - rightBlockW - leftPad - rightPad; 
-
-            // nom
             g2.setColor(Color.WHITE);
             g2.setFont(g2.getFont().deriveFont(Font.BOLD, 12f));
-            g2.drawString(infoItem.name, boxX + leftPad, boxY + 20);
+            g2.drawString(infoItem.name, boxX + 10, boxY + 20);
 
-            // description 
             g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 11f));
-            g2.drawString(baseDesc, boxX + leftPad, boxY + 40);
-
-            // Zone STOCK et TOUR a droite 
-            g2.setColor(new Color(255, 220, 80)); // jaune
-            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 13.5f));
-
-            String line1 = "Tour: " + tourText;
-            String line2 = "Stock: " + stockText;
-
-            FontMetrics fm = g2.getFontMetrics();
-            int rightX = boxX + boxW - rightPad;
-
-            // aligner à droite
-            g2.drawString(line1, rightX - fm.stringWidth(line1), boxY + 22);
-            g2.drawString(line2, rightX - fm.stringWidth(line2), boxY + 44);
+            g2.drawString(desc, boxX + 10, boxY + 40);
         }
-
     }
 
-    /**
-     * Met à jour la liste des objets d'inventaire affichés.
-     *
-     * @param inventory liste des objets (provenant du modèle)
-     */
     public void setInventory(List<InventoryJson> inventory){
         this.inventory = inventory;
         itemBounds.clear();
@@ -499,35 +402,28 @@ public class InventoryOverlay extends JComponent {
         repaint();
     }
     
-    /**
-     * Affiche ou masque l'inventaire.
-     *
-     * @param visible true pour afficher l'inventaire, false pour le masquer
-     */
     public void setInventoryVisible(boolean visible){
         this.visible = visible;
-        super.setVisible(visible);
 
         if (visible) {
             computeLayout();
             resyncEquippedFromInventory();    
         } else {
             selectedIndex = -1;
+            // Re-synchroniser l'arme équipée quand on ferme l'inventaire
+            if (equippedItem != null) {
+                equipItem(equippedItem);
+            }
         }
         repaint();
     }
 
-    /**
-     * Indique si l'inventaire est visible.
-     *
-     * @return true si l'inventaire est affiché
-     */
+    
     public boolean isInventoryVisible(){
         return visible;
     }
 
     private boolean itemMatchesCategory(InventoryJson item) {
-        if (item == null || item.objectType == null) return false;
         return switch (currentCategory) {
             case ARMES  -> item.objectType.equalsIgnoreCase("weapon");
             case GADGET -> item.objectType.equalsIgnoreCase("gadget");
@@ -567,7 +463,7 @@ public class InventoryOverlay extends JComponent {
 
 
 
-    private void computeLayout() {  
+    private void computeLayout() {
         int w = getWidth();
         int h = getHeight();
 
@@ -609,45 +505,27 @@ public class InventoryOverlay extends JComponent {
                 row++;
             }
         }
-
-        int closeSize = 26;
-        int closeX = panelX + panelW - closeSize - 12;
-        int closeY = panelY + 10;
-        closeButtonBounds = new Rectangle(closeX, closeY, closeSize, closeSize);
-
     }
 
-    /**
-     * Déséquippe l'item
-     */
-    public void clearEquipped() {
-        equippedItemKey = null;
-        equippedItem = null;
-        selectedIndex = -1;
-        repaint();
-    }
-
-    /**
-     * Retourne l'objet actuellement équipé via l'inventaire.
-     *
-     * @return objet équipé, ou null si aucun
-     */
     public InventoryJson getEquippedItem() {
         return equippedItem;
     }
 
     private void equipItem(InventoryJson item) {
-        if (item == null || item.name == null) return;
-
         equippedItemKey = item.name.toLowerCase();
         equippedItem = item;
-
-        //on remonte l'évènement au contrôleur (OverlayManager)
-        if (listener != null) listener.onItemEquipped(item);
-
-        // si on équipe un gadget, on cache la trajectoire 
-        if (inputControllerRef != null && "GADGET".equalsIgnoreCase(item.objectType)) {
-            inputControllerRef.disableTrajectory();
+        if (gameManager != null) {
+            // appeler la bonne méthode selon le type d'objet
+            if ("GADGET".equalsIgnoreCase(item.objectType)) {
+                gameManager.setGadgetFromInventory(item.name);
+                // désactiver la trajectoire quand un gadget est équipé
+                if (inputControllerRef != null) {
+                    inputControllerRef.disableTrajectory();
+                }
+            } else {
+                // WEAPON par défaut
+                gameManager.setWeaponFromInventory(item.name);
+            }
         }
     }
 

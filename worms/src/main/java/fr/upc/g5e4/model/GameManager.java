@@ -14,7 +14,6 @@ import fr.upc.g5e4.GameLauncher;
 import fr.upc.g5e4.controller.*;
 //import fr.upc.g5e4.model.WindModel;
 import fr.upc.g5e4.model.weapons.*;
-import fr.upc.g5e4.model.gadgets.*;
 import fr.upc.g5e4.model.InventoryModel.InventoryJson;
 import fr.upc.g5e4.model.InventoryModel.InventoryRoot;
 import fr.upc.g5e4.model.PhysicsWorld.WaterSensorListener;
@@ -23,7 +22,6 @@ import fr.upc.g5e4.model.io.CustomTeamData;
 import fr.upc.g5e4.model.camera.CameraModel;
 import fr.upc.g5e4.model.io.SaveData;
 import fr.upc.g5e4.model.io.SaveLoad;
-import fr.upc.g5e4.model.io.SoundPlayer;
 import fr.upc.g5e4.model.io.TeamData;
 //import fr.upc.g5e4.view.CharacterView;
 import fr.upc.g5e4.view.GamePanel;
@@ -31,6 +29,8 @@ import fr.upc.g5e4.view.ItemView;
 import fr.upc.g5e4.view.TeamView;
 import fr.upc.g5e4.view.CharacterView;
 //import fr.upc.g5e4.view.TeamView;
+import fr.upc.g5e4.view.InventoryOverlay;
+import fr.upc.g5e4.view.HUDOverlay;
 
 import java.io.*;
 import com.google.gson.*;
@@ -61,6 +61,7 @@ public class GameManager {
 
     private int currentTeamIndex;
     
+
     private final ItemController itemController;
     private final CharacterModel[] allWorms;
 
@@ -70,9 +71,9 @@ public class GameManager {
     private int[] teamCursor; // stock l'index du dernier worm jouee pour chaque equipe 
 
     private TeamModel currentTeam;
-    
-    private boolean endTurnRequested = false;
 
+    private int currentWeaponIndex = 0;  // 0=AK47, 1=Baseball, 2=Grenade, 3=Rocket    
+    
     private String weaponUsedThisTurn = null;  // Nom de l'arme déjà utilisée ce tour 
     private int gadgetsUsedThisTurn = 0;  // Compte le nombre de gadgets utilisés
 
@@ -83,6 +84,11 @@ public class GameManager {
     // Timer : 
     private int roundTimeRemaining = 1800;
     private int roundTimeSave = 1800;
+
+    
+    private InventoryOverlay inventoryOverlay;
+    private HUDOverlay hudOverlay;
+    private fr.upc.g5e4.view.WindOverlay windOverlay;
 
     private final WindModel windModel = new WindModel();
     private final Random windRng = new Random();
@@ -110,6 +116,7 @@ public class GameManager {
     public GameManager() {
         // Initialiser le système audio en arrière-plan pour éviter le lag au premier tir
         //this.saveDataBool = false;
+        SoundPlayer.initialize();
 
         // ========== CONFIGURATION DU TERRAIN ==========
         // Pour changer le type de terrain et la taille, voir MapConfig.java
@@ -273,6 +280,8 @@ public class GameManager {
         physic.limitPanel(blockGridModel);
 
         this.water = physic.createBodyWater(model);
+
+        SoundPlayer.initialize();
 
         this.roundTimeRemaining = saveData.getRoundTimeRemaining();
 
@@ -488,6 +497,14 @@ public class GameManager {
     public WindModel getWindModel(){
         return this.windModel;
     }
+
+    public void setHudOverlay(HUDOverlay hud) {
+        this.hudOverlay = hud;
+    }
+
+    public HUDOverlay getHudOverlay() {
+        return hudOverlay;
+    }
     
     public Map<String, GameStats> getAllTeamStats() {
         return teamStats;
@@ -504,16 +521,6 @@ public class GameManager {
 
     public int[] getTeamCursor(){
         return this.teamCursor;
-    }
-
-    public void requestEndTurn() {
-        endTurnRequested = true;
-    }
-
-    public boolean consumeEndTurnRequest() {
-        if (!endTurnRequested) return false;
-        endTurnRequested = false;
-        return true;
     }
 
     /**
@@ -592,6 +599,8 @@ public class GameManager {
     }
 
     /**
+<<<<<<< HEAD
+=======
      * FONCTION MAL CODER - QUI A FAIT CA ????
      * 
      * Ajoute une nouvelle équipe au jeu (pour supporter N équipes)
@@ -633,6 +642,7 @@ public class GameManager {
     }
 
     /**
+>>>>>>> dev
      * Retourne le nombre total d'équipes
      */
     public int getTeamCount() {
@@ -663,7 +673,6 @@ public class GameManager {
                 activeWormController.setAllWorms(this.allWorms);
                 Weapon defaultWeapon = null;
                 activeWormController.setCurrentWeapon(defaultWeapon);
-                activeWormController.setCurrentWeaponInventory(null);
 
                 imputController.setCharacterController(activeWormController);
                 cameraController.setTargetCharacter(worm);
@@ -695,17 +704,7 @@ public class GameManager {
         this.gameLoop = loop;
     }
 
-    public void nextRound() { 
-        // Vent qui change à chaque tour
-        WindModel.Dir[] dirs = WindModel.Dir.values();
-        windModel.setDir(dirs[windRng.nextInt(dirs.length)]);
-
-        // force entre 0.15 et 1.0 
-        float strength = 0.15f + windRng.nextFloat() * 0.85f;
-        windModel.setStrength(strength,false);
-
-        System.out.println("[VENT] " + windModel.getDir().label + " | force=" + String.format("%.2f", windModel.getStrength()));
-        
+    public void nextRound() {
         roundNumber++;
         currentTeamIndex = (currentTeamIndex + 1) % listTeamInital.size(); 
         currentTeam = listTeamInital.get(currentTeamIndex).getTeamModel();
@@ -723,8 +722,60 @@ public class GameManager {
         }
         //switch worm dans cette équipe
         switchToNextWorm(currentTeam);
-        unequipActiveWorm();
         System.out.println("Round " + roundNumber + " - Equipe active :  Team " + (currentTeamIndex + 1));
+        //mettre à jour l'inventaire affiché dans l'overlay
+        if (inventoryOverlay != null) {
+            inventoryOverlay.setInventory(getCurrentTeamInventory());
+        }
+
+        
+        // --- Vent : change à chaque tour (fixe pendant le tour) ---
+        WindModel.Dir[] dirs = WindModel.Dir.values();
+        windModel.setDir(dirs[windRng.nextInt(dirs.length)]);
+
+        // force entre 0.15 et 1.0 (évite vent invisible)
+        float strength = 0.15f + windRng.nextFloat() * 0.85f;
+        windModel.setStrength(strength,false);
+
+        System.out.println("[VENT] " + windModel.getDir().label + " | force=" + String.format("%.2f", windModel.getStrength()));
+
+    }
+    
+    /**
+     * Change l'arme équipée du worm actif (cycliquement)
+     * AK-47 → Baseball Bat → Grenade → Rocket Launcher → AK-47...
+     */
+    public void switchWeapon() {
+        currentWeaponIndex = (currentWeaponIndex + 1) % 4;  // Boucle entre 0, 1, 2, 3
+        
+        Weapon newWeapon = null;
+        
+        switch(currentWeaponIndex) {
+            case 0:
+                newWeapon = new Ak47();
+                System.out.println("AK-47");
+                break;
+            case 1:
+                newWeapon = new BaseballBat();
+                System.out.println("Baseball Bat");
+                break;
+            case 2:
+                newWeapon = new Grenade();
+                System.out.println("Grenade");
+                break;
+            case 3:
+                newWeapon = new RocketLauncher();
+                System.out.println("Rocket Launcher");
+                break;
+        }
+        
+        if (newWeapon != null && activeWormController != null) {
+            activeWormController.setCurrentWeapon(newWeapon);
+            // mettre à jour la trajectoire avec la nouvelle arme
+            gamePanel.getTrajectoryView().setWeapon(newWeapon);
+            // met à jour l'arme dans la vue
+            updateWeaponInView(activeWormController.getModel(), newWeapon);
+        }
     }
     
     // Initialiser un nombre N d'equipes avec un skin spécifique
@@ -822,8 +873,7 @@ public class GameManager {
         Weapon newWeapon = null;
 
         // Empeche la casse 
-        String normalizedName = itemName.toLowerCase().replaceAll("[^a-z0-9]", "");
-
+        String normalizedName = itemName.toLowerCase();
 
         switch (normalizedName) {
             case "ak47":
@@ -838,15 +888,12 @@ public class GameManager {
                 newWeapon = new Grenade();
                 System.out.println("[Inventaire] Arme équipée depuis inventaire : Grenade");
                 break;
-            case "rocketlauncher":
+            case "bazooka":
                 newWeapon = new RocketLauncher();
                 System.out.println("[Inventaire] Arme équipée depuis inventaire : Rocket Launcher");
                 break;
-            case "bumper":
-                setGadgetFromInventory("Bumper");
-                return;
             default:
-                System.out.println("[Inventaire] Objet non reconnue: " + itemName);
+                System.out.println("[Inventaire] Arme non reconnue: " + itemName);
                 break;
         }
 
@@ -1034,37 +1081,57 @@ public class GameManager {
         return null;
     }
 
+    public void setInventoryOverlay(InventoryOverlay overlay){
+        this.inventoryOverlay = overlay;
+    }
+    
+    public void setWindOverlay(fr.upc.g5e4.view.WindOverlay overlay) {
+        this.windOverlay = overlay;
+    }
+    
+    public fr.upc.g5e4.view.WindOverlay getWindOverlay() {
+        return this.windOverlay;
+    }
+
+    private void resetCurrentTeamInventoryTurn() {
+        TeamModel team = getCurrentTeam();
+        if (team != null) {
+            team.resetInventoryTurn();
+        }
+    }
+
     // On passe la partie inventaire overlay ici (precedemment dans Gamelauncher)
-    public void initialiseInventory() {
-        try {
-            InventoryRoot root = InventoryModel.load("/inventory.json");
+    public void initialiseInventory(){
 
-            for (TeamInitialisation ti : listTeamInital) {
-                java.util.List<InventoryJson> teamInventory = copyInventory(root.inventory);
-                ti.getTeamModel().setInventory(teamInventory);
+            try {
+                InventoryRoot root = InventoryModel.load("/inventory.json");
+                int index = 0;
+
+                for (TeamInitialisation tm : listTeamInital){
+                    java.util.List<InventoryJson> teamInventory = copyInventory(root.inventory);
+                    listTeamInital.get(index).getTeamModel().setInventory(teamInventory);
+                    index++;
+                }
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
             }
-
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
+        
     }
 
-    private java.util.List<InventoryJson> copyInventory(java.util.List<InventoryJson> src) {
-        java.util.List<InventoryJson> res = new java.util.ArrayList<>();
-        for (InventoryJson it : src) {
-            InventoryJson c = new InventoryJson();
-            c.objectType = it.objectType;
-            c.name = it.name;
-            c.maxUsages = it.maxUsages;
-            c.isInfinite = it.isInfinite;
-            c.remainingUses = (it.remainingUses == null) ? null : Integer.valueOf(it.remainingUses);
-
-            c.useThisTurn = 0;
-            res.add(c);
-        }
-        return res;
-    }
-
+    private java.util.List<InventoryModel.InventoryJson> copyInventory(java.util.List<InventoryModel.InventoryJson> src) {
+                java.util.List<InventoryModel.InventoryJson> res = new java.util.ArrayList<>();
+                for (InventoryModel.InventoryJson it : src) {
+                    InventoryModel.InventoryJson c = new InventoryModel.InventoryJson();
+                    c.objectType = it.objectType;
+                    c.name = it.name;
+                    c.maxUsages = it.maxUsages;
+                    c.isInfinite = it.isInfinite;
+                    c.remainingUses = it.remainingUses;
+                    // useThisTurn reste à 0
+                    res.add(c);
+                }
+                return res;
+            }
     /**
      * Construit une ArrayList de tous les vers de toutes les équipes
      * Utile pour le WaterSensorListener et autres systèmes globaux
@@ -1210,30 +1277,5 @@ public class GameManager {
         return 2 - gadgetsUsedThisTurn;
     }
 
-    /**
-     * Déséquipe le worm actif
-     */
-    private void unequipActiveWorm() {
-        if (activeWormController == null) return;
-
-        // logique
-        activeWormController.setCurrentWeapon(null);
-        activeWormController.setCurrentWeaponInventory(null);
-
-        // visuel
-        clearWeaponSprite();
-        clearGadgetSprite();
-
-        // trajectoire
-        if (gamePanel != null && gamePanel.getTrajectoryView() != null) {
-            gamePanel.getTrajectoryView().setWeapon(null);
-        }
-    }
-
-    public void setPaused(boolean paused) {
-        if (gameLoop != null) gameLoop.setPaused(paused);
-    }
-
 }
-
 

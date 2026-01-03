@@ -30,6 +30,7 @@ public class GameLauncher{
     private HelpOverlay helpOverlay;
     private HUDOverlay hudOverlay;
 
+
     private boolean screen;
     
     // Composants pour la fenêtre unique
@@ -239,54 +240,54 @@ public class GameLauncher{
 
         this.gamePanel = gameManager.getGamePanel();
         SwingInputController input = gameManager.getImputController();
-
-        gamePanel.setBounds(0,0,width,height);
         input.setBounds(0, 0, width, height);
         input.setOpaque(false);
 
         
         // Inventaire Initialisation -> GameManager
 
-        // --- Overlays ---
+        this.inventoryOverlay = new InventoryOverlay(gameManager.getListTeamInit().get(0).getTeamModel().getInventory());
+        this.inventoryOverlay.setBounds(0, 0, width, height);
+        // VENT
         windOverlay = new WindOverlay(gameManager.getWindModel());
         windOverlay.setBounds(0, 0, width, height);
-
-        inventoryOverlay = new InventoryOverlay(new java.util.ArrayList<>());
+        gameManager.setWindOverlay(windOverlay);
+        //HUD
+        this.hudOverlay = new HUDOverlay(gameManager);
+        this.hudOverlay.setBounds(0, 0, width, height);
+        this.hudOverlay.setInventoryOverlay(inventoryOverlay);
+        //Menu parametres 
+        this.pauseOverlay = new PauseOverlay();
+        this.pauseOverlay.setBounds(0, 0, width, height);
+        //How to play
+        this.helpOverlay = new HelpOverlay();
+        this.helpOverlay.setBounds(0, 0, width, height);
+        this.pauseOverlay.setHelpOverlay(this.helpOverlay);
+        
+        // Placer les composants dans le layered pane
+        gamePanel.setBounds(0, 0, width, height);
         inventoryOverlay.setBounds(0, 0, width, height);
-        inventoryOverlay.setGameManager(gameManager);
-        inventoryOverlay.setInventory(gameManager.getCurrentTeam().getInventory());
-    
-        hudOverlay = new HUDOverlay(gameManager);
-        hudOverlay.setBounds(0, 0, width, height);
-        hudOverlay.setInventoryOverlay(inventoryOverlay);
-
-        pauseOverlay = new PauseOverlay();
-        pauseOverlay.setBounds(0, 0, width, height);
-
-        helpOverlay = new HelpOverlay();
-        helpOverlay.setBounds(0, 0, width, height);
-
-        pauseOverlay.setPauseVisible(false);
-        helpOverlay.setHelpVisible(false);
-        inventoryOverlay.setInventoryVisible(false);
 
         
         gameLayeredPane.add(gamePanel, JLayeredPane.DEFAULT_LAYER);
         gameLayeredPane.add(input, JLayeredPane.DEFAULT_LAYER);
-
-        gameLayeredPane.add(windOverlay, JLayeredPane.PALETTE_LAYER);
+        gameLayeredPane.add(windOverlay, JLayeredPane.PALETTE_LAYER);   
         gameLayeredPane.add(hudOverlay, JLayeredPane.PALETTE_LAYER);
-
-        gameLayeredPane.add(inventoryOverlay, JLayeredPane.MODAL_LAYER);
+        gameLayeredPane.add(inventoryOverlay, JLayeredPane.MODAL_LAYER);  
         gameLayeredPane.add(pauseOverlay, JLayeredPane.POPUP_LAYER);
         gameLayeredPane.add(helpOverlay, JLayeredPane.DRAG_LAYER);
-
-        OverlayManager overlayManager = new OverlayManager(gameLayeredPane,pauseOverlay,helpOverlay,inventoryOverlay,hudOverlay, gameManager,this::showMenu);
-        overlayManager.installListeners();
-        overlayManager.bringToFront();  
         
-        input.setOverlayManager(overlayManager);
+        inventoryOverlay.setGameManager(gameManager);    
+        inventoryOverlay.setFireListener(gameManager.getImputController());
+        gameManager.setInventoryOverlay(inventoryOverlay);
+        gameManager.setHudOverlay(this.hudOverlay); 
 
+        input.setGameFrame(mainFrame);
+        input.setInventoryOverlay(inventoryOverlay);
+        input.setGameManager(gameManager);
+        input.setPauseOverlay(pauseOverlay);
+        input.setHelpOverlay(helpOverlay);  
+        
         // Mettre à jour la caméra avec les dimensions actuelles (important si en plein écran)
         if (gameManager.getCamera() != null) {
             gameManager.getCamera().setViewSize(width, height);
@@ -295,21 +296,6 @@ public class GameLauncher{
         // Créer et démarrer la game loop
         this.gameLoop = new GameLoop(gameManager);
         gameManager.setGameLoop(gameLoop);
-        
-        this.gameLoop.setWindOverlay(windOverlay);
-        this.gameLoop.setHudOverlay(hudOverlay);
-        //Update de l'inventaire à chaque changement de round
-        this.gameLoop.setOnRoundChanged(() -> {
-            inventoryOverlay.setInventory(gameManager.getCurrentTeam().getInventory());
-            inventoryOverlay.clearEquipped();
-            overlayManager.setInventoryVisible(false);
-            if (hudOverlay != null) {
-                hudOverlay.repaint();
-            }
-            if (overlayManager != null) {
-                overlayManager.bringToFront();
-            }
-        });
         
         // Timer pour vérifier la fin de partie
         Timer checkGameOverTimer = new Timer(1000, e -> {
@@ -322,8 +308,6 @@ public class GameLauncher{
             }
         });
         checkGameOverTimer.start();
-        gameLayeredPane.revalidate();
-        gameLayeredPane.repaint();
     }
 
     private void setupGlobalKeyBindings() {
@@ -449,8 +433,7 @@ public class GameLauncher{
 
     public GameLoop getGameLoop(){
         return this.gameLoop;
-    }   
-
+    }
     
     /**
      * Affiche l'écran de fin de partie avec animation
