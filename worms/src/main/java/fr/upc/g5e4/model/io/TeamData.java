@@ -33,19 +33,22 @@ public class TeamData {
 
     private List<InventoryJson> inventory;
 
+    private int money;
+
     /**
      * Constructeur minimal pour sauvegarder les donnees necessaire pour la sauvegarde d'une partie
      * @param teamNumber numero d'equipe (= ID)
      * @param wormsNumber nombre de worms dans l'equipe
      * @param tabModelCharacter tab des CharaModel des worms dans l'equipe
      */
-    public TeamData(int teamNumber, int wormsNumber, CharacterModel[] tabModelCharacter, String teamName,int COLORTEAM,List<InventoryJson> inventory){
+    public TeamData(int teamNumber, int wormsNumber, CharacterModel[] tabModelCharacter, String teamName,int COLORTEAM,List<InventoryJson> inventory, int money){
         this.teamID = teamNumber;
         this.wormsNumber = wormsNumber;
         this.dataTabCharacter = modelToData(tabModelCharacter);
         this.teamName = teamName;
         this.COLORTEAM = COLORTEAM;
         this.inventory = inventory;
+        this.money = money;
         
     }
 
@@ -72,7 +75,7 @@ public class TeamData {
      * @return  un TeamInit a integreer dans un GameManager
      */
     public TeamInitialisation dataToInit(GroundModel groundModel,World world){
-        TeamInitialisation tm = new TeamInitialisation(groundModel, world, teamID, teamName, wormsNumber, dataTabCharacter, COLORTEAM,"/wormPixel.png",inventory); // a modifier pour que ca soit le meme que celui save
+        TeamInitialisation tm = new TeamInitialisation(groundModel, world, teamID, teamName, wormsNumber, dataTabCharacter, COLORTEAM,"/worm.png",inventory, money); // a modifier pour que ca soit le meme que celui save
         return tm;
     }
 

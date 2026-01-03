@@ -746,8 +746,22 @@ public class GameManager {
     public void setGameLoop(GameLoop loop) {
         this.gameLoop = loop;
     }
+    
+    public GameLoop getGameLoop() {
+        return this.gameLoop;
+    }
 
     public void nextRound() {
+        // add 5$ à l'équipe actuelle si le worm actif est vivant
+        if (activeWormController != null) {
+            CharacterModel activeWorm = activeWormController.getModel();
+            if (activeWorm != null && !activeWorm.isDead()) {
+                TeamModel teamBeforeSwitch = listTeamInital.get(currentTeamIndex).getTeamModel();
+                teamBeforeSwitch.addMoney(5);
+                System.out.println("[MONEY] +5$ pour Team " + (currentTeamIndex + 1) + " (total: " + teamBeforeSwitch.getMoney() + "$)");
+            }
+        }
+        
         roundNumber++;
         currentTeamIndex = (currentTeamIndex + 1) % listTeamInital.size(); 
         currentTeam = listTeamInital.get(currentTeamIndex).getTeamModel();

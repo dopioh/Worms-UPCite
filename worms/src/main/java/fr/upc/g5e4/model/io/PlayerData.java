@@ -139,4 +139,33 @@ public class PlayerData {
         //tabSkinPlayer[6] = new SkinModel("Base","/wormPixel.png", false); // on supp 1 skin car pas de battlepass
 
     }
+    
+    /**
+     * unlock un skin
+     * @param skinName nom du skin à débloquer
+     * @return true si le skin a été débloqué / false s'il n'existe pas
+     */
+    public boolean unlockSkin(String skinName) {
+        for (SkinModel skin : tabSkinPlayer) {
+            if (skin.getName().equalsIgnoreCase(skinName)) {
+                skin.setUnlocked(true);
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * check si un skin est déjà débloqué
+     * @param skinName nom du skin
+     * @return true si débloqué / false sinon
+     */
+    public boolean isSkinUnlocked(String skinName) {
+        for (SkinModel skin : tabSkinPlayer) {
+            if (skin.getName().equalsIgnoreCase(skinName)) {
+                return skin.isUnlocked();
+            }
+        }
+        return false;
+    }
 }

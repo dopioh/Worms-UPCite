@@ -29,4 +29,8 @@ public class SkinModel {
     public boolean isUnlocked(){
         return this.unlocked;
     }
+    
+    public void setUnlocked(boolean unlocked) {
+        this.unlocked = unlocked;
+    }
 }
