@@ -105,6 +105,15 @@ public class OverlayManager implements
     }
 
     /**
+     * Getter InventoryOverlay
+     * @return InventoryOverlay
+     */
+    public InventoryOverlay getInventoryOverlay() {
+        return inventoryOverlay;
+    }
+
+
+    /**
      * Ouvre/ferme l'overlay d'inventaire.
      * Si la pause est ouverte, l'inventaire ne s'ouvre pas
      *
@@ -145,7 +154,7 @@ public class OverlayManager implements
     }
 
     /**
-     * Indique si l'overlay de pause est visible.
+     * Indique si l'overlay de Inventory est visible.
      * @return true si visible, sinon false
      */
     public boolean isInventoryVisible() {
@@ -317,11 +326,16 @@ public class OverlayManager implements
      */
     @Override
     public void onItemEquipped(fr.upc.g5e4.model.InventoryModel.InventoryJson item) {
-        if (item == null || gameManager == null) return;
-        // équipe dans le GameManager
-        gameManager.setObjectFromInventory(item);
+        if (item == null) return;
+        if ("WEAPON".equalsIgnoreCase(item.objectType)) {
+            gameManager.setWeaponFromInventory(item.name);
+            return;
+        }
 
-        // ferme l'inventaire après équipement
+        if ("GADGET".equalsIgnoreCase(item.objectType)) {
+            gameManager.setGadgetFromInventory(item.name);
+            return;
+        }
         setInventoryVisible(false);
     }
 }

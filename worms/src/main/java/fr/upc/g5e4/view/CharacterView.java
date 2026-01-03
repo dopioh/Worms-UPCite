@@ -26,6 +26,8 @@ public class CharacterView {
     private boolean useSprite; // utile pour savoir si on dessine un carré ou le sprite
     private Weapon currentWeapon; // arme actuellement équipée
     private BufferedImage weaponSprite; // sprite de l'arme
+    private String currentGadget; // gadget actuellement équipé 
+    private BufferedImage gadgetSprite; // sprite du gadget
     
     /**
      * Constructeur de la classe PersonnageView avec couleur, taille et sprite par defaut
@@ -103,6 +105,9 @@ public class CharacterView {
         int x = (int)(m_position.x * CharacterModel.getPPM());
         int y = (int)((24 - m_position.y) * CharacterModel.getPPM());  // Conversion et Inversion Y
     
+        // obtient la couleur de l'effet de statut
+        Color drawColor = getColorWithStatusEffect(model);
+        
         if (useSprite && spriteImage != null) {
             // dessiner le sprite
             int spriteWidth = size+10;
@@ -110,24 +115,31 @@ public class CharacterView {
             
             Graphics2D g2dCopy = (Graphics2D) g2d.create();
             
+            //clone le sprite et le colorie après un effet
+            BufferedImage spriteToShow = spriteImage;
+            if (model.getCurrentStatus() != CharacterModel.StatusEffect.NONE) {
+                spriteToShow = colorizeSprite(spriteImage, drawColor);
+            }
+            
             // si on se deplace vers la gauche on inverse le sprite
             if (!model.isFacingRight()) {
                 g2dCopy.translate(x, y - spriteHeight/2);   // fix hitbox ici -> il fallait mettre x et pas x + spriteWidth/2
                 g2dCopy.scale(-1, 1);  // inverse horizontalement
-                g2dCopy.drawImage(spriteImage, -spriteWidth/2, 0, spriteWidth, spriteHeight, null);
+                g2dCopy.drawImage(spriteToShow, -spriteWidth/2, 0, spriteWidth, spriteHeight, null);
             } else {
-                g2dCopy.drawImage(spriteImage, x - spriteWidth/2, y - spriteHeight/2, spriteWidth, spriteHeight, null);
+                g2dCopy.drawImage(spriteToShow, x - spriteWidth/2, y - spriteHeight/2, spriteWidth, spriteHeight, null);
             }
             
             g2dCopy.dispose();
-        } else { // sinon on dessine un carré de la couleur de l'équipe
-            g2d.setColor(color);
+        } else { // sinon on dessine un carré de la couleur avec effet
+            g2d.setColor(drawColor);
             g2d.fillRect(x - size/2, y - size/2, size, size);
         }
         
         // on dessine l'arme si le worm en est equipé
-        drawWeapon(g2d, model, x, y);
-    }
+        drawWeapon(g2d, model, x, y);        
+        // on dessine le gadget si le worm en est equipe
+        drawGadget(g2d, model, x, y);    }
     
     /**
      * Dessine le sprite de l'arme équipée sur le worm
@@ -186,6 +198,48 @@ public class CharacterView {
     }
     
     /**
+     * dessine le sprite du gadget équipé sur le worm (similaire à drawWeapon)
+     * @param g2d le contexte graphique
+     * @param model le modèle du worm
+     * @param x Position X du worm en pixels
+     * @param y Position Y du worm en pixels
+     */
+    private void drawGadget(Graphics2D g2d, CharacterModel model, int x, int y) {
+        if (currentGadget == null || gadgetSprite == null) {
+            return;
+        }
+        
+        // init taille du gadget (plus petit que l'arme)
+        int gadgetWidth = (int)(size * 0.7);
+        int gadgetHeight = (int)(size * 0.7);
+        int gadgetX, gadgetY = 0;
+        
+        // positionner le gadget (à gauche ou à droite selon la direction)
+        // placer le gadget sous le worm
+        if (model.isFacingRight()) {
+            gadgetX = (x-15) + size/2;
+            gadgetY += (y-5) + size/2;
+        } else {
+            gadgetX = (x+15) - size/2 - gadgetWidth;
+            gadgetY += (y-5) + size/2;
+        }
+        
+        // créer un nouveau contexte graphique pour dessiner le gadget
+        Graphics2D g2dCopy = (Graphics2D) g2d.create();
+        
+        // si le worm "regarde" à gauche on reverse le sprite
+        if (!model.isFacingRight()) {
+            g2dCopy.translate(gadgetX + gadgetWidth, gadgetY);
+            g2dCopy.scale(-1, 1);
+            g2dCopy.drawImage(gadgetSprite, 0, 0, gadgetWidth, gadgetHeight, null);
+        } else {
+            g2dCopy.drawImage(gadgetSprite, gadgetX, gadgetY, gadgetWidth, gadgetHeight, null);
+        }
+        
+        g2dCopy.dispose();
+    }
+    
+    /**
      * Charge le sprite de l'arme equipee dans la variable weaponSprite
      * @param weapon l'objet arme equipee
      */
@@ -215,6 +269,37 @@ public class CharacterView {
     private String getWeaponSpritePath(String className) {
         String fileName = className.toLowerCase();
         return "/sprite_items/" + fileName + "-sprite.png";
+    }
+    
+    /**
+     * charge le sprite du gadget équipé dans la variable gadgetSprite
+     * @param gadgetName le nom du gadget 
+     */
+    private void loadGadgetSprite(String gadgetName) {
+        if (gadgetName == null) { // si on a pas de gadget equipé on ne charge rien
+            gadgetSprite = null;
+            return;
+        }
+        
+        // on crée le chemin du sprite basé sur le nom du gadget
+        String spritePath = getGadgetSpritePath(gadgetName);
+        
+        try {
+            gadgetSprite = ImageIO.read(getClass().getResourceAsStream(spritePath));
+        } catch (IOException | IllegalArgumentException e) {
+            System.err.println("Impossible de charger le sprite de gadget: " + spritePath);
+            gadgetSprite = null;
+        }
+    }
+    
+    /**
+     * retourne le chemin du sprite pour un gadget donné 
+     * @param gadgetName le nom du gadget
+     * @return le chemin du sprite dans resources/gadgets/
+     */
+    private String getGadgetSpritePath(String gadgetName) {
+        String fileName = gadgetName.toLowerCase();
+        return "/gadgets/" + fileName + "-sprite.png";
     }
     
     /**
@@ -286,7 +371,56 @@ public class CharacterView {
     }
     
     /**
-     * Définit l'arme actuellement equipee et charge son sprite dans la variable weaponSprite
+<<<<<<< HEAD
+     * envoie la couleur du worm selon son statut d'effet
+     * @param model modèle du worm
+     * @return la couleur à utiliser pour le dessin
+     */
+    private Color getColorWithStatusEffect(CharacterModel model) {
+        CharacterModel.StatusEffect status = model.getCurrentStatus();
+        float progress = model.getStatusEffect();
+        
+        Color effectColor;
+        switch (status) {
+            case DAMAGE:
+                // rouge pour les dégâts
+                effectColor = new Color(255, 0, 0, (int)(255 * progress));
+                break;
+            case HEAL:
+                // vert pour la guérison
+                effectColor = new Color(0, 255, 0, (int)(255 * progress));
+                break;
+            case SHIELD:
+                // cyan pour le shield
+                effectColor = new Color(0, 255, 255, (int)(255 * progress));
+                break;
+            case BUFF:
+                // bleu pour les buffs génériques
+                effectColor = new Color(0, 100, 255, (int)(255 * progress));
+                break;
+            case SPEED_BUFF:
+                // rose pour le buff speed
+                effectColor = new Color(255, 105, 180, (int)(255 * progress));
+                break;
+            case JUMP_BUFF:
+                // jaune pour le buff jump
+                effectColor = new Color(255, 255, 0, (int)(255 * progress));
+                break;
+            default:
+                // couleur normale sans effet
+                return color;
+        }
+        
+        // mélange la couleur d'effet avec la couleur d'équipe
+        int r = (int) (color.getRed() * (1 - progress) + effectColor.getRed() * progress);
+        int g = (int) (color.getGreen() * (1 - progress) + effectColor.getGreen() * progress);
+        int b = (int) (color.getBlue() * (1 - progress) + effectColor.getBlue() * progress);
+        
+        return new Color(r, g, b);
+    }
+
+    /**
+        * Définit l'arme actuellement equipee et charge son sprite dans la variable weaponSprite
      * @param weapon l'arme a equipee (peut etre null)
      */
     public void setCurrentWeaponSprite(Weapon weapon) {
@@ -300,5 +434,68 @@ public class CharacterView {
      */
     public Weapon getCurrentWeaponSprite() {
         return currentWeapon;
+    }
+    
+    /**
+     * colorie un sprite en le peignant avec la couleur spécifiée
+     * @param originalSprite le sprite original
+     * @param tintColor la couleur à appliquer
+     * @return une copie du sprite avec la teinte appliquée
+     */
+    private BufferedImage colorizeSprite(BufferedImage originalSprite, Color tintColor) {
+        BufferedImage colorized = new BufferedImage(
+            originalSprite.getWidth(),
+            originalSprite.getHeight(),
+            BufferedImage.TYPE_INT_ARGB
+        );
+        
+        // pourcentage de la couleur
+        float tintStrength = 0.7f;  // 70% 
+        
+        for (int y = 0; y < originalSprite.getHeight(); y++) {
+            for (int x = 0; x < originalSprite.getWidth(); x++) {
+                int originalRGB = originalSprite.getRGB(x, y);
+                
+                // extraire les couleurs ARGB originaux
+                int alpha = (originalRGB >> 24) & 0xFF;
+                int origR = (originalRGB >> 16) & 0xFF;
+                int origG = (originalRGB >> 8) & 0xFF;
+                int origB = originalRGB & 0xFF;
+                
+                // appliquer la teinte 
+                int newR = (int) (origR * (1 - tintStrength) + tintColor.getRed() * tintStrength);
+                int newG = (int) (origG * (1 - tintStrength) + tintColor.getGreen() * tintStrength);
+                int newB = (int) (origB * (1 - tintStrength) + tintColor.getBlue() * tintStrength);
+                
+                // borné les valeurs à [0, 255]
+                newR = Math.min(255, Math.max(0, newR));
+                newG = Math.min(255, Math.max(0, newG));
+                newB = Math.min(255, Math.max(0, newB));
+                
+                // créer le nouvel ARGB
+                int newRGB = (alpha << 24) | (newR << 16) | (newG << 8) | newB;
+                colorized.setRGB(x, y, newRGB);
+            }
+        }
+        
+        return colorized;
+
+    }
+    
+    /**
+     * définit le gadget actuellement équipé et charge son sprite dans la variable gadgetSprite
+     * @param gadgetName le nom du gadget à équiper 
+     */
+    public void setCurrentGadgetSprite(String gadgetName) {
+        this.currentGadget = gadgetName;
+        loadGadgetSprite(gadgetName);
+    }
+    
+    /**
+     * getter pour le gadget actuellement équipé
+     * @return le nom du gadget équipé ou null
+     */
+    public String getCurrentGadgetSprite() {
+        return currentGadget;
     }
 }

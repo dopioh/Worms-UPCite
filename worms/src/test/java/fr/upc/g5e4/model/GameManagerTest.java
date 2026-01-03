@@ -21,7 +21,12 @@ public class GameManagerTest {
     
     @BeforeEach
     void setUp() {
-        gameManager = new GameManager(2); // on test pour 2 equipes ici
+        TeamConfig.NBR_EQUIPE = 2;
+        
+        if (TeamConfig.aCustomForATeam == null) {
+            TeamConfig.aCustomForATeam = new ArrayList<>();
+        }
+        gameManager = new GameManager(); // on test pour 2 equipes ici
         // Create a mock inventory list for testing
         List<InventoryModel.InventoryJson> mockInventory = new ArrayList<>();
         mockInventoryOverlay = new InventoryOverlay(mockInventory);
@@ -173,24 +178,4 @@ public class GameManagerTest {
         assertDoesNotThrow(() -> gameManager.nextRound(),
                 "nextRound should not throw exceptions and should print debug info");
     }
-    
-    /* ---------- Inventory Field ---------- */
-    
-    // @Test
-    // void testInventoryOverlayFieldCanBeSet() {
-    //     assertDoesNotThrow(() -> gameManager.setInventoryOverlay(mockInventoryOverlay),
-    //             "Should be able to set the inventory overlay field");
-    // }
-    
-    // @Test
-    // void testInventoryOverlayFieldStartsAsNull() {
-    //     // Create a new GameManager instance
-    //     GameManager newGameManager = new GameManager(3);
-        
-    //     // The inventory overlay should initially be null or unset
-    //     // (We can't directly check private fields, but we can test behavior)
-    //     assertDoesNotThrow(() -> {
-    //         newGameManager.setInventoryOverlay(mockInventoryOverlay);
-    //     }, "Setting inventory overlay on a fresh GameManager should work");
-    // }
 }

@@ -1,9 +1,7 @@
 ```
 .
 ├── ARCHITECTURE.md
-├── dependency-reduced-pom.xml
 ├── pom.xml
-├── run.log
 ├── src
 │   ├── main
 │   │   ├── java
@@ -15,74 +13,130 @@
 │   │   │               │   ├── CharacterController.java
 │   │   │               │   ├── console
 │   │   │               │   │   └── ConsoleInputController.java
+│   │   │               │   ├── EndGameController.java
 │   │   │               │   ├── ItemController.java
 │   │   │               │   ├── MainMenuController.java
 │   │   │               │   ├── PlayerDataController.java
 │   │   │               │   └── SwingInputController.java
 │   │   │               ├── FileUtile.java
 │   │   │               ├── GameLauncher.java
-│   │   │               ├── model                                       # Modèles et logique du jeu
-│   │   │               │   ├── camera
-│   │   │               │   │   └── CameraModel.java
-│   │   │               │   ├── CharacterModel.java
-│   │   │               │   ├── console
-│   │   │               │   │   ├── ConsoleGameLoop.java
-│   │   │               │   │   ├── ConsoleGameManager.java
-│   │   │               │   │   ├── ConsoleLauncher.java
-│   │   │               │   │   ├── ConsoleLogics.java
-│   │   │               │   │   └── PixelConverterCase.java
-│   │   │               │   ├── Gadget.java
-│   │   │               │   ├── gadgets
-│   │   │               │   │   └── Bumper.java
-│   │   │               │   ├── GameLoop.java
-│   │   │               │   ├── GameManager.java
-│   │   │               │   ├── GroundModel.java
-│   │   │               │   ├── InventoryModel.java
-│   │   │               │   ├── io                                       # Gestion de la Sauvegarde (JSON)
-│   │   │               │   │   ├── CharacterData.java
-│   │   │               │   │   ├── SaveData.java
-│   │   │               │   │   └── TeamData.java
-│   │   │               │   ├── Item.java
-│   │   │               │   ├── ItemType.java
-│   │   │               │   ├── PerlinNoise.java
-│   │   │               │   ├── PhysicsWorld.java
-│   │   │               │   ├── PlayerData.java
-│   │   │               │   ├── Projectile.java
-│   │   │               │   ├── TeamInitialisation.java
-│   │   │               │   ├── TeamModel.java
-│   │   │               │   ├── TerrainGenerator.java
-│   │   │               │   ├── Weapon.java
-│   │   │               │   └── weapons
-│   │   │               │       ├── Ak47.java
-│   │   │               │       ├── BaseballBat.java
-│   │   │               │       ├── Grenade.java
-│   │   │               │       └── RocketLauncher.java
-│   │   │               ├── PerlinGameLauncher.java
-│   │   │               ├── TutorialGameLauncher.java
-│   │   │               └── view                                         # Affichage graphique (Swing)
+│   │   │               └── model                                       # Modèles et logique du jeu
+│   │   │                   ├── BlockGridModel.java
+│   │   │                   ├── BlockHealthGrid.java
+│   │   │                   ├── BlockType.java
+│   │   │                   ├── camera
+│   │   │                   │   └── CameraModel.java
+│   │   │                   ├── CharacterModel.java
+│   │   │                   ├── console
+│   │   │                   │   ├── ConsoleGameLoop.java
+│   │   │                   │   ├── ConsoleGameManager.java
+│   │   │                   │   ├── ConsoleLauncher.java
+│   │   │                   │   ├── ConsoleLogics.java
+│   │   │                   │   └── PixelConverterCase.java
+│   │   │                   ├── Gadget.java
+│   │   │                   ├── gadgets
+│   │   │                   │   └── Bumper.java
+│   │   │                   ├── GameLoop.java
+│   │   │                   ├── GameManager.java
+│   │   │                   ├── GameStats.java
+│   │   │                   ├── GroundModel.java
+│   │   │                   ├── InventoryModel.java
+│   │   │                   ├── io                                      # Gestion de la Sauvegarde (JSON)
+│   │   │                   │   ├── CharacterData.java
+│   │   │                   │   ├── CustomTeamData.java
+│   │   │                   │   ├── CustomTeamManager.java
+│   │   │                   │   ├── CustomTeamSaveData.java
+│   │   │                   │   ├── PlayerData.java
+│   │   │                   │   ├── SaveData.java
+│   │   │                   │   ├── SaveLoad.java
+│   │   │                   │   ├── TeamData.java
+│   │   │                   │   └── WindData.java
+│   │   │                   ├── Item.java
+│   │   │                   ├── ItemType.java
+│   │   │                   ├── MapConfig.java
+│   │   │                   ├── PerlinNoise.java
+│   │   │                   ├── PhysicsWorld.java
+│   │   │                   ├── Projectile.java
+│   │   │                   ├── SkinModel.java
+│   │   │                   ├── SkinSettings.java
+│   │   │                   ├── SoundPlayer.java
+│   │   │                   ├── TeamInitialisation.java
+│   │   │                   ├── TeamModel.java
+│   │   │                   ├── TerrainGenerator.java
+│   │   │                   ├── trajectories
+│   │   │                   │   ├── FastTrajectory.java
+│   │   │                   │   ├── HeavyTrajectory.java
+│   │   │                   │   ├── NoDropTrajectory.java
+│   │   │                   │   └── StandardTrajectory.java
+│   │   │                   ├── TrajectoryInterface.java
+│   │   │                   ├── Weapon.java
+│   │   │                   ├── weapons
+│   │   │                   │   ├── Ak47.java
+│   │   │                   │   ├── BaseballBat.java
+│   │   │                   │   ├── Grenade.java
+│   │   │                   │   └── RocketLauncher.java
+│   │   │                   └── WindModel.java
+│   │   │               └── view                                        # Affichage graphique (Swing)
+│   │   │                   ├── BlockGridView.java
 │   │   │                   ├── CharacterView.java
 │   │   │                   ├── console
 │   │   │                   │   ├── ConsoleGamePanel.java
 │   │   │                   │   └── ConsoleView.java
+│   │   │                   ├── EndGameView.java
 │   │   │                   ├── GamePanel.java
+│   │   │                   ├── HelpOverlay.java
+│   │   │                   ├── HUDOverlay.java
+│   │   │                   ├── IntroCinematicView.java
 │   │   │                   ├── InventoryOverlay.java
 │   │   │                   ├── ItemView.java
+│   │   │                   ├── LoadingBarPanel.java
 │   │   │                   ├── MainMenuView.java
 │   │   │                   ├── NameTagView.java
+│   │   │                   ├── PauseOverlay.java
+│   │   │                   ├── PillButton.java
 │   │   │                   ├── ProjectileView.java
 │   │   │                   ├── RoundedButton.java
+│   │   │                   ├── RoundedPanel.java
+│   │   │                   ├── SettingsView.java
+│   │   │                   ├── ShopView.java
 │   │   │                   ├── TeamView.java
-│   │   │                   └── TrajectoryRenderer.java
+│   │   │                   ├── TrajectoryView.java
+│   │   │                   └── WindOverlay.java
 │   │   └── resources
+│   │       ├── BBHBartle-Regular.ttf
+│   │       ├── GIGAWORMM.png
+│   │       ├── GoogleSans-Bold.ttf
+│   │       ├── Reglage_BG.png
+│   │       ├── Sparkle.png
+│   │       ├── Trophee.png
+│   │       ├── ak.png
 │   │       ├── background.png
 │   │       ├── backpack.png
+│   │       ├── baseballbat.png
+│   │       ├── bazooka.png
 │   │       ├── box.png
-│   │       ├── GIGAWORMM.png
-│   │       ├── ground_texture_old.png
+│   │       ├── grenade.png
 │   │       ├── ground_texture.png
+│   │       ├── ground_texture_old.png
 │   │       ├── inventory.json
+│   │       ├── nuke.png
+│   │       ├── sfx
+│   │       │   ├── ak47-sound.wav
+│   │       │   ├── baseballbat-sound.wav
+│   │       │   ├── grenade-sound.wav
+│   │       │   └── rocketlauncher-sound.wav
+│   │       ├── sprite_items
+│   │       │   ├── ak47-sprite.png
+│   │       │   ├── baseballbat-sprite.png
+│   │       │   ├── grenade-sprite.png
+│   │       │   ├── potion-pv-sprite.png
+│   │       │   ├── rocketlauncher-sprite.png
+│   │       │   └── tombe.png
 │   │       ├── title.png
-│   │       └── worm.png
+│   │       ├── worm.png
+│   │       ├── wormNoel.png
+│   │       ├── wormPinky.png
+│   │       └── wormPixel.png
 │   └── test
 │       └── java
 │           └── fr
@@ -98,163 +152,36 @@
 │                       │   ├── ConsoleInputControllerTest.java
 │                       │   └── ConsoleLogicsTest.java
 │                       ├── controller
+│                       │   ├── ItemControllerTerrainTest.java
 │                       │   ├── ProjectileSystemTest.java
 │                       │   └── WeaponSwitchTest.java
 │                       ├── GroundModelTest.java
+│                       ├── ImpactSystemTest.java
 │                       ├── Inventory
 │                       │   ├── InventoryModelTest.java
 │                       │   └── InventoryOverlayTest.java
 │                       ├── ItemBasicsTest.java
 │                       ├── ItemControllerTest.java
 │                       ├── model
-│                       │   └── GameManagerTest.java
+│                       │   ├── BlockGridModelTest.java
+│                       │   ├── BlockHealthSystemTest.java
+│                       │   ├── BlockTypeTest.java
+│                       │   ├── CharacterDataTest.java
+│                       │   ├── GameManagerTest.java
+│                       │   ├── GameStatsTest.java
+│                       │   ├── RoundSystemTest.java
+│                       │   ├── TeamDataTest.java
+│                       │   └── WindDataTest.java
 │                       ├── PlayerDataTest.java
 │                       ├── ProjectileTest.java
 │                       ├── TeamModelTest.java
 │                       ├── view
-│                       │   └── TrajectoryRendererTest.java
+│                       │   └── TrajectoryViewTest.java
 │                       ├── weapons
 │                       │   ├── Ak47Test.java
 │                       │   ├── BaseballBatTest.java
 │                       │   ├── GrenadeTest.java
-│                       │   └── RocketLauncherTest.java
+│                       │   ├── RocketLauncherTest.java
+│                       │   └── TerrainDamageWeaponsTest.java
 │                       └── WeaponSystemTest.java
-├── target                                                              # Les .class (Pas Utile) et les Tests
-│   ├── classes
-│   │   ├── background.png
-│   │   ├── backpack.png
-│   │   ├── box.png
-│   │   ├── fr
-│   │   │   └── upc
-│   │   │       └── g5e4
-│   │   │           ├── controller
-│   │   │           │   ├── CameraController.class
-│   │   │           │   ├── CharacterController.class
-│   │   │           │   ├── console
-│   │   │           │   │   └── ConsoleInputController.class
-│   │   │           │   ├── ItemController.class
-│   │   │           │   ├── MainMenuController.class
-│   │   │           │   ├── PlayerDataController.class
-│   │   │           │   ├── SwingInputController.class
-│   │   │           │   ├── SwingInputController$1.class
-│   │   │           │   └── SwingInputController$2.class
-│   │   │           ├── FileUtile.class
-│   │   │           ├── GameLauncher.class
-│   │   │           ├── GameLauncher$1.class
-│   │   │           ├── GameLauncher$2.class
-│   │   │           ├── GameLauncher$3.class
-│   │   │           ├── model
-│   │   │           │   ├── camera
-│   │   │           │   │   └── CameraModel.class
-│   │   │           │   ├── CharacterModel.class
-│   │   │           │   ├── console
-│   │   │           │   │   ├── ConsoleGameLoop.class
-│   │   │           │   │   ├── ConsoleGameLoop$1.class
-│   │   │           │   │   ├── ConsoleGameManager.class
-│   │   │           │   │   ├── ConsoleLauncher.class
-│   │   │           │   │   ├── ConsoleLogics.class
-│   │   │           │   │   └── PixelConverterCase.class
-│   │   │           │   ├── Gadget.class
-│   │   │           │   ├── gadgets
-│   │   │           │   │   └── Bumper.class
-│   │   │           │   ├── GameLoop.class
-│   │   │           │   ├── GameLoop$1.class
-│   │   │           │   ├── GameManager.class
-│   │   │           │   ├── GroundModel.class
-│   │   │           │   ├── InventoryModel.class
-│   │   │           │   ├── InventoryModel$InventoryJson.class
-│   │   │           │   ├── InventoryModel$InventoryRoot.class
-│   │   │           │   ├── io
-│   │   │           │   │   ├── CharacterData.class
-│   │   │           │   │   ├── SaveData.class
-│   │   │           │   │   └── TeamData.class
-│   │   │           │   ├── Item.class
-│   │   │           │   ├── ItemType.class
-│   │   │           │   ├── PerlinNoise.class
-│   │   │           │   ├── PhysicsWorld.class
-│   │   │           │   ├── PhysicsWorld$WaterSensorListener.class
-│   │   │           │   ├── PlayerData.class
-│   │   │           │   ├── Projectile.class
-│   │   │           │   ├── TeamInitialisation.class
-│   │   │           │   ├── TeamModel.class
-│   │   │           │   ├── TerrainGenerator.class
-│   │   │           │   ├── Weapon.class
-│   │   │           │   └── weapons
-│   │   │           │       ├── Ak47.class
-│   │   │           │       ├── BaseballBat.class
-│   │   │           │       ├── Grenade.class
-│   │   │           │       └── RocketLauncher.class
-│   │   │           ├── PerlinGameLauncher.class
-│   │   │           ├── TutorialGameLauncher.class
-│   │   │           └── view
-│   │   │               ├── CharacterView.class
-│   │   │               ├── console
-│   │   │               │   ├── ConsoleGamePanel.class
-│   │   │               │   └── ConsoleView.class
-│   │   │               ├── GamePanel.class
-│   │   │               ├── InventoryOverlay.class
-│   │   │               ├── InventoryOverlay$1.class
-│   │   │               ├── InventoryOverlay$2.class
-│   │   │               ├── ItemView.class
-│   │   │               ├── MainMenuView.class
-│   │   │               ├── MainMenuView$1.class
-│   │   │               ├── MainMenuView$2.class
-│   │   │               ├── NameTagView.class
-│   │   │               ├── ProjectileView.class
-│   │   │               ├── RoundedButton.class
-│   │   │               ├── RoundedButton$1.class
-│   │   │               ├── TeamView.class
-│   │   │               └── TrajectoryRenderer.class
-│   │   ├── GIGAWORMM.png
-│   │   ├── ground_texture_old.png
-│   │   ├── ground_texture.png
-│   │   ├── inventory.json
-│   │   ├── title.png
-│   │   └── worm.png
-│   └── test-classes
-│       └── fr
-│           └── upc
-│               └── g5e4
-│                   ├── BumperTest.class
-│                   ├── camera
-│                   │   ├── CameraTest.class
-│                   │   └── CameraTest$TestPersonnageModel.class
-│                   ├── CharacterControllerTest.class
-│                   ├── CharacterModelTest.class
-│                   ├── CharacterViewTest.class
-│                   ├── console
-│                   │   ├── ConsoleInputControllerTest.class
-│                   │   └── ConsoleLogicsTest.class
-│                   ├── controller
-│                   │   ├── ProjectileSystemTest.class
-│                   │   ├── ProjectileSystemTest$1.class
-│                   │   ├── ProjectileSystemTest$2.class
-│                   │   ├── ProjectileSystemTest$3.class
-│                   │   ├── ProjectileSystemTest$4.class
-│                   │   └── WeaponSwitchTest.class
-│                   ├── GroundModelTest.class
-│                   ├── Inventory
-│                   │   ├── InventoryModelTest.class
-│                   │   └── InventoryOverlayTest.class
-│                   ├── ItemBasicsTest.class
-│                   ├── ItemBasicsTest$2.class
-│                   ├── ItemBasicsTest$TestWeapon.class
-│                   ├── ItemControllerTest.class
-│                   ├── ItemControllerTest$FakeItemView.class
-│                   ├── model
-│                   │   └── GameManagerTest.class
-│                   ├── PlayerDataTest.class
-│                   ├── ProjectileTest.class
-│                   ├── ProjectileTest$1.class
-│                   ├── TeamModelTest.class
-│                   ├── view
-│                   │   ├── TrajectoryRendererTest.class
-│                   │   └── TrajectoryRendererTest$1.class
-│                   ├── weapons
-│                   │   ├── Ak47Test.class
-│                   │   ├── BaseballBatTest.class
-│                   │   ├── GrenadeTest.class
-│                   │   └── RocketLauncherTest.class
-│                   └── WeaponSystemTest.class
-└── testoutput.txt
 ```

@@ -3,8 +3,6 @@ package fr.upc.g5e4.model;
 /**
  * Configuration centrale pour la génération de terrain
  * Permet de changer facilement le type de terrain et la taille de la map
- * 
- * A MODIFIER ICI pour changer de type de map et de taille
  */
 public class MapConfig {
     
@@ -18,7 +16,7 @@ public class MapConfig {
      * - ISLANDS: Terrain avec l'eau entre les îles
      * - FLAT: Terrain complètement plat
      */
-    public static final MapType MAP_TYPE = MapType.STANDARD;
+    private static MapType mapType = MapType.STANDARD;
     
     /**
      * Taille de la map:
@@ -26,7 +24,7 @@ public class MapConfig {
      * - MEDIUM: 1280x720 pixels (16:9)
      * - LARGE: 1700x720 pixels
      */
-    public static final MapSize MAP_SIZE = MapSize.MEDIUM;
+    private static MapSize mapSize = MapSize.MEDIUM;
     
     // =============================================
     
@@ -69,20 +67,41 @@ public class MapConfig {
      * Retourne la largeur de la map configurée
      */
     public static int getMapWidth() {
-        return MAP_SIZE.getWidth();
+        return mapSize.getWidth();
     }
     
     /**
      * Retourne la hauteur de la map configurée
      */
     public static int getMapHeight() {
-        return MAP_SIZE.getHeight();
+        return mapSize.getHeight();
     }
     
     /**
      * Retourne le type de map configuré
      */
     public static MapType getMapType() {
-        return MAP_TYPE;
+        return mapType;
+    }
+    
+    /**
+     * Retourne la taille de la map configurée
+     */
+    public static MapSize getMapSize() {
+        return mapSize;
+    }
+    
+    /**
+     * Modifie le type de map
+     */
+    public static void setMapType(MapType type) {
+        mapType = type;
+    }
+    
+    /**
+     * Modifie la taille de la map
+     */
+    public static void setMapSize(MapSize size) {
+        mapSize = size;
     }
 }

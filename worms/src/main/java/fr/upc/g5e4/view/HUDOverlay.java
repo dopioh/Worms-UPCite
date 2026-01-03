@@ -250,9 +250,8 @@ public class HUDOverlay extends JComponent {
         Integer ammo = null; // null = infini
 
         InventoryJson eq = null;
-        if (gameManager != null 
-            && gameManager.getActiveWormController() != null) {
-            eq = gameManager.getActiveWormController().getEquippedInventoryItem();
+        if (gameManager != null && gameManager.getActiveWormController() != null) {
+            eq = gameManager.getActiveWormController().getCurrentWeaponInventory();
         }
 
         // priorité à l'inventaire

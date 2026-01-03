@@ -11,6 +11,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
+import fr.upc.g5e4.view.UI.*;
+
 /**
  * Contrôleur pour gérer l'écran de fin de partie
  */
@@ -110,7 +112,7 @@ public class EndGameController {
             int offsetY = (endGameView.getHeight() - scaledHeight) / 2;
             
             // Utiliser PillButton
-            fr.upc.g5e4.view.PillButton returnButton = new fr.upc.g5e4.view.PillButton("Retour au Menu");
+            PillButton returnButton = new PillButton("Retour au Menu");
             returnButton.setFont(googleSansFont.deriveFont((float)(20 * scale)));
             
             // Positionner le bouton avec offset et scaling - centré sous le trophée

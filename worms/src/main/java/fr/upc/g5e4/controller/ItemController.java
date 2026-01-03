@@ -270,6 +270,9 @@ public class ItemController {
         
         System.out.println("[TERRAIN] Modified = " + modified);
         
+        // appliquer les dégats d'explosion 
+        applyExplosionDamageToWorms(projectile);
+        
         // on supprime les blocks flottants après destruction
         if (modified) {
             // int searchRadius = weapon.getTerrainBlastRadius() > 0 ? (int)(weapon.getTerrainBlastRadius() * 4) : 20; // SI ON MANQUE DE RESSOURCES
@@ -285,6 +288,61 @@ public class ItemController {
             physicsWorld.rebuildGroundPhysics(blockGridModel);
         } else if (modified && physicsWorld == null) {
             System.out.println("[TERRAIN] ERROR: physicsWorld est NULL !");
+        }
+    }
+    
+    /**
+     * applique les dégats de zone
+     * @param projectile Le projectile qui a explosé
+     */
+    private void applyExplosionDamageToWorms(Projectile projectile) {
+        if (allWorms == null) {
+            return;
+        }
+        
+        Weapon weapon = projectile.getSourceWeapon(); // arme qui a tiré le projectile
+        if (weapon == null || weapon.getBlastRadius() <= 0) {
+            return; // pas d'explosion de zone
+        }
+        
+        Vec2 explosionCenter = projectile.getCurrentPosition();
+        float blastRadiusInMeters = (float) weapon.getBlastRadius();
+        int baseDamage = weapon.getDamage();
+        double knockbackMultiplier = weapon.getKnockbackMultiplier();
+        
+        CharacterModel shooter = projectile.getShooter();
+        
+        // parcourir tous les worms
+        for (CharacterModel worm : allWorms) {
+            if (worm == null || worm.isDead()) {
+                continue;
+            }
+            
+            // calculer la distance entre le centre de l'explosion et le worm
+            Vec2 wormPos = worm.getBody().getPosition();
+            float distanceX = wormPos.x - explosionCenter.x;
+            float distanceY = wormPos.y - explosionCenter.y;
+            float distance = (float) Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+            
+            // vérifier si le worm est dans le rayon d'explosion
+            if (distance <= blastRadiusInMeters) {
+                // les dégats diminuent avec la distance (plus proche = plus de dégats)
+                double damageMultiplier = 1.0 - (distance / blastRadiusInMeters);
+                int actualDamage = Math.max(1, (int) (baseDamage * damageMultiplier));
+                
+                // appliquer les dégats
+                worm.dealDamage(actualDamage, shooter);
+                System.out.println("[EXPLOSION] " + worm.getName() + " prend " + actualDamage + " dégâts (distance: " + String.format("%.2f", distance) + "m)");
+                
+                // appliquer un impact de recul
+                if (distance > 0) {
+                    // direction de l'impact (depuis le centre vers le worm)
+                    Vec2 impactDirection = new Vec2(distanceX / distance, distanceY / distance);
+                    float impactForce = (float) (knockbackMultiplier * (1.0 - (distance / blastRadiusInMeters)) * 10.0f);
+                    worm.applyImpact(impactDirection, impactForce);
+                    System.out.println("[EXPLOSION] Impact appliqué avec force " + String.format("%.2f", impactForce));
+                }
+            }
         }
     }
     

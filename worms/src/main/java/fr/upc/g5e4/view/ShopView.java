@@ -4,6 +4,8 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
+import fr.upc.g5e4.view.UI.*;
+
 /**
  * Vue de la boutique du jeu (version compacte pour le menu)
  * Affiche les items disponibles à l'achat avec leurs descriptions
@@ -192,19 +194,19 @@ public class ShopView extends JPanel {
      * Ajoute des items d'exemple pour la démonstration
      */
     private void addExampleItems() {
-        addItemCard("Potion PV", "/nuke.png", 
+        addItemCard("Potion PV", "/gadgets/potion_heal.png", 
             "une potion qui restaure une grande quantité de points de vie.",
             50);
         
-        addItemCard("Potion SHIELD", "/nuke.png",
+        addItemCard("Potion SHIELD", "/gadgets/potion_shield.png",
             "une potion qui restaure une grande quantité de points de bouclier.",
             70);
         
-        addItemCard("Grenade", "/nuke.png",
+        addItemCard("Grenade", "/gadgets/grenade.png",
             "un petit objet qui fait un grand boom.",
             150);
         
-        addItemCard("Bumper", "/nuke.png",
+        addItemCard("Bumper", "/gadgets/bumper.png",
             "objet qui fait rebondir les worms.",
             100);
         
