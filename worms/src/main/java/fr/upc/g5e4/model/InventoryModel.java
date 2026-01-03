@@ -3,6 +3,7 @@ package fr.upc.g5e4.model;
 import com.google.gson.*;                 //Gson sert à faire un transfert de données "json to java"
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.FileWriter;
 import java.nio.charset.StandardCharsets;
 
 import java.util.List;
