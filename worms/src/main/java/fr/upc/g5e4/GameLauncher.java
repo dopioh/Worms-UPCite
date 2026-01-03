@@ -262,7 +262,6 @@ public class GameLauncher{
         //How to play
         this.helpOverlay = new HelpOverlay();
         this.helpOverlay.setBounds(0, 0, width, height);
-        this.pauseOverlay.setHelpOverlay(this.helpOverlay);
         
         // Placer les composants dans le layered pane
         gamePanel.setBounds(0, 0, width, height);

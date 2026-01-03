@@ -156,29 +156,6 @@ public class SwingInputController extends JPanel{
                     case KeyEvent.VK_SPACE:
                         if(cameraController != null) cameraController.centerOnCharacter();
                         break;
-                    
-                    // modif: A déclenche nextRound
-                    case KeyEvent.VK_A:
-                        if(gameManager != null) gameManager.nextRound();
-                        break;
-
-                    // Changement d'arme (touche E)
-                    case KeyEvent.VK_E:
-                        if(gameManager != null) gameManager.switchWeapon();
-                        System.out.println("switch");
-                        break;
-
-                    // Sauvegarde de la partie actuel
-                    case KeyEvent.VK_J:
-                        gameManager.actionPerformed();
-                        System.out.println("Save Buttun Pressed");
-                        break;
-                    
-                    // Toggle mode vol (touche P)
-                    case KeyEvent.VK_P:
-                        personnageController.toggleFlyMode();
-                        System.out.println("SUPERMAAAAAAAAAAAAN (todo : ajouter cape)");
-                        break;
                     // Touche Echap pour ouvrir les parametres
                     case KeyEvent.VK_ESCAPE:
                         if (pauseOverlay != null) {
