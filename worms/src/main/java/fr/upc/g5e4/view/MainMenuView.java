@@ -20,6 +20,8 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import fr.upc.g5e4.view.UI.*;;
+
 
 /**
  * Vue de l'écran d'accueil du jeu Worms

@@ -5,9 +5,11 @@ import java.io.IOException;
 import javax.swing.JOptionPane;
 
 import fr.upc.g5e4.GameLauncher;
+import fr.upc.g5e4.model.TeamSettingsModel;
 import fr.upc.g5e4.model.io.SaveLoad;
 import fr.upc.g5e4.view.MainMenuView;
 import fr.upc.g5e4.view.SettingsView;
+import fr.upc.g5e4.view.TeamSettingsView;
 
 /**
  * Contrôleur pour l'écran d'accueil
@@ -75,19 +77,17 @@ public class MainMenuController {
     }
 
     private void openConfig() {
-        // Créer la vue des réglages
-        SettingsView settingsView = new SettingsView();
-        
-        // Ajouter un listener pour le bouton retour
-        settingsView.getBtnBack().addActionListener(e -> {
-            // Retour au menu principal en utilisant showMenu()
-            gameLauncher.showMenu();
-        });
-        
-        // Afficher la vue des réglages via le CardPanel
-        gameLauncher.getCardPanel().add(settingsView, "SETTINGS");
-        java.awt.CardLayout cl = (java.awt.CardLayout) gameLauncher.getCardPanel().getLayout();
-        cl.show(gameLauncher.getCardPanel(), "SETTINGS");
+        TeamSettingsView teamSettingsView = new TeamSettingsView(gameLauncher.getPlayerDataController()); // creer la vue 
+
+        // Créer le contrôleur des réglages qui gère les listeners
+        SettingsController settingsController = new SettingsController(gameLauncher, teamSettingsView);
+
+        // Creer la partie Terminal 
+        TeamSettingsModel teamSettingsModel = new TeamSettingsModel(teamSettingsView,gameLauncher.getPlayerDataController());
+        TeamSettingsController teamSettingsController = teamSettingsModel.getTeamSettingsController();
+
+        // Afficher les réglages via GameLauncher qui gère la navigation
+        gameLauncher.showSettings(settingsController.getView());
     }
 
 
