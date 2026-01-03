@@ -1,7 +1,7 @@
-
 # Changelog
 
 ## v.0.0 Configuration (Avant le premier sprint)
+---
 
 ### Added
 
@@ -13,6 +13,7 @@
 - DESIGN.md
 
 ## [v.0.1 : SPRINT 1](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/1)
+---
 
 ### Added
 
@@ -44,6 +45,7 @@
 
 
 ## [v.0.2 : SPRINT 2](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/2)
+---
 
 ### Added
 - Écran d'accueil
@@ -68,50 +70,10 @@
     - Les déplacements, le zoom et le recentrage de la caméra se font maintenant avec un glissement fluide
 
 ## [v.0.3 : SPRINT 3](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/3)
-
-### Added
-
-<<<<<<< HEAD
-### Fixed
-- `.jar` injouable
-
---------- a completer ----------
-
-## [v.0.4 : SPRINT 4](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/4) 
 ---
 
 ### Added
-- Nametag
-    - Affichage des itemes (potions...) sur le nametag
-- Nouveau systeme de map 
-    - MAP en tableau 2D remplie d'objet "block"
-- **Cinématique d'introduction** : Intro cinématique avec barre de chargement cartoon et messages    synchronisés
-- Ajout du fichier LoadingBarPanel.java
-- **Écran de fin de partie avec animation**
-  - Animation des worms gagnants marchant vers le trophée
-  - Affichage des statistiques de jeu (dégâts, précision de tir, éliminations, rounds joué)
-  - Particules et effets visuels
-  - Bouton retour au menu
-  - Support du plein écran
-  - Support du N equipe
-  - Stat box glissable avec scroll
-- Système de statistiques pour tracker des actions pendant la partie
-- Endroit pour stocker les paramètres du jeu
-    - `current_skin`
-- Ajout Sprite `wormPixel.png` dans `ressources`
-- Une sauvegarde peut desormais etre lancer depuis le menu d'acceuil en cliquant sur "Poursuivre une partie"
-- Possibilitee de tirer/faire des degats/tuer un worm dans la version Console du jeu (tire assez limiter)
-- **Diagramme de classes** : Ajout et documentation du diagramme de classes du projet (GameManager, GameLoop, GamePanel, etc.)
-- **Système de configuration de terrains** : Nouvelle classe MapConfig pour gérer les types et tailles de maps
-    - 4 types de terrains disponibles :
-        - STANDARD : Terrain avec plateformes de spawn (mode original)
-        - MOUNTAINS : Hautes montagnes avec relief prononcé
-        - ISLANDS : Terrain wavy avec zones d'eau au centre pour éviter les spawn kills
-        - FLAT : Terrain complètement plat
-    - 3 tailles de maps : SMALL (800x720), MEDIUM (1280x720), LARGE (1700x720)
-- Ajout de la dégradation de la map
-- Ajout d'une courbe pour la trajectoire de la map
-=======
+
 - Mode plein écran (16:9)
 - MAP procédurale avec bruit de Perlin
 - Sprites pour les worms via le constructeur d'équipe
@@ -130,7 +92,6 @@
 - Constructeurs `TeamView` et `CharacterView` avec chemin vers sprite
 - Fonction `loadSprite` avec gestion d'erreurs
 - Affichage du sprite dans la bonne direction
->>>>>>> dev
 
 ### Modified
 
@@ -148,6 +109,7 @@
 
 
 ## [v.0.4 : SPRINT 4](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/4)
+---
 
 ### Added
 
@@ -189,17 +151,18 @@
 - Initialisation overlay Inventaire dans GameManager
 
 ### Optimisation
-<<<<<<< HEAD
-- **Performance**
+
+- Performance
     - Centralisation de repaint dans un seul Timer (gameLoop) pour avoir un seul repaint()
-    - pré-création d'objets graphiques réutilisables (couleurs, strokes) pour réduire les allocations mémoire pour chaque cube
-- **Lag Audio** : Système de cache avec pré-chargement des sons en mémoire pour éliminer le lag au premier tir
+    - Pré-création d'objets graphiques réutilisables (couleurs, strokes) pour réduire les allocations mémoire
+- Lag Audio : Système de cache avec pré-chargement des sons en mémoire
 
 
 ## [v.0.5 : SPRINT 5](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/5) (unreleased)
 ---
 
 ### Added
+
 - **Page reglages**
     - Système d'onglets : Map, Équipes, Autre
     - Support du plein écran avec scaling automatique
@@ -211,45 +174,16 @@
 - **Onglet Map dans les réglages**
     - Prévisualisation en temps réel de la map
 - **Composant PillTextField**
-    - Entree de texte qui suit la DA
+    - Entrée de texte qui suit la DA
 - **Customisation d'equipe**
     - Se save dans `player_save.txt` 
     - Choix nom d'equipe, skin de l'equipe (parmi ceux debloquer) et nom des 6 worms de l'equipe
 - **Onglet Equipe**
-    A Gauche :  
-    - Choix du nombre d'equipe, de worms et attribution des CustomTeams pour la prochaine partie
-    - on peut lancer une game sans configurer (reglages des equipes par defaut)
-    A Droite :  
-    - Systeme de customisation d'equipe
+    - À Gauche : Choix du nombre d'equipe, de worms et attribution des CustomTeams
+    - On peut lancer une game sans configurer (reglages des equipes par defaut)
+    - À Droite : Système de customisation d'equipe
 - **Skins**
     - Ajout des 5 skins (hors wormPixel) debloquable
-
-
-### Modified
-- **Système de plein écran**
-    - Passage du mode `setFullScreenWindow` au plein écran simulé
-    - Gestion du notch macOS et du dock
-
-### Fixed
-- JComboBox invisibles en plein écran
-- Problème du notch et menu macOS sur le contenu en plein ecran
-- Image de prévisualisation pas mise à jour au retour dans les settings
-- Coins pixelisés sur les images arrondies
-- Suppression de touche Echap dans main menu
-- Adaptation des Test pour le nouveau systeme d'equipe
-
-=======
-
-- Performance
-    - Centralisation repaint dans un seul Timer
-    - Pré-création d'objets graphiques réutilisables
-- Lag Audio : Système de cache avec pré-chargement
-
-
-## [v.0.5 : SPRINT 5](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/5) (unreleased)
-
-### Added
-
 - Algorithme FloodFill pour supprimer les blocks non liés au sol
 - Fixture unique par block
 - Boutique
@@ -257,23 +191,37 @@
 - Sons pour chaque arme
 - Plusieurs buffs (Speed, jump)
 - Potion (Speed, jump, heal, shield)
-- sprites pour gagdets 
-- sons pour les gadgets
-- Degats de zone 
+- Sprites pour gadgets 
+- Sons pour les gadgets
+- Dégâts de zone 
 - Readme.md expliquant le projet (comment jouer etc)
-- Ajout d’un pointeur graphique (flèche rouge) au-dessus du joueur actif dans la vue GamePanel pour indiquer visuellement le worm en cours de jeu.
-
-### Fixed
-
-- Double tir
-- Fix tir lié au zoom
-- body des blocks invisible après destruction
-- l'image de fond dans main menu qui ne redimentionne pas bien lors du passage en full screen sur un grand ecran
+- Ajout d'un pointeur graphique (flèche rouge) au-dessus du joueur actif
 
 ### Modified
 
-- Suppression des fleches haut et bas, pour une trajectoire seulement avec la souris
+- **Système de plein écran**
+    - Passage du mode `setFullScreenWindow` au plein écran simulé
+    - Gestion du notch macOS et du dock
+- Suppression des flèches haut et bas, pour une trajectoire seulement avec la souris
 - Maj du DIAGRAMME.MD
 - Maj du ARCHITECTURE.md
 - Amélioration de CHANGELOG.md
->>>>>>> dev
+
+### Fixed
+
+- JComboBox invisibles en plein écran
+- Problème du notch et menu macOS sur le contenu en plein écran
+- Image de prévisualisation pas mise à jour au retour dans les settings
+- Coins pixelisés sur les images arrondies
+- Suppression de touche Echap dans main menu
+- Adaptation des Tests pour le nouveau système d'équipe
+- Double tir
+- Fix tir lié au zoom
+- Body des blocks invisible après destruction
+- L'image de fond dans main menu qui ne redimensionne pas bien en full screen
+
+### Configuration
+
+- Ajout de support Java 24 et 25
+    - JaCoCo : 0.8.12 → 0.8.13
+    - Mockito : 5.14.2 → 5.21.0
