@@ -838,7 +838,7 @@ public class GameManager {
                 newWeapon = new Grenade();
                 System.out.println("[Inventaire] Arme équipée depuis inventaire : Grenade");
                 break;
-            case "bazooka":
+            case "rocketlauncher":
                 newWeapon = new RocketLauncher();
                 System.out.println("[Inventaire] Arme équipée depuis inventaire : Rocket Launcher");
                 break;

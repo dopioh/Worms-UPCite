@@ -77,7 +77,7 @@ Pendant la partie, appuyez sur le sac pour ouvrir l'inventaire avec ses trois on
 
 **Armes :**
 - **AK-47** : Arme automatique avec cadence de tir rapide
-- **Bazooka** : Lance-roquettes à longue portée avec explosion
+- **rocketlauncher** : Lance-roquettes à longue portée avec explosion
 - **Grenade** : Projectile explosif avec rebond
 - **Batte de baseball** : Arme de mêlée pour repousser les ennemis
 
