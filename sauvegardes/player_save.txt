@@ -11,7 +11,7 @@
     {
       "skinName": "Worm Noel Edition",
       "filePath": "/wormNoel.png",
-      "unlocked": true
+      "unlocked": false
     },
     {
       "skinName": "Worm Pinky Edition",

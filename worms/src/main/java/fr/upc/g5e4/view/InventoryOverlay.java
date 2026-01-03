@@ -84,6 +84,7 @@ public class InventoryOverlay extends JComponent {
         loadImage("wormcostar", "/wormcostar.png");
         loadImage("wormnerd", "/wormnerd.png");
         loadImage("wormcuisto", "/wormcuisto.png");
+        loadImage("wormnoel", "/wormnoel.png");
         loadImage("wormjack", "/wormjack.png");
         loadImage("wormrace", "/wormrace.png");
         loadImage("wormguess", "/wormguess.png");
@@ -142,6 +143,7 @@ public class InventoryOverlay extends JComponent {
         shopItems.add(new ShopItem("Worm Nerd Edition", "wormnerd", 20));
         shopItems.add(new ShopItem("Worm Cuisto Edition", "wormcuisto", 20));
         shopItems.add(new ShopItem("Worm Costard Edition", "wormcostar", 20));
+        shopItems.add(new ShopItem("Worm Noel Edition", "wormnoel", 20));
         shopItems.add(new ShopItem("WORMRACE", "wormrace", 0));
         shopItems.add(new ShopItem("WORMJACK", "wormjack", 0));
         shopItems.add(new ShopItem("WORMGUESS", "wormguess", 0));
@@ -317,6 +319,7 @@ public class InventoryOverlay extends JComponent {
         // inventaire ouvert
         // clic dans le panneau -> sélection / équipement
         if (panelBounds != null && panelBounds.contains(x, y)) {
+            // gestion du clic "ACHETER" dans la boutique
             if (currentCategory == Category.BOUTIQUE) {
                 for (int i = 0; i < buyButtons.size(); i++) {
                     if (buyButtons.get(i).contains(x, y)) {
@@ -326,13 +329,12 @@ public class InventoryOverlay extends JComponent {
                     }
                 }
             }
-            
+
+            // gestion du clic dans l'inventaire
             for (int i = 0; i < itemBounds.size(); i++) {
                 Rectangle r = itemBounds.get(i);
                 if (r.contains(x, y)) {
-                    if (currentCategory == Category.BOUTIQUE) {
-                        selectedShopIndex = i;
-                    } else {
+                    if (currentCategory != Category.BOUTIQUE) {
                         selectedIndex = i;
                         equipItem(lastFiltered.get(i));
                     }
@@ -476,6 +478,7 @@ public class InventoryOverlay extends JComponent {
                 buyButtons.add(buyBtn);
                 
                 // Vérifier si c'est un skin déjà débloqué
+                // isSkin a un filtre pour prendre uniquement les skins c'est tres moche mais ça marche
                 boolean isSkin = shopItem.name.startsWith("Worm") && 
                                  !shopItem.name.equals("WORMRACE") && 
                                  !shopItem.name.equals("WORMJACK") && 
@@ -530,6 +533,7 @@ public class InventoryOverlay extends JComponent {
                     g2.drawString(btnText, btnX + (btnW - btnTextW) / 2, btnY + 16);
                 }
 
+                // passage a la case suivante
                 col++;
                 if (col >= gridCols) {
                     col = 0;
@@ -797,6 +801,7 @@ public class InventoryOverlay extends JComponent {
         ShopItem shopItem = shopItems.get(selectedShopIndex);
         
         // check si c'est un skin et s'il est déjà débloqué
+        // on pourrait optimiser sachant qu'on fait deja le calcule dans paintComponent
         boolean isSkin = shopItem.name.startsWith("Worm") && 
                          !shopItem.name.equals("WORMRACE") && 
                          !shopItem.name.equals("WORMJACK") && 
@@ -827,7 +832,7 @@ public class InventoryOverlay extends JComponent {
         if (isSkin) {
             playerDataController.getPlayerData().unlockSkin(shopItem.name);
             System.out.println("Skin débloqué: " + shopItem.name);
-        } else if (!shopItem.name.startsWith("WORM")) { //filtre pour ajouter WORMRACE, WORMJACK, WORMGUESS
+        } else if (!shopItem.name.startsWith("WORM")) { //filtre pour ne ajouter pas WORMRACE, WORMJACK, WORMGUESS dans l'inventaire
             // Ajout des items (potions/balles) à l'inventaire de l'équipe
             addItemToTeamInventory(shopItem);
         }
@@ -880,6 +885,8 @@ public class InventoryOverlay extends JComponent {
         String objectType = null;
         int quantityToAdd = 0;
         
+        // pour chaque item de la boutique on definit ses données pour ajouter a l'inventaire
+        // redondant, on pourrait inclure ces données directement dans ShopItem
         if (shopItem.imagePath.equals("potionheal")) {
             objectType = "potion";
             quantityToAdd = 1;
