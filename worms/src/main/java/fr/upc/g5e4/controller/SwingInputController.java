@@ -145,25 +145,6 @@ public class SwingInputController extends JPanel{
                     case KeyEvent.VK_SPACE:
                         if(cameraController != null) cameraController.centerOnCharacter();
                         break;
-                    
-                    // Touche H pour ajouter un item de test au nametag
-                    case KeyEvent.VK_H:
-                        if (gameManager != null && personnageController != null) {
-                            // Récupérer le worm actif et son index
-                            CharacterModel activeWorm = personnageController.getModel();
-                            int wormIndex = gameManager.getActiveWormIndex();
-                            int teamIndex = gameManager.getCurrentTeamIndex();
-                            
-                            // Récupérer le CharacterView correspondant
-                            fr.upc.g5e4.view.CharacterView charView = null;
-                            charView = gameManager.getListTeamInit().get(teamIndex).getTeamView().getCharacterView(wormIndex);
-                            
-                            if (charView != null) {
-                                charView.getNameTagView().addItemFromResource("/wormPinky.png", "test_item");
-                                System.out.println("Item ajouté au nametag");
-                            }
-                        }
-                        break;
                 }
             }
             
