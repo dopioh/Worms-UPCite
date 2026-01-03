@@ -179,9 +179,11 @@
     - Se save dans `player_save.txt` 
     - Choix nom d'equipe, skin de l'equipe (parmi ceux debloquer) et nom des 6 worms de l'equipe
 - **Onglet Equipe**
-    - À Gauche : Choix du nombre d'equipe, de worms et attribution des CustomTeams
-    - On peut lancer une game sans configurer (reglages des equipes par defaut)
-    - À Droite : Système de customisation d'equipe
+    - A Gauche :  
+        - Choix du nombre d'equipe, de worms et attribution des CustomTeams pour la prochaine partie
+        - on peut lancer une game sans configurer (reglages des equipes par defaut)
+    - A Droite :  
+        - Systeme de customisation d'equipe
 - **Skins**
     - Ajout des 5 skins (hors wormPixel) debloquable
 - Algorithme FloodFill pour supprimer les blocks non liés au sol
