@@ -467,7 +467,7 @@ public class SwingInputController extends JPanel{
                 personnageController.getCurrentWeapon().setShootingAngle(shootingAngle);
             }
             
-            System.out.println("Angle: " + String.format("%.0f°", shootingAngle));
+            //System.out.println("Angle: " + String.format("%.0f°", shootingAngle));
         }
     }
     
