@@ -789,6 +789,7 @@ public class GameManager {
         
         if (hudOverlay != null) {
             hudOverlay.repaint();
+            hudOverlay.triggerTurnFlash();
         }
 
         

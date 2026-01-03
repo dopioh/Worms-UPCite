@@ -108,7 +108,7 @@ public class InventoryOverlay extends JComponent {
         loadImage("PotionJump", "/gadgets/potion_jump.png");
         loadImage("PotionHeal", "/gadgets/potion_heal.png");
         loadImage("PotionShield", "/gadgets/potion_shield.png");
-        loadImage("Bumper", "/gadgets/bumper.png");
+        //loadImage("Bumper", "/gadgets/bumper.png");
     }
 
     private void loadImage(String name, String path) {

@@ -19,14 +19,18 @@ public class HUDOverlay extends JComponent {
     // --- Weapon HUD ---
     private final java.util.Map<String, BufferedImage> weaponImages = new java.util.HashMap<>();
 
-    private void loadWeaponImages() {
-        loadWeaponImage("ak47", "/ak.png");
-        loadWeaponImage("grenade", "/grenade.png");
-        loadWeaponImage("bazooka", "/bazooka.png");
-        loadWeaponImage("baseballbat", "/baseballbat.png");
+    private void loadImages() {
+        loadImage("ak47", "/ak.png");
+        loadImage("grenade", "/grenade.png");
+        loadImage("bazooka", "/bazooka.png");
+        loadImage("baseballbat", "/baseballbat.png");
+        loadImage("PotionSpeed", "/gadgets/potion_speed.png");
+        loadImage("PotionJump", "/gadgets/potion_jump.png");
+        loadImage("PotionHeal", "/gadgets/potion_heal.png");
+        loadImage("PotionShield", "/gadgets/potion_shield.png");
     }
 
-    private void loadWeaponImage(String name, String path) {
+    private void loadImage(String name, String path) {        
         try {
             weaponImages.put(name.toLowerCase(), javax.imageio.ImageIO.read(getClass().getResource(path)));
         } catch (Exception e) {
@@ -34,10 +38,25 @@ public class HUDOverlay extends JComponent {
         }
     }
 
+    //Animation de changement de tour 
+    private float turnFlashAlpha = 0f;   // 0 et 1 pour la luminosité
+    private long turnFlashStart = 0L;
+    private static final long TURN_FLASH_DURATION = 300; //en ms 
+
+    /**
+     * Active l'animation changement de tour
+     */
+    public void triggerTurnFlash() {
+        turnFlashAlpha = 1f;
+        turnFlashStart = System.currentTimeMillis();
+        repaint();
+    }
+
     //ParametresHUD
     private Rectangle gearBounds;
     private BufferedImage settingsIcon;
-    // --- Backpack HUD ---
+
+    //Backpack HUD
     private BufferedImage backpackIcon;
 
     private void loadBackpack() {
@@ -82,7 +101,7 @@ public class HUDOverlay extends JComponent {
 
         loadBackpack();
         loadSettingsIcon();
-        loadWeaponImages();
+        loadImages();
 
         addMouseListener(new MouseAdapter() {
             @Override
@@ -274,6 +293,23 @@ public class HUDOverlay extends JComponent {
         g2.setColor(Color.WHITE);
         g2.setFont(g2.getFont().deriveFont(Font.BOLD, 14f));
         g2.drawString("Fin de tour", btnX + 18, btnY + 28);
+
+        if (turnFlashAlpha > 0f) {
+            long elapsed = System.currentTimeMillis() - turnFlashStart;
+            float x = elapsed / (float) TURN_FLASH_DURATION;
+
+            turnFlashAlpha = Math.max(0f, 1f - x);
+
+            Graphics2D g2fx = (Graphics2D) g.create();
+            g2fx.setComposite(
+                AlphaComposite.getInstance(AlphaComposite.SRC_OVER, turnFlashAlpha * 0.35f)
+            );
+            g2fx.setColor(Color.WHITE);
+            g2fx.fillRect(0, 0, getWidth(), getHeight());
+            g2fx.dispose();
+
+            repaint();
+        }
     }
 
     private void drawBar(Graphics2D g2, int x, int y, int w, int h,
