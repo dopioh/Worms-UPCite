@@ -83,14 +83,16 @@ public class OverlayManager implements
      * @param visible true pour afficher, false pour masquer
      */
     public void setPauseVisible(boolean visible) {
-        if (pauseOverlay != null) {
-            pauseOverlay.setPauseVisible(visible);
+        if (pauseOverlay != null) pauseOverlay.setPauseVisible(visible);
+
+        if (gameManager != null) {
+            gameManager.setPaused(visible);
         }
-        if (!visible) {
-            setHelpVisible(false);
-        }
+
+        if (!visible) setHelpVisible(false);
         bringToFront();
     }
+
 
     /**
      * Ouvre/ferme l'overlay d'aide.

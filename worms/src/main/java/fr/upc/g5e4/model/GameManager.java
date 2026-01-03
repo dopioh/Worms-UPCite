@@ -1229,5 +1229,11 @@ public class GameManager {
             gamePanel.getTrajectoryView().setWeapon(null);
         }
     }
+
+    public void setPaused(boolean paused) {
+        if (gameLoop != null) gameLoop.setPaused(paused);
+    }
+
 }
+
 

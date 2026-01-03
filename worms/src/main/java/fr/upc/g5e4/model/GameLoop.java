@@ -23,6 +23,8 @@ public class GameLoop{
     private final GameManager gameManager;
     private final GamePanel gamePanel;
 
+    private boolean paused = false;
+
     // 30s à 60 FPS
     private int roundTimeRemaining;
 
@@ -52,6 +54,13 @@ public class GameLoop{
         this.timer = new Timer((int)(FIXHZ*1000),new ActionListener() {         
             @Override
             public void actionPerformed(ActionEvent e){
+
+                if (paused) {
+                    if (hudOverlay != null) hudOverlay.setTimerFrames(roundTimeRemaining, 1800);
+                    gamePanel.repaint();
+                    return;
+                }
+
                 // met a jour la caméra
                 if (gameManager.getCameraController() != null) {
                     gameManager.getCameraController().update();
@@ -185,5 +194,9 @@ public class GameLoop{
     
     public void setOnRoundChanged(Runnable r) {
         this.onRoundChanged = r;
+    }
+
+    public void setPaused(boolean paused) {
+        this.paused = paused;
     }
 }
