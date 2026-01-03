@@ -113,9 +113,7 @@ public class GameLauncher{
         cardPanel.add(gameLayeredPane, GAME_CARD);
         
         mainFrame.setContentPane(cardPanel);
-        
-        // Setup des touches globales
-        setupGlobalKeyBindings();
+    
         
         mainFrame.pack();
         mainFrame.setLocationRelativeTo(null);
@@ -318,6 +316,8 @@ public class GameLauncher{
         input.setInventoryOverlay(inventoryOverlay);
         input.setGameManager(gameManager);
         input.setPauseOverlay(pauseOverlay);
+        input.setFullScreenToggleAction(this::toggleFullScreen);
+        input.setBackToMenuAction(this::showMenu);
         input.setHelpOverlay(helpOverlay);  
         
         // Mettre à jour la caméra avec les dimensions actuelles (important si en plein écran)
@@ -340,22 +340,6 @@ public class GameLauncher{
             }
         });
         checkGameOverTimer.start();
-    }
-
-    private void setupGlobalKeyBindings() {
-        JRootPane rootPane = mainFrame.getRootPane();
-        InputMap im = rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
-        ActionMap am = rootPane.getActionMap();
-        
-        // F -> basculer en plein écran
-        im.put(KeyStroke.getKeyStroke("F"), "toggleFullScreen");
-        am.put("toggleFullScreen", new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                toggleFullScreen();
-            }
-        });
-        
     }
     
     private void toggleFullScreen() {
@@ -380,7 +364,6 @@ public class GameLauncher{
             mainFrame.setLocationRelativeTo(null);
             mainFrame.setVisible(true);
             isFullScreen = false;
-            updateAllSizes(DEFAULT_WIDTH, DEFAULT_HEIGHT);
         } else {
             // Entrer en plein écran (simulé, respecte le notch et le dock)
             mainFrame.dispose();
@@ -388,13 +371,23 @@ public class GameLauncher{
             mainFrame.setBounds(usableX, usableY, usableWidth, usableHeight);
             mainFrame.setVisible(true);
             isFullScreen = true;
-            
-            updateAllSizes(usableWidth, usableHeight);
         }
+        
+        mainFrame.validate();
+
+        Dimension d = cardPanel.getSize();
+        int w = (d.width > 0) ? d.width : (isFullScreen ? usableWidth : DEFAULT_WIDTH);
+        int h = (d.height > 0) ? d.height : (isFullScreen ? usableHeight : DEFAULT_HEIGHT);
+
+        updateAllSizes(w, h);
         
         // Redonner le focus
         if (gameManager != null && gameManager.getImputController() != null) {
             gameManager.getImputController().requestFocusInWindow();
+        }
+ 
+        if (pauseOverlay != null) {
+            pauseOverlay.setFullScreenOn(isFullScreen);
         }
     }
     
@@ -404,6 +397,8 @@ public class GameLauncher{
         
         // Mettre à jour le jeu si initialisé
         if (gameLayeredPane != null) {
+            gameLayeredPane.setBounds(0, 0, width, height);
+            gameLayeredPane.setSize(width, height);
             gameLayeredPane.setPreferredSize(new Dimension(width, height));
         }
         
@@ -434,6 +429,10 @@ public class GameLauncher{
             hudOverlay.setBounds(0, 0, width, height);
         }
 
+        if (gameManager != null && gameManager.getImputController() != null) {
+            gameManager.getImputController().setBounds(0, 0, width, height);
+        }
+
         if (gameManager != null && gameManager.getCamera() != null) {
             gameManager.getCamera().setViewSize(width, height);
             // Notifier le CameraController pour éviter le glissement du au followPlayer
@@ -441,7 +440,11 @@ public class GameLauncher{
                 gameManager.getCameraController().onViewSizeChanged();
             }
         }
-        
+
+        if (gameLayeredPane != null) {
+            gameLayeredPane.revalidate();
+            gameLayeredPane.repaint();
+        }
         cardPanel.revalidate();
         cardPanel.repaint();
     }

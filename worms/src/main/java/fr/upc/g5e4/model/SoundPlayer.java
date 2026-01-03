@@ -5,9 +5,16 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Joue des effets sonores (ici .WAV) depuis les ressources du jeu
+ * 
+ * @author Hugo
+ * @version 1.0
+ */
 public final class SoundPlayer {
     private SoundPlayer() {}
-    
+    private static volatile boolean muted = false;
+
     // Cache pour les clips audio pré-chargés
     private static final Map<String, byte[]> audioCache = new HashMap<>();
     private static boolean initialized = false;
@@ -59,6 +66,7 @@ public final class SoundPlayer {
     }
 
     public static void play(String resourcePath) {
+        if (muted) return;
         // Jouer en arrière-plan pour ne pas bloquer le thread principal
         new Thread(() -> playSync(resourcePath)).start();
     }
@@ -126,5 +134,21 @@ public final class SoundPlayer {
      */
     public static void playBreakBlockSound() {
         play("/sfx/breakblock.wav");
+    }
+
+    /**
+     * Défini la sonorité On/off
+     * @param m
+     */
+    public static void setMuted(boolean m) {
+        muted = m;
+    }
+
+    /**
+     * est mute ou non
+     * @return 
+     */
+    public static boolean isMuted() {
+        return muted;
     }
 }

@@ -7,6 +7,7 @@ import javax.swing.JPanel;
 import org.jbox2d.common.Vec2;
 
 import fr.upc.g5e4.model.GameManager;
+import fr.upc.g5e4.model.SoundPlayer;
 import fr.upc.g5e4.model.CharacterModel;
 import fr.upc.g5e4.view.*;
 import fr.upc.g5e4.controller.SwingInputController;
@@ -31,6 +32,8 @@ public class SwingInputController extends JPanel{
     private double shootingAngle = 0;  // angle de visée en degrés
 
     private InventoryOverlay inventoryOverlay; 
+    private Runnable backToMenuAction;
+    private Runnable fullScreenToggleAction;
     private JFrame gameFrame;
     private PauseOverlay pauseOverlay;
     private HelpOverlay helpOverlay;
@@ -61,6 +64,23 @@ public class SwingInputController extends JPanel{
     }
 
     //Setters 
+
+    /**
+     * Runnable de Retour au menu (Quit)
+     * @param action
+     */
+    public void setBackToMenuAction(Runnable action) {
+        this.backToMenuAction = action;
+    }
+
+    /**
+     * Runnable de Fullscreen
+     * @param action
+     */
+    public void setFullScreenToggleAction(Runnable action) {
+        this.fullScreenToggleAction = action;
+    }
+
     /**
     * Définit le rendu de la trajectoire
     */
@@ -111,7 +131,75 @@ public class SwingInputController extends JPanel{
 
     public void setPauseOverlay(PauseOverlay overlay) {
         this.pauseOverlay = overlay;
+        if (this.pauseOverlay == null) return;
+
+        this.pauseOverlay.setListener(new PauseOverlay.Listener() {
+            @Override
+            public void onHelpClicked() {
+                if (helpOverlay != null) helpOverlay.setHelpVisible(true);
+            }
+
+            @Override
+            public void onToggleVent(boolean enabled) {
+                if (gameManager != null) gameManager.toggleVent(enabled);
+            }
+
+            @Override
+            public void onSaveClicked() {
+                if (gameManager != null) gameManager.actionPerformed(); 
+            }
+
+            @Override
+            public void onFlyModePressed() {
+                if (personnageController != null) {
+                    personnageController.toggleFlyMode();
+                }
+            }
+
+
+            @Override
+            public void onToggleBlueprint(boolean enabled) {
+                if (gameManager != null && gameManager.getGamePanel() != null) {
+                    gameManager.getGamePanel().setBlueprintMode(enabled);
+                    gameManager.getGamePanel().repaint();
+                }
+            }
+
+            @Override
+            public void onToggleFullScreen(boolean enabled) {
+                if (fullScreenToggleAction != null) {
+                    fullScreenToggleAction.run();
+                }
+            }
+
+            @Override
+            public void onToggleSound(boolean enabled) {
+                SoundPlayer.setMuted(!enabled);
+            }
+
+            @Override
+            public void onQuitClicked() {
+                if (gameManager != null && gameManager.getGameLoop() != null) {
+                    gameManager.getGameLoop().timerStop(); // sécurité, showMenu le fait aussi mais ok
+                }
+                // Retour menu via GameLauncher (voir section 2 pour le câblage)
+                if (backToMenuAction != null) {
+                    if (pauseOverlay != null) pauseOverlay.setPauseVisible(false);
+                    if (helpOverlay != null) helpOverlay.setHelpVisible(false);
+                    if (inventoryOverlay != null) inventoryOverlay.setInventoryVisible(false);
+                    backToMenuAction.run();
+                }
+            }
+
+            @Override
+            public void onCloseClicked() {
+                if (pauseOverlay != null) pauseOverlay.setPauseVisible(false);
+                if (helpOverlay != null) helpOverlay.setHelpVisible(false);
+            }
+        });
     }
+
+
  
     
     public void setHelpOverlay(HelpOverlay overlay) {

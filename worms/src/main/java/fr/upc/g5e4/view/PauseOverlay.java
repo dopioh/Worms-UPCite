@@ -22,7 +22,7 @@ public class PauseOverlay extends JComponent {
         void onHelpClicked();
         void onToggleVent(boolean enabled);
         void onSaveClicked();
-        void onToggleFlyMode(boolean enabled);
+        void onFlyModePressed(); 
         void onToggleBlueprint(boolean enabled);
 
         /** Toggle fullscreen (branché à GameLauncher.toggleFullScreen()) */
@@ -40,7 +40,8 @@ public class PauseOverlay extends JComponent {
 
     private Rectangle closeButtonBounds;
 
-    private Rectangle toggleFlyBounds;
+    private Rectangle flyActionBounds;
+
     private Rectangle toggleBlueprintBounds;
     private Rectangle toggleVentBounds;
     private Rectangle toggleFullScreenBounds;
@@ -50,20 +51,21 @@ public class PauseOverlay extends JComponent {
     private Rectangle btnSaveBounds;
     private Rectangle btnQuitBounds;
 
-    private enum Hover {
-        NONE,
-        TOGGLE_FLY, TOGGLE_BLUEPRINT, TOGGLE_VENT, TOGGLE_FULLSCREEN, TOGGLE_SOUND,
-        HELP, SAVE, QUIT, CLOSE
-    }
+    private enum Hover {NONE,ACTION_FLY, TOGGLE_BLUEPRINT, TOGGLE_VENT, TOGGLE_FULLSCREEN, TOGGLE_SOUND ,HELP, SAVE, QUIT, CLOSE}
+
+    private float flyAnim = 0f; 
+    private Timer flyAnimTimer;
 
     private Hover hovered = Hover.NONE;
 
-    private boolean flyModeOn = false;
     private boolean blueprintOn = false;
     private boolean ventOn = true;
     private boolean fullScreenOn = false;
     private boolean soundOn = true;
 
+    private int lastLayoutW = -1;
+    private int lastLayoutH = -1;
+    
     // ===== SCROLL =====
     /** Offset vertical du contenu (en pixels) */
     private int scrollY = 0;
@@ -119,11 +121,25 @@ public class PauseOverlay extends JComponent {
                 if (closeButtonBounds != null && closeButtonBounds.contains(p)) {
                     if (listener != null) listener.onCloseClicked();
                     return;
+                }   
+
+                if (btnHelpBounds != null && btnHelpBounds.contains(p)) {
+                    if (listener != null) listener.onHelpClicked();
+                    return;
                 }
 
-                if (toggleFlyBounds != null && toggleFlyBounds.contains(p)) {
-                    flyModeOn = !flyModeOn;
-                    if (listener != null) listener.onToggleFlyMode(flyModeOn);
+                if (btnSaveBounds != null && btnSaveBounds.contains(p)) {
+                    if (listener != null) listener.onSaveClicked();
+                    return;
+                }
+
+                if (btnQuitBounds != null && btnQuitBounds.contains(p)) {
+                    if (listener != null) listener.onQuitClicked();
+                }
+
+                if (flyActionBounds != null && flyActionBounds.contains(p)) {
+                    if (listener != null) listener.onFlyModePressed();
+                    startFlyAnimation();
                     repaint();
                     return;
                 }
@@ -154,20 +170,6 @@ public class PauseOverlay extends JComponent {
                     if (listener != null) listener.onToggleSound(soundOn);
                     repaint();
                     return;
-                }
-
-                if (btnHelpBounds != null && btnHelpBounds.contains(p)) {
-                    if (listener != null) listener.onHelpClicked();
-                    return;
-                }
-
-                if (btnSaveBounds != null && btnSaveBounds.contains(p)) {
-                    if (listener != null) listener.onSaveClicked();
-                    return;
-                }
-
-                if (btnQuitBounds != null && btnQuitBounds.contains(p)) {
-                    if (listener != null) listener.onQuitClicked();
                 }
             }
         };
@@ -313,30 +315,11 @@ public class PauseOverlay extends JComponent {
         int row4Y = row3Y + rowH + gapY;
         int row5Y = row4Y + rowH + gapY;
 
-        drawToggleRow(g2, "Fly mode", "Permet de voler",
-                contentX, row1Y, contentW, rowH,
-                flyModeOn, hovered == Hover.TOGGLE_FLY,
-                Hover.TOGGLE_FLY);
-
-        drawToggleRow(g2, "Blueprint", "Affiche le mode Blueprint",
-                contentX, row2Y, contentW, rowH,
-                blueprintOn, hovered == Hover.TOGGLE_BLUEPRINT,
-                Hover.TOGGLE_BLUEPRINT);
-
-        drawToggleRow(g2, "Vent", "Active/Désactive le vent",
-                contentX, row3Y, contentW, rowH,
-                ventOn, hovered == Hover.TOGGLE_VENT,
-                Hover.TOGGLE_VENT);
-
-        drawToggleRow(g2, "Plein écran", "Mode plein écran",
-                contentX, row4Y, contentW, rowH,
-                fullScreenOn, hovered == Hover.TOGGLE_FULLSCREEN,
-                Hover.TOGGLE_FULLSCREEN);
-
-        drawToggleRow(g2, "Son", "Active/Désactive les SFX",
-                contentX, row5Y, contentW, rowH,
-                soundOn, hovered == Hover.TOGGLE_SOUND,
-                Hover.TOGGLE_SOUND);
+        drawActionRow(g2,"Fly mode","Active/désactive le vol pour le worm actif",contentX, row1Y, contentW, rowH,hovered == Hover.ACTION_FLY,Hover.ACTION_FLY,flyAnim);
+        drawToggleRow(g2, "Blueprint", "Affiche le mode Blueprint",contentX, row2Y, contentW, rowH,blueprintOn, hovered == Hover.TOGGLE_BLUEPRINT,Hover.TOGGLE_BLUEPRINT);
+        drawToggleRow(g2, "Vent", "Active/Désactive le vent",contentX, row3Y, contentW, rowH,ventOn, hovered == Hover.TOGGLE_VENT,Hover.TOGGLE_VENT);
+        drawToggleRow(g2, "Plein écran", "Mode plein écran",contentX, row4Y, contentW, rowH,fullScreenOn, hovered == Hover.TOGGLE_FULLSCREEN,Hover.TOGGLE_FULLSCREEN);
+        drawToggleRow(g2, "Son", "Active/Désactive les SFX",contentX, row5Y, contentW, rowH,soundOn, hovered == Hover.TOGGLE_SOUND,Hover.TOGGLE_SOUND);
 
         // On annule le translate + on rétablit le clip
         g2.translate(0, scrollY);
@@ -416,7 +399,6 @@ public class PauseOverlay extends JComponent {
         Rectangle screenRect = new Rectangle(x, y - scrollY, w, h);
 
         switch (hoverId) {
-            case TOGGLE_FLY -> toggleFlyBounds = screenRect;
             case TOGGLE_BLUEPRINT -> toggleBlueprintBounds = screenRect;
             case TOGGLE_VENT -> toggleVentBounds = screenRect;
             case TOGGLE_FULLSCREEN -> toggleFullScreenBounds = screenRect;
@@ -476,15 +458,15 @@ public class PauseOverlay extends JComponent {
     private Hover hitTest(Point p) {
         if (closeButtonBounds != null && closeButtonBounds.contains(p)) return Hover.CLOSE;
 
-        if (toggleFlyBounds != null && toggleFlyBounds.contains(p)) return Hover.TOGGLE_FLY;
+        if (btnHelpBounds != null && btnHelpBounds.contains(p)) return Hover.HELP;
+        if (btnSaveBounds != null && btnSaveBounds.contains(p)) return Hover.SAVE;
+        if (btnQuitBounds != null && btnQuitBounds.contains(p)) return Hover.QUIT;
+
+        if (flyActionBounds != null && flyActionBounds.contains(p)) return Hover.ACTION_FLY;
         if (toggleBlueprintBounds != null && toggleBlueprintBounds.contains(p)) return Hover.TOGGLE_BLUEPRINT;
         if (toggleVentBounds != null && toggleVentBounds.contains(p)) return Hover.TOGGLE_VENT;
         if (toggleFullScreenBounds != null && toggleFullScreenBounds.contains(p)) return Hover.TOGGLE_FULLSCREEN;
         if (toggleSoundBounds != null && toggleSoundBounds.contains(p)) return Hover.TOGGLE_SOUND;
-
-        if (btnHelpBounds != null && btnHelpBounds.contains(p)) return Hover.HELP;
-        if (btnSaveBounds != null && btnSaveBounds.contains(p)) return Hover.SAVE;
-        if (btnQuitBounds != null && btnQuitBounds.contains(p)) return Hover.QUIT;
 
         return Hover.NONE;
     }
@@ -501,5 +483,54 @@ public class PauseOverlay extends JComponent {
         if (v < min) return min;
         if (v > max) return max;
         return v;
+    }
+
+    private void drawActionRow(Graphics2D g2,String title, String desc,int x, int y, int w, int h,boolean hover, Hover hoverId,float anim){
+        // fond
+        g2.setColor(hover ? new Color(255, 255, 255) : new Color(250, 250, 250));
+        g2.fillRoundRect(x, y, w, h, 18, 18);
+
+        // pulse anim (un overlay léger)
+        if (anim > 0f) {
+            int a = (int) (60 * anim); // alpha
+            g2.setColor(new Color(80, 170, 110, a));
+            g2.fillRoundRect(x, y, w, h, 18, 18);
+        }
+
+        g2.setColor(new Color(0, 0, 0, 40));
+        g2.drawRoundRect(x, y, w, h, 18, 18);
+
+        // texte
+        g2.setColor(new Color(15, 15, 15));
+        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 15f));
+        g2.drawString(title, x + 16, y + 24);
+
+        g2.setColor(new Color(0, 0, 0, 140));
+        g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 12f));
+        g2.drawString(desc, x + 16, y + 44);
+
+        // bounds en coords écran (comme ton drawToggleRow)
+        Rectangle screenRect = new Rectangle(x, y - scrollY, w, h);
+        if (hoverId == Hover.ACTION_FLY) {
+            flyActionBounds = screenRect;
+        }
+    }
+
+    private void startFlyAnimation() {
+        flyAnim = 1f;
+
+        if (flyAnimTimer != null && flyAnimTimer.isRunning()) {
+            flyAnimTimer.stop();
+        }
+
+        flyAnimTimer = new Timer(16, e -> {
+            flyAnim -= 0.07f;
+            if (flyAnim <= 0f) {
+                flyAnim = 0f;
+                ((Timer) e.getSource()).stop();
+            }
+            repaint();
+        });
+        flyAnimTimer.start();
     }
 }
