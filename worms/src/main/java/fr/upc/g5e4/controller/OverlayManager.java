@@ -225,8 +225,10 @@ public class OverlayManager implements
     @Override
     public void onCloseClicked() {
         setHelpVisible(false);
+        setPauseVisible(false);
     }
 
+    
     /**
      * Clic sur Pause depuis HUD
      */

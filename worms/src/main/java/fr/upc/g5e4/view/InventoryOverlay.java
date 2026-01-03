@@ -408,8 +408,7 @@ public class InventoryOverlay extends JComponent {
             int leftPad = 10;
             int rightPad = 10;
 
-            // on réserve une zone à droite pour Tour/Stock
-            //int rightBlockW = 120;  
+            //int rightBlockW = 120; Pas utile mais si besoin Zone a droite des munitions de la desc  
             //int leftW = boxW - rightBlockW - leftPad - rightPad; 
 
             // nom
