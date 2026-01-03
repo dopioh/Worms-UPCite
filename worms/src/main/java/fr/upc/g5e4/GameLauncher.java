@@ -25,7 +25,10 @@ public class GameLauncher{
     private GameLoop gameLoop;
 
     private WindOverlay windOverlay;
-    private InventoryOverlay inventoryOverlay; 
+    private InventoryOverlay inventoryOverlay;
+    private WormRaceOverlay wormRaceOverlay;
+    private WormGuessOverlay wormGuessOverlay;
+    private WormJackOverlay wormJackOverlay;
     private PauseOverlay pauseOverlay;
     private HelpOverlay helpOverlay;
     private HUDOverlay hudOverlay;
@@ -248,6 +251,21 @@ public class GameLauncher{
 
         this.inventoryOverlay = new InventoryOverlay(gameManager.getListTeamInit().get(0).getTeamModel().getInventory());
         this.inventoryOverlay.setBounds(0, 0, width, height);
+        // WormRace Overlay
+        this.wormRaceOverlay = new WormRaceOverlay();
+        this.wormRaceOverlay.setBounds(0, 0, width, height);
+        this.wormRaceOverlay.setGameManager(gameManager);
+        this.inventoryOverlay.setWormRaceOverlay(this.wormRaceOverlay);
+        // WormGuess Overlay
+        this.wormGuessOverlay = new WormGuessOverlay();
+        this.wormGuessOverlay.setBounds(0, 0, width, height);
+        this.wormGuessOverlay.setGameManager(gameManager);
+        this.inventoryOverlay.setWormGuessOverlay(this.wormGuessOverlay);
+        // WormJack Overlay
+        this.wormJackOverlay = new WormJackOverlay();
+        this.wormJackOverlay.setBounds(0, 0, width, height);
+        this.wormJackOverlay.setGameManager(gameManager);
+        this.inventoryOverlay.setWormJackOverlay(this.wormJackOverlay);
         // VENT
         windOverlay = new WindOverlay(gameManager.getWindModel());
         windOverlay.setBounds(0, 0, width, height);
@@ -276,6 +294,21 @@ public class GameLauncher{
         gameLayeredPane.add(inventoryOverlay, JLayeredPane.MODAL_LAYER);  
         gameLayeredPane.add(pauseOverlay, JLayeredPane.POPUP_LAYER);
         gameLayeredPane.add(helpOverlay, JLayeredPane.DRAG_LAYER);
+        gameLayeredPane.add(wormRaceOverlay);
+        gameLayeredPane.add(wormGuessOverlay);
+        gameLayeredPane.add(wormJackOverlay);
+        
+        // redim WormRace / WormGuess / WormJack lors du resize de la fenêtre
+        gameLayeredPane.addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentResized(java.awt.event.ComponentEvent e) {
+                int w = gameLayeredPane.getWidth();
+                int h = gameLayeredPane.getHeight();
+                wormRaceOverlay.setBounds(0, 0, w, h);
+                wormGuessOverlay.setBounds(0, 0, w, h);
+                wormJackOverlay.setBounds(0, 0, w, h);
+            }
+        });
         
         inventoryOverlay.setGameManager(gameManager);    
         inventoryOverlay.setFireListener(gameManager.getImputController());

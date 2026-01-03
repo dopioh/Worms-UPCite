@@ -35,11 +35,10 @@ public class MainMenuView extends JPanel {
 
     private JButton btnNewGame;
     private JButton btnResume;
+    private JButton btnHowToPlay;
     private JButton btnConfig;
     private JButton btnQuit;
-    private JButton btnTutorial;
     private JLabel titleLabel;
-    private ShopView shopView;
     private TutorialOverlay tutorialOverlay;
     private JPanel centerPanel;
     private BufferedImage backgroundImage;
@@ -118,7 +117,7 @@ public class MainMenuView extends JPanel {
         }
         
         // Mettre à jour les boutons
-        JButton[] buttons = {btnNewGame, btnResume, btnConfig, btnQuit};
+        JButton[] buttons = {btnNewGame, btnResume, btnHowToPlay, btnConfig, btnQuit};
         for (JButton btn : buttons) {
             btn.setFont(new Font("Arial", Font.BOLD, fontSize));
             btn.setMaximumSize(new Dimension(buttonWidth, buttonHeight));
@@ -129,14 +128,6 @@ public class MainMenuView extends JPanel {
         // Utilise un layout null pour positionnement absolu
         setLayout(null);
         setOpaque(true);
-
-        // Boutique à gauche en position absolue
-        shopView = new ShopView();
-        add(shopView);
-        
-        // Bouton tutoriel "?" en bas à droite
-        btnTutorial = createTutorialButton();
-        add(btnTutorial);
         
         // Panel au centre avec titre et boutons
         centerPanel = new JPanel();
@@ -149,6 +140,7 @@ public class MainMenuView extends JPanel {
         // Création des boutons
         btnNewGame = createMenuButton("Nouvelle Partie");
         btnResume = createMenuButton("Poursuivre une partie");
+        btnHowToPlay = createMenuButton("Comment jouer");
         btnConfig = createMenuButton("Reglages");
         btnQuit = createMenuButton("Quitter");
 
@@ -156,6 +148,8 @@ public class MainMenuView extends JPanel {
         centerPanel.add(btnNewGame);
         centerPanel.add(Box.createVerticalStrut(10));
         centerPanel.add(btnResume);
+        centerPanel.add(Box.createVerticalStrut(10));
+        centerPanel.add(btnHowToPlay);
         centerPanel.add(Box.createVerticalStrut(10));
         centerPanel.add(btnConfig);
         centerPanel.add(Box.createVerticalStrut(10));
@@ -168,7 +162,7 @@ public class MainMenuView extends JPanel {
         tutorialOverlay.setOnClose(() -> tutorialOverlay.setVisible(false));
         add(tutorialOverlay);
         
-        // dessiner l'overlay tutoriel par dessus tout les autres composants
+        // dessine par dessus les composants
         setComponentZOrder(tutorialOverlay, 0);
     }
 
@@ -188,18 +182,11 @@ public class MainMenuView extends JPanel {
     private void repositionComponents() {
         int width = getWidth();
         int height = getHeight();
-        
-        // la boutique à gauche
-        shopView.setBounds(20, 100, 350, Math.min(520, height - 200));
-        
+                
         // le panel au centre
         int centerPanelWidth = 400;
         int centerPanelX = (width - centerPanelWidth) / 2;
         centerPanel.setBounds(centerPanelX, 20, centerPanelWidth, height - 40);
-        
-        // bouton tutoriel en bas à droite
-        int btnSize = 70;
-        btnTutorial.setBounds(width - btnSize - 20, height - btnSize - 20, btnSize, btnSize);
         
         // position de l'overlay tuto au centre de la fenetre
         tutorialOverlay.setBounds(0, 0, width, height);
@@ -258,34 +245,11 @@ public class MainMenuView extends JPanel {
         return btnQuit;
     }
     
-    public ShopView getShopView() {
-        return shopView;
-    }
-    
-    public JButton getBtnTutorial() {
-        return btnTutorial;
+    public JButton getBtnHowToPlay() {
+        return btnHowToPlay;
     }
     
     public TutorialOverlay getTutorialOverlay() {
         return tutorialOverlay;
-    }
-    
-    /**
-     * bouton "?" pour le tutoriel
-     */
-    private JButton createTutorialButton() {
-        JButton btn = new JButton("?");
-        btn.setFont(new Font("Arial", Font.BOLD, 36));
-        btn.setForeground(Color.WHITE);
-        btn.setBackground(new Color(70, 130, 180));
-        btn.setFocusPainted(false);
-        btn.setBorderPainted(false);
-        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        
-        btn.addActionListener(e -> {
-            tutorialOverlay.setVisible(true);
-        });
-        
-        return btn;
     }
 }

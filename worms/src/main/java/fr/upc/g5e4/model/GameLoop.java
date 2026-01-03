@@ -23,6 +23,7 @@ public class GameLoop{
 
     // 30s à 60 FPS
     private int roundTimeRemaining;
+    private boolean timerPaused = false;
 
     /** Toute les update de Timer se font dans le Constructeur de GameLoop, pas besoin de creer de methode ici*/
 
@@ -30,6 +31,14 @@ public class GameLoop{
     public void resetRoundTimer() {
         this.roundTimeRemaining = 1800;
         gamePanel.setRoundTimer(30);
+    }
+    
+    public void pauseTimer() {
+        this.timerPaused = true;
+    }
+    
+    public void resumeTimer() {
+        this.timerPaused = false;
     }
     public GameLoop(GameManager gameManager){
         this.gameManager = gameManager;
@@ -115,16 +124,18 @@ public class GameLoop{
                 }
 
                 // décrémente le temps du round, met à jour la vue et change si nécessaire
-                roundTimeRemaining--; 
-                gameManager.setRoundTimeSave(roundTimeRemaining);
-                if (roundTimeRemaining % 60 == 0) {
-                    int secondsLeft = roundTimeRemaining / 60; 
-                    gamePanel.setRoundTimer(Math.max(0, secondsLeft));
-                }
-                if (roundTimeRemaining <= 0) {
-                    gameManager.nextRound();        
-                    roundTimeRemaining = 1800;      // reset
-                    gamePanel.setRoundTimer(30);    // reset affichage
+                if (!timerPaused) {
+                    roundTimeRemaining--; 
+                    gameManager.setRoundTimeSave(roundTimeRemaining);
+                    if (roundTimeRemaining % 60 == 0) {
+                        int secondsLeft = roundTimeRemaining / 60; 
+                        gamePanel.setRoundTimer(Math.max(0, secondsLeft));
+                    }
+                    if (roundTimeRemaining <= 0) {
+                        gameManager.nextRound();        
+                        roundTimeRemaining = 1800;      // reset
+                        gamePanel.setRoundTimer(30);    // reset affichage
+                    }
                 }
                 
                 // Vérifier si une équipe a gagné

@@ -37,6 +37,7 @@ public class MainMenuController {
             }
         });
         view.getBtnResume().addActionListener(e -> resumeGame());
+        view.getBtnHowToPlay().addActionListener(e -> openTutorial());
         view.getBtnConfig().addActionListener(e -> openConfig());
         view.getBtnQuit().addActionListener(e -> quitGame());
         
@@ -88,6 +89,10 @@ public class MainMenuController {
 
         // Afficher les réglages via GameLauncher qui gère la navigation
         gameLauncher.showSettings(settingsController.getView());
+    }
+
+    private void openTutorial() {
+        view.getTutorialOverlay().setVisible(true);
     }
 
 
