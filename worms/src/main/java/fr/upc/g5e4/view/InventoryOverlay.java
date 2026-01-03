@@ -14,6 +14,16 @@ import fr.upc.g5e4.controller.SwingInputController;
 import fr.upc.g5e4.model.GameManager;
 import fr.upc.g5e4.controller.PlayerDataController;
 
+/**
+ * Overlay Swing affichant l'inventaire du joueur
+ *
+ *   Affichage des objets filtrés par catégories (armes, gadgets, craft)
+ *   Sélection et équipement d'un objet
+ *   Survol (hover) pour afficher une description
+ * 
+ * @author Hugo
+ * @version 1.0
+ */
 public class InventoryOverlay extends JComponent {
     private enum Category {
         ARMES, GADGET, BOUTIQUE
@@ -21,6 +31,8 @@ public class InventoryOverlay extends JComponent {
 
     private String equippedItemKey = null; 
     private Category currentCategory = Category.ARMES;
+    private boolean ReleaseEat = false;
+
 
     private List<InventoryJson> inventory;
     private boolean visible = false;
@@ -38,6 +50,8 @@ public class InventoryOverlay extends JComponent {
     private GameManager gameManager;
     private Runnable onGadgetUse;
 
+    private Rectangle closeButtonBounds;
+    
     // --- Grille INVENTAIRE ---
     private static final int CELL_SIZE = 96;   // taille des cases
     private static final int CELL_GAP  = 16;   // espace entre cases
@@ -46,7 +60,7 @@ public class InventoryOverlay extends JComponent {
     private Rectangle armesTab;
     private Rectangle gadgetTab;
     private Rectangle boutiqueTab;
-    
+        
     // Boutique
     private PlayerDataController playerDataController;
     private int selectedShopIndex = -1;
@@ -130,6 +144,7 @@ public class InventoryOverlay extends JComponent {
 
     public InventoryOverlay(List<InventoryJson> inventory) {
         this.inventory = inventory;
+        setVisible(false);
         setOpaque(false);
         loadItemImages(); //Pour les icones des armes/gadgets
         
@@ -163,6 +178,10 @@ public class InventoryOverlay extends JComponent {
 
             @Override
             public void mouseReleased(MouseEvent e) {
+                if (ReleaseEat) {
+                    ReleaseEat = false;
+                    return;
+                }
                 // Quand inventaire fermé, passer l'événement au controller
                 if (!visible && inputControllerRef != null && e.getButton() == MouseEvent.BUTTON1) {
                     inputControllerRef.fireWeaponAtAngle(e.getX(), e.getY());
@@ -277,7 +296,16 @@ public class InventoryOverlay extends JComponent {
         
         computeLayout();
 
-        // === CLIC SUR CATEGORIES ===
+        // Clic sur le bouton fermer
+        if (closeButtonBounds != null && closeButtonBounds.contains(x, y)) {
+            // évite le tir “fantôme” au mouseReleased
+            ReleaseEat = true;
+            setInventoryVisible(false);
+            return;
+        }
+
+        
+        // Clic sur catégorie
         if (armesTab != null && armesTab.contains(x, y)) {
             currentCategory = Category.ARMES;
             selectedIndex = -1;
@@ -316,8 +344,7 @@ public class InventoryOverlay extends JComponent {
         }
 
 
-        // inventaire ouvert
-        // clic dans le panneau -> sélection / équipement
+        // clic dans le panneau 
         if (panelBounds != null && panelBounds.contains(x, y)) {
             // gestion du clic "ACHETER" dans la boutique
             if (currentCategory == Category.BOUTIQUE) {
@@ -337,15 +364,15 @@ public class InventoryOverlay extends JComponent {
                     if (currentCategory != Category.BOUTIQUE) {
                         selectedIndex = i;
                         equipItem(lastFiltered.get(i));
+                        ReleaseEat = true;
+                        setInventoryVisible(false);
                     }
                     repaint();
                     return;
                 }
             }
-            return; // clic dans le panneau mais pas sur un item -> rien
+            return;
         }
-        
-        // clic en dehors du panneau -> bloqué quand l'inventaire est ouvert
         return;
     }
 
@@ -377,6 +404,23 @@ public class InventoryOverlay extends JComponent {
         g2.setColor(Color.WHITE);
         g2.drawString("INVENTAIRE", panelX + 20, panelY + 30);
         
+        // ----- Bouton FERMER (X rouge) -----
+        int closeSize = 26;
+        int closeX = panelX + panelW - closeSize - 12;
+        int closeY = panelY + 10;
+
+        closeButtonBounds = new Rectangle(closeX, closeY, closeSize, closeSize);
+
+        g2.setColor(new Color(180, 60, 60));
+        g2.fillRoundRect(closeX, closeY, closeSize, closeSize, 8, 8);
+
+        g2.setColor(Color.WHITE);
+        g2.setStroke(new BasicStroke(2.2f));
+        g2.drawLine(closeX + 7, closeY + 7, closeX + closeSize - 7, closeY + closeSize - 7);
+        g2.drawLine(closeX + closeSize - 7, closeY + 7, closeX + 7, closeY + closeSize - 7);
+        g2.setStroke(new BasicStroke(1f));
+
+
         // affiche l'argent de l'équipe active dans la boutique
         if (currentCategory == Category.BOUTIQUE) {
             int money = 0;
@@ -388,7 +432,7 @@ public class InventoryOverlay extends JComponent {
             String moneyText = "Argent: " + money + " $";
             FontMetrics fm = g2.getFontMetrics();
             int moneyW = fm.stringWidth(moneyText);
-            g2.drawString(moneyText, panelX + panelW - moneyW - 20, panelY + 30);
+            g2.drawString(moneyText, panelX + panelW - moneyW - 20 -closeSize, panelY + 30);
             g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 12f));
             g2.setColor(Color.WHITE);
         }
@@ -594,7 +638,7 @@ public class InventoryOverlay extends JComponent {
         }
         }
 
-        // --- Description (hover > équipé) - UNIQUEMENT pour armes et gadgets
+        // Description
         if (currentCategory != Category.BOUTIQUE) {
             InventoryJson infoItem = null;
             
@@ -614,15 +658,38 @@ public class InventoryOverlay extends JComponent {
                 int boxH = 60;
                 int boxY = panelY + panelH - boxH - 15;
 
+                //Fond de la description
                 g2.setColor(new Color(0,0,0,120));
                 g2.fillRoundRect(boxX, boxY, boxW, boxH, 12, 12);
-
+                
+                int leftPad = 10;
+                int rightPad = 10;
+                
+                // Nom
                 g2.setColor(Color.WHITE);
                 g2.setFont(g2.getFont().deriveFont(Font.BOLD, 12f));
                 g2.drawString(itemName, boxX + 10, boxY + 20);
-
+                
+                // Desccription
                 g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 11f));
                 g2.drawString(desc, boxX + 10, boxY + 40);
+
+                // Zone du Tour et Stock
+                g2.setColor(new Color(255, 220, 80)); // jaune
+                g2.setFont(g2.getFont().deriveFont(Font.BOLD, 13.5f));
+
+                String stockText = (infoItem.isInfinite || infoItem.remainingUses == null) ? "∞" : String.valueOf(infoItem.remainingUses);
+                String tourText = infoItem.isInfinite? "∞" : (Math.max(0, infoItem.getRemainingUseThisTurn()) + "/" + infoItem.getMaxUsages());
+                
+                String line1 = "Tour: " + tourText;
+                String line2 = "Stock: " + stockText;
+
+                FontMetrics fm = g2.getFontMetrics();
+                int rightX = boxX + boxW - rightPad;
+
+                // Dessine le texte a droite
+                g2.drawString(line1, rightX - fm.stringWidth(line1), boxY + 22);
+                g2.drawString(line2, rightX - fm.stringWidth(line2), boxY + 44);
             }
         }
     }
@@ -637,7 +704,7 @@ public class InventoryOverlay extends JComponent {
     
     public void setInventoryVisible(boolean visible){
         this.visible = visible;
-
+        setVisible(visible); 
         if (visible) {
             computeLayout();
             resyncEquippedFromInventory();
@@ -647,10 +714,6 @@ public class InventoryOverlay extends JComponent {
             }
         } else {
             selectedIndex = -1;
-            // Re-synchroniser l'arme équipée quand on ferme l'inventaire
-            if (equippedItem != null) {
-                equipItem(equippedItem);
-            }
             // resume le timer quand l'inventaire est fermé
             if (gameManager != null && gameManager.getGameLoop() != null) {
                 gameManager.getGameLoop().resumeTimer();
@@ -702,7 +765,15 @@ public class InventoryOverlay extends JComponent {
         g2.drawString(label, tx, ty);
     }
 
-
+    /**
+     * Déséquipe l'arme en cours
+     */
+    public void clearEquipped() {
+        equippedItemKey = null;
+        equippedItem = null;
+        selectedIndex = -1;
+        repaint();
+    }
 
     private void computeLayout() {
         int w = getWidth();
@@ -748,6 +819,10 @@ public class InventoryOverlay extends JComponent {
         }
     }
 
+    /**
+     * Renvoie l'arme équipée dans l'inventaire
+     * @return l'arme équipée 
+     */
     public InventoryJson getEquippedItem() {
         return equippedItem;
     }
@@ -1006,6 +1081,11 @@ public class InventoryOverlay extends JComponent {
             return equippedItem;
         }
         return null;
+    }
+
+    @Override
+    public boolean contains(int x, int y) {
+        return visible && super.contains(x, y);
     }
 
 }

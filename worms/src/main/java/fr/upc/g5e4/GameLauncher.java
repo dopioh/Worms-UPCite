@@ -274,7 +274,8 @@ public class GameLauncher{
         this.hudOverlay.setInventoryOverlay(inventoryOverlay);
         //Menu parametres 
         this.pauseOverlay = new PauseOverlay();
-        this.pauseOverlay.setBounds(0, 0, width, height);
+        this.pauseOverlay.setBounds(0, 0, width, height); 
+        hudOverlay.setPauseOverlay(pauseOverlay);
         //How to play
         this.helpOverlay = new HelpOverlay();
         this.helpOverlay.setBounds(0, 0, width, height);
@@ -310,8 +311,7 @@ public class GameLauncher{
         inventoryOverlay.setGameManager(gameManager);    
         inventoryOverlay.setFireListener(gameManager.getImputController());
         gameManager.setInventoryOverlay(inventoryOverlay);
-        gameManager.setHudOverlay(this.hudOverlay); 
-
+        gameManager.setHudOverlay(this.hudOverlay);
         input.setGameFrame(mainFrame);
         input.setInventoryOverlay(inventoryOverlay);
         input.setGameManager(gameManager);

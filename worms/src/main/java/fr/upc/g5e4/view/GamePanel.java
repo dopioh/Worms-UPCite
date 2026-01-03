@@ -33,8 +33,6 @@ public class GamePanel extends JPanel {
     private BufferedImage groundTexture;
     // Vue pour dessiner les blocs
     private BlockGridView blockGridView;
-    // ajout: label pour afficher le temps restant (vue)
-    private final JLabel roundTimerLabel = new JLabel("Temps restant : 30s");
 
     //accès direct au GameManager pour le pointeur graphique 
     private final fr.upc.g5e4.model.GameManager gameManager;
@@ -82,13 +80,6 @@ public class GamePanel extends JPanel {
         }
              */
 
-        // ajout: configuration du label chrono
-        roundTimerLabel.setFont(new Font("Arial", Font.BOLD, 18));
-        roundTimerLabel.setForeground(Color.WHITE);
-        roundTimerLabel.setBounds(20, 10, 220, 30);
-        roundTimerLabel.setOpaque(false);
-        this.add(roundTimerLabel);
-
         /*
         // Bouton de sauvegarde
         this.saveButton = new JButton("Sauvegarde");
@@ -103,11 +94,6 @@ public class GamePanel extends JPanel {
 
     public static float getPPM() {
         return PPM;
-    }
-
-    // ajout: API publique pour mettre à jour l'affichage du chrono
-    public void setRoundTimer(int seconds) {
-        SwingUtilities.invokeLater(() -> roundTimerLabel.setText("Temps restant : " + seconds + "s"));
     }
     
     // Activer le mode blueprint (style bleu foncé)

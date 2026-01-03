@@ -179,14 +179,16 @@ public class SwingInputController extends JPanel{
 
             @Override
             public void onQuitClicked() {
+                if (pauseOverlay != null) pauseOverlay.setPauseVisible(false);
+                if (helpOverlay != null) helpOverlay.setHelpVisible(false);
+                if (inventoryOverlay != null) inventoryOverlay.setInventoryVisible(false);
+
+                // stop game loop (le menu n'a pas besoin du timer)
                 if (gameManager != null && gameManager.getGameLoop() != null) {
-                    gameManager.getGameLoop().timerStop(); // sécurité, showMenu le fait aussi mais ok
+                    gameManager.getGameLoop().timerStop();
                 }
-                // Retour menu via GameLauncher (voir section 2 pour le câblage)
+
                 if (backToMenuAction != null) {
-                    if (pauseOverlay != null) pauseOverlay.setPauseVisible(false);
-                    if (helpOverlay != null) helpOverlay.setHelpVisible(false);
-                    if (inventoryOverlay != null) inventoryOverlay.setInventoryVisible(false);
                     backToMenuAction.run();
                 }
             }
@@ -195,6 +197,10 @@ public class SwingInputController extends JPanel{
             public void onCloseClicked() {
                 if (pauseOverlay != null) pauseOverlay.setPauseVisible(false);
                 if (helpOverlay != null) helpOverlay.setHelpVisible(false);
+
+                if (gameManager != null && gameManager.getGameLoop() != null) {
+                    gameManager.getGameLoop().resumeTimer();
+                }
             }
         });
     }
@@ -233,54 +239,8 @@ public class SwingInputController extends JPanel{
                     case KeyEvent.VK_RIGHT:
                         if(cameraController != null) cameraController.activateRight();
                         break;
-                    
-                    // Caméra zoom
-                    case KeyEvent.VK_T:
-                        if(cameraController != null) cameraController.zoomIn();
-                        break;
-                    case KeyEvent.VK_G:
-                        if(cameraController != null) cameraController.zoomOut();
-                        break;
                     case KeyEvent.VK_SPACE:
                         if(cameraController != null) cameraController.centerOnCharacter();
-                        break;
-                    // Touche Echap pour ouvrir les parametres
-                    case KeyEvent.VK_ESCAPE:
-                        if (pauseOverlay != null) {
-                            boolean v = pauseOverlay.isPauseVisible();
-                            pauseOverlay.setPauseVisible(!v);
-
-                            // si on ferme pause, on ferme aussi help
-                            if (v && helpOverlay != null) {
-                                helpOverlay.setHelpVisible(false);
-                            }
-                        }
-                        break;
-
-                    case KeyEvent.VK_I:
-                        if (inventoryOverlay != null) {
-                        boolean visible = inventoryOverlay.isInventoryVisible();
-                        inventoryOverlay.setInventoryVisible(!visible);
-                        }
-                        break;
-                    
-                    // Touche H pour ajouter un item de test au nametag
-                    case KeyEvent.VK_H:
-                        if (gameManager != null && personnageController != null) {
-                            // Récupérer le worm actif et son index
-                            CharacterModel activeWorm = personnageController.getModel();
-                            int wormIndex = gameManager.getActiveWormIndex();
-                            int teamIndex = gameManager.getCurrentTeamIndex();
-                            
-                            // Récupérer le CharacterView correspondant
-                            fr.upc.g5e4.view.CharacterView charView = null;
-                            charView = gameManager.getListTeamInit().get(teamIndex).getTeamView().getCharacterView(wormIndex);
-                            
-                            if (charView != null) {
-                                charView.getNameTagView().addItemFromResource("/wormPinky.png", "test_item");
-                                System.out.println("Item ajouté au nametag");
-                            }
-                        }
                         break;
                 }
             }
@@ -299,11 +259,6 @@ public class SwingInputController extends JPanel{
                     case KeyEvent.VK_Z:
                         personnageController.deactivateJump();
                         break;
-
-                    // Caméra relâchement touches
-                    case KeyEvent.VK_UP:
-                    case KeyEvent.VK_DOWN:
-                        break;
                     case KeyEvent.VK_LEFT:
                         if(cameraController != null) cameraController.deactivateLeft();
                         break;
@@ -314,7 +269,23 @@ public class SwingInputController extends JPanel{
             }
         });
 
-        // Tir au clic gauche -> vers la souris
+        addMouseWheelListener(new MouseWheelListener() {
+            @Override
+            public void mouseWheelMoved(MouseWheelEvent e) {
+                if (pauseOverlay != null && pauseOverlay.isPauseVisible()) return; //Si pause overlay n'est pas ouvert
+                if (inventoryOverlay != null && inventoryOverlay.isInventoryVisible()) return;// Si Iventory n'est pas ouvert
+                if (cameraController == null) return;
+
+                int notches = e.getWheelRotation();  
+                if (notches < 0) {
+                    cameraController.zoomIn();
+                } else if (notches > 0) {
+                    cameraController.zoomOut();
+                }
+            }
+        });
+
+        // Tir au clic gauche 
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {

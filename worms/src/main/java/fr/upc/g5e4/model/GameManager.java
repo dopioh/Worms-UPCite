@@ -420,6 +420,7 @@ public class GameManager {
      * moment
      * Il en manque donc que vous pouvez rjt si besoin
      */
+    
     public World getWorld() {
         return this.world;
     }
@@ -783,6 +784,11 @@ public class GameManager {
         //mettre à jour l'inventaire affiché dans l'overlay
         if (inventoryOverlay != null) {
             inventoryOverlay.setInventory(getCurrentTeamInventory());
+            inventoryOverlay.clearEquipped();
+        }
+        
+        if (hudOverlay != null) {
+            hudOverlay.repaint();
         }
 
         
@@ -790,11 +796,10 @@ public class GameManager {
         WindModel.Dir[] dirs = WindModel.Dir.values();
         turnWindDir = dirs[windRng.nextInt(dirs.length)];
 
-        // force entre 0.15 et 1.0 (évite vent invisible)
+        // force entre 0.15 et 1.0 pour éviter le vent nul
         turnWindStrength = 0.15f + windRng.nextFloat() * 0.85f;
 
-        // Si le vent est activé, on applique la valeur du tour au modèle.
-        // Sinon, on garde la valeur en mémoire et on force la force effective à 0.
+        // Le vent appliquera la valeur calculée "turnwindstrengh" ou 0 
         if (windEnabled) {
             windModel.setDir(turnWindDir);
             windModel.setStrength(turnWindStrength, false);

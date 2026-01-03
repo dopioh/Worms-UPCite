@@ -31,7 +31,7 @@ public final class SoundPlayer {
             new Thread(() -> {
                 try {
                     // Pré-charger le son de tir
-                    preloadSound("/sfx/gunshot.wav");
+                    preloadSound(null);
                     initialized = true;
                     System.out.println("[SFX] Système audio initialisé");
                 } catch (Exception e) {
