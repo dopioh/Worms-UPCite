@@ -27,7 +27,9 @@
 
     - Ajout de tickets, Validation et Acceptations de MR
 
-    - Brainstorm d'idées pour tout le projet
+    - Brainstorm d'idées pour tout le proje
+
+    - Ajout CONTRIBUTING.md
 
 
 - [WU Billy](https://moule.informatique.u-paris.fr/wub)
