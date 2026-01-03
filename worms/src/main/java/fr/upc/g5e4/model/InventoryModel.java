@@ -14,7 +14,8 @@ import java.util.List;
  * 
  * {@link InventoryRoot} représente la racine du JSON
  * {@link InventoryJson} représente un objet d'inventaire (arme/item) et gère ses usages
- * 
+ * @author Hugo
+ * @version 1.0
  */
 
 public class InventoryModel {
