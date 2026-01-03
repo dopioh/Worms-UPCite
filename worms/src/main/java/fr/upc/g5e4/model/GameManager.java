@@ -267,8 +267,6 @@ public class GameManager {
 
         int[] groundY = saveData.getGroundModel().getGroundY();
         this.blockGridModel = b;
-        
-        blockGridModel.generateWithGroundY(groundY);
 
         this.model = saveData.getGroundModel();
 
