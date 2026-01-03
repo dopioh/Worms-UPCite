@@ -87,11 +87,13 @@ public class WormRaceOverlay extends JPanel {
             titleImage = javax.imageio.ImageIO.read(getClass().getResource("/wormrace.png"));
             
             // image worms
-            wormImages = new BufferedImage[4];
-            wormImages[0] = javax.imageio.ImageIO.read(getClass().getResource("/worm.png"));
+            wormImages = new BufferedImage[6];
+            wormImages[0] = javax.imageio.ImageIO.read(getClass().getResource("/wormCostar.png"));
             wormImages[1] = javax.imageio.ImageIO.read(getClass().getResource("/wormNoel.png"));
             wormImages[2] = javax.imageio.ImageIO.read(getClass().getResource("/wormPinky.png"));
             wormImages[3] = javax.imageio.ImageIO.read(getClass().getResource("/wormPixel.png"));
+            wormImages[4] = javax.imageio.ImageIO.read(getClass().getResource("/wormCuisto.png"));
+            wormImages[5] = javax.imageio.ImageIO.read(getClass().getResource("/wormNerd.png"));
             
         } catch (Exception e) {
             System.err.println("Erreur lors du chargement des images WormRace: " + e.getMessage());

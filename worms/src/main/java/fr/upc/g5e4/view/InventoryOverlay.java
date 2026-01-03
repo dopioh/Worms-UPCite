@@ -81,9 +81,9 @@ public class InventoryOverlay extends JComponent {
         
         // Boutique
         loadImage("luckyblock", "/luckyblock.png");
-        loadImage("wormog", "/worm.png");
-        loadImage("wormpinky", "/wormpinky.png");
-        loadImage("wormnoel", "/wormnoel.png");
+        loadImage("wormcostar", "/wormcostar.png");
+        loadImage("wormnerd", "/wormnerd.png");
+        loadImage("wormcuisto", "/wormcuisto.png");
         loadImage("wormjack", "/wormjack.png");
         loadImage("wormrace", "/wormrace.png");
         loadImage("wormguess", "/wormguess.png");
@@ -139,9 +139,9 @@ public class InventoryOverlay extends JComponent {
         playerDataController = new fr.upc.g5e4.controller.PlayerDataController();
         playerDataController.chargerJoueur();
         
-        shopItems.add(new ShopItem("Worm OG", "wormog", 20));
-        shopItems.add(new ShopItem("Worm Pinky Edition", "wormpinky", 20));
-        shopItems.add(new ShopItem("Worm Noel Edition", "wormnoel", 20));
+        shopItems.add(new ShopItem("Worm Nerd Edition", "wormnerd", 20));
+        shopItems.add(new ShopItem("Worm Cuisto Edition", "wormcuisto", 20));
+        shopItems.add(new ShopItem("Worm Costard Edition", "wormcostar", 20));
         shopItems.add(new ShopItem("WORMRACE", "wormrace", 0));
         shopItems.add(new ShopItem("WORMJACK", "wormjack", 0));
         shopItems.add(new ShopItem("WORMGUESS", "wormguess", 0));
