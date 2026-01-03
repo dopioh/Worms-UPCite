@@ -22,16 +22,29 @@ public class PauseOverlay extends JComponent {
      */
     public interface Listener {
         void onHelpClicked(); 
-        void onVentClicked();
+        void onToggleVent(boolean enabled);
         void onSaveClicked();
+        void onToggleFlyMode(boolean enabled);
+        void onToggleBlueprint(boolean enabled);
+        void onQuitClicked();
     }
 
     private Listener listener;
     private boolean visible = false;
-    private Rectangle helpButtonBounds;
 
-    private Rectangle ventButtonBounds; // bouton placeholder
-    private Rectangle saveButtonBounds; // bouton placeholder
+    private Rectangle flyToggleBounds;
+    private Rectangle blueprintToggleBounds;
+    private Rectangle ventToggleBounds;
+    private Rectangle quitButtonBounds;
+    private Rectangle helpButtonBounds;
+    private Rectangle saveButtonBounds; 
+
+    private enum HoverBtn { NONE, HELP, VENT, SAVE }
+    private HoverBtn hovered = HoverBtn.NONE;
+
+    private boolean flyModeOn = false;
+    private boolean blueprintOn = false;
+    private boolean ventOn = true;
 
     public PauseOverlay() {
         setOpaque(false);
@@ -43,11 +56,54 @@ public class PauseOverlay extends JComponent {
                 if (helpButtonBounds != null && helpButtonBounds.contains(e.getPoint())) {
                     if (listener != null) listener.onHelpClicked();
                 }
-                else if (ventButtonBounds != null && ventButtonBounds.contains(e.getPoint())) {
-                    if (listener != null) listener.onVentClicked();
-                }
                 else if (saveButtonBounds != null && saveButtonBounds.contains(e.getPoint())) {
                     if (listener != null) listener.onSaveClicked();
+                }
+                else if (flyToggleBounds != null && flyToggleBounds.contains(e.getPoint())) {
+                    flyModeOn = !flyModeOn;
+                    if (listener != null) listener.onToggleFlyMode(flyModeOn);
+                    repaint();
+                }
+                else if (blueprintToggleBounds != null && blueprintToggleBounds.contains(e.getPoint())) {
+                    blueprintOn = !blueprintOn;
+                    if (listener != null) listener.onToggleBlueprint(blueprintOn);
+                    repaint();
+                }
+                else if (quitButtonBounds != null && quitButtonBounds.contains(e.getPoint())) {
+                    if (listener != null) listener.onQuitClicked();
+                }
+                else if (ventToggleBounds != null && ventToggleBounds.contains(e.getPoint())) {
+                    ventOn = !ventOn;
+                    if (listener != null) listener.onToggleVent(ventOn);
+                    repaint();
+                }
+            }
+        });
+
+        addMouseMotionListener(new MouseAdapter() {
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                if (!visible) return;
+
+                HoverBtn newHover = HoverBtn.NONE;
+                Point p = e.getPoint();
+
+                if (helpButtonBounds != null && helpButtonBounds.contains(p)) newHover = HoverBtn.HELP;
+                else if (saveButtonBounds != null && saveButtonBounds.contains(p)) newHover = HoverBtn.SAVE;
+
+                if (newHover != hovered) {
+                    hovered = newHover;
+                    repaint();
+                }
+            }
+        });
+
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseExited(MouseEvent e) {
+                if (hovered != HoverBtn.NONE) {
+                    hovered = HoverBtn.NONE;
+                    repaint();
                 }
             }
         });
@@ -110,16 +166,6 @@ public class PauseOverlay extends JComponent {
         g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 14f));
         int ty = y + 70;
 
-        g2.drawString("Audio : (placeholder)", x + 20, ty); ty += 24;
-        g2.drawString("Graphismes : (placeholder)", x + 20, ty); ty += 24;
-        g2.drawString("Plein écran : F11", x + 20, ty); ty += 24;
-        g2.drawString("Retour au jeu : ESC", x + 20, ty); ty += 24;
-
-        ty += 10;
-        g2.drawString("Autres touches : (à remplir plus tard)", x + 20, ty); ty += 24;
-        g2.drawString("- ...", x + 40, ty); ty += 20;
-        g2.drawString("- ...", x + 40, ty); ty += 20;
-
         int btnW = 140;
         int btnH = 34;
         int btnX = x + 20;
@@ -127,35 +173,18 @@ public class PauseOverlay extends JComponent {
 
         helpButtonBounds = new Rectangle(btnX, btnY, btnW, btnH);
 
-        g2.setColor(new Color(70, 120, 180));
+        g2.setColor(hovered == HoverBtn.HELP ? new Color(90, 140, 200) : new Color(70, 120, 180));
         g2.fillRoundRect(btnX, btnY, btnW, btnH, 12, 12);
 
         g2.setColor(Color.WHITE);
         g2.setFont(g2.getFont().deriveFont(Font.BOLD, 14f));
         g2.drawString("HELP", btnX + 45, btnY + 22);
         
-        // bouton placeholder (à droite du HELP)
-        int ventX = btnX + btnW + 16;
-        int ventY = btnY;
-
-        ventButtonBounds = new Rectangle(ventX, ventY, btnW, btnH);
-
-        g2.setColor(new Color(90, 90, 90)); // gris
-        g2.fillRoundRect(ventX, ventY, btnW, btnH, 12, 12);
-
-        g2.setColor(Color.WHITE);
-        g2.drawRoundRect(ventX, ventY, btnW, btnH, 12, 12);
-
-        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 14f));
-        g2.drawString("Vent", ventX + 35, ventY + 22);
-
-        // bouton placeholder (à droite du HELP)
-
-        int saveX = btnX + btnW*2+ 32;
+        int saveX = btnX + btnW+ 16;
         int saveY = btnY;
         saveButtonBounds = new Rectangle(saveX, saveY, btnW, btnH);
 
-        g2.setColor(new Color(90, 90, 90)); // gris
+        g2.setColor(hovered == HoverBtn.SAVE ? new Color(120, 120, 120) : new Color(90, 90, 90));
         g2.fillRoundRect(saveX, saveY, btnW, btnH, 12, 12);
 
         g2.setColor(Color.WHITE);

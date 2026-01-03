@@ -5,6 +5,7 @@ import fr.upc.g5e4.view.HUDOverlay;
 import fr.upc.g5e4.view.InventoryOverlay;
 import fr.upc.g5e4.view.PauseOverlay;
 import fr.upc.g5e4.model.GameManager;
+import fr.upc.g5e4.model.WindModel;
 
 import javax.swing.*;
 
@@ -27,8 +28,11 @@ public class OverlayManager implements
     private final HelpOverlay helpOverlay;
     private final InventoryOverlay inventoryOverlay;
     private final HUDOverlay hudOverlay;
+    private final Runnable onQuitToMenu;
 
     private final GameManager gameManager;
+
+    private float lastWindStrength = 0.5f; //A remplacer ici
 
     /**
      * Construit un OverlayManager.
@@ -40,13 +44,14 @@ public class OverlayManager implements
      * @param hudOverlay overlay HUD 
      * @param gameManager gestionnaire de jeu
      */
-    public OverlayManager(JLayeredPane layeredPane, PauseOverlay pauseOverlay, HelpOverlay helpOverlay, InventoryOverlay inventoryOverlay, HUDOverlay hudOverlay, GameManager gameManager) {
+    public OverlayManager(JLayeredPane layeredPane, PauseOverlay pauseOverlay, HelpOverlay helpOverlay, InventoryOverlay inventoryOverlay, HUDOverlay hudOverlay, GameManager gameManager,Runnable onQuitToMenu) {
         this.layeredPane = layeredPane;
         this.pauseOverlay = pauseOverlay;
         this.helpOverlay = helpOverlay;
         this.inventoryOverlay = inventoryOverlay;
         this.hudOverlay = hudOverlay;
         this.gameManager = gameManager;
+        this.onQuitToMenu = onQuitToMenu;
     }
 
     /**
@@ -114,7 +119,7 @@ public class OverlayManager implements
         }
         bringToFront();
     }
-
+    
     /**
      * Bascule l'overlay de pause.
      */
@@ -185,19 +190,24 @@ public class OverlayManager implements
     }
 
     /**
-     * Clic sur Vent depuis l'overlay de pause.
+     * Activation du sur Vent depuis l'overlay de pause.
      */
     @Override
-    public void onVentClicked() {
-        System.out.println("[OverlayManager] Vent cliqué (TODO)");
-    }
+    public void onToggleVent(boolean enabled) {
+        if (gameManager == null) return;
+        WindModel wind = gameManager.getWindModel();
+        if (wind == null) return;
 
-    /**
-     * Clic sur Save depuis l'overlay de pause MEIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
-     */
-    @Override
-    public void onSaveClicked() {
-        System.out.println("[OverlayManager] Save cliqué (TODO)");
+        if (!enabled) {
+            // mémorise la force actuelle si > 0
+            float s = wind.getStrength();
+            if (s > 0f) lastWindStrength = s;
+            wind.setStrength(0f, false);
+        } else {
+            // restaure une force “raisonnable”
+            float restore = (lastWindStrength <= 0f) ? 0.5f : lastWindStrength;
+            wind.setStrength(restore, false);
+        }
     }
 
     /**
@@ -216,7 +226,57 @@ public class OverlayManager implements
     public void onCloseClicked() {
         setHelpVisible(false);
     }
-    
+
+    /**
+     * Clic sur Pause depuis HUD
+     */
+    @Override
+    public void onPauseClicked() {
+        togglePause();
+    }
+
+    /**
+     * Clic sur quit depuis pause
+     */
+    @Override
+    public void onQuitClicked() {
+        closeAll();
+        if (onQuitToMenu != null) onQuitToMenu.run();
+    }
+
+    /**
+     * Clic sur Save depuis Pause
+     */
+    @Override
+    public void onSaveClicked() {
+        if (gameManager != null) gameManager.actionPerformed();
+        setPauseVisible(false);
+    }
+
+    /**
+     * A l'activation du fly mode
+     */
+    @Override
+    public void onToggleFlyMode(boolean enabled) {
+        if (gameManager == null) return;
+        if (gameManager.getActiveWormController() == null) return;
+
+        boolean current = gameManager.getActiveWormController().getModel().isFlyMode();
+        if (current != enabled) {
+            gameManager.getActiveWormController().toggleFlyMode();
+        }
+    }
+
+    @Override
+    public void onToggleBlueprint(boolean enabled) {
+        if (gameManager == null) return;
+        if (gameManager.getGamePanel() != null) {
+            gameManager.getGamePanel().setBlueprintMode(enabled);
+            gameManager.getGamePanel().repaint();
+        }
+    }
+
+
     /**
      * Indique si un overlay UI doit bloquer les actions de gameplay
      * si Pause/Help/Inventory est visible, alors on bloque le gameplay.
@@ -230,6 +290,24 @@ public class OverlayManager implements
         return pause || help || inv;
     }
     
+    /**
+     * Notifie le Gameloop pour qu'il passe au prochain tour
+     * Ferme tous les autres Overlay
+     */
+    @Override
+    public void onEndTurnClicked() {
+        if (gameManager == null) return;
+
+        // ferme l'inventaire si ouvert (optionnel mais confortable)
+        setInventoryVisible(false);
+        setHelpVisible(false);
+        setPauseVisible(false);
+
+        // demande au GameLoop de passer au tour suivant
+        gameManager.requestEndTurn();
+    }
+
+
     /**
      * Appelé quand un item est équipé dans l'inventaire.
      *

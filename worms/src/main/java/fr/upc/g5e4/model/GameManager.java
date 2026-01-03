@@ -58,7 +58,6 @@ public class GameManager {
 
     private int currentTeamIndex;
     
-
     private final ItemController itemController;
     private final CharacterModel[] allWorms;
 
@@ -68,8 +67,8 @@ public class GameManager {
     private int[] teamCursor; // stock l'index du dernier worm jouee pour chaque equipe 
 
     private TeamModel currentTeam;
-
-    private int currentWeaponIndex = 0;  // 0=AK47, 1=Baseball, 2=Grenade, 3=Rocket    
+    
+    private boolean endTurnRequested = false;
 
     // ajout minimal: gestion des rounds
     private int roundNumber = 1;
@@ -499,6 +498,16 @@ public class GameManager {
         return this.teamCursor;
     }
 
+    public void requestEndTurn() {
+        endTurnRequested = true;
+    }
+
+    public boolean consumeEndTurnRequest() {
+        if (!endTurnRequested) return false;
+        endTurnRequested = false;
+        return true;
+    }
+
     /**
     * Vérifie si une équipe a gagné (tous les worms des autres équipes sont morts)
     * @return Le nom de l'équipe gagnante ou null si le jeu continue
@@ -676,7 +685,17 @@ public class GameManager {
         this.gameLoop = loop;
     }
 
-    public void nextRound() {
+    public void nextRound() { 
+        // Vent qui change à chaque tour
+        WindModel.Dir[] dirs = WindModel.Dir.values();
+        windModel.setDir(dirs[windRng.nextInt(dirs.length)]);
+
+        // force entre 0.15 et 1.0 
+        float strength = 0.15f + windRng.nextFloat() * 0.85f;
+        windModel.setStrength(strength,false);
+
+        System.out.println("[VENT] " + windModel.getDir().label + " | force=" + String.format("%.2f", windModel.getStrength()));
+        
         roundNumber++;
         currentTeamIndex = (currentTeamIndex + 1) % listTeamInital.size(); 
         currentTeam = listTeamInital.get(currentTeamIndex).getTeamModel();

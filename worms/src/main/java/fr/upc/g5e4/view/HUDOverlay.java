@@ -25,12 +25,20 @@ public class HUDOverlay extends JComponent {
      */
     public interface Listener {
         void onBagClicked();
+        void onEndTurnClicked();
+        void onPauseClicked();
     }
 
     private Listener listener;
 
     private final GameManager gameManager;
     private InventoryOverlay inventoryOverlay;
+    private Rectangle endTurnBounds;
+    private boolean endTurnHovered = false;
+    private BufferedImage settingsIcon;
+    private Rectangle gearBounds;
+    private boolean gearHovered = false;
+
     
     // --- Weapon HUD ---
     private final java.util.Map<String, BufferedImage> weaponImages = new java.util.HashMap<>();
@@ -77,12 +85,38 @@ public class HUDOverlay extends JComponent {
         setOpaque(false);
 
         loadBackpack();
+        loadSettingsIcon();
         loadWeaponImages();
 
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 handleMousePressed(e);
+            }
+            @Override
+            public void mouseExited(MouseEvent e) {
+                boolean changed = false;
+                if (endTurnHovered) { endTurnHovered = false; changed = true; }
+                if (gearHovered) { gearHovered = false; changed = true; }
+                if (changed) repaint();
+            }
+        });
+
+        addMouseMotionListener(new MouseAdapter() {
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                computeLayout();
+                boolean newHover = endTurnBounds != null && endTurnBounds.contains(e.getPoint());
+                if (newHover != endTurnHovered) {
+                    endTurnHovered = newHover;
+                    repaint();
+                }
+                
+                boolean newGearHover = gearBounds != null && gearBounds.contains(e.getPoint());
+                if (newGearHover != gearHovered) {
+                    gearHovered = newGearHover;
+                    repaint();
+                }
             }
         });
     }
@@ -125,6 +159,22 @@ public class HUDOverlay extends JComponent {
 
         int w = getWidth();
         int h = getHeight();
+
+        // Bouton pour les parametres
+        int gearSize = 44;
+        int gearX = 18;
+        int gearY = 18;
+        gearBounds = new Rectangle(gearX, gearY, gearSize, gearSize);
+
+        g2.setColor(gearHovered ? new Color(255,255,255,200) : new Color(255,255,255,140));
+        g2.fillRoundRect(gearX, gearY, gearSize, gearSize, 14, 14);
+
+        g2.setColor(new Color(0,0,0,90));
+        g2.drawRoundRect(gearX, gearY, gearSize, gearSize, 14, 14);
+
+        if (settingsIcon != null) {
+            g2.drawImage(settingsIcon, gearX + 8, gearY + 8, gearSize - 16, gearSize - 16, null);
+        }
 
         // ---------- Dimensions HUD ----------
         int hudW = 520;
@@ -199,7 +249,11 @@ public class HUDOverlay extends JComponent {
         String weaponName = null;
         Integer ammo = null; // null = infini
 
-        InventoryJson eq = (inventoryOverlay != null) ? inventoryOverlay.getEquippedItem() : null;
+        InventoryJson eq = null;
+        if (gameManager != null 
+            && gameManager.getActiveWormController() != null) {
+            eq = gameManager.getActiveWormController().getEquippedInventoryItem();
+        }
 
         // priorité à l'inventaire
         if (eq != null) {
@@ -265,6 +319,24 @@ public class HUDOverlay extends JComponent {
         if (backpackIcon != null) {
             g2.drawImage(backpackIcon, bagX + 10, bagY + 10, bagSize - 20, bagSize - 20, null);
         } 
+        
+        // ---------- Bouton FIN DE TOUR ----------
+        int btnW = 140;
+        int btnH = 44;
+        int btnX = hudX - btnW - 20; 
+        int btnY = hudY + (hudH - btnH) / 2;
+
+        endTurnBounds = new Rectangle(btnX, btnY, btnW, btnH);
+
+        g2.setColor(endTurnHovered ? new Color(255, 160, 90, 220) : new Color(255, 140, 70, 200));
+        g2.fillRoundRect(btnX, btnY, btnW, btnH, 16, 16);
+
+        g2.setColor(new Color(0,0,0,140));
+        g2.drawRoundRect(btnX, btnY, btnW, btnH, 16, 16);
+
+        g2.setColor(Color.WHITE);
+        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 14f));
+        g2.drawString("Fin de tour", btnX + 18, btnY + 28);
     }
 
     // Dessine une barre 
@@ -290,6 +362,16 @@ public class HUDOverlay extends JComponent {
                 return;
             }
         }
+        
+        if (endTurnBounds != null && endTurnBounds.contains(e.getPoint())) {
+            if (listener != null) listener.onEndTurnClicked();
+            return;
+        }
+
+        if (gearBounds != null && gearBounds.contains(e.getPoint())) {
+            if (listener != null) listener.onPauseClicked();
+            return;
+        }
     }
 
     private void computeLayout() { // Calcule les positions des éléments HUD
@@ -306,6 +388,19 @@ public class HUDOverlay extends JComponent {
         int bagY = hudY + (hudH - bagSize) / 2;
 
         bagBounds = new Rectangle(bagX, bagY, bagSize, bagSize);
+
+        int btnW = 140;
+        int btnH = 44;
+        int btnX = hudX - btnW - 20;
+        int btnY = hudY + (hudH - btnH) / 2;
+
+        endTurnBounds = new Rectangle(btnX, btnY, btnW, btnH);
+
+        int gearSize = 44;
+        int gearX = 18;
+        int gearY = 18;
+
+        gearBounds = new Rectangle(gearX, gearY, gearSize, gearSize);
     }
     
     private String normalizeKey(String s) { //pour les images ne pas avoir de problème avec les noms d'armes
@@ -324,10 +419,17 @@ public class HUDOverlay extends JComponent {
         repaint();
     }
 
-
+    private void loadSettingsIcon() {
+        try {
+            settingsIcon = javax.imageio.ImageIO.read(getClass().getResource("/parametre.png"));
+        } catch (Exception e) {
+            System.err.println("[HUD] parametre.png introuvable");
+        }
+    }
+ 
     @Override
     public boolean contains(int x, int y) { // Clics uniquement si sur le sac à dos
         computeLayout();  //met à jour les positions des éléments
-        return bagBounds != null && bagBounds.contains(x, y);
+        return (bagBounds != null && bagBounds.contains(x, y)) || (endTurnBounds != null && endTurnBounds.contains(x, y)) || (gearBounds != null && gearBounds.contains(x, y));
     }
 }

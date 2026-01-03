@@ -100,17 +100,6 @@ public class SwingInputController extends JPanel{
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                //Ici on gère les overlays avant tout le reste
-                if (overlayManager != null) {
-                    if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-                        overlayManager.togglePause();
-                        return;
-                    }
-                    if (e.getKeyCode() == KeyEvent.VK_I) {
-                        overlayManager.toggleInventory();
-                        return;
-                    }
-                }
                 //Overlays bloquent les entrées de gameplay
                 if (overlayManager != null && overlayManager.isBlockingGameplayInput()) {
                     return;
@@ -137,31 +126,15 @@ public class SwingInputController extends JPanel{
                         break;
                     
                     // Caméra zoom
-                    case KeyEvent.VK_T:
+                    case KeyEvent.VK_UP:
                         if(cameraController != null) cameraController.zoomIn();
                         break;
-                    case KeyEvent.VK_G:
+                    case KeyEvent.VK_DOWN:
                         if(cameraController != null) cameraController.zoomOut();
                         break;
+
                     case KeyEvent.VK_SPACE:
                         if(cameraController != null) cameraController.centerOnCharacter();
-                        break;
-                    
-                    // modif: A déclenche nextRound
-                    case KeyEvent.VK_A:
-                        if(gameManager != null) gameManager.nextRound();
-                        break;
-
-                    // Sauvegarde de la partie actuel
-                    case KeyEvent.VK_J:
-                        gameManager.actionPerformed();
-                        System.out.println("Save Buttun Pressed");
-                        break;
-                    
-                    // Toggle mode vol (touche P)
-                    case KeyEvent.VK_P:
-                        personnageController.toggleFlyMode();
-                        System.out.println("SUPERMAAAAAAAAAAAAN (todo : ajouter cape)");
                         break;
                     
                     // Touche H pour ajouter un item de test au nametag

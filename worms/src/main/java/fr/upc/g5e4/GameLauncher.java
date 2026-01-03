@@ -30,7 +30,6 @@ public class GameLauncher{
     private HelpOverlay helpOverlay;
     private HUDOverlay hudOverlay;
 
-
     private boolean screen;
     
     // Composants pour la fenêtre unique
@@ -273,7 +272,7 @@ public class GameLauncher{
         gameLayeredPane.add(pauseOverlay, JLayeredPane.POPUP_LAYER);
         gameLayeredPane.add(helpOverlay, JLayeredPane.DRAG_LAYER);
 
-        OverlayManager overlayManager = new OverlayManager(gameLayeredPane,pauseOverlay,helpOverlay,inventoryOverlay,hudOverlay, gameManager);
+        OverlayManager overlayManager = new OverlayManager(gameLayeredPane,pauseOverlay,helpOverlay,inventoryOverlay,hudOverlay, gameManager,this::showMenu);
         overlayManager.installListeners();
         overlayManager.bringToFront();  
         

@@ -16,6 +16,7 @@ public class HelpOverlay extends JComponent {
     }
     private Rectangle closeButtonBounds;    // bouton FERMER
     private Listener listener;
+    private boolean closeHovered = false;
 
     public HelpOverlay() { // Constructeur
         setOpaque(false);
@@ -35,6 +36,30 @@ public class HelpOverlay extends JComponent {
                 // aucun autre clic ne fait rien
             }
         });
+
+        addMouseMotionListener(new MouseAdapter() {
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                if (!isVisible()) return;
+
+                boolean newHover = closeButtonBounds != null && closeButtonBounds.contains(e.getPoint());
+                if (newHover != closeHovered) {
+                    closeHovered = newHover;
+                    repaint();
+                }
+            }
+        });
+
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseExited(MouseEvent e) {
+                if (closeHovered) {
+                    closeHovered = false;
+                    repaint();
+                }
+            }
+        });
+
     }
 
 
@@ -122,7 +147,7 @@ public class HelpOverlay extends JComponent {
         closeButtonBounds = new Rectangle(btnX, btnY, btnW, btnH);
         
         // Style du bouton FERMER
-        g2.setColor(new Color(180, 60, 60));
+        g2.setColor(closeHovered ? new Color(200, 80, 80) : new Color(180, 60, 60));
         g2.fillRoundRect(btnX, btnY, btnW, btnH, 12, 12);
 
         g2.setColor(Color.WHITE);

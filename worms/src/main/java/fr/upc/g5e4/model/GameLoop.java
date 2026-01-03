@@ -114,21 +114,35 @@ public class GameLoop{
                             if (onRoundChanged != null) onRoundChanged.run();
                             roundTimeRemaining = 1800;
                             if (hudOverlay != null) hudOverlay.setTimerFrames(1800, 1800);
+                            gamePanel.repaint();
+                            return;
                         }
                     }
                 } catch (Exception ex) {
                     // ignore changements de transition possibles
                 }
 
+                //fin de tour 
+                if (gameManager.consumeEndTurnRequest()) {
+                    gameManager.nextRound();
+                    if (onRoundChanged != null) onRoundChanged.run();
+                    roundTimeRemaining = 1800;
+                    if (hudOverlay != null) hudOverlay.setTimerFrames(1800, 1800);
+                    gamePanel.repaint();
+                    return;
+                }
                 // décrémente le temps du round, met à jour la vue et change si nécessaire
-                roundTimeRemaining--; 
+                roundTimeRemaining--;
                 gameManager.setRoundTimeSave(roundTimeRemaining);
+
                 if (roundTimeRemaining <= 0) {
                     gameManager.nextRound();
                     if (onRoundChanged != null) onRoundChanged.run();
                     roundTimeRemaining = 1800;
+                    if (hudOverlay != null) hudOverlay.setTimerFrames(1800, 1800);
+                    gamePanel.repaint();
+                    return;
                 }
-
                 if (hudOverlay != null) hudOverlay.setTimerFrames(roundTimeRemaining, 1800);
                                 
                 // Vérifier si une équipe a gagné
