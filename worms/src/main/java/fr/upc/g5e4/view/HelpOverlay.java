@@ -4,9 +4,19 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-
+/**
+ * Overlay affichant les commandes d'aide du jeu
+ *  
+ * @author Hugo
+ * @version 1.0
+ */
 public class HelpOverlay extends JComponent {
+    public interface Listener {
+        void onCloseClicked(); // Si close est cliqué
+    }
     private Rectangle closeButtonBounds;    // bouton FERMER
+    private Listener listener;
+    private boolean closeHovered = false;
 
     public HelpOverlay() { // Constructeur
         setOpaque(false);
@@ -18,20 +28,67 @@ public class HelpOverlay extends JComponent {
                 if (!isVisible()) return;
 
                 if (closeButtonBounds != null && closeButtonBounds.contains(e.getPoint())) {
-                    setHelpVisible(false);
+                    if (listener != null) {
+                        listener.onCloseClicked();
+                        return;
+                    }
                 }
                 // aucun autre clic ne fait rien
             }
         });
+
+        addMouseMotionListener(new MouseAdapter() {
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                if (!isVisible()) return;
+
+                boolean newHover = closeButtonBounds != null && closeButtonBounds.contains(e.getPoint());
+                if (newHover != closeHovered) {
+                    closeHovered = newHover;
+                    repaint();
+                }
+            }
+        });
+
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseExited(MouseEvent e) {
+                if (closeHovered) {
+                    closeHovered = false;
+                    repaint();
+                }
+            }
+        });
+
     }
 
+
+    /**
+     * Affiche ou masque l'overlay d'aide.
+     *
+     * @param v true pour afficher l'aide, false pour la masquer
+     */
     public void setHelpVisible(boolean v) {
         setVisible(v);  
         repaint();
     }
 
+    /**
+     * Indique si l'overlay d'aide est visible.
+     *
+     * @return true si l'overlay est affiché
+     */
     public boolean isHelpVisible() {
         return isVisible();
+    }
+
+    /**
+     * Définit le listener recevant les événements de l'overlay d'aide.
+     *
+     * @param listener contrôleur 
+     */
+    public void setListener(Listener listener) {
+        this.listener = listener;
     }
 
     @Override
@@ -68,19 +125,14 @@ public class HelpOverlay extends JComponent {
         g2.drawString("Z = sauter", x + 40, ty); ty += 24;
 
         g2.drawString("Caméra :", x + 20, ty); ty += 22;
-        g2.drawString("T/G = zoom + / zoom -", x + 40, ty); ty += 18;
+        g2.drawString("Up et DOwn = zoom + / zoom -", x + 40, ty); ty += 18;
         g2.drawString("SPACE = centrer caméra", x + 40, ty); ty += 24;
 
         g2.drawString("Combat :", x + 20, ty); ty += 22;
         g2.drawString("UP/DOWN = viser (angle)", x + 40, ty); ty += 18;
         g2.drawString("Click gauche = tirer", x + 40, ty); ty += 18;
         g2.drawString("E = changer d'arme (temp)", x + 40, ty); ty += 24;
-
-        g2.drawString("Tour / Jeu :", x + 20, ty); ty += 22;
-        g2.drawString("A = fin de tour / nextRound", x + 40, ty); ty += 18;
-        g2.drawString("I = inventaire", x + 40, ty); ty += 18;
-        g2.drawString("ESC = pause/paramètres", x + 40, ty); ty += 18;
-
+        
         // ----- Bouton FERMER -----
         int btnW = 120;
         int btnH = 34;
@@ -90,7 +142,7 @@ public class HelpOverlay extends JComponent {
         closeButtonBounds = new Rectangle(btnX, btnY, btnW, btnH);
         
         // Style du bouton FERMER
-        g2.setColor(new Color(180, 60, 60));
+        g2.setColor(closeHovered ? new Color(200, 80, 80) : new Color(180, 60, 60));
         g2.fillRoundRect(btnX, btnY, btnW, btnH, 12, 12);
 
         g2.setColor(Color.WHITE);

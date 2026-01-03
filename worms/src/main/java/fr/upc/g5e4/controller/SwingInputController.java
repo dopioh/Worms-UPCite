@@ -9,10 +9,6 @@ import org.jbox2d.common.Vec2;
 import fr.upc.g5e4.model.GameManager;
 import fr.upc.g5e4.model.CharacterModel;
 import fr.upc.g5e4.view.*;
-import fr.upc.g5e4.controller.SwingInputController;
-import fr.upc.g5e4.controller.CharacterController;
-
-import javax.swing.JFrame;
 
 /** 
  * Classe pour les Entrées Clavier Souris qui reprend celle de Nassim
@@ -30,10 +26,7 @@ public class SwingInputController extends JPanel{
     private boolean mouseButtonPressed = false;  // regarde si la souris est appuyé
     private double shootingAngle = 0;  // angle de visée en degrés
 
-    private InventoryOverlay inventoryOverlay; 
-    private JFrame gameFrame;
-    private PauseOverlay pauseOverlay;
-    private HelpOverlay helpOverlay;
+    private OverlayManager overlayManager;
 
 
     /**
@@ -93,29 +86,20 @@ public class SwingInputController extends JPanel{
     }
 
     /**
-     * Définit l'overlay d'inventaire pour ce contrôleur.
-     * 
-     * @param overlay l'InventoryOverlay à associer à ce contrôleur
+     * Getter d'inventoryOverlay
+     * @return
      */
-    public void setInventoryOverlay(InventoryOverlay overlay){
-        this.inventoryOverlay = overlay;
+    private InventoryOverlay getInventoryOverlay() {
+        return (overlayManager != null) ? overlayManager.getInventoryOverlay() : null;
     }
 
     /**
-     * Sets the game frame for this controller, allowing it to manage window operations.
-     * @param frame the JFrame instance representing the game window
+     * Définit le gestionnaire d'overlays
+     *
+     * @param overlayManager gestionnaire des overlays
      */
-    public void setGameFrame(JFrame frame){
-        this.gameFrame = frame;
-    }
-
-    public void setPauseOverlay(PauseOverlay overlay) {
-        this.pauseOverlay = overlay;
-    }
- 
-    
-    public void setHelpOverlay(HelpOverlay overlay) {
-        this.helpOverlay = overlay;
+    public void setOverlayManager(OverlayManager overlayManager) {
+        this.overlayManager = overlayManager;
     }
 
     //@Override
@@ -125,7 +109,11 @@ public class SwingInputController extends JPanel{
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                //System.out.println("key pressed");
+                //Overlays bloquent les entrées de gameplay
+                if (overlayManager != null && overlayManager.isBlockingGameplayInput()) {
+                    return;
+                }
+                
                 switch(e.getKeyCode()) {
                     // Personnage
                     case KeyEvent.VK_Q:
@@ -147,75 +135,15 @@ public class SwingInputController extends JPanel{
                         break;
                     
                     // Caméra zoom
-                    case KeyEvent.VK_T:
+                    case KeyEvent.VK_UP:
                         if(cameraController != null) cameraController.zoomIn();
                         break;
-                    case KeyEvent.VK_G:
+                    case KeyEvent.VK_DOWN:
                         if(cameraController != null) cameraController.zoomOut();
                         break;
+
                     case KeyEvent.VK_SPACE:
                         if(cameraController != null) cameraController.centerOnCharacter();
-                        break;
-                    
-                    // modif: A déclenche nextRound
-                    case KeyEvent.VK_A:
-                        if(gameManager != null) gameManager.nextRound();
-                        break;
-
-                    // Changement d'arme (touche E)
-                    case KeyEvent.VK_E:
-                        if(gameManager != null) gameManager.switchWeapon();
-                        System.out.println("switch");
-                        break;
-
-                    // Sauvegarde de la partie actuel
-                    case KeyEvent.VK_J:
-                        gameManager.actionPerformed();
-                        System.out.println("Save Buttun Pressed");
-                        break;
-                    
-                    // Toggle mode vol (touche P)
-                    case KeyEvent.VK_P:
-                        personnageController.toggleFlyMode();
-                        System.out.println("SUPERMAAAAAAAAAAAAN (todo : ajouter cape)");
-                        break;
-                    // Touche Echap pour ouvrir les parametres
-                    case KeyEvent.VK_ESCAPE:
-                        if (pauseOverlay != null) {
-                            boolean v = pauseOverlay.isPauseVisible();
-                            pauseOverlay.setPauseVisible(!v);
-
-                            // si on ferme pause, on ferme aussi help
-                            if (v && helpOverlay != null) {
-                                helpOverlay.setHelpVisible(false);
-                            }
-                        }
-                        break;
-
-                    case KeyEvent.VK_I:
-                        if (inventoryOverlay != null) {
-                        boolean visible = inventoryOverlay.isInventoryVisible();
-                        inventoryOverlay.setInventoryVisible(!visible);
-                        }
-                        break;
-                    
-                    // Touche H pour ajouter un item de test au nametag
-                    case KeyEvent.VK_H:
-                        if (gameManager != null && personnageController != null) {
-                            // Récupérer le worm actif et son index
-                            CharacterModel activeWorm = personnageController.getModel();
-                            int wormIndex = gameManager.getActiveWormIndex();
-                            int teamIndex = gameManager.getCurrentTeamIndex();
-                            
-                            // Récupérer le CharacterView correspondant
-                            fr.upc.g5e4.view.CharacterView charView = null;
-                            charView = gameManager.getListTeamInit().get(teamIndex).getTeamView().getCharacterView(wormIndex);
-                            
-                            if (charView != null) {
-                                charView.getNameTagView().addItemFromResource("/wormPinky.png", "test_item");
-                                System.out.println("Item ajouté au nametag");
-                            }
-                        }
                         break;
                 }
             }
@@ -254,11 +182,19 @@ public class SwingInputController extends JPanel{
             @Override
             public void mousePressed(MouseEvent e) {
                 requestFocusInWindow();  // Récupérer le focus au clic
+
+                if (overlayManager != null) {
+                    // si overlay bloque le gameplay → pas de tir
+                    if (overlayManager.isBlockingGameplayInput()) return;
+
+                    // si clic sur HUD → pas de tir
+                    if (overlayManager.isHudHit(e.getX(), e.getY())) return;
+
+                    // si inventaire ouvert → pas de tir (l'inventaire gère ses clics)
+                    if (overlayManager.isInventoryVisible()) return;
+                }
+
                 if (e.getButton() == MouseEvent.BUTTON1) {
-                    // Vérifier que l'inventaire n'est pas ouvert pour éviter le double tir
-                    if (inventoryOverlay != null && inventoryOverlay.isInventoryVisible()) {
-                        return;  // L'inventaire gère le tir
-                    }
                     mouseButtonPressed = true;
                     updateTrajectoryFromMouse(e.getX(), e.getY());
                 }
@@ -266,6 +202,12 @@ public class SwingInputController extends JPanel{
 
             @Override
             public void mouseReleased(MouseEvent e) {
+                if (overlayManager != null) {
+                    if (overlayManager.isBlockingGameplayInput()) return;
+                    if (overlayManager.isHudHit(e.getX(), e.getY())) return;
+                    if (overlayManager.isInventoryVisible()) return;
+                }
+
                 if (e.getButton() == MouseEvent.BUTTON1 && mouseButtonPressed) {
                     mouseButtonPressed = false;
                     fireWeaponAtAngle(e.getX(), e.getY());
@@ -313,10 +255,11 @@ public class SwingInputController extends JPanel{
             return;
         }
         
-        if (inventoryOverlay != null && inventoryOverlay.getEquippedGadget() != null) {
+        InventoryOverlay inv = getInventoryOverlay();
+        if (inv != null && inv.getEquippedGadget() != null) {
             return;
         }
-        
+
         updateTrajectoryFromMouse(x, y);
     }
     
@@ -330,7 +273,8 @@ public class SwingInputController extends JPanel{
         }
 
         // ne pas afficher la trajectoire si un gadget est équipé
-        if (inventoryOverlay != null && inventoryOverlay.getEquippedGadget() != null) {
+        InventoryOverlay inv = getInventoryOverlay();
+        if (inv != null && inv.getEquippedGadget() != null) {
             return;
         }
 
@@ -398,10 +342,12 @@ public class SwingInputController extends JPanel{
         }
 
         // vérifier si un gadget est équipé au lieu d'une arme
-        if (inventoryOverlay != null && inventoryOverlay.getEquippedGadget() != null) {
-            inventoryOverlay.useEquippedGadget();
+        InventoryOverlay inv = getInventoryOverlay();
+        if (inv != null && inv.getEquippedGadget() != null) {
+            inv.useEquippedGadget();
             return;
         }
+
 
         CharacterModel model = personnageController.getModel();
         
