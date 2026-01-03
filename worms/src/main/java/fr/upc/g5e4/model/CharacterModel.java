@@ -547,7 +547,7 @@ public class CharacterModel{
         System.out.println("[SAVE] " + name + " -> x=" + currentX + ", y=" + currentY);
         System.out.println("[SAVE] " + name + " -> xcord=" + xcord + ", ycord=" + ycord);
 
-        return new CharacterData(ID, name, currentX, currentY, health, shield, isDead, this.facingRight);
+        return new CharacterData(ID, name, currentX, currentY, health, shield, isDead, this.facingRight, jump, speed);
     }
     
     // ==================== Partie qui permet de voir visuellement les status du perso ====================

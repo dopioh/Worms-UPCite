@@ -21,8 +21,8 @@ public class CharacterData {
     private double health;
     private double shield;
 
-    // on met pas speed psq je pars du principe que sans gadget temp 
-    // tous on la meme vitesse
+    private double jump;
+    private double speed;
 
     private boolean isDead;
 
@@ -38,7 +38,7 @@ public class CharacterData {
      * @param shield ses points de bouclier
      * @param isDead son statut (mort ou vivant)
      */
-    public CharacterData(int ID, String name, double xcord, double ycord, double health, double shield, boolean isDead,boolean facingRight){
+    public CharacterData(int ID, String name, double xcord, double ycord, double health, double shield, boolean isDead,boolean facingRight,double jump,double speed){
             this.ID = ID;
             this.name = name;
             this.xcord =xcord;
@@ -47,6 +47,8 @@ public class CharacterData {
             this.shield = shield;
             this.isDead = isDead;
             this.facingRight = facingRight;
+            this.speed = speed;
+            this.jump = jump;
     }
 
     public int getID(){
