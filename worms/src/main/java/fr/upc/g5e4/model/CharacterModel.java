@@ -3,7 +3,7 @@ package fr.upc.g5e4.model;
 import fr.upc.g5e4.model.InventoryModel.InventoryJson;
 
 import org.jbox2d.collision.shapes.CircleShape;
-import org.jbox2d.collision.shapes.PolygonShape;
+//import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.BodyDef;
@@ -12,8 +12,10 @@ import org.jbox2d.dynamics.FixtureDef;
 import org.jbox2d.dynamics.World;
 
 import fr.upc.g5e4.model.io.CharacterData;
+import fr.upc.g5e4.view.CharacterView;
+
 import java.util.ArrayList;
-import java.util.List;
+//import java.util.List;
 
 /**
  * Modèle du Personnage
@@ -67,7 +69,7 @@ public class CharacterModel{
     private static final long STATUS_DURATION = 1000; // en milliseconde 
     
     // buffs temporaires - support multiple buffs simultanés
-    private List<BuffEffect> activeBuffs = new ArrayList<>();
+    private ArrayList<BuffEffect> activeBuffs = new ArrayList<>();
     
     // Référence optionnelle à la vue du worm pour afficher les icônes de buff
     private fr.upc.g5e4.view.CharacterView characterView = null;
@@ -143,7 +145,7 @@ public class CharacterModel{
      * @param isDead true si le worm est mort
      * @param facingRight true si il regarde a droite
      */
-    public CharacterModel(GroundModel model, World world,int ID, String name, double xcord, double ycord, double health, double shield, boolean isDead, boolean facingRight){
+    public CharacterModel(GroundModel model, World world,int ID, String name, double xcord, double ycord, double health, double shield, boolean isDead, boolean facingRight, double speed, double jump, ArrayList<BuffEffect> activeEffects){
         this.model = model;
         this.world = world;
         this.ID = ID;
@@ -152,11 +154,12 @@ public class CharacterModel{
         this.ycord = ycord;
         this.health = health;
         this.shield = shield;
-        this.speed = 4;
-        this.jump = 5.0;
+        this.speed = speed;
+        this.jump = jump;
         this.withCollision = false;
         this.isDead = isDead;
         this.facingRight = facingRight;
+        this.activeBuffs = activeEffects;
 
         if (isDead){
             this.persoBody = null;
@@ -204,7 +207,7 @@ public class CharacterModel{
         return shield;
     }
 
-    public double getSpeed() {
+    public double getSpeed() {  // pq les methodes pour appliquer des buff sont dans des getter ????/
         // nettoie les buffs expirés
         cleanExpiredBuffs();
         
@@ -544,10 +547,20 @@ public class CharacterModel{
             currentX = persoBody.getPosition().x * PPM; 
             currentY = model.getHeight() - (persoBody.getPosition().y * PPM);
         }
+        ArrayList<BuffEffect> savedBuffs = new ArrayList<>();
+        if (this.activeBuffs != null) {
+            for (BuffEffect buff : this.activeBuffs) {
+                if (buff.isActive()) {
+                    // sauvegarde le buff avec le temps restant en pause
+                    savedBuffs.add(new BuffEffect(buff.getType(), buff.getRemainingTime()));
+                }
+            }
+        }
+
         System.out.println("[SAVE] " + name + " -> x=" + currentX + ", y=" + currentY);
         System.out.println("[SAVE] " + name + " -> xcord=" + xcord + ", ycord=" + ycord);
 
-        return new CharacterData(ID, name, currentX, currentY, health, shield, isDead, this.facingRight, jump, speed);
+        return new CharacterData(ID, name, currentX, currentY, health, shield, isDead, this.facingRight, jump, speed, savedBuffs);
     }
     
     // ==================== Partie qui permet de voir visuellement les status du perso ====================
@@ -624,42 +637,34 @@ public class CharacterModel{
     
     // ==================== buffs temporaires ====================
     
-    /**
-     * applique un buff au worm
-     * @param buffType le type de buff à appliquer
-     * @param duration la durée du buff en milliseconde
-     */
-    public void applyBuff(BuffEffect.BuffType buffType, long duration) {
-        activeBuffs.add(new BuffEffect(buffType, duration));
-        buffEffect();  // déclenche l'animation visuelle bleue
-        System.out.println("[BUFF] " + name + " reçoit " + buffType.getName() + " pour " + (duration / 1000.0) + "s");
-    }
+    // -> je (mei) supp la fonction applyBuff qui servait a rien 
+
     
     /**
      * applique un buff speed(vitesse +50%) 
      */
-    public void applySpeedBuff() {
-        activeBuffs.add(new BuffEffect(BuffEffect.BuffType.SPEED_BOOST, 20000));
+    public void applySpeedBuff(int tempsRestant) {
+        activeBuffs.add(new BuffEffect(BuffEffect.BuffType.SPEED_BOOST, tempsRestant));
         speedBuffEffect();  // déclenche l'animation visuelle rose
         System.out.println("[BUFF] " + name + " reçoit Speed Boost pour 20s");
         
         // affichage l'icône de buff speed au NameTag
         if (characterView != null) {
-            characterView.getNameTagView().addItemFromResource("/buffs/speed_buff.png", "speed_buff_icon");
+            characterView.getNameTagView().addItemFromResource("/buffs/speed_buff.png", "speed_buff_icon", tempsRestant);
         }
     }
     
     /**
      * applique un buff jump (saut +50%) pendant 20 secondes
      */
-    public void applyJumpBuff() {
-        activeBuffs.add(new BuffEffect(BuffEffect.BuffType.JUMP_BOOST, 20000));
+    public void applyJumpBuff(int tempsRestant) {
+        activeBuffs.add(new BuffEffect(BuffEffect.BuffType.JUMP_BOOST, tempsRestant));
         jumpBuffEffect();  // déclenche l'animation visuelle jaune
         System.out.println("[BUFF] " + name + " reçoit Jump Boost pour 20s");
         
         // affichage l'icône de buff jump au NameTag
         if (characterView != null) {
-            characterView.getNameTagView().addItemFromResource("/buffs/jump_buff.png", "jump_buff_icon");
+            characterView.getNameTagView().addItemFromResource("/buffs/jump_buff.png", "jump_buff_icon", tempsRestant);
         }
     }
     
@@ -690,7 +695,33 @@ public class CharacterModel{
         }
         return 1.0;
     }
-    
+
+    public ArrayList<BuffEffect> getAllActiveEffects(){
+        return this.activeBuffs;
+    }
+
+    /**
+     * Restaure les effets visuels ET physiques des buffs après un chargement.
+     */
+    public void restoreVisuals(CharacterView cv) {
+        for (BuffEffect buff : activeBuffs) {
+            buff.refreshTimeStart();
+            long remaining = buff.getRemainingTime();
+            if (buff.getType() == BuffEffect.BuffType.SPEED_BOOST) {
+                speedBuffEffect(); 
+                if (cv != null) {
+                    System.out.println(remaining);
+                    cv.getNameTagView().addItemFromResource("/buffs/speed_buff.png", "speed_buff_icon", (int) remaining);
+                }
+            } else if (buff.getType() == BuffEffect.BuffType.JUMP_BOOST) {
+                jumpBuffEffect(); 
+                if (cv != null) {
+                    cv.getNameTagView().addItemFromResource("/buffs/jump_buff.png", "jump_buff_icon", (int) remaining);
+                }
+            }
+        }
+    }
+
 }
 
 

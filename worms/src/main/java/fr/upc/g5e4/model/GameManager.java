@@ -351,6 +351,35 @@ public class GameManager {
         // Mettre à jour l'arme dans la vue
         updateWeaponInView(activeWormController.getModel(), defaultWeapon);
 
+        // on met ici l'update buff si y'en a : 
+        /*
+        try {
+            for (TeamModel tm : listTeamModel){
+            for (CharacterModel cm : tm.getTabWorms()){
+                ArrayList<BuffEffect> allEffects = cm.getAllActiveEffects();
+                for (BuffEffect bfActive : allEffects){
+                    useGadgetDuringSave(bfActive.getType(), bfActive.getRemainingTime(),cm);
+                }
+            }
+        }
+        } catch (Exception e) {
+            System.out.println("[SAVE EFFECT] les saves effects n'ont pas pu etre chargee..");
+            System.out.println("[SAVE EFFECT] " + e.getLocalizedMessage());
+            e.printStackTrace();
+        }
+        */
+
+        // Normalement les index pour cv et cm sont les memes
+        for (TeamInitialisation tm : listTeamInital){
+            TeamModel td = tm.getTeamModel();
+            TeamView tv = tm.getTeamView();
+            for (int i = 0 ; i < td.getTabWorms().length ; i++){
+                CharacterView cv = tv.getCharacterView(i);
+                this.allWorms[i].restoreVisuals(cv);
+            }
+        }
+        
+
         // Initialisation caméra avec le worm actif (fenêtre 1280x720, terrain 6000x720)
         this.cameraController = new CameraController(camera,listTeamInital.get(currentTeamIndex).getTeamModel().getWorm(activeWormIndex));
         
@@ -954,7 +983,7 @@ public class GameManager {
                 }
                 break;
             case "PotionSpeed":
-                currentWorm.applySpeedBuff();
+                currentWorm.applySpeedBuff(20000);
                 // ajouter l'étiquette via la vue du worm avec timer (20 secondes)
                 if (charView != null) {
                     charView.getNameTagView().addItemFromResource("/buffs/speed_buff.png", "speed_buff_icon", 20000);
@@ -968,7 +997,7 @@ public class GameManager {
                 }
                 break;
             case "PotionJump":
-                currentWorm.applyJumpBuff();
+                currentWorm.applyJumpBuff(20000);
                 // ajouter l'étiquette via la vue du worm avec timer (20 secondes)
                 if (charView != null) {
                     charView.getNameTagView().addItemFromResource("/buffs/jump_buff.png", "jump_buff_icon", 20000);
@@ -988,6 +1017,50 @@ public class GameManager {
                 // enregistrer l'utilisation du gadget
                 if (gadgetFromInventory != null && gadgetFromInventory.canUseThisTurn()) {
                     gadgetFromInventory.registerUseThisTurn();
+                }
+                break;
+            default:
+                System.out.println("[Gadget] Gadget inconnu : " + itemName);
+                break;
+        }
+    }
+
+    /**
+     * Methode pour recuperer les buff actif apres le load d'une save
+     * @param itemName
+     * @param tempsRestant
+     */
+    public void useGadgetDuringSave(BuffEffect.BuffType itemName,long tempsRestantL, CharacterModel cm){
+        int tempsRestant = (int) tempsRestantL;
+
+        CharacterModel currentWorm = cm;
+        
+        // récupérer la vue du worm pour ajouter l'étiquette au nametag et afficher le sprite du gadget
+        fr.upc.g5e4.view.CharacterView charView = null;
+        int wormIndex = getActiveWormIndex();
+        int teamIndex = getCurrentTeamIndex();
+        if (wormIndex >= 0 && teamIndex >= 0 && teamIndex < getListTeamInit().size()) {
+            charView = getListTeamInit().get(teamIndex).getTeamView().getCharacterView(wormIndex);
+        }   
+        
+        // afficher le sprite du gadget
+        //if (charView != null) {
+        //    charView.setCurrentGadgetSprite(itemName);
+        //}
+
+        switch (itemName) {
+            case BuffEffect.BuffType.SPEED_BOOST:
+                currentWorm.applySpeedBuff(tempsRestant);
+                // ajouter l'étiquette via la vue du worm avec timer (20 secondes)
+                if (charView != null) {
+                    charView.getNameTagView().addItemFromResource("/buffs/speed_buff.png", "speed_buff_icon", tempsRestant);
+                }
+                break;
+            case BuffEffect.BuffType.JUMP_BOOST:
+                currentWorm.applyJumpBuff(tempsRestant);
+                // ajouter l'étiquette via la vue du worm avec timer (20 secondes)
+                if (charView != null) {
+                    charView.getNameTagView().addItemFromResource("/buffs/jump_buff.png", "jump_buff_icon", tempsRestant);
                 }
                 break;
             default:
