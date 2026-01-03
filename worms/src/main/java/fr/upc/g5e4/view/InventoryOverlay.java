@@ -419,7 +419,7 @@ public class InventoryOverlay extends JComponent {
         if (currentCategory == Category.BOUTIQUE) {
             int btnHeight = 28;
             int btnMargin = 12;
-            int nameSpacing = 30; // Espace pour le nom et le prix
+            int nameSpacing = 30;
             int totalCellHeight = CELL_SIZE + nameSpacing + btnHeight + btnMargin + CELL_GAP;
             
             for (int i = 0; i < shopItems.size(); i++) {
@@ -537,8 +537,6 @@ public class InventoryOverlay extends JComponent {
                 }
             }
             
-            // Restaurer le clip
-            g2.setClip(null);
         } else {
             // Affichage normal pour armes et gadgets
             for (int i = 0; i < lastFiltered.size(); i++) {

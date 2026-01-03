@@ -19,23 +19,18 @@
       "unlocked": true
     },
     {
-      "skinName": "Base",
-      "filePath": "/wormPixel.png",
+      "skinName": "Worm Nerd Edition",
+      "filePath": "/wormNerd.png",
+      "unlocked": true
+    },
+    {
+      "skinName": "Worm Costard Edition",
+      "filePath": "/wordCostard.png",
       "unlocked": false
     },
     {
-      "skinName": "Base",
-      "filePath": "/wormPixel.png",
-      "unlocked": false
-    },
-    {
-      "skinName": "Base",
-      "filePath": "/wormPixel.png",
-      "unlocked": false
-    },
-    {
-      "skinName": "Base",
-      "filePath": "/wormPixel.png",
+      "skinName": "Worm Cuisto Edition",
+      "filePath": "/wormCuisto.png",
       "unlocked": false
     }
   ],

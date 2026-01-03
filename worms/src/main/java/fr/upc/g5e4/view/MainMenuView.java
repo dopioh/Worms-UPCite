@@ -41,7 +41,6 @@ public class MainMenuView extends JPanel {
     private JLabel titleLabel;
     private TutorialOverlay tutorialOverlay;
     private JPanel centerPanel;
-    private JPanel background;
     private BufferedImage backgroundImage;
 
     public MainMenuView() {
@@ -129,15 +128,10 @@ public class MainMenuView extends JPanel {
         // Utilise un layout null pour positionnement absolu
         setLayout(null);
         setOpaque(true);
-
-        // Créer le panel de fond
-        background = new JPanel();
-        background.setLayout(null);
-        background.setOpaque(false);
-
+        
         // Bouton tutoriel "?" en bas à droite
         btnTutorial = createTutorialButton();
-        background.add(btnTutorial);
+        add(btnTutorial);
         
         // Panel au centre avec titre et boutons
         centerPanel = new JPanel();
@@ -162,18 +156,15 @@ public class MainMenuView extends JPanel {
         centerPanel.add(Box.createVerticalStrut(10));
         centerPanel.add(btnQuit);
         
-        background.add(centerPanel);
+        add(centerPanel);
         
         tutorialOverlay = new TutorialOverlay();
         tutorialOverlay.setVisible(false);
         tutorialOverlay.setOnClose(() -> tutorialOverlay.setVisible(false));
-        background.add(tutorialOverlay);
+        add(tutorialOverlay);
         
         // dessiner l'overlay tutoriel par dessus tout les autres composants
-        background.setComponentZOrder(tutorialOverlay, 0);
-        
-        // Ajouter le background au MainMenuView
-        add(background);
+        setComponentZOrder(tutorialOverlay, 0);
     }
 
     private void setupLayout() {
@@ -192,12 +183,7 @@ public class MainMenuView extends JPanel {
     private void repositionComponents() {
         int width = getWidth();
         int height = getHeight();
-        
-        // Positionner le background pour qu'il remplisse toute la fenêtre
-        if (background != null) {
-            background.setBounds(0, 0, width, height);
-        }
-        
+                
         // le panel au centre
         int centerPanelWidth = 400;
         int centerPanelX = (width - centerPanelWidth) / 2;
