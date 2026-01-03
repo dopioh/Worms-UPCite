@@ -233,15 +233,15 @@ public class SwingInputController extends JPanel{
                         break;
 
                     // Caméra déplacements
-                    case KeyEvent.VK_LEFT:
-                        if(cameraController != null) cameraController.activateLeft();
-                        break;
-                    case KeyEvent.VK_RIGHT:
-                        if(cameraController != null) cameraController.activateRight();
-                        break;
-                    case KeyEvent.VK_SPACE:
-                        if(cameraController != null) cameraController.centerOnCharacter();
-                        break;
+                    // case KeyEvent.VK_LEFT:
+                    //     if(cameraController != null) cameraController.activateLeft();
+                    //     break;
+                    // case KeyEvent.VK_RIGHT:
+                    //     if(cameraController != null) cameraController.activateRight();
+                    //     break;
+                    // case KeyEvent.VK_SPACE:
+                    //     if(cameraController != null) cameraController.centerOnCharacter();
+                    //     break;
                 }
             }
             
@@ -259,12 +259,12 @@ public class SwingInputController extends JPanel{
                     case KeyEvent.VK_Z:
                         personnageController.deactivateJump();
                         break;
-                    case KeyEvent.VK_LEFT:
-                        if(cameraController != null) cameraController.deactivateLeft();
-                        break;
-                    case KeyEvent.VK_RIGHT:
-                        if(cameraController != null) cameraController.deactivateRight();
-                        break;
+                    // case KeyEvent.VK_LEFT:
+                    //     if(cameraController != null) cameraController.deactivateLeft();
+                    //     break;
+                    // case KeyEvent.VK_RIGHT:
+                    //     if(cameraController != null) cameraController.deactivateRight();
+                    //     break;
                 }
             }
         });
