@@ -71,47 +71,6 @@
 
 ### Added
 
-<<<<<<< HEAD
-### Fixed
-- `.jar` injouable
-
---------- a completer ----------
-
-## [v.0.4 : SPRINT 4](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/4) 
----
-
-### Added
-- Nametag
-    - Affichage des itemes (potions...) sur le nametag
-- Nouveau systeme de map 
-    - MAP en tableau 2D remplie d'objet "block"
-- **Cinématique d'introduction** : Intro cinématique avec barre de chargement cartoon et messages    synchronisés
-- Ajout du fichier LoadingBarPanel.java
-- **Écran de fin de partie avec animation**
-  - Animation des worms gagnants marchant vers le trophée
-  - Affichage des statistiques de jeu (dégâts, précision de tir, éliminations, rounds joué)
-  - Particules et effets visuels
-  - Bouton retour au menu
-  - Support du plein écran
-  - Support du N equipe
-  - Stat box glissable avec scroll
-- Système de statistiques pour tracker des actions pendant la partie
-- Endroit pour stocker les paramètres du jeu
-    - `current_skin`
-- Ajout Sprite `wormPixel.png` dans `ressources`
-- Une sauvegarde peut desormais etre lancer depuis le menu d'acceuil en cliquant sur "Poursuivre une partie"
-- Possibilitee de tirer/faire des degats/tuer un worm dans la version Console du jeu (tire assez limiter)
-- **Diagramme de classes** : Ajout et documentation du diagramme de classes du projet (GameManager, GameLoop, GamePanel, etc.)
-- **Système de configuration de terrains** : Nouvelle classe MapConfig pour gérer les types et tailles de maps
-    - 4 types de terrains disponibles :
-        - STANDARD : Terrain avec plateformes de spawn (mode original)
-        - MOUNTAINS : Hautes montagnes avec relief prononcé
-        - ISLANDS : Terrain wavy avec zones d'eau au centre pour éviter les spawn kills
-        - FLAT : Terrain complètement plat
-    - 3 tailles de maps : SMALL (800x720), MEDIUM (1280x720), LARGE (1700x720)
-- Ajout de la dégradation de la map
-- Ajout d'une courbe pour la trajectoire de la map
-=======
 - Mode plein écran (16:9)
 - MAP procédurale avec bruit de Perlin
 - Sprites pour les worms via le constructeur d'équipe
@@ -130,7 +89,6 @@
 - Constructeurs `TeamView` et `CharacterView` avec chemin vers sprite
 - Fonction `loadSprite` avec gestion d'erreurs
 - Affichage du sprite dans la bonne direction
->>>>>>> dev
 
 ### Modified
 
@@ -219,6 +177,8 @@
 - Fix tir lié au zoom
 - body des blocks invisible après destruction
 - l'image de fond dans main menu qui ne redimentionne pas bien lors du passage en full screen sur un grand ecran
+- fix `player_save.txt` quand le dossier `sauvegardes` n'existe pas
+- fix save pour ajouter les buffs
 
 ### Modified
 
@@ -226,3 +186,4 @@
 - Maj du DIAGRAMME.MD
 - Maj du ARCHITECTURE.md
 - Amélioration de CHANGELOG.md
+- Remonte le niveau de l'eau 
