@@ -690,6 +690,7 @@ public class GameManager {
         }
         //switch worm dans cette équipe
         switchToNextWorm(currentTeam);
+        unequipActiveWorm();
         System.out.println("Round " + roundNumber + " - Equipe active :  Team " + (currentTeamIndex + 1));
     }
     
@@ -826,45 +827,37 @@ public class GameManager {
         return (team != null) ? team.getInventory() : null;
     }
 
-    private void resetCurrentTeamInventoryTurn() {
-        TeamModel team = getCurrentTeam();
-        if (team != null) {
-            team.resetInventoryTurn();
+    // On passe la partie inventaire overlay ici (precedemment dans Gamelauncher)
+    public void initialiseInventory() {
+        try {
+            InventoryRoot root = InventoryModel.load("/inventory.json");
+
+            for (TeamInitialisation ti : listTeamInital) {
+                java.util.List<InventoryJson> teamInventory = copyInventory(root.inventory);
+                ti.getTeamModel().setInventory(teamInventory);
+            }
+
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
         }
     }
 
-    // On passe la partie inventaire overlay ici (precedemment dans Gamelauncher)
-    public void initialiseInventory(){
+    private java.util.List<InventoryJson> copyInventory(java.util.List<InventoryJson> src) {
+        java.util.List<InventoryJson> res = new java.util.ArrayList<>();
+        for (InventoryJson it : src) {
+            InventoryJson c = new InventoryJson();
+            c.objectType = it.objectType;
+            c.name = it.name;
+            c.maxUsages = it.maxUsages;
+            c.isInfinite = it.isInfinite;
+            c.remainingUses = (it.remainingUses == null) ? null : Integer.valueOf(it.remainingUses);
 
-            try {
-                InventoryRoot root = InventoryModel.load("/inventory.json");
-                int index = 0;
-
-                for (TeamInitialisation tm : listTeamInital){
-                    java.util.List<InventoryJson> teamInventory = copyInventory(root.inventory);
-                    listTeamInital.get(index).getTeamModel().setInventory(teamInventory);
-                    index++;
-                }
-            } catch (IOException e) {
-                System.out.println(e.getMessage());
-            }
-        
+            c.useThisTurn = 0;
+            res.add(c);
+        }
+        return res;
     }
 
-    private java.util.List<InventoryModel.InventoryJson> copyInventory(java.util.List<InventoryModel.InventoryJson> src) {
-                java.util.List<InventoryModel.InventoryJson> res = new java.util.ArrayList<>();
-                for (InventoryModel.InventoryJson it : src) {
-                    InventoryModel.InventoryJson c = new InventoryModel.InventoryJson();
-                    c.objectType = it.objectType;
-                    c.name = it.name;
-                    c.maxUsages = it.maxUsages;
-                    c.isInfinite = it.isInfinite;
-                    c.remainingUses = it.remainingUses;
-                    // useThisTurn reste à 0
-                    res.add(c);
-                }
-                return res;
-            }
     /**
      * Construit une ArrayList de tous les vers de toutes les équipes
      * Utile pour le WaterSensorListener et autres systèmes globaux
@@ -920,6 +913,17 @@ public class GameManager {
     private CharacterModel[] buildAllWormsArray() {
         ArrayList<CharacterModel> wormsList = buildAllWormsList();
         return wormsList.toArray(new CharacterModel[0]);
+    }
+
+    /**
+     * Déséquipe le worm actif
+     */
+    private void unequipActiveWorm() {
+        if (activeWormController == null) return;
+        activeWormController.setCurrentWeapon(null);
+        try {
+            activeWormController.setEquippedInventoryItem(null);
+        } catch (Exception ignored) {}
     }
 
 }

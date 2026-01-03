@@ -243,14 +243,14 @@ public class GameLauncher{
         windOverlay = new WindOverlay(gameManager.getWindModel());
         windOverlay.setBounds(0, 0, width, height);
 
-        hudOverlay = new HUDOverlay(gameManager);
-        hudOverlay.setBounds(0, 0, width, height);
-        hudOverlay.setInventoryOverlay(inventoryOverlay);
-
         inventoryOverlay = new InventoryOverlay(new java.util.ArrayList<>());
         inventoryOverlay.setBounds(0, 0, width, height);
         inventoryOverlay.setGameManager(gameManager);
         inventoryOverlay.setInventory(gameManager.getCurrentTeam().getInventory());
+    
+        hudOverlay = new HUDOverlay(gameManager);
+        hudOverlay.setBounds(0, 0, width, height);
+        hudOverlay.setInventoryOverlay(inventoryOverlay);
 
         pauseOverlay = new PauseOverlay();
         pauseOverlay.setBounds(0, 0, width, height);
@@ -293,7 +293,14 @@ public class GameLauncher{
         //Update de l'inventaire à chaque changement de round
         this.gameLoop.setOnRoundChanged(() -> {
             inventoryOverlay.setInventory(gameManager.getCurrentTeam().getInventory());
+            inventoryOverlay.clearEquipped();
             overlayManager.setInventoryVisible(false);
+            if (hudOverlay != null) {
+                hudOverlay.repaint();
+            }
+            if (overlayManager != null) {
+                overlayManager.bringToFront();
+            }
         });
         
         // Timer pour vérifier la fin de partie

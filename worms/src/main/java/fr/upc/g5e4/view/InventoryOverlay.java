@@ -457,7 +457,8 @@ public class InventoryOverlay extends JComponent {
      * @param visible true pour afficher l'inventaire, false pour le masquer
      */
     public void setInventoryVisible(boolean visible){
-        this.visible = visible;super.setVisible(visible);
+        this.visible = visible;
+        super.setVisible(visible);
 
         if (visible) {
             computeLayout();
@@ -565,6 +566,16 @@ public class InventoryOverlay extends JComponent {
         int closeY = panelY + 10;
         closeButtonBounds = new Rectangle(closeX, closeY, closeSize, closeSize);
 
+    }
+
+    /**
+     * Déséquippe l'item
+     */
+    public void clearEquipped() {
+        equippedItemKey = null;
+        equippedItem = null;
+        selectedIndex = -1;
+        repaint();
     }
 
     /**
