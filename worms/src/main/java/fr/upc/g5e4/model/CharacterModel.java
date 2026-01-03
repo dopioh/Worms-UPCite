@@ -705,15 +705,18 @@ public class CharacterModel{
      */
     public void restoreVisuals(CharacterView cv) {
         for (BuffEffect buff : activeBuffs) {
+            System.out.println("[RestoreVisuals] Called pour la cv : " + cv);
             buff.refreshTimeStart();
             long remaining = buff.getRemainingTime();
             if (buff.getType() == BuffEffect.BuffType.SPEED_BOOST) {
+                System.out.println("[RestoreVisuals] BuffType SPEED : Called pour la cv : " + cv);
                 speedBuffEffect(); 
                 if (cv != null) {
                     System.out.println(remaining);
                     cv.getNameTagView().addItemFromResource("/buffs/speed_buff.png", "speed_buff_icon", (int) remaining);
                 }
             } else if (buff.getType() == BuffEffect.BuffType.JUMP_BOOST) {
+                System.out.println("[RestoreVisuals] BuffType JUMP : Called pour la cv : " + cv);
                 jumpBuffEffect(); 
                 if (cv != null) {
                     cv.getNameTagView().addItemFromResource("/buffs/jump_buff.png", "jump_buff_icon", (int) remaining);

@@ -123,7 +123,7 @@ public class GameManager {
         int sizeX = MapConfig.getMapWidth();
         int sizeY = MapConfig.getMapHeight();
         // Eau uniquement pour le mode ISLANDS
-        int waterLevel = (MapConfig.getMapType() == MapConfig.MapType.ISLANDS) ? 480 : sizeY + 100;
+        int waterLevel = (MapConfig.getMapType() == MapConfig.MapType.ISLANDS) ? 480 : sizeY - 100;
         // =============================================
         
         // generation procédurale du terrain avec seed (le temps de la machine)
@@ -351,31 +351,18 @@ public class GameManager {
         // Mettre à jour l'arme dans la vue
         updateWeaponInView(activeWormController.getModel(), defaultWeapon);
 
-        // on met ici l'update buff si y'en a : 
-        /*
-        try {
-            for (TeamModel tm : listTeamModel){
-            for (CharacterModel cm : tm.getTabWorms()){
-                ArrayList<BuffEffect> allEffects = cm.getAllActiveEffects();
-                for (BuffEffect bfActive : allEffects){
-                    useGadgetDuringSave(bfActive.getType(), bfActive.getRemainingTime(),cm);
-                }
-            }
-        }
-        } catch (Exception e) {
-            System.out.println("[SAVE EFFECT] les saves effects n'ont pas pu etre chargee..");
-            System.out.println("[SAVE EFFECT] " + e.getLocalizedMessage());
-            e.printStackTrace();
-        }
-        */
-
         // Normalement les index pour cv et cm sont les memes
-        for (TeamInitialisation tm : listTeamInital){
-            TeamModel td = tm.getTeamModel();
-            TeamView tv = tm.getTeamView();
-            for (int i = 0 ; i < td.getTabWorms().length ; i++){
+        for (TeamInitialisation tm : listTeamInital) {
+                TeamModel td = tm.getTeamModel();
+                TeamView tv = tm.getTeamView();
+    
+            // on parcourt les worms de CETTE equipe specifique
+            for (int i = 0; i < td.getTabWorms().length; i++) {
                 CharacterView cv = tv.getCharacterView(i);
-                this.allWorms[i].restoreVisuals(cv);
+    
+                CharacterModel currentWorm = td.getTabWorms()[i]; 
+
+                currentWorm.restoreVisuals(cv);
             }
         }
         
