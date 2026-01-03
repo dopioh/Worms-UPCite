@@ -6,42 +6,45 @@
 ### Added
 
 - Création de la base Maven
+
+### Added
 - CONTRIBUTING.md
 - .gitignore
 - LICENSE (MIT)
 - gitlab-ci.yml
 - DESIGN.md
 
+
 ## [v.0.1 : SPRINT 1](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/1)
 ---
 
-### Added
+### Added Java
 
-- Format **MVC**
-- Tests unitaires pour une grande partie des classes
-- La physique du jeu (gravité et eau qui détruit le worms)
-- GameManager, GameLoop et GameLauncher pour lancer une partie
-    - GameManager : génère tous les éléments nécessaires (physique, perso, etc.)
-    - GameLoop : Timer principal du jeu (60 fps)
-    - GameLauncher : initialise GameManager et GameLoop
-- Un Worms (Character, carré rouge initialement)
-    - Peut se déplacer et sauter
-    - Intégré à la physique du monde
+- format **MVC** 
+- Des tests unitaires pour une grande partie des classes  
+- La physique du jeu (Gravite et eau qui detruit le worms)  
+- GameManager, GameLoop et GameLauncher initialiser pour lancer une partie  
+    - GameManager : genere tous les elements que necessite une partie (physique, perso etc)  
+    - GameLoop : Timer principale du jeu (60 fps) pour faire avancer la partie  
+    - GameLauncher : initialise GameManager et GameLoop pour lancer une partie (avec ou sans fenetre)  
+- Un Worms (pour le moment Character, est un carre rouge)  
+    - Peut se deplacer et sauter
+    - Est integrer a la physique du monde
 - Classe Item
-    - Weapons : AK-47, Grenade, Rocket Launcher, Baseball Bat
-    - Gadget : Bumper
-- Classe Inventaire
+    - Weapon (AK-47, Grenade, Rocket Launcher, Baseball Bat)
+    - Gadget (Bumper)
+- Classe inventaire
 - Classe Donnée Joueur
-    - Système de sauvegarde (JSON)
+    - Système de sauvegarde des données (JSON)
 - Classe Camera
 
-### Configuration
+### Added/Modified Configuration
 
-- Passage du projet sur **Java 23** (anciennement Java 17)
-- Modification de pom.xml
-    - Ajout de plugins et de librairies
-- Modification de gitlab-ci.yml
-    - Ajout de la phase `deploy` qui génère un .jar
+- Passage du projet sur **Java 23** (anciennement Java 17)  
+ - Modification de pom.xml  
+    - Ajout de plugin et de librairies  
+- Modification de gitlab-ci.yml  
+    - Ajout de la phase `deploy`, qui genere un .jar
 
 
 ## [v.0.2 : SPRINT 2](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/2)
@@ -118,37 +121,24 @@
     - Présentation du terrain et conditions météo
     - Effets de fade et transitions fluides
 - Nametag
-    - Affichage des items (potions, etc.)
-- Nouveau système de map (tableau 2D de blocks)
-- Écran de fin de partie
-    - Animation des worms gagnants vers le trophée
-    - Statistiques de jeu (dégâts, précision, éliminations, rounds)
-    - Particules et effets visuels
-    - Bouton retour au menu
-    - Support N équipes et plein écran
-    - Stat box scrollable
-- Système de statistiques pendant la partie
-- Paramètres du jeu (`current_skin`)
-- Chargement des sauvegardes depuis le menu ("Poursuivre une partie")
-- Tir/dégâts dans la version Console
-
-### Modified
-
-- Support pour N équipes (au lieu de 2 hardcodées)
-    - Refactorisation GameManager, GameLoop et GamePanel avec listes dynamiques
-- Nametag : HP et Shield en barres horizontales (au lieu de chiffres)
-- `CONTRIBUTING.md` : Guide nametag
-- Touche plein écran : `F` (au lieu de F11)
-- Physique de recul sur les worms touchés
+    - Affichage de HP et Shield en chiffre -> barre horizontale
+- `CONTRIBUTING.md`
+    - Guide d'utilisation sur le nametag
+- Touche full screen F11 -> F
+- Implémentation de la physique de recul sur les worms touchés
+- Support pour N équipes au lieu de 2 équipes hardcodées
+    - Refactorisation de GameManager, GameLoop et GamePanel pour utiliser des listes dynamiques
+    - Possibilité d'ajouter dynamiquement des équipes via GameManager.addTeam()
 
 ### Fixed
-
-- Tout le jeu en une seule fenêtre
+- Tout le jeu est désormais en une seule fenêtre
 - Emplacement overlay vent
-- Système de map avec tableau 2D
-- N équipes fonctionnelles
-- Retour aux mouvements originaux et du saut (`Z`)
-- Initialisation overlay Inventaire dans GameManager
+- Nouveau systeme de map 
+    - MAP en tableau 2D remplie d'objet "block"
+- **N equipes** fonctionnelles desormais (2 auparavant)
+- Retour aux mouvements originaux
+- Retour du saut (avec Z)
+- Initialisation de l'overlay Inventaire decaler dans GameManager (precedemment GameLauncher)
 
 ### Optimisation
 
@@ -159,7 +149,6 @@
 
 
 ## [v.0.5 : SPRINT 5](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/5) (unreleased)
----
 
 ### Added
 
