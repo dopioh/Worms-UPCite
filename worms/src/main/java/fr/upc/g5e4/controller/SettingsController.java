@@ -51,6 +51,14 @@ public class SettingsController {
         };
         view.getTerrainComboBox().setSelectedItem(terrainText);
         
+        // Initialiser le style de fond
+        MapConfig.BackgroundStyle currentStyle = MapConfig.getBackgroundStyle();
+        String styleText = switch (currentStyle) {
+            case JOUR -> "Jour";
+            case NUIT -> "Nuit";
+        };
+        view.getStyleComboBox().setSelectedItem(styleText);
+        
         // Mettre à jour l'aperçu avec les valeurs actuelles
         view.updateMapPreview();
     }
@@ -102,6 +110,10 @@ public class SettingsController {
             PauseOverlay po = gameLauncher.getPauseOverlay();
             if (po != null) po.setFullScreenOn(fs);
         });
+
+        view.getStyleComboBox().addActionListener(e -> {
+            handleStyleChange();
+        });
     }
     
     /**
@@ -133,6 +145,20 @@ public class SettingsController {
         };
         MapConfig.setMapType(newType);
         System.out.println("Type de terrain changé: " + newType);
+    }
+    
+    /**
+     * Gère le changement de style de fond
+     */
+    private void handleStyleChange() {
+        String selected = (String) view.getStyleComboBox().getSelectedItem();
+        MapConfig.BackgroundStyle newStyle = switch (selected) {
+            case "Jour" -> MapConfig.BackgroundStyle.JOUR;
+            case "Nuit" -> MapConfig.BackgroundStyle.NUIT;
+            default -> MapConfig.BackgroundStyle.JOUR;
+        };
+        MapConfig.setBackgroundStyle(newStyle);
+        System.out.println("Style de fond changé: " + newStyle);
     }
     
     /**

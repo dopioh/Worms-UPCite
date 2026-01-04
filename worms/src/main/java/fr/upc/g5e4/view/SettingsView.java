@@ -305,10 +305,10 @@ public class SettingsView extends JPanel {
         terrainComboBox.setPreferredSize(new Dimension(220, 50));
         terrainComboBox.setMaximumSize(new Dimension(220, 50));
         
-        // Options de style
-        String[] styles = {"Grotte"};
+        // Options de style de fond
+        String[] styles = {"Jour", "Nuit"};
         styleComboBox = new PillComboBox<>(styles);
-        styleComboBox.setSelectedItem("Grotte");
+        styleComboBox.setSelectedItem("Jour");
         styleComboBox.setPreferredSize(new Dimension(220, 50));
         styleComboBox.setMaximumSize(new Dimension(220, 50));
         
