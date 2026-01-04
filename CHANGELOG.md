@@ -187,6 +187,7 @@
 - Dégâts de zone 
 - Readme.md expliquant le projet (comment jouer etc)
 - Ajout d'un pointeur graphique (flèche rouge) au-dessus du joueur actif
+- AUTHORS.md
 
 ### Modified
 

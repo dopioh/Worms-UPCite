@@ -5,14 +5,14 @@ Jeu 2D de type [Worms](https://fr.wikipedia.org/wiki/Worms_(jeu_vidéo)) dévelo
 ## Prérequis
 
 - **Java 23** ou supérieur
-- **Apache Maven 3.6+**
+- **Apache Maven** (version récente recommandée)
 
 ## Compilation
 
 Depuis le répertoire racine du projet, naviguez vers le dossier `worms` et compilez avec Maven :
 
 ```bash
-cd worms
+cd wormss
 mvn clean package
 ```
 
