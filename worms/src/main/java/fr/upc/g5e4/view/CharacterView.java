@@ -371,7 +371,6 @@ public class CharacterView {
     }
     
     /**
-<<<<<<< HEAD
      * envoie la couleur du worm selon son statut d'effet
      * @param model modèle du worm
      * @return la couleur à utiliser pour le dessin
