@@ -20,6 +20,8 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import fr.upc.g5e4.util.ImageCache;
+
 import fr.upc.g5e4.view.UI.*;;
 
 
@@ -35,10 +37,11 @@ public class MainMenuView extends JPanel {
 
     private JButton btnNewGame;
     private JButton btnResume;
+    private JButton btnHowToPlay;
     private JButton btnConfig;
     private JButton btnQuit;
     private JLabel titleLabel;
-    private ShopView shopView;
+    private TutorialOverlay tutorialOverlay;
     private JPanel centerPanel;
     private BufferedImage backgroundImage;
 
@@ -91,8 +94,11 @@ public class MainMenuView extends JPanel {
         try {
             java.net.URL url = getClass().getResource("/background.png");
             if (url != null) {
-                backgroundImage = ImageIO.read(url);
+            backgroundImage = ImageCache.get("/background.png");
+            if (backgroundImage == null) {
+                System.err.println("Impossible de charger le fond du menu principal");
             }
+        }
         } catch (Exception e) {
             System.err.println("Erreur lors du chargement de l'image de fond: " + e.getMessage());
         }
@@ -116,7 +122,7 @@ public class MainMenuView extends JPanel {
         }
         
         // Mettre à jour les boutons
-        JButton[] buttons = {btnNewGame, btnResume, btnConfig, btnQuit};
+        JButton[] buttons = {btnNewGame, btnResume, btnHowToPlay, btnConfig, btnQuit};
         for (JButton btn : buttons) {
             btn.setFont(new Font("Arial", Font.BOLD, fontSize));
             btn.setMaximumSize(new Dimension(buttonWidth, buttonHeight));
@@ -127,10 +133,6 @@ public class MainMenuView extends JPanel {
         // Utilise un layout null pour positionnement absolu
         setLayout(null);
         setOpaque(true);
-
-        // Boutique à gauche en position absolue
-        shopView = new ShopView();
-        add(shopView);
         
         // Panel au centre avec titre et boutons
         centerPanel = new JPanel();
@@ -143,6 +145,7 @@ public class MainMenuView extends JPanel {
         // Création des boutons
         btnNewGame = createMenuButton("Nouvelle Partie");
         btnResume = createMenuButton("Poursuivre une partie");
+        btnHowToPlay = createMenuButton("Comment jouer");
         btnConfig = createMenuButton("Reglages");
         btnQuit = createMenuButton("Quitter");
 
@@ -151,11 +154,21 @@ public class MainMenuView extends JPanel {
         centerPanel.add(Box.createVerticalStrut(10));
         centerPanel.add(btnResume);
         centerPanel.add(Box.createVerticalStrut(10));
+        centerPanel.add(btnHowToPlay);
+        centerPanel.add(Box.createVerticalStrut(10));
         centerPanel.add(btnConfig);
         centerPanel.add(Box.createVerticalStrut(10));
         centerPanel.add(btnQuit);
         
         add(centerPanel);
+        
+        tutorialOverlay = new TutorialOverlay();
+        tutorialOverlay.setVisible(false);
+        tutorialOverlay.setOnClose(() -> tutorialOverlay.setVisible(false));
+        add(tutorialOverlay);
+        
+        // dessine par dessus les composants
+        setComponentZOrder(tutorialOverlay, 0);
     }
 
     private void setupLayout() {
@@ -174,14 +187,14 @@ public class MainMenuView extends JPanel {
     private void repositionComponents() {
         int width = getWidth();
         int height = getHeight();
-        
-        // la boutique à gauche
-        shopView.setBounds(20, 100, 350, Math.min(520, height - 200));
-        
+                
         // le panel au centre
         int centerPanelWidth = 400;
         int centerPanelX = (width - centerPanelWidth) / 2;
         centerPanel.setBounds(centerPanelX, 20, centerPanelWidth, height - 40);
+        
+        // position de l'overlay tuto au centre de la fenetre
+        tutorialOverlay.setBounds(0, 0, width, height);
     }
 
     private void addTitle(JPanel parent) {
@@ -237,7 +250,11 @@ public class MainMenuView extends JPanel {
         return btnQuit;
     }
     
-    public ShopView getShopView() {
-        return shopView;
+    public JButton getBtnHowToPlay() {
+        return btnHowToPlay;
+    }
+    
+    public TutorialOverlay getTutorialOverlay() {
+        return tutorialOverlay;
     }
 }

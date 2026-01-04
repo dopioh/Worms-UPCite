@@ -37,12 +37,11 @@ public class MainMenuController {
             }
         });
         view.getBtnResume().addActionListener(e -> resumeGame());
+        view.getBtnHowToPlay().addActionListener(e -> openTutorial());
         view.getBtnConfig().addActionListener(e -> openConfig());
         view.getBtnQuit().addActionListener(e -> quitGame());
         
-        // Bouton d'achat de la boutique
-        view.getShopView().getBuyButton().addActionListener(e -> handlePurchase());
-    }
+   }
 
     private void startNewGame() throws IOException {
         // Utilise le GameLauncher existant pour basculer vers le jeu
@@ -92,16 +91,10 @@ public class MainMenuController {
         gameLauncher.showSettings(settingsController.getView());
     }
 
-    private void handlePurchase() {
-        // TODO: Implémenter la logique
-        // verif si le joueur a assez d'argent
-        // ajouter l'item à l'inventaire
-        
-        JOptionPane.showMessageDialog(gameLauncher.getMainFrame(), 
-            "Achat effectué avec succès !", 
-            "Boutique", 
-            JOptionPane.INFORMATION_MESSAGE);
+    private void openTutorial() {
+        view.getTutorialOverlay().setVisible(true);
     }
+
 
     private void quitGame() {
         System.exit(0);

@@ -1,4 +1,3 @@
-// File: fr/upc/g5e4/model/GameLoop.java
 package fr.upc.g5e4.model;
 
 //import fr.upc.g5e4.controller.*;
@@ -23,13 +22,21 @@ public class GameLoop{
 
     // 30s à 60 FPS
     private int roundTimeRemaining;
+    private boolean timerPaused = false;
 
     /** Toute les update de Timer se font dans le Constructeur de GameLoop, pas besoin de creer de methode ici*/
 
     // Ajout : méthode publique pour reset le timer
     public void resetRoundTimer() {
         this.roundTimeRemaining = 1800;
-        gamePanel.setRoundTimer(30);
+    }
+    
+    public void pauseTimer() {
+        this.timerPaused = true;
+    }
+    
+    public void resumeTimer() {
+        this.timerPaused = false;
     }
     public GameLoop(GameManager gameManager){
         this.gameManager = gameManager;
@@ -38,7 +45,6 @@ public class GameLoop{
 
         // pour pas que 30 passe par dessus le temps sauvegardee dans le cas de resumeGame()
         int initialSeconds = roundTimeRemaining / 60;
-        this.gamePanel.setRoundTimer(initialSeconds);
 
         // Initialiser l'affichage du chrono dans la vue -> Ca sert a rien ? 
         //this.gamePanel.setRoundTimer(30);
@@ -47,6 +53,21 @@ public class GameLoop{
         this.timer = new Timer((int)(FIXHZ*1000),new ActionListener() {         
             @Override
             public void actionPerformed(ActionEvent e){
+                if (timerPaused) {
+                    try {       //Empeche le worm de glisser
+                        TeamModel currentTeam = gameManager.getCurrentTeam();
+                        int activeIndex = gameManager.getActiveWormIndex();
+                        if (currentTeam != null && activeIndex >= 0 && activeIndex < currentTeam.getWormNumberAtStart()) {
+                            CharacterModel activeWorm = currentTeam.getWorm(activeIndex);
+                            if (activeWorm != null && !activeWorm.isDead()) {
+                                activeWorm.stopHorizontalMovement();
+                            }
+                        }
+                    } catch (Exception ignore) {}
+                    gamePanel.repaint();
+                    return;
+                }
+            
                 // met a jour la caméra
                 if (gameManager.getCameraController() != null) {
                     gameManager.getCameraController().update();
@@ -59,7 +80,7 @@ public class GameLoop{
                 
                 // met a jour l'animation du vent
                 if (gameManager.getWindOverlay() != null) {
-                    gameManager.getWindOverlay().update(FIXHZ);
+                    gameManager.getWindOverlay().update();
                 }
                 
                 // met a jour le worm actif
@@ -107,7 +128,6 @@ public class GameLoop{
                         if (activeWorm == null || activeWorm.isDead()) {
                             gameManager.nextRound();
                             roundTimeRemaining = 1800;
-                            gamePanel.setRoundTimer(30);
                         }
                     }
                 } catch (Exception ex) {
@@ -115,16 +135,19 @@ public class GameLoop{
                 }
 
                 // décrémente le temps du round, met à jour la vue et change si nécessaire
-                roundTimeRemaining--; 
-                gameManager.setRoundTimeSave(roundTimeRemaining);
-                if (roundTimeRemaining % 60 == 0) {
-                    int secondsLeft = roundTimeRemaining / 60; 
-                    gamePanel.setRoundTimer(Math.max(0, secondsLeft));
+                if (!timerPaused) {
+                    roundTimeRemaining--; 
+                    gameManager.setRoundTimeSave(roundTimeRemaining);
+                    if (roundTimeRemaining % 60 == 0) {
+                        int secondsLeft = roundTimeRemaining / 60; 
+                    }
+                    if (roundTimeRemaining <= 0) {
+                        gameManager.nextRound();        
+                        roundTimeRemaining = 1800;      // reset
+                    }
                 }
-                if (roundTimeRemaining <= 0) {
-                    gameManager.nextRound();        
-                    roundTimeRemaining = 1800;      // reset
-                    gamePanel.setRoundTimer(30);    // reset affichage
+                if (gameManager.getHudOverlay() != null) {
+                    gameManager.getHudOverlay().setTimerFrames(roundTimeRemaining, 1800);
                 }
                 
                 // Vérifier si une équipe a gagné

@@ -13,7 +13,7 @@ import java.util.Random;
 import fr.upc.g5e4.model.CharacterModel;
 import fr.upc.g5e4.model.GameStats;
 import fr.upc.g5e4.model.TeamModel;
-
+import fr.upc.g5e4.util.ImageCache;
 /**
  * Vue pour l'écran de fin de partie
  * Affiche l'animation des gagnants marchant vers le trophée avec particules
@@ -207,11 +207,15 @@ public class EndGameView extends JPanel {
     }
     
     private void loadImages() {
+        trophyImage = ImageCache.get("/Trophee.png");
+        sparkleImage = ImageCache.get("/Sparkle.png");
+        miniTrophyImage = ImageCache.get("/Trophee.png");
+        
+        if (trophyImage == null || sparkleImage == null) {
+            System.err.println("Erreur lors du chargement des images EndGameView");
+        }
+
         try {
-            trophyImage = ImageIO.read(getClass().getResourceAsStream("/Trophee.png"));
-            sparkleImage = ImageIO.read(getClass().getResourceAsStream("/Sparkle.png"));
-            miniTrophyImage = ImageIO.read(getClass().getResourceAsStream("/Trophee.png"));
-            
             // Charger la police bbH Bartle
             Font baseFont = Font.createFont(Font.TRUETYPE_FONT, 
                 getClass().getResourceAsStream("/BBHBartle-Regular.ttf"));

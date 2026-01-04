@@ -21,8 +21,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import fr.upc.g5e4.controller.MainMenuController;
-import fr.upc.g5e4.view.UI.*;;
+import fr.upc.g5e4.model.SoundPlayer;
+import fr.upc.g5e4.view.UI.*;
+import fr.upc.g5e4.GameLauncher;
 
+import fr.upc.g5e4.util.ImageCache;
 
 
 /**
@@ -176,8 +179,12 @@ public class SettingsView extends JPanel {
         try {
             java.net.URL url = getClass().getResource("/Reglage_BG.png");
             if (url != null) {
-                backgroundImage = new ImageIcon(url).getImage();
-            }
+                //backgroundImage = new ImageIcon(url).getImage();
+                java.awt.image.BufferedImage img = ImageCache.get("/Reglage_BG.png");
+                if (img != null) {
+                    backgroundImage = img;
+                }
+            } 
         } catch (Exception e) {
             System.err.println("Impossible de charger Reglage_BG.png: " + e.getMessage());
         }
@@ -304,10 +311,10 @@ public class SettingsView extends JPanel {
         terrainComboBox.setPreferredSize(new Dimension(220, 50));
         terrainComboBox.setMaximumSize(new Dimension(220, 50));
         
-        // Options de style
-        String[] styles = {"Grotte"};
+        // Options de style de fond
+        String[] styles = {"Jour", "Nuit"};
         styleComboBox = new PillComboBox<>(styles);
-        styleComboBox.setSelectedItem("Grotte");
+        styleComboBox.setSelectedItem("Jour");
         styleComboBox.setPreferredSize(new Dimension(220, 50));
         styleComboBox.setMaximumSize(new Dimension(220, 50));
         
@@ -458,14 +465,49 @@ public class SettingsView extends JPanel {
     }
 
     // ========== ONGLET AUTRE ==========
+
+    private PillButton btnSound;
+    private PillButton btnResetSave;
+    private PillButton btnFullscreen;
+
     private JPanel createOtherPanel() {
         JPanel panel = new JPanel();
         panel.setOpaque(false);
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+
         
-        // AJOUTEZ VOS COMPOSANTS ICI
-        
+        boolean soundEnabled = !SoundPlayer.isMuted();
+        btnSound = (PillButton) createButton(soundEnabled ? "Son : ON" : "Son : OFF");
+        btnResetSave = (PillButton) createButton("Reset Sauvegarde");
+        btnFullscreen = (PillButton) createButton("Fullscreen : OFF");
+
+
+        btnSound.setAlignmentX(Component.CENTER_ALIGNMENT);
+        btnResetSave.setAlignmentX(Component.CENTER_ALIGNMENT);
+        btnFullscreen.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        panel.add(Box.createVerticalGlue());
+        panel.add(btnSound);
+        panel.add(Box.createVerticalStrut(25));
+        panel.add(btnResetSave);
+        panel.add(Box.createVerticalStrut(25));
+        panel.add(btnFullscreen);
+        panel.add(Box.createVerticalGlue());
+
         return panel;
     }
+
+    public void setSoundButtonState(boolean enabled) {
+        if (btnSound != null) btnSound.setText(enabled ? "Son : ON" : "Son : OFF");
+    }
+
+    public void setFullscreenButtonState(boolean enabled) {
+        if (btnFullscreen != null) btnFullscreen.setText(enabled ? "Fullscreen : ON" : "Fullscreen : OFF");
+    }
+
+    public JButton getBtnSound(){return btnSound;}
+    public JButton getBtnResetSave(){return btnResetSave;}
+    public JButton getBtnFullscreen(){return btnFullscreen;}
 
     /**
      * Affiche le panel correspondant à l'onglet sélectionné

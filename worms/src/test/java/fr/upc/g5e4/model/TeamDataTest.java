@@ -66,7 +66,9 @@ public class TeamDataTest {
         item.remainingUses = 30;
         inventory.add(item);
 
-        teamData = new TeamData(1, 3, characterModels, "Team 1", 0, inventory,"/wormPixel.png");
+        int money = 0;
+
+        teamData = new TeamData(1, 3, characterModels, "Team 1", 0, inventory, money,"/wormPixel.png");
     }
 
     // test getter tab CharacterData
@@ -111,7 +113,9 @@ public class TeamDataTest {
             new CharacterData(0, "Solo-Worm", 100.0, 200.0, 100.0, 50.0, false, true,5,5)
         );
 
-        TeamData singleTeam = new TeamData(2, 1, singleWorm, "Solo Team", 1, null,"/wormPixel.png");
+        int money = 0;
+
+        TeamData singleTeam = new TeamData(2, 1, singleWorm, "Solo Team", 1, null, money,"/wormPixel.png");
 
         assertEquals(1, singleTeam.getWormsNumber());
         assertEquals(1, singleTeam.getTabCharacterData().length);
@@ -119,8 +123,9 @@ public class TeamDataTest {
 
     @Test
     void testTeamDataWithNullInventory() {
+        int money = 0;
         TeamData teamWithNullInventory = new TeamData(
-            3, 3, characterModels, "No Inventory Team", 2, null,"/wormPixel.png");
+            3, 3, characterModels, "No Inventory Team", 2, null, money,"/wormPixel.png");
 
         assertEquals("No Inventory Team", teamWithNullInventory.getTeamName());
         assertEquals(3, teamWithNullInventory.getWormsNumber());
@@ -136,9 +141,10 @@ public class TeamDataTest {
         CharacterModel[] worms = new CharacterModel[]{mockCharacterModel1};
 
         // test differentes couleurs (0 = RED, 1 = BLUE et 2 = PINKKKKKKKKK)
-        TeamData redTeam = new TeamData(1, 1, worms, "Red Team", 0, null,"/wormPixel.png");
-        TeamData blueTeam = new TeamData(2, 1, worms, "Blue Team", 1, null,"/wormPixel.png");
-        TeamData pinkTeam = new TeamData(3, 1, worms, "Pink Team", 2, null,"/wormPixel.png");
+        int money = 0;
+        TeamData redTeam = new TeamData(1, 1, worms, "Red Team", 0, null, money,"/wormPixel.png");
+        TeamData blueTeam = new TeamData(2, 1, worms, "Blue Team", 1, null, money,"/wormPixel.png");
+        TeamData pinkTeam = new TeamData(3, 1, worms, "Pink Team", 2, null, money,"/wormPixel.png");
 
         assertNotNull(redTeam);
         assertNotNull(blueTeam);

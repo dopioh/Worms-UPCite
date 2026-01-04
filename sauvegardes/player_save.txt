@@ -1,0 +1,41 @@
+{
+  "name": "NassNass",
+  "xp": 0,
+  "money": 39997648,
+  "tabSkinPlayer": [
+    {
+      "skinName": "Worm de base",
+      "filePath": "/wormPixel.png",
+      "unlocked": true
+    },
+    {
+      "skinName": "Worm Noel Edition",
+      "filePath": "/wormNoel.png",
+      "unlocked": true
+    },
+    {
+      "skinName": "Worm Pinky Edition",
+      "filePath": "/wormPinky.png",
+      "unlocked": true
+    },
+    {
+      "skinName": "Worm Nerd Edition",
+      "filePath": "/wormNerd.png",
+      "unlocked": true
+    },
+    {
+      "skinName": "Worm Costard Edition",
+      "filePath": "/wordCostard.png",
+      "unlocked": false
+    },
+    {
+      "skinName": "Worm Cuisto Edition",
+      "filePath": "/wormCuisto.png",
+      "unlocked": true
+    }
+  ],
+  "customTeamManager": {
+    "nbrCustomTeam": 0,
+    "listCustomTeamData": []
+  }
+}

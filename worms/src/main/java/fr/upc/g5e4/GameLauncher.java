@@ -15,6 +15,7 @@ import fr.upc.g5e4.model.console.ConsoleLauncher;
 import fr.upc.g5e4.view.*;
 import fr.upc.g5e4.controller.*;
 import fr.upc.g5e4.model.*; 
+import fr.upc.g5e4.util.ImageCache;
 
 
 /** Classe qui lance le jeu, elle set la taille de l'ecran (grace a son heritage de JFrame) */
@@ -25,14 +26,17 @@ public class GameLauncher{
     private GameLoop gameLoop;
 
     private WindOverlay windOverlay;
-    private InventoryOverlay inventoryOverlay; 
+    private InventoryOverlay inventoryOverlay;
+    private WormRaceOverlay wormRaceOverlay;
+    private WormGuessOverlay wormGuessOverlay;
+    private WormJackOverlay wormJackOverlay;
     private PauseOverlay pauseOverlay;
     private HelpOverlay helpOverlay;
     private HUDOverlay hudOverlay;
 
 
     private boolean screen;
-    
+
     // Composants pour la fenêtre unique
     private JFrame mainFrame;
     private CardLayout cardLayout;
@@ -88,6 +92,8 @@ public class GameLauncher{
             return;
         }
         
+        preloadCommonImages();
+        
         // Créer la fenêtre principale unique
         mainFrame = new JFrame("Worms");
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -110,9 +116,7 @@ public class GameLauncher{
         cardPanel.add(gameLayeredPane, GAME_CARD);
         
         mainFrame.setContentPane(cardPanel);
-        
-        // Setup des touches globales
-        setupGlobalKeyBindings();
+    
         
         mainFrame.pack();
         mainFrame.setLocationRelativeTo(null);
@@ -248,6 +252,21 @@ public class GameLauncher{
 
         this.inventoryOverlay = new InventoryOverlay(gameManager.getListTeamInit().get(0).getTeamModel().getInventory());
         this.inventoryOverlay.setBounds(0, 0, width, height);
+        // WormRace Overlay
+        this.wormRaceOverlay = new WormRaceOverlay();
+        this.wormRaceOverlay.setBounds(0, 0, width, height);
+        this.wormRaceOverlay.setGameManager(gameManager);
+        this.inventoryOverlay.setWormRaceOverlay(this.wormRaceOverlay);
+        // WormGuess Overlay
+        this.wormGuessOverlay = new WormGuessOverlay();
+        this.wormGuessOverlay.setBounds(0, 0, width, height);
+        this.wormGuessOverlay.setGameManager(gameManager);
+        this.inventoryOverlay.setWormGuessOverlay(this.wormGuessOverlay);
+        // WormJack Overlay
+        this.wormJackOverlay = new WormJackOverlay();
+        this.wormJackOverlay.setBounds(0, 0, width, height);
+        this.wormJackOverlay.setGameManager(gameManager);
+        this.inventoryOverlay.setWormJackOverlay(this.wormJackOverlay);
         // VENT
         windOverlay = new WindOverlay(gameManager.getWindModel());
         windOverlay.setBounds(0, 0, width, height);
@@ -259,10 +278,12 @@ public class GameLauncher{
         //Menu parametres 
         this.pauseOverlay = new PauseOverlay();
         this.pauseOverlay.setBounds(0, 0, width, height);
+        this.pauseOverlay.setSoundOn(!SoundPlayer.isMuted());
+        this.pauseOverlay.setFullScreenOn(isFullScreen);
+        hudOverlay.setPauseOverlay(pauseOverlay);
         //How to play
         this.helpOverlay = new HelpOverlay();
         this.helpOverlay.setBounds(0, 0, width, height);
-        this.pauseOverlay.setHelpOverlay(this.helpOverlay);
         
         // Placer les composants dans le layered pane
         gamePanel.setBounds(0, 0, width, height);
@@ -276,16 +297,32 @@ public class GameLauncher{
         gameLayeredPane.add(inventoryOverlay, JLayeredPane.MODAL_LAYER);  
         gameLayeredPane.add(pauseOverlay, JLayeredPane.POPUP_LAYER);
         gameLayeredPane.add(helpOverlay, JLayeredPane.DRAG_LAYER);
+        gameLayeredPane.add(wormRaceOverlay);
+        gameLayeredPane.add(wormGuessOverlay);
+        gameLayeredPane.add(wormJackOverlay);
+        
+        // redim WormRace / WormGuess / WormJack lors du resize de la fenêtre
+        gameLayeredPane.addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentResized(java.awt.event.ComponentEvent e) {
+                int w = gameLayeredPane.getWidth();
+                int h = gameLayeredPane.getHeight();
+                wormRaceOverlay.setBounds(0, 0, w, h);
+                wormGuessOverlay.setBounds(0, 0, w, h);
+                wormJackOverlay.setBounds(0, 0, w, h);
+            }
+        });
         
         inventoryOverlay.setGameManager(gameManager);    
         inventoryOverlay.setFireListener(gameManager.getImputController());
         gameManager.setInventoryOverlay(inventoryOverlay);
-        gameManager.setHudOverlay(this.hudOverlay); 
-
+        gameManager.setHudOverlay(this.hudOverlay);
         input.setGameFrame(mainFrame);
         input.setInventoryOverlay(inventoryOverlay);
         input.setGameManager(gameManager);
         input.setPauseOverlay(pauseOverlay);
+        input.setFullScreenToggleAction(this::toggleFullScreen);
+        input.setBackToMenuAction(this::showMenu);
         input.setHelpOverlay(helpOverlay);  
         
         // Mettre à jour la caméra avec les dimensions actuelles (important si en plein écran)
@@ -309,23 +346,14 @@ public class GameLauncher{
         });
         checkGameOverTimer.start();
     }
-
-    private void setupGlobalKeyBindings() {
-        JRootPane rootPane = mainFrame.getRootPane();
-        InputMap im = rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
-        ActionMap am = rootPane.getActionMap();
-        
-        // F -> basculer en plein écran
-        im.put(KeyStroke.getKeyStroke("F"), "toggleFullScreen");
-        am.put("toggleFullScreen", new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                toggleFullScreen();
-            }
-        });
-        
-    }
     
+    /**
+     * Pour declencher le fullscreen dans les settings
+     */
+    public void requestToggleFullScreen() {
+        toggleFullScreen(); 
+    }
+
     private void toggleFullScreen() {
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice gd = ge.getDefaultScreenDevice();
@@ -348,7 +376,6 @@ public class GameLauncher{
             mainFrame.setLocationRelativeTo(null);
             mainFrame.setVisible(true);
             isFullScreen = false;
-            updateAllSizes(DEFAULT_WIDTH, DEFAULT_HEIGHT);
         } else {
             // Entrer en plein écran (simulé, respecte le notch et le dock)
             mainFrame.dispose();
@@ -356,13 +383,23 @@ public class GameLauncher{
             mainFrame.setBounds(usableX, usableY, usableWidth, usableHeight);
             mainFrame.setVisible(true);
             isFullScreen = true;
-            
-            updateAllSizes(usableWidth, usableHeight);
         }
+        
+        mainFrame.validate();
+
+        Dimension d = cardPanel.getSize();
+        int w = (d.width > 0) ? d.width : (isFullScreen ? usableWidth : DEFAULT_WIDTH);
+        int h = (d.height > 0) ? d.height : (isFullScreen ? usableHeight : DEFAULT_HEIGHT);
+
+        updateAllSizes(w, h);
         
         // Redonner le focus
         if (gameManager != null && gameManager.getImputController() != null) {
             gameManager.getImputController().requestFocusInWindow();
+        }
+ 
+        if (pauseOverlay != null) {
+            pauseOverlay.setFullScreenOn(isFullScreen);
         }
     }
     
@@ -372,6 +409,8 @@ public class GameLauncher{
         
         // Mettre à jour le jeu si initialisé
         if (gameLayeredPane != null) {
+            gameLayeredPane.setBounds(0, 0, width, height);
+            gameLayeredPane.setSize(width, height);
             gameLayeredPane.setPreferredSize(new Dimension(width, height));
         }
         
@@ -402,6 +441,10 @@ public class GameLauncher{
             hudOverlay.setBounds(0, 0, width, height);
         }
 
+        if (gameManager != null && gameManager.getImputController() != null) {
+            gameManager.getImputController().setBounds(0, 0, width, height);
+        }
+
         if (gameManager != null && gameManager.getCamera() != null) {
             gameManager.getCamera().setViewSize(width, height);
             // Notifier le CameraController pour éviter le glissement du au followPlayer
@@ -409,7 +452,11 @@ public class GameLauncher{
                 gameManager.getCameraController().onViewSizeChanged();
             }
         }
-        
+
+        if (gameLayeredPane != null) {
+            gameLayeredPane.revalidate();
+            gameLayeredPane.repaint();
+        }
         cardPanel.revalidate();
         cardPanel.repaint();
     }
@@ -503,9 +550,66 @@ public class GameLauncher{
         }
     }
 
+    /**
+     * preload les images
+     */
+    private void preloadCommonImages() {
+        System.out.println("[GameLauncher] Préchargement des images...");
+        
+        // sprites des worms
+        ImageCache.preload(
+            "/wormCostar.png", "/wormNoel.png", "/wormPinky.png",
+            "/wormPixel.png", "/wormCuisto.png", "/wormNerd.png"
+        );
+        
+        // armes POUR LA BOUTIQUE (IL FAUDRAIT QUE LES IMAGES DE LA BOUTIQUE SOIENT LES SPRITES DES ITEMS POUR OPTI)
+        ImageCache.preload(
+            "/ak.png", "/grenade.png", "/bazooka.png", "/baseballbat.png"
+        );
+        
+        // gadgets
+        ImageCache.preload(
+            "/gadgets/potion_speed.png", "/gadgets/potion_jump.png",
+            "/gadgets/potion_heal.png", "/gadgets/potion_shield.png"
+        );
+        
+        // sprites d'armes
+        ImageCache.preload(
+            "/sprite_items/ak47-sprite.png", "/sprite_items/grenade-sprite.png",
+            "/sprite_items/rocketlauncher-sprite.png", "/sprite_items/baseballbat-sprite.png"
+        );
+        
+        // sprites de gadgets
+        ImageCache.preload(
+            "/gadgets/potionspeed-sprite.png", "/gadgets/potionjump-sprite.png",
+            "/gadgets/potionheal-sprite.png", "/gadgets/potionshield-sprite.png"
+        );
+        
+        // backgrounds et UI
+        ImageCache.preload(
+            "/background.png", "/Reglage_BG.png",
+            "/backpack.png", "/parametre.png", "/title.png"
+        );
+        
+        // gambling
+        ImageCache.preload(
+            "/wormrace.png", "/wormguess.png", "/wormjack.png"
+        );
+        
+        // fin de jeu
+        ImageCache.preload(
+            "/Trophee.png", "/Sparkle.png"
+        );
+        
+        System.out.println("[GameLauncher] Préchargement terminé !");
+    }
+
     public PlayerDataController getPlayerDataController(){
         return this.playerDataController;
     } 
+    public PauseOverlay getPauseOverlay() {
+        return pauseOverlay;
+    }
 
     public static void main(String[] args) throws IOException{
 

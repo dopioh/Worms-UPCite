@@ -227,6 +227,7 @@ public class BlockGridModel {
             setBlock(gridX, gridY, BlockType.AIR);
             // réinitialiser les PV à 0
             healthGrid.setHealth(gridX, gridY, 0);
+            SoundPlayer.playBreakBlockSound();
             return true;
         }
         

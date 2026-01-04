@@ -87,13 +87,14 @@ public class TeamInitialisation {
      * @param COLOR
      * @param skinPath
      */
-    public TeamInitialisation(GroundModel groundModel,World world,int TeamID ,String teamName, int teamNumber,CharacterData[] characterData, int COLOR, String skinPath,List<InventoryJson> inventory){
+    public TeamInitialisation(GroundModel groundModel,World world,int TeamID ,String teamName, int teamNumber,CharacterData[] characterData, int COLOR, String skinPath,List<InventoryJson> inventory, int money){
         this.name = teamName;
         this.skinPath = skinPath;
         COLORTEAM = COLOR;
         colorGiving();
         teamModel = new TeamModel(groundModel, world, teamName, teamNumber, TeamID, characterData,COLORTEAM,inventory,skinPath);
         teamView = new TeamView(teamNumber,color, skinPath, true); // facingRight a changer apres
+        teamModel.setMoney(money);
     }
 
     public TeamModel getTeamModel(){

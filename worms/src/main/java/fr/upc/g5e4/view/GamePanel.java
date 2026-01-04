@@ -1,4 +1,3 @@
-// File: fr/upc/g5e4/view/GamePanel.java
 package fr.upc.g5e4.view;
 
 import fr.upc.g5e4.controller.CameraController;
@@ -8,10 +7,9 @@ import fr.upc.g5e4.model.camera.CameraModel;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Path2D;
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.ArrayList;
+import fr.upc.g5e4.util.ImageCache;
 
 /**
  * Classe qui sert pour tous les graphismes du monde
@@ -31,10 +29,9 @@ public class GamePanel extends JPanel {
     private JButton saveButton;
     private static final float PPM = 30f;
     private BufferedImage groundTexture;
+    private BufferedImage backgroundImage; // Image de fond BG
     // Vue pour dessiner les blocs
     private BlockGridView blockGridView;
-    // ajout: label pour afficher le temps restant (vue)
-    private final JLabel roundTimerLabel = new JLabel("Temps restant : 30s");
 
     //accès direct au GameManager pour le pointeur graphique 
     private final fr.upc.g5e4.model.GameManager gameManager;
@@ -71,6 +68,13 @@ public class GamePanel extends JPanel {
     private void initializePanel() {
         setPreferredSize(new Dimension(model.getWidth(), model.getHeight()));
         setLayout(null);
+        
+        // Charger l'image de fond selon le style configuré
+        String bgPath = MapConfig.getBackgroundStyle().getImagePath();
+        backgroundImage = ImageCache.get(bgPath);
+        if (backgroundImage == null) {
+            System.err.println("Impossible de charger l'image de fond BG : " + bgPath);
+        }
         /*
         // Charger la texture du ground
         try {
@@ -81,13 +85,6 @@ public class GamePanel extends JPanel {
             
         }
              */
-
-        // ajout: configuration du label chrono
-        roundTimerLabel.setFont(new Font("Arial", Font.BOLD, 18));
-        roundTimerLabel.setForeground(Color.WHITE);
-        roundTimerLabel.setBounds(20, 10, 220, 30);
-        roundTimerLabel.setOpaque(false);
-        this.add(roundTimerLabel);
 
         /*
         // Bouton de sauvegarde
@@ -103,11 +100,6 @@ public class GamePanel extends JPanel {
 
     public static float getPPM() {
         return PPM;
-    }
-
-    // ajout: API publique pour mettre à jour l'affichage du chrono
-    public void setRoundTimer(int seconds) {
-        SwingUtilities.invokeLater(() -> roundTimerLabel.setText("Temps restant : " + seconds + "s"));
     }
     
     // Activer le mode blueprint (style bleu foncé)
@@ -143,6 +135,25 @@ public class GamePanel extends JPanel {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g.create();
 
+        // Dessiner l'image de fond avec effet parallax (bouge lentement avec la caméra)
+        if (!blueprintMode && backgroundImage != null) {
+            // Facteur de parallax (0.0 = fixe, 1.0 = bouge avec la caméra)
+            double parallaxFactor = 0.2;
+            
+            // Calculer le décalage parallax basé sur la position de la caméra
+            int parallaxX = (int)(camera.getX() * parallaxFactor);
+            int parallaxY = (int)(camera.getY() * parallaxFactor);
+            
+            // Dessiner l'image de fond légèrement plus grande pour couvrir le décalage
+            int extraWidth = (int)(model.getWidth() * parallaxFactor);
+            int extraHeight = (int)(model.getHeight() * parallaxFactor);
+            
+            g2.drawImage(backgroundImage, 
+                -parallaxX, -parallaxY, 
+                getWidth() + extraWidth, getHeight() + extraHeight, 
+                null);
+        }
+
         // Permet le zoom
         g2.scale(camera.getZoomFactor(), camera.getZoomFactor());
 
@@ -177,7 +188,8 @@ public class GamePanel extends JPanel {
             }
             // Rétablir le stroke normal
             g2.setStroke(GRID_STROKE_THIN);
-        } else {
+        } else if (backgroundImage == null) {
+            // Fallback: ciel bleu si pas d'image de fond
             g2.setColor(SKY_COLOR);
             g2.fillRect(0, 0, model.getWidth(), model.getHeight());
         }
