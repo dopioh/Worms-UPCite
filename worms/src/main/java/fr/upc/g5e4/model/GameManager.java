@@ -786,6 +786,8 @@ public class GameManager {
                 ctd = new CustomTeamData();
                 skinPath = "/worm.png";
             }
+
+            ArrayList<String> nameWorms = ctd.getWormsName();
             
 
             this.nbrTeams++;
@@ -806,7 +808,7 @@ public class GameManager {
 
             String name = ctd.getTeamName();
 
-            TeamInitialisation temp = new TeamInitialisation(model, world, name, this.nbrWormsByTeam, startX, skinPath);
+            TeamInitialisation temp = new TeamInitialisation(model, world, name, this.nbrWormsByTeam, startX, skinPath,nameWorms);
     
             listTeamInital.add(temp);
             listTeamModel.add(temp.getTeamModel());

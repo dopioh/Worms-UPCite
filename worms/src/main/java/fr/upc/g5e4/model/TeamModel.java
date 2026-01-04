@@ -3,10 +3,13 @@ package fr.upc.g5e4.model;
 //import java.util.ArrayList;
 
 import org.jbox2d.dynamics.World;
+
+import java.util.ArrayList;
 import java.util.List;
 import fr.upc.g5e4.model.InventoryModel.InventoryJson;
 
 import fr.upc.g5e4.model.io.*;
+import fr.upc.g5e4.model.io.CharacterData;
 
 //import java.awt.Color;
 
@@ -43,7 +46,7 @@ public class TeamModel {
      * @param facingRight Direction initiale des worms (true = droite, false = gauche)
      * @param withCollision Active les collisions entre worms (true = avec collisions, false = sans)
      */
-    public TeamModel(GroundModel groundModel, World world, String teamName, double startX, double spacing, int wormNumber, boolean console, boolean facingRight, boolean withCollision,int COLORTEAM) {
+    public TeamModel(GroundModel groundModel, World world, String teamName, double startX, double spacing, int wormNumber, boolean console, boolean facingRight, boolean withCollision,int COLORTEAM,ArrayList<String> nameWorms) {
         if (wormNumber < 1) {
             throw new IllegalArgumentException("Une équipe doit avoir au moins 1 worm");
         }
@@ -61,8 +64,15 @@ public class TeamModel {
         for (int i = 0; i < number; i++) {
             double xPosition = startX + (i * spacing);
             double yPosition = groundModel.getHeight() - 600;
+
+            String wormName;
+            if (nameWorms == null){
+                wormName = "bot";
+            } else {
+                wormName = nameWorms.get(i);
+                System.out.println(wormName);
+            }
             
-            String wormName = "Worm";
             
             tabModelWorms[i] = new CharacterModel(
                 groundModel, 

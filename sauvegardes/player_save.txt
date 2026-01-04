@@ -35,7 +35,7 @@
     }
   ],
   "customTeamManager": {
-    "nbrCustomTeam": 2,
+    "nbrCustomTeam": 3,
     "listCustomTeamData": [
       {
         "teamName": "COUCOUUU",
@@ -67,6 +67,23 @@
           "meimei",
           "raph",
           "bot",
+          "bot",
+          "bot"
+        ]
+      },
+      {
+        "teamName": "EQUIPE YAYAYA",
+        "skin": {
+          "skinName": "Worm Nerd Edition",
+          "filePath": "/wormNerd.png",
+          "unlocked": true
+        },
+        "nbrWorms": 6,
+        "wormsName": [
+          "YAYA",
+          "MEIMEI",
+          "RIRI",
+          "POPO",
           "bot",
           "bot"
         ]

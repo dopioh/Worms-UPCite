@@ -9,6 +9,7 @@ import fr.upc.g5e4.model.io.CharacterData;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.util.ArrayList;
 //import java.util.ArrayList;
 //import java.util.Random;
 import java.util.List;
@@ -49,8 +50,8 @@ public class TeamInitialisation {
      * @param teamNumber nombre de worms par equipe (doit etre le meme pour toutes les equipes)
      * @param startX position d'initialisation
      */
-    public TeamInitialisation(GroundModel groundModel,World world,String teamName, int teamNumber, int startX){
-        this(groundModel, world, teamName, teamNumber, startX, "/wormPinky.png");
+    public TeamInitialisation(GroundModel groundModel,World world,String teamName, int teamNumber, int startX,ArrayList<String> nameWorms){
+        this(groundModel, world, teamName, teamNumber, startX, "/wormPinky.png",nameWorms);
     }
     
     /**
@@ -62,12 +63,12 @@ public class TeamInitialisation {
      * @param startX position d'initialisation
      * @param skinPath chemin vers le sprite du worm
      */
-    public TeamInitialisation(GroundModel groundModel,World world,String teamName, int teamNumber, int startX, String skinPath){
+    public TeamInitialisation(GroundModel groundModel,World world,String teamName, int teamNumber, int startX, String skinPath,ArrayList<String> nameWorms){
         //System.out.println("Nombre de worms pour " + teamName + "est de : " + teamNumber);
         boolean facingRight = (startX < groundModel.getWidth() / 2);
         this.name = teamName;
         colorGiving();
-        teamModel = new TeamModel(groundModel, world, name, startX, SPACING, teamNumber, false, facingRight, false,COLORTEAM);
+        teamModel = new TeamModel(groundModel, world, name, startX, SPACING, teamNumber, false, facingRight, false,COLORTEAM, nameWorms);
         teamView = new TeamView(teamNumber,color, skinPath, facingRight);
         SPACING += 3; // pour que si il y'a plus de 2 equipes, les worms ne se superposent pas
     }
