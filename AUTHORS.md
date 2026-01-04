@@ -27,12 +27,39 @@
 
     - Ajout de tickets, Validation et Acceptations de MR
 
-    - Brainstorm d'idées pour tout le proje
+    - Brainstorm d'idées pour tout le projet
 
     - Ajout CONTRIBUTING.md
+
+    - Ajout systeme d'image dans le cache
 
 
 - [WU Billy](https://moule.informatique.u-paris.fr/wub)
 - [SHAN Hugo](https://moule.informatique.u-paris.fr/shanh)
+
+    - Données inventaire (Usages par Tour/ Usages par Round)
+
+    - OverlayManager
+
+    - Données du vent (WindModel)
+
+    - Interface graphique (Parametres Menu -> Autres, Inventory, Help, HUD, Wind, Pause)
+
+    - Pause du jeu (Timer et Worms) 
+
+    - SFX pour une arme
+
+    - Changement mineur du NameTag (Shield/Health)
+
+    - Liaison options parametres Menu et En jeu
+
+    - Suppression des touches claviers -> Liaison paramètres
+
+    - Brainstorming d'idée de temps en temps
+
+    - Restructuration Taches/Ticket pour le projet
+
+    - Approbation pour certaines MR
+
 - [DESROQUES Ian](https://moule.informatique.u-paris.fr/desroque)
 - [ROSE Raphael](https://moule.informatique.u-paris.fr/rose)

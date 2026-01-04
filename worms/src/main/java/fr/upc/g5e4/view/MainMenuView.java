@@ -20,6 +20,8 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import fr.upc.g5e4.util.ImageCache;
+
 import fr.upc.g5e4.view.UI.*;;
 
 
@@ -92,8 +94,11 @@ public class MainMenuView extends JPanel {
         try {
             java.net.URL url = getClass().getResource("/background.png");
             if (url != null) {
-                backgroundImage = ImageIO.read(url);
+            backgroundImage = ImageCache.get("/background.png");
+            if (backgroundImage == null) {
+                System.err.println("Impossible de charger le fond du menu principal");
             }
+        }
         } catch (Exception e) {
             System.err.println("Erreur lors du chargement de l'image de fond: " + e.getMessage());
         }

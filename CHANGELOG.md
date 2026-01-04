@@ -34,6 +34,8 @@
     - Weapon (AK-47, Grenade, Rocket Launcher, Baseball Bat)
     - Gadget (Bumper)
 - Classe inventaire
+    - InventoryJson
+    - JDialog pour agir avec les armes et gadget selon les données de InventoryJson 
 - Classe Donnée Joueur
     - Système de sauvegarde des données (JSON)
 - Classe Camera
@@ -71,6 +73,9 @@
     - Ajustement des valeurs de vitesse de déplacement et de saut pour équilibrer le gameplay
 - Camera
     - Les déplacements, le zoom et le recentrage de la caméra se font maintenant avec un glissement fluide
+- Inventaire 
+    - L'inventaire passe en JComponent
+    - Le worm est textuellement équipé 
 
 ## [v.0.3 : SPRINT 3](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/3)
 ---
@@ -95,6 +100,8 @@
 - Constructeurs `TeamView` et `CharacterView` avec chemin vers sprite
 - Fonction `loadSprite` avec gestion d'erreurs
 - Affichage du sprite dans la bonne direction
+- SFX bruit de Tir
+- Vent
 
 ### Modified
 
@@ -129,6 +136,7 @@
 - Support pour N équipes au lieu de 2 équipes hardcodées
     - Refactorisation de GameManager, GameLoop et GamePanel pour utiliser des listes dynamiques
     - Possibilité d'ajouter dynamiquement des équipes via GameManager.addTeam()
+- Overlay HUD,Pause,Help
 
 ### Fixed
 - Tout le jeu est désormais en une seule fenêtre
@@ -190,9 +198,15 @@
 - Ajout background avec effet parallax
     - choix dans parametre onglet map
 - AUTHORS.md
+- CONTRIBUTING.MD
+- DESIGN.MD
+- Systeme d'image en cache pour optimiser
 
 ### Modified
 
+- Suppression de tous les raccourcis Clavier
+    - Remplacé par des boutons dans paramètres (Fonctionnalités Fly/BluePrint/FullScreen)
+    - Remplacé par le scroll souris (Zoom)
 - **Système de plein écran**
     - Passage du mode `setFullScreenWindow` au plein écran simulé
     - Gestion du notch macOS et du dock

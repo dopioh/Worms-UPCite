@@ -80,7 +80,7 @@ public class TrajectoryView {
 
         trajectoryWorldX[0] = shooterPos.x;
         trajectoryWorldY[0] = shooterPos.y;
-        System.out.println(" weapon=" + currentWeapon.getName());
+        //ystem.out.println(" weapon=" + currentWeapon.getName());
 
         // générer les points avec la trajectoire spécifique à l'arme
         for (int i = 1; i <= TRAJECTORY_POINTS; i++) {

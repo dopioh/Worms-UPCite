@@ -4,9 +4,9 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
-import java.io.IOException;
-import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import fr.upc.g5e4.model.CharacterModel;
+import fr.upc.g5e4.util.ImageCache;
 
 /**
  * Vue pour l'affichage du NameTag
@@ -20,9 +20,9 @@ public class NameTagView {
     private Color shieldBarColor = new Color(0, 195, 243); // Bleu cyan
     
     // Variables pour l'animation (index 0=health, 1=shield)
-    private double[] displayed = {100.0, 50.0};
-    private double[] start = {100.0, 50.0};
-    private double[] target = {100.0, 50.0};
+    private double[] displayed = {100.0, 100.0};
+    private double[] start = {100.0, 100.0};
+    private double[] target = {100.0, 100.0};
     private long[] animStart = {0, 0};
     
     // Liste des items à afficher au-dessus des barres
@@ -95,12 +95,11 @@ public class NameTagView {
      * @param durationMs La durée en milliseconde
      */
     public void addItemFromResource(String imagePath, String name, long durationMs) {
-        try {
-            BufferedImage image = ImageIO.read(getClass().getResourceAsStream(imagePath));
+        BufferedImage image = ImageCache.get(imagePath);
+        if (image != null) {
             itemIcons.add(new ItemIcon(image, name, durationMs));
-        } catch (IOException | IllegalArgumentException e) {
+        } else {
             System.err.println("Impossible de charger l'image: " + imagePath);
-            e.printStackTrace();
         }
     }
     
@@ -264,7 +263,7 @@ public class NameTagView {
         Color healthBorderColor = new Color(42, 129, 67, 220);
         
         drawProgressBar(g2d, barX, currentY, BAR_WIDTH, BAR_HEIGHT, 
-                       displayed[1], 50.0, shieldBarColor, shieldBorderColor);
+                       displayed[1], 100.0, shieldBarColor, shieldBorderColor);
         currentY += BAR_HEIGHT + BAR_SPACING;
         
         // 3. Dessiner la barre de vie (verte)
