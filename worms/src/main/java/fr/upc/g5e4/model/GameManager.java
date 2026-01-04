@@ -1,4 +1,3 @@
-// File: fr/upc/g5e4/model/GameManager.java
 package fr.upc.g5e4.model;
 
 //import java.awt.Color;
@@ -89,6 +88,12 @@ public class GameManager {
     private InventoryOverlay inventoryOverlay;
     private HUDOverlay hudOverlay;
     private fr.upc.g5e4.view.WindOverlay windOverlay;
+    // --- Vent toggle ---
+    private boolean windEnabled = true;
+
+    // Vent "réel" du tour (mémorisé même si windEnabled=false)
+    private WindModel.Dir turnWindDir = WindModel.Dir.E;
+    private float turnWindStrength = 0.5f;
 
     private final WindModel windModel = new WindModel();
     private final Random windRng = new Random();
@@ -414,6 +419,7 @@ public class GameManager {
      * moment
      * Il en manque donc que vous pouvez rjt si besoin
      */
+    
     public World getWorld() {
         return this.world;
     }
@@ -524,6 +530,46 @@ public class GameManager {
     }
 
     /**
+     * @return true si le vent est actif
+     */
+    public boolean isWindEnabled() {
+        return windEnabled;
+    }
+
+    /**
+     * Active ou désactive le vent.
+     * Si désactivé, le vent est forcé à une valeur 0 et ne change plus à chaque tour.
+     *
+     * @param enabled true ou false
+     */
+    public void toggleVent(boolean enabled) {
+        this.windEnabled = enabled;
+
+        if (enabled) {
+            // On restaure exactement le vent du tour courant (pas de nouveau tirage)
+            windModel.setDir(turnWindDir);
+            windModel.setStrength(turnWindStrength, false);
+        } else {
+            // On coupe l'effet du vent sans perdre la valeur du tour
+            windModel.setStrength(0f, false);
+        }
+
+        // Côté vue : cacher/montrer l'overlay
+        if (windOverlay != null) {
+            windOverlay.setVisible(enabled);
+            windOverlay.repaint();
+        }
+    }
+
+    /**
+     * Garde la force actuelle du vent
+     * @return force du vent 
+     */
+    public float getEffectiveWindStrength() {
+        return windEnabled ? windModel.getStrength() : 0f;
+    }
+
+    /**
     * Vérifie si une équipe a gagné (tous les worms des autres équipes sont morts)
     * @return Le nom de l'équipe gagnante ou null si le jeu continue
     */
@@ -599,50 +645,6 @@ public class GameManager {
     }
 
     /**
-<<<<<<< HEAD
-=======
-     * FONCTION MAL CODER - QUI A FAIT CA ????
-     * 
-     * Ajoute une nouvelle équipe au jeu (pour supporter N équipes)
-     * IMPORTANT: À appeler AVANT le démarrage du jeu
-     *
-     * @param team L'équipe à ajouter
-     * @param view La vue correspondante de l'équipe
-     */
-    public void addTeam(TeamModel team,TeamView view) { // Pourquoi ? Alors que on a createTeam, et puis on a TeamInitialisation
-        if (team != null && view != null) {
-            // Extraction des paramètres nécessaires
-            String teamName = team.getTeamName();
-            int teamNumber = team.getWormNumberAtStart();
-            // Position de départ : on prend la position X du premier worm
-            int startX = 100; // Valeur par défaut
-            try {
-                if (team.getTabWorms() != null && team.getTabWorms().length > 0) {
-                    startX = (int) team.getTabWorms()[0].getXcord();
-                }
-            } catch (Exception e) {
-                // fallback sur la valeur par défaut
-            }
-            String skinPath = "/wormPixel.png";
-            // Si la TeamView possède un sprite personnalisé, on peut tenter de le récupérer
-            // (à adapter si TeamView expose ce champ)
-            // Construction de TeamInitialisation
-            TeamInitialisation teamInit = new TeamInitialisation(
-                this.model, // GroundModel
-                this.world, // World
-                teamName,
-                teamNumber,
-                startX,
-                skinPath
-            );
-            listTeamInital.add(teamInit);
-            listTeamModel.add(team);
-            System.out.println("Équipe ajoutée: " + team.getTeamName() + " (Total: " + listTeamModel.size() + " équipes)");
-        }
-    }
-
-    /**
->>>>>>> dev
      * Retourne le nombre total d'équipes
      */
     public int getTeamCount() {
@@ -740,55 +742,28 @@ public class GameManager {
         //mettre à jour l'inventaire affiché dans l'overlay
         if (inventoryOverlay != null) {
             inventoryOverlay.setInventory(getCurrentTeamInventory());
+            inventoryOverlay.clearEquipped();
+        }
+        
+        if (hudOverlay != null) {
+            hudOverlay.repaint();
+            hudOverlay.triggerTurnFlash();
         }
 
         
-        // --- Vent : change à chaque tour (fixe pendant le tour) ---
+        //Vent qui change à chaque tour 
         WindModel.Dir[] dirs = WindModel.Dir.values();
-        windModel.setDir(dirs[windRng.nextInt(dirs.length)]);
+        turnWindDir = dirs[windRng.nextInt(dirs.length)];
 
-        // force entre 0.15 et 1.0 (évite vent invisible)
-        float strength = 0.15f + windRng.nextFloat() * 0.85f;
-        windModel.setStrength(strength,false);
+        // force entre 0.15 et 1.0 pour éviter le vent nul
+        turnWindStrength = 0.15f + windRng.nextFloat() * 0.85f;
 
-        System.out.println("[VENT] " + windModel.getDir().label + " | force=" + String.format("%.2f", windModel.getStrength()));
-
-    }
-    
-    /**
-     * Change l'arme équipée du worm actif (cycliquement)
-     * AK-47 → Baseball Bat → Grenade → Rocket Launcher → AK-47...
-     */
-    public void switchWeapon() {
-        currentWeaponIndex = (currentWeaponIndex + 1) % 4;  // Boucle entre 0, 1, 2, 3
-        
-        Weapon newWeapon = null;
-        
-        switch(currentWeaponIndex) {
-            case 0:
-                newWeapon = new Ak47();
-                System.out.println("AK-47");
-                break;
-            case 1:
-                newWeapon = new BaseballBat();
-                System.out.println("Baseball Bat");
-                break;
-            case 2:
-                newWeapon = new Grenade();
-                System.out.println("Grenade");
-                break;
-            case 3:
-                newWeapon = new RocketLauncher();
-                System.out.println("Rocket Launcher");
-                break;
-        }
-        
-        if (newWeapon != null && activeWormController != null) {
-            activeWormController.setCurrentWeapon(newWeapon);
-            // mettre à jour la trajectoire avec la nouvelle arme
-            gamePanel.getTrajectoryView().setWeapon(newWeapon);
-            // met à jour l'arme dans la vue
-            updateWeaponInView(activeWormController.getModel(), newWeapon);
+        // Le vent appliquera la valeur calculée "turnwindstrengh" ou 0 
+        if (windEnabled) {
+            windModel.setDir(turnWindDir);
+            windModel.setStrength(turnWindStrength, false);
+        } else {
+            windModel.setStrength(0f, false);
         }
     }
     

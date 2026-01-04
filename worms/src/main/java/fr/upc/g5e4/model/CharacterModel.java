@@ -12,6 +12,7 @@ import org.jbox2d.dynamics.FixtureDef;
 import org.jbox2d.dynamics.World;
 
 import fr.upc.g5e4.model.io.CharacterData;
+
 import java.util.ArrayList;
 import java.util.List;
 

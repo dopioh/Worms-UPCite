@@ -6,6 +6,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import fr.upc.g5e4.util.ImageCache;
 
 /**
  * Overlay pour le mini-jeu WormJack
@@ -116,10 +117,9 @@ public class WormJackOverlay extends JPanel {
     }
     
     private void loadImages() {
-        try {
-            titleImage = javax.imageio.ImageIO.read(getClass().getResource("/wormjack.png"));
-        } catch (Exception e) {
-            System.err.println("Erreur lors du chargement des images WormJack: " + e.getMessage());
+        titleImage = ImageCache.get("/wormjack.png");
+        if (titleImage == null) {
+            System.err.println("Erreur lors du chargement des images WormJack");
         }
     }
     

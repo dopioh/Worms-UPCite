@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import fr.upc.g5e4.util.ImageCache;
+
 /**
  * Vue de terrain en grille de blocs
  */
@@ -37,10 +39,10 @@ public class BlockGridView {
      * @param path le chemin de la texture
      */
     private void loadBlockTexture(BlockType type, String path) {
-        try {
-            BufferedImage img = ImageIO.read(getClass().getResourceAsStream(path));
+        BufferedImage img = ImageCache.get(path);
+        if (img != null) {
             textures.put(type, img);
-        } catch (IOException | IllegalArgumentException e) {
+        } else {
             System.err.println("BlockGridView: texture " + path + " non trouvée pour " + type);
         }
     }
