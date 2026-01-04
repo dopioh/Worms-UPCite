@@ -31,6 +31,7 @@ public class GamePanel extends JPanel {
     private JButton saveButton;
     private static final float PPM = 30f;
     private BufferedImage groundTexture;
+    private BufferedImage backgroundImage; // Image de fond BG
     // Vue pour dessiner les blocs
     private BlockGridView blockGridView;
     // ajout: label pour afficher le temps restant (vue)
@@ -71,6 +72,15 @@ public class GamePanel extends JPanel {
     private void initializePanel() {
         setPreferredSize(new Dimension(model.getWidth(), model.getHeight()));
         setLayout(null);
+        
+        // Charger l'image de fond selon le style configuré
+        try {
+            String bgPath = MapConfig.getBackgroundStyle().getImagePath();
+            backgroundImage = ImageIO.read(getClass().getResourceAsStream(bgPath));
+        } catch (IOException | IllegalArgumentException e) {
+            System.err.println("Impossible de charger l'image de fond BG : " + e.getMessage());
+            backgroundImage = null;
+        }
         /*
         // Charger la texture du ground
         try {
@@ -143,6 +153,25 @@ public class GamePanel extends JPanel {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g.create();
 
+        // Dessiner l'image de fond avec effet parallax (bouge lentement avec la caméra)
+        if (!blueprintMode && backgroundImage != null) {
+            // Facteur de parallax (0.0 = fixe, 1.0 = bouge avec la caméra)
+            double parallaxFactor = 0.2;
+            
+            // Calculer le décalage parallax basé sur la position de la caméra
+            int parallaxX = (int)(camera.getX() * parallaxFactor);
+            int parallaxY = (int)(camera.getY() * parallaxFactor);
+            
+            // Dessiner l'image de fond légèrement plus grande pour couvrir le décalage
+            int extraWidth = (int)(model.getWidth() * parallaxFactor);
+            int extraHeight = (int)(model.getHeight() * parallaxFactor);
+            
+            g2.drawImage(backgroundImage, 
+                -parallaxX, -parallaxY, 
+                getWidth() + extraWidth, getHeight() + extraHeight, 
+                null);
+        }
+
         // Permet le zoom
         g2.scale(camera.getZoomFactor(), camera.getZoomFactor());
 
@@ -177,7 +206,8 @@ public class GamePanel extends JPanel {
             }
             // Rétablir le stroke normal
             g2.setStroke(GRID_STROKE_THIN);
-        } else {
+        } else if (backgroundImage == null) {
+            // Fallback: ciel bleu si pas d'image de fond
             g2.setColor(SKY_COLOR);
             g2.fillRect(0, 0, model.getWidth(), model.getHeight());
         }
