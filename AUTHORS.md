@@ -33,6 +33,30 @@
 
 
 - [WU Billy](https://moule.informatique.u-paris.fr/wub)
+
+    - DonnéesJoueur
+
+    - Saut 
+
+    - vent
+
+    - tir + dégats worms
+
+    - degradation terrain 
+
+    - buffs 
+
+    - Effet de Status
+
+    - 2 Gadget 
+
+    - Sfx pour gadgets, pour le mainMenu et inGame
+
+    - Ajout d'images pour les gadgets
+
+    - Ajouts de Tickets, Approuvez des MR et acceptez des MR 
+
+
 - [SHAN Hugo](https://moule.informatique.u-paris.fr/shanh)
 - [DESROQUES Ian](https://moule.informatique.u-paris.fr/desroque)
 - [ROSE Raphael](https://moule.informatique.u-paris.fr/rose)
