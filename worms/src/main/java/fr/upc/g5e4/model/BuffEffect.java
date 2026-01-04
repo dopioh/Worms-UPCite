@@ -67,4 +67,8 @@ public class BuffEffect {
         long remaining = duration - elapsed;
         return Math.max(0, remaining);
     }
+
+    public void refreshTimeStart(){
+        this.startTime = System.currentTimeMillis();
+    }
 }

@@ -36,22 +36,8 @@ public class TeamInitialisation {
     
     private static int SPACING = 25;
     public static int[] alreadyUsed = new int[5];
-    
-    
-    // Prendre le minimum de data necessaire en parametre
-    // le reste sera initialise avec Random
-    // creer un constructeur sans startX plus tard
-    /**
-     * Initialise une instance qui creer un teamModel et TeamView ensemble
-     * @param groundModel terrain model
-     * @param world physique du jeu
-     * @param teamName nom de l'equipe
-     * @param teamNumber nombre de worms par equipe (doit etre le meme pour toutes les equipes)
-     * @param startX position d'initialisation
-     */
-    public TeamInitialisation(GroundModel groundModel,World world,String teamName, int teamNumber, int startX){
-        this(groundModel, world, teamName, teamNumber, startX, "/wormPinky.png");
-    }
+
+    private String skinPath;
     
     /**
      * Initialise une instance qui creer un teamModel et TeamView ensemble avec un skin personnalisé
@@ -66,8 +52,9 @@ public class TeamInitialisation {
         //System.out.println("Nombre de worms pour " + teamName + "est de : " + teamNumber);
         boolean facingRight = (startX < groundModel.getWidth() / 2);
         this.name = teamName;
+        this.skinPath = skinPath;
         colorGiving();
-        teamModel = new TeamModel(groundModel, world, name, startX, SPACING, teamNumber, false, facingRight, false,COLORTEAM);
+        teamModel = new TeamModel(groundModel, world, name, startX, SPACING, teamNumber, false, facingRight, false,COLORTEAM, skinPath);
         teamView = new TeamView(teamNumber,color, skinPath, facingRight);
         SPACING += 3; // pour que si il y'a plus de 2 equipes, les worms ne se superposent pas
     }
@@ -84,7 +71,8 @@ public class TeamInitialisation {
     public TeamInitialisation(GroundModel groundModel,World world,int TeamID ,String teamName, int teamNumber,CharacterData[] characterData, Color color, String skinPath, List<InventoryJson> inventory){
         this.name = teamName;
         this.color = color;
-        teamModel = new TeamModel(groundModel, world, teamName, teamNumber, TeamID, characterData,COLORTEAM, inventory);
+        this.skinPath = skinPath;
+        teamModel = new TeamModel(groundModel, world, teamName, teamNumber, TeamID, characterData,COLORTEAM, inventory,skinPath);
         teamView = new TeamView(teamNumber,color, skinPath, true); // facingRight a changer apres
     }
 
@@ -101,11 +89,12 @@ public class TeamInitialisation {
      */
     public TeamInitialisation(GroundModel groundModel,World world,int TeamID ,String teamName, int teamNumber,CharacterData[] characterData, int COLOR, String skinPath,List<InventoryJson> inventory, int money){
         this.name = teamName;
+        this.skinPath = skinPath;
         COLORTEAM = COLOR;
         colorGiving();
-        teamModel = new TeamModel(groundModel, world, teamName, teamNumber, TeamID, characterData,COLORTEAM,inventory);
-        teamModel.setMoney(money);
+        teamModel = new TeamModel(groundModel, world, teamName, teamNumber, TeamID, characterData,COLORTEAM,inventory,skinPath);
         teamView = new TeamView(teamNumber,color, skinPath, true); // facingRight a changer apres
+        teamModel.setMoney(money);
     }
 
     public TeamModel getTeamModel(){

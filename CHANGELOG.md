@@ -78,7 +78,10 @@
     - Le worm est textuellement équipé 
 
 ## [v.0.3 : SPRINT 3](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/3)
+<<<<<<< HEAD
+=======
 ---
+>>>>>>> dev
 
 ### Added
 
@@ -100,8 +103,11 @@
 - Constructeurs `TeamView` et `CharacterView` avec chemin vers sprite
 - Fonction `loadSprite` avec gestion d'erreurs
 - Affichage du sprite dans la bonne direction
+<<<<<<< HEAD
+=======
 - SFX bruit de Tir
 - Vent
+>>>>>>> dev
 
 ### Modified
 
@@ -151,15 +157,23 @@
 ### Optimisation
 
 - Performance
+<<<<<<< HEAD
+    - Centralisation repaint dans un seul Timer
+    - Pré-création d'objets graphiques réutilisables
+- Lag Audio : Système de cache avec pré-chargement
+=======
     - Centralisation de repaint dans un seul Timer (gameLoop) pour avoir un seul repaint()
     - Pré-création d'objets graphiques réutilisables (couleurs, strokes) pour réduire les allocations mémoire
 - Lag Audio : Système de cache avec pré-chargement des sons en mémoire
+>>>>>>> dev
 
 
 ## [v.0.5 : SPRINT 5](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/5) (unreleased)
 
 ### Added
 
+<<<<<<< HEAD
+=======
 - **Page reglages**
     - Système d'onglets : Map, Équipes, Autre
     - Support du plein écran avec scaling automatique
@@ -183,6 +197,7 @@
         - Systeme de customisation d'equipe
 - **Skins**
     - Ajout des 5 skins (hors wormPixel) debloquable
+>>>>>>> dev
 - Algorithme FloodFill pour supprimer les blocks non liés au sol
 - Fixture unique par block
 - Boutique
@@ -194,6 +209,18 @@
 - Sons pour les gadgets
 - Dégâts de zone 
 - Readme.md expliquant le projet (comment jouer etc)
+<<<<<<< HEAD
+- Ajout d’un pointeur graphique (flèche rouge) au-dessus du joueur actif dans la vue GamePanel pour indiquer visuellement le worm en cours de jeu.
+
+### Fixed
+
+- Double tir
+- Fix tir lié au zoom
+- body des blocks invisible après destruction
+- l'image de fond dans main menu qui ne redimentionne pas bien lors du passage en full screen sur un grand ecran
+- fix `player_save.txt` quand le dossier `sauvegardes` n'existe pas
+- fix save pour ajouter les buffs
+=======
 - Ajout d'un pointeur graphique (flèche rouge) au-dessus du joueur actif
 - Ajout background avec effet parallax
     - choix dans parametre onglet map
@@ -201,6 +228,7 @@
 - CONTRIBUTING.MD
 - DESIGN.MD
 - Systeme d'image en cache pour optimiser
+>>>>>>> dev
 
 ### Modified
 
@@ -214,6 +242,9 @@
 - Maj du DIAGRAMME.MD
 - Maj du ARCHITECTURE.md
 - Amélioration de CHANGELOG.md
+<<<<<<< HEAD
+- Remonte le niveau de l'eau 
+=======
 
 ### Fixed
 
@@ -233,3 +264,4 @@
 - Ajout de support Java 24 et 25
     - JaCoCo : 0.8.12 → 0.8.13
     - Mockito : 5.14.2 → 5.21.0
+>>>>>>> dev

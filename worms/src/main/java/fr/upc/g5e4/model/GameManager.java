@@ -128,7 +128,7 @@ public class GameManager {
         int sizeX = MapConfig.getMapWidth();
         int sizeY = MapConfig.getMapHeight();
         // Eau uniquement pour le mode ISLANDS
-        int waterLevel = (MapConfig.getMapType() == MapConfig.MapType.ISLANDS) ? 480 : sizeY + 100;
+        int waterLevel = (MapConfig.getMapType() == MapConfig.MapType.ISLANDS) ? 480 : sizeY - 100;
         // =============================================
         
         // generation procédurale du terrain avec seed (le temps de la machine)
@@ -264,17 +264,15 @@ public class GameManager {
     public GameManager(SaveData saveData){
         //this.saveDataBool = true;
         //this.saveData = saveData;
+        BlockGridModel b = saveData.getBlockGridModel();
 
         // On part du principe que la taille du terrain ne changera jamais 
-        int sizeX = 1280;  // Taille du terrain
-        int sizeY = 720;
-        int waterLevel = 800;
-
-        System.out.println("Ca marche ?"); // oui, ca casse a la ligne de en dessous
+        int sizeX = b.getPixelWidth();  // Taille du terrain
+        int sizeY = b.getPixelHeight();
+        int waterLevel = b.getWaterLevel(); // a recup de saveData aussi..
 
         int[] groundY = saveData.getGroundModel().getGroundY();
-        this.blockGridModel = new BlockGridModel(sizeX, sizeY, waterLevel);
-        blockGridModel.generateWithGroundY(groundY);
+        this.blockGridModel = b;
 
         this.model = saveData.getGroundModel();
 
@@ -357,6 +355,22 @@ public class GameManager {
         activeWormController.setCurrentWeapon(defaultWeapon);
         // Mettre à jour l'arme dans la vue
         updateWeaponInView(activeWormController.getModel(), defaultWeapon);
+
+        // Normalement les index pour cv et cm sont les memes
+        for (TeamInitialisation tm : listTeamInital) {
+                TeamModel td = tm.getTeamModel();
+                TeamView tv = tm.getTeamView();
+    
+            // on parcourt les worms de CETTE equipe specifique
+            for (int i = 0; i < td.getTabWorms().length; i++) {
+                CharacterView cv = tv.getCharacterView(i);
+    
+                CharacterModel currentWorm = td.getTabWorms()[i]; 
+
+                currentWorm.restoreVisuals(cv);
+            }
+        }
+        
 
         // Initialisation caméra avec le worm actif (fenêtre 1280x720, terrain 6000x720)
         this.cameraController = new CameraController(camera,listTeamInital.get(currentTeamIndex).getTeamModel().getWorm(activeWormIndex));
@@ -989,7 +1003,7 @@ public class GameManager {
                 }
                 break;
             case "PotionSpeed":
-                currentWorm.applySpeedBuff();
+                currentWorm.applySpeedBuff(20000);
                 // ajouter l'étiquette via la vue du worm avec timer (20 secondes)
                 if (charView != null) {
                     charView.getNameTagView().addItemFromResource("/buffs/speed_buff.png", "speed_buff_icon", 20000);
@@ -1003,7 +1017,7 @@ public class GameManager {
                 }
                 break;
             case "PotionJump":
-                currentWorm.applyJumpBuff();
+                currentWorm.applyJumpBuff(20000);
                 // ajouter l'étiquette via la vue du worm avec timer (20 secondes)
                 if (charView != null) {
                     charView.getNameTagView().addItemFromResource("/buffs/jump_buff.png", "jump_buff_icon", 20000);
@@ -1023,6 +1037,50 @@ public class GameManager {
                 // enregistrer l'utilisation du gadget
                 if (gadgetFromInventory != null && gadgetFromInventory.canUseThisTurn()) {
                     gadgetFromInventory.registerUseThisTurn();
+                }
+                break;
+            default:
+                System.out.println("[Gadget] Gadget inconnu : " + itemName);
+                break;
+        }
+    }
+
+    /**
+     * Methode pour recuperer les buff actif apres le load d'une save
+     * @param itemName
+     * @param tempsRestant
+     */
+    public void useGadgetDuringSave(BuffEffect.BuffType itemName,long tempsRestantL, CharacterModel cm){
+        int tempsRestant = (int) tempsRestantL;
+
+        CharacterModel currentWorm = cm;
+        
+        // récupérer la vue du worm pour ajouter l'étiquette au nametag et afficher le sprite du gadget
+        fr.upc.g5e4.view.CharacterView charView = null;
+        int wormIndex = getActiveWormIndex();
+        int teamIndex = getCurrentTeamIndex();
+        if (wormIndex >= 0 && teamIndex >= 0 && teamIndex < getListTeamInit().size()) {
+            charView = getListTeamInit().get(teamIndex).getTeamView().getCharacterView(wormIndex);
+        }   
+        
+        // afficher le sprite du gadget
+        //if (charView != null) {
+        //    charView.setCurrentGadgetSprite(itemName);
+        //}
+
+        switch (itemName) {
+            case BuffEffect.BuffType.SPEED_BOOST:
+                currentWorm.applySpeedBuff(tempsRestant);
+                // ajouter l'étiquette via la vue du worm avec timer (20 secondes)
+                if (charView != null) {
+                    charView.getNameTagView().addItemFromResource("/buffs/speed_buff.png", "speed_buff_icon", tempsRestant);
+                }
+                break;
+            case BuffEffect.BuffType.JUMP_BOOST:
+                currentWorm.applyJumpBuff(tempsRestant);
+                // ajouter l'étiquette via la vue du worm avec timer (20 secondes)
+                if (charView != null) {
+                    charView.getNameTagView().addItemFromResource("/buffs/jump_buff.png", "jump_buff_icon", tempsRestant);
                 }
                 break;
             default:
