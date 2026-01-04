@@ -8,10 +8,9 @@ import fr.upc.g5e4.model.camera.CameraModel;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Path2D;
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.ArrayList;
+import fr.upc.g5e4.util.ImageCache;
 
 /**
  * Classe qui sert pour tous les graphismes du monde
@@ -72,12 +71,10 @@ public class GamePanel extends JPanel {
         setLayout(null);
         
         // Charger l'image de fond selon le style configuré
-        try {
-            String bgPath = MapConfig.getBackgroundStyle().getImagePath();
-            backgroundImage = ImageIO.read(getClass().getResourceAsStream(bgPath));
-        } catch (IOException | IllegalArgumentException e) {
-            System.err.println("Impossible de charger l'image de fond BG : " + e.getMessage());
-            backgroundImage = null;
+        String bgPath = MapConfig.getBackgroundStyle().getImagePath();
+        backgroundImage = ImageCache.get(bgPath);
+        if (backgroundImage == null) {
+            System.err.println("Impossible de charger l'image de fond BG : " + bgPath);
         }
         /*
         // Charger la texture du ground

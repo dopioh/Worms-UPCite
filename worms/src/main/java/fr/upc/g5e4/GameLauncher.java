@@ -15,6 +15,7 @@ import fr.upc.g5e4.model.console.ConsoleLauncher;
 import fr.upc.g5e4.view.*;
 import fr.upc.g5e4.controller.*;
 import fr.upc.g5e4.model.*; 
+import fr.upc.g5e4.util.ImageCache;
 
 
 /** Classe qui lance le jeu, elle set la taille de l'ecran (grace a son heritage de JFrame) */
@@ -90,6 +91,8 @@ public class GameLauncher{
             this.gameLoop.timerStart();
             return;
         }
+        
+        preloadCommonImages();
         
         // Créer la fenêtre principale unique
         mainFrame = new JFrame("Worms");
@@ -545,6 +548,60 @@ public class GameLauncher{
             this.playerDataController.nouveauJoueur();
             this.playerDataController.sauvegarderJoueur();
         }
+    }
+
+    /**
+     * preload les images
+     */
+    private void preloadCommonImages() {
+        System.out.println("[GameLauncher] Préchargement des images...");
+        
+        // sprites des worms
+        ImageCache.preload(
+            "/wormCostar.png", "/wormNoel.png", "/wormPinky.png",
+            "/wormPixel.png", "/wormCuisto.png", "/wormNerd.png"
+        );
+        
+        // armes POUR LA BOUTIQUE (IL FAUDRAIT QUE LES IMAGES DE LA BOUTIQUE SOIENT LES SPRITES DES ITEMS POUR OPTI)
+        ImageCache.preload(
+            "/ak.png", "/grenade.png", "/bazooka.png", "/baseballbat.png"
+        );
+        
+        // gadgets
+        ImageCache.preload(
+            "/gadgets/potion_speed.png", "/gadgets/potion_jump.png",
+            "/gadgets/potion_heal.png", "/gadgets/potion_shield.png"
+        );
+        
+        // sprites d'armes
+        ImageCache.preload(
+            "/sprite_items/ak47-sprite.png", "/sprite_items/grenade-sprite.png",
+            "/sprite_items/rocketlauncher-sprite.png", "/sprite_items/baseballbat-sprite.png"
+        );
+        
+        // sprites de gadgets
+        ImageCache.preload(
+            "/gadgets/potionspeed-sprite.png", "/gadgets/potionjump-sprite.png",
+            "/gadgets/potionheal-sprite.png", "/gadgets/potionshield-sprite.png"
+        );
+        
+        // backgrounds et UI
+        ImageCache.preload(
+            "/background.png", "/Reglage_BG.png",
+            "/backpack.png", "/parametre.png", "/title.png"
+        );
+        
+        // gambling
+        ImageCache.preload(
+            "/wormrace.png", "/wormguess.png", "/wormjack.png"
+        );
+        
+        // fin de jeu
+        ImageCache.preload(
+            "/Trophee.png", "/Sparkle.png"
+        );
+        
+        System.out.println("[GameLauncher] Préchargement terminé !");
     }
 
     public PlayerDataController getPlayerDataController(){

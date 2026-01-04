@@ -4,9 +4,9 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
-import java.io.IOException;
-import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import fr.upc.g5e4.model.CharacterModel;
+import fr.upc.g5e4.util.ImageCache;
 
 /**
  * Vue pour l'affichage du NameTag
@@ -95,12 +95,11 @@ public class NameTagView {
      * @param durationMs La durée en milliseconde
      */
     public void addItemFromResource(String imagePath, String name, long durationMs) {
-        try {
-            BufferedImage image = ImageIO.read(getClass().getResourceAsStream(imagePath));
+        BufferedImage image = ImageCache.get(imagePath);
+        if (image != null) {
             itemIcons.add(new ItemIcon(image, name, durationMs));
-        } catch (IOException | IllegalArgumentException e) {
+        } else {
             System.err.println("Impossible de charger l'image: " + imagePath);
-            e.printStackTrace();
         }
     }
     

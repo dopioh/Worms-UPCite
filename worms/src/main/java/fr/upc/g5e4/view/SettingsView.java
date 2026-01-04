@@ -25,6 +25,8 @@ import fr.upc.g5e4.model.SoundPlayer;
 import fr.upc.g5e4.view.UI.*;
 import fr.upc.g5e4.GameLauncher;
 
+import fr.upc.g5e4.util.ImageCache;
+
 
 /**
  * STRUCTURE:
@@ -177,8 +179,12 @@ public class SettingsView extends JPanel {
         try {
             java.net.URL url = getClass().getResource("/Reglage_BG.png");
             if (url != null) {
-                backgroundImage = new ImageIcon(url).getImage();
-            }
+                //backgroundImage = new ImageIcon(url).getImage();
+                java.awt.image.BufferedImage img = ImageCache.get("/Reglage_BG.png");
+                if (img != null) {
+                    backgroundImage = img;
+                }
+            } 
         } catch (Exception e) {
             System.err.println("Impossible de charger Reglage_BG.png: " + e.getMessage());
         }

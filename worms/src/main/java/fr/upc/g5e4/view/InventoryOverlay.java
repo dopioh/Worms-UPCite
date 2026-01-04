@@ -13,6 +13,7 @@ import fr.upc.g5e4.model.InventoryModel.InventoryJson;
 import fr.upc.g5e4.controller.SwingInputController;
 import fr.upc.g5e4.model.GameManager;
 import fr.upc.g5e4.controller.PlayerDataController;
+import fr.upc.g5e4.util.ImageCache;
 
 /**
  * Overlay Swing affichant l'inventaire du joueur
@@ -112,12 +113,10 @@ public class InventoryOverlay extends JComponent {
     }
 
     private void loadImage(String name, String path) {
-        try {
-            itemImages.put(
-                name.toLowerCase(),
-                javax.imageio.ImageIO.read(getClass().getResource(path))
-            );
-        } catch (Exception e) {
+        BufferedImage img = ImageCache.get(path);
+        if (img != null) {
+            itemImages.put(name.toLowerCase(), img);
+        } else {
             System.err.println("Image manquante : " + path);
         }
     }

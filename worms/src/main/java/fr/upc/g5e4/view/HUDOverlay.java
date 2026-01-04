@@ -9,6 +9,7 @@ import java.awt.image.BufferedImage;
 import fr.upc.g5e4.model.GameManager;
 import fr.upc.g5e4.model.InventoryModel.InventoryJson;
 import fr.upc.g5e4.model.CharacterModel;
+import fr.upc.g5e4.util.*;
 
 public class HUDOverlay extends JComponent {
 
@@ -30,10 +31,11 @@ public class HUDOverlay extends JComponent {
         loadImage("PotionShield", "/gadgets/potion_shield.png");
     }
 
-    private void loadImage(String name, String path) {        
-        try {
-            weaponImages.put(name.toLowerCase(), javax.imageio.ImageIO.read(getClass().getResource(path)));
-        } catch (Exception e) {
+    private void loadImage(String name, String path) {
+        java.awt.image.BufferedImage img = fr.upc.g5e4.util.ImageCache.get(path);
+        if (img != null) {
+            weaponImages.put(name.toLowerCase(), img);
+        } else {
             System.err.println("[HUD] image arme introuvable: " + path);
         }
     }
@@ -60,16 +62,14 @@ public class HUDOverlay extends JComponent {
     private BufferedImage backpackIcon;
 
     private void loadBackpack() {
-        try {
-            backpackIcon = javax.imageio.ImageIO.read(getClass().getResource("/backpack.png"));
-        } catch (Exception e) {
+        backpackIcon = ImageCache.get("/backpack.png");
+        if (backpackIcon == null) {
             System.err.println("[HUD] backpack.png introuvable");
         }
     }
     private void loadSettingsIcon() {
-        try {
-            settingsIcon = javax.imageio.ImageIO.read(getClass().getResource("/parametre.png"));
-        } catch (Exception e) {
+        settingsIcon = ImageCache.get("/parametre.png");
+        if (settingsIcon == null) {
             System.err.println("[HUD] parametre.png introuvable");
         }
     }
