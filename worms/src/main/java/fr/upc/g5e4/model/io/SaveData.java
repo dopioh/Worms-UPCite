@@ -76,6 +76,9 @@ public class SaveData {
         this.teamStats = gameManager.getAllTeamStats();
 
         bg = MapConfig.getBackgroundStyle();
+        if (bg == null){
+            bg = MapConfig.BackgroundStyle.JOUR;
+        }
 
         this.windData = WindData.WindModelToWindData(gameManager.getWindModel());
 
