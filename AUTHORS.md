@@ -31,6 +31,8 @@
 
     - Ajout CONTRIBUTING.md
 
+    - Ajout systeme d'image dans le cache
+
 
 - [WU Billy](https://moule.informatique.u-paris.fr/wub)
 - [SHAN Hugo](https://moule.informatique.u-paris.fr/shanh)

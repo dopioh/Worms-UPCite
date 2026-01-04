@@ -198,6 +198,9 @@
 - Ajout background avec effet parallax
     - choix dans parametre onglet map
 - AUTHORS.md
+- CONTRIBUTING.MD
+- DESIGN.MD
+- Systeme d'image en cache pour optimiser
 
 ### Modified
 
