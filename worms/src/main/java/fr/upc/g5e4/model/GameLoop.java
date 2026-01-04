@@ -80,7 +80,7 @@ public class GameLoop{
                 
                 // met a jour l'animation du vent
                 if (gameManager.getWindOverlay() != null) {
-                    gameManager.getWindOverlay().update(FIXHZ);
+                    gameManager.getWindOverlay().update();
                 }
                 
                 // met a jour le worm actif

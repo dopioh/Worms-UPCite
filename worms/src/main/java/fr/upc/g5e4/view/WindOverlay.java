@@ -19,7 +19,6 @@ import java.util.Random;
  */
 public class WindOverlay extends JComponent {
     private final WindModel wind;       // modèle du vent
-    private final List<Particle> particles = new ArrayList<>(); // Particules de vent
     private final Random rng = new Random();
 
     // Pré-création des objets graphiques pour éviter les allocations à chaque frame + access facile aux couleurs
@@ -34,56 +33,15 @@ public class WindOverlay extends JComponent {
     public WindOverlay(WindModel wind) {
         this.wind = wind;
         setOpaque(false);
-
-        // crée quelques particules
-        for (int i = 0; i < 30; i++) {
-            particles.add(spawnParticle());
-        }
-    }
-
-    // Génère une particule de vent avec des propriétés aléatoires
-    private Particle spawnParticle() {
-        Particle p = new Particle();
-        p.x = rng.nextFloat();
-        p.y = rng.nextFloat();
-        p.speed = 0.15f + rng.nextFloat() * 0.35f; // vitesse base
-        p.size = 1.5f + rng.nextFloat() * 2.5f;
-        p.alpha = 0.2f + rng.nextFloat() * 0.35f;
-        return p;
     }
 
     /**
      * Méthode publique pour animer le vent depuis GameLoop
-     * @param dt delta time en secondes
      */
-    public void update(float dt) {
-        tick(dt);
+    public void update() {
         repaint();
     }
 
-    // Met à jour uniquement l'état interne de la vue (particules + phase)
-    private void tick(float dt) {
-
-        // direction normalisée (dx,dy dans {-1,0,1})
-        WindModel.Dir d = wind.getDir();
-        float strength = wind.getStrength();
-
-        // vitesse réelle : discrète mais visible
-        float vx = d.dx * (0.20f + 1.2f * strength);
-        float vy = d.dy * (0.20f + 1.2f * strength);
-
-        // bouge les particules en boucle
-        for (Particle p : particles) {
-            p.x += vx * p.speed * dt;
-            p.y += vy * p.speed * dt;
-
-            // wrap (revient de l’autre côté)
-            if (p.x < -0.1f) p.x = 1.1f;
-            if (p.x > 1.1f) p.x = -0.1f;
-            if (p.y < -0.1f) p.y = 1.1f;
-            if (p.y > 1.1f) p.y = -0.1f;
-        }
-    }
 
     @Override
     protected void paintComponent(Graphics g) {
@@ -170,23 +128,6 @@ public class WindOverlay extends JComponent {
         g2.fillRoundRect(barX, barY, barW, barH, 8, 8);
         g2.setColor(BAR_FG);
         g2.fillRoundRect(barX, barY, (int) (barW * strength), barH, 8, 8);
-
-        // particules animées (dans le petit widget uniquement)
-        Shape oldClip = g2.getClip();
-        clipRect.setBounds(x + 6, y + 22, boxW - 12, boxH - 28);
-        g2.setClip(clipRect);
-
-        for (Particle p : particles) {
-            // ne dessine que dans le widget (coordonnées normalisées => widget)
-            int px = x + 6 + (int) ((boxW - 12) * p.x);
-            int py = y + 22 + (int) ((boxH - 28) * p.y);
-
-            int alpha = (int) (255 * p.alpha);
-            g2.setColor(new Color(255, 255, 255, alpha));
-            g2.fillOval(px, py, (int) p.size, (int) p.size);
-        }
-
-        g2.setClip(oldClip);
     }
 
     private void drawArrowHead(Graphics2D g2, int x1, int y1, int x2, int y2, int headLen) {
@@ -201,12 +142,5 @@ public class WindOverlay extends JComponent {
 
         g2.drawLine(x2, y2, hx1, hy1);
         g2.drawLine(x2, y2, hx2, hy2);
-    }
-
-    private static class Particle {
-        float x, y;
-        float speed;
-        float size;
-        float alpha;
     }
 }
