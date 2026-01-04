@@ -178,7 +178,7 @@ public class GameManager {
         this.nbrWormsByTeam = TeamConfig.NBR_WORM_EQUIPE;
 
         // Récupérer le skin sélectionné dans les paramètres
-        String selectedSkin = SkinSettings.getCurrentSkin();
+        //String selectedSkin = SkinSettings.getCurrentSkin();
 
         // creation des equipes selon le nombre que on veut
         createTeam(TeamConfig.NBR_EQUIPE, TeamConfig.aCustomForATeam);
@@ -315,6 +315,9 @@ public class GameManager {
 
         // GameStats : 
         this.teamStats = saveData.getAllTeamStats();
+
+        // Background : 
+        MapConfig.setBackgroundStyle(SaveData.getBackgroundFROMSAVE());
         
         // pour le WaterSensorListener
         ArrayList<CharacterModel> allWorms = new ArrayList<>();
