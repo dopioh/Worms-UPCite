@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.ImageIcon;
 import fr.upc.g5e4.model.CharacterModel;
+import fr.upc.g5e4.model.MapConfig;
 import fr.upc.g5e4.util.ImageCache;
 
 /**
@@ -27,6 +28,9 @@ public class NameTagView {
     
     // Liste des items à afficher au-dessus des barres
     private List<ItemIcon> itemIcons;
+
+    // couleur pour chaque equipe
+    private Color teamColor;
     
     /**
      * Classe interne pour représenter un item icon
@@ -76,6 +80,7 @@ public class NameTagView {
     public NameTagView(Color borderColor) {
         this.padding = 5;
         this.visible = true;
+        this.teamColor = borderColor;
         this.itemIcons = new ArrayList<>();
     }
     
@@ -275,23 +280,41 @@ public class NameTagView {
         String name = model.getName();
 
         if (name != null && !name.isEmpty()) {
-            g2d.setFont(new Font("googleSansFont", Font.BOLD, 22));
+            g2d.setFont(new Font("googleSansFont", Font.BOLD, 25));
+    
+            FontMetrics fm = g2d.getFontMetrics(); // on recup les mesures de la font pour calculer son positionnement
+            int textWidth = fm.stringWidth(name);   // recup la largeur du texte
 
             org.jbox2d.dynamics.Body body = model.getBody();
-            org.jbox2d.common.Vec2 pos = body.getPosition();
-            int x = (int)(pos.x * fr.upc.g5e4.model.CharacterModel.getPPM());
+            org.jbox2d. common.Vec2 pos = body.getPosition();
+            int x = (int)(pos.x * fr.upc.g5e4.model.CharacterModel. getPPM());
             int y = (int)((24 - pos.y) * fr.upc.g5e4.model.CharacterModel.getPPM());
-            
-            int textX = x - 40;
-            int textH = y - 70;
+    
+            // on centre le texte par rapport a la position du worm
+            int textX = x - (textWidth / 2);
+            int textY = y - 70;
 
-            g2d.setColor(Color.PINK);
-            g2d.drawString(name, textX + 1, textH);
+            if ((MapConfig.getBackgroundStyle() != null) && MapConfig.getBackgroundStyle().equals(MapConfig.BackgroundStyle.NUIT)){
+                g2d.setColor(Color.BLACK);
+            } else {
+                 g2d.setColor(Color.WHITE);
+            }
 
-            g2d.setColor(Color.WHITE);
-            g2d.drawString(name, textX, textH);
-            
-            //currentY += textHeight - 4; // 4px de marge
+            g2d.setColor(Color.BLACK);
+            int outlineThickness = 2; 
+    
+            for (int i = -outlineThickness; i <= outlineThickness; i++) {
+                for (int j = -outlineThickness; j <= outlineThickness; j++) {
+                    if ( i!= 0 || j != 0) { // pour eviter de dessiner au centre
+                        g2d.drawString(name, textX + i, textY + j);
+                    }   
+                }
+            }
+
+            // Texte principal par-dessus
+            g2d.setColor(teamColor);
+            g2d.drawString(name, textX, textY);
+  
         }
     }
     

@@ -262,7 +262,7 @@ public class GamePanel extends JPanel {
                     // mettre des couleurs diff
                     g2.setColor(Color.RED);
                     g2.fillPolygon(xPoints, yPoints, 3);
-                    g2.setColor(Color.WHITE);
+                    g2.setColor(new Color(186, 19, 19));
                     g2.drawPolygon(xPoints, yPoints, 3);
 
                 }

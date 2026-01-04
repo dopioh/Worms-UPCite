@@ -31,6 +31,8 @@ public class TeamModel {
     private List<InventoryJson> inventory;
 
     private boolean facingRight;
+
+    private String skinPath;
     
     private int money;
     
@@ -46,7 +48,7 @@ public class TeamModel {
      * @param facingRight Direction initiale des worms (true = droite, false = gauche)
      * @param withCollision Active les collisions entre worms (true = avec collisions, false = sans)
      */
-    public TeamModel(GroundModel groundModel, World world, String teamName, double startX, double spacing, int wormNumber, boolean console, boolean facingRight, boolean withCollision,int COLORTEAM,ArrayList<String> nameWorms) {
+    public TeamModel(GroundModel groundModel, World world, String teamName, double startX, double spacing, int wormNumber, boolean console, boolean facingRight, boolean withCollision,int COLORTEAM,ArrayList<String> nameWorms,String skinPath) {
         if (wormNumber < 1) {
             throw new IllegalArgumentException("Une équipe doit avoir au moins 1 worm");
         }
@@ -59,6 +61,7 @@ public class TeamModel {
 
         TEAMSNUMBER++;
         this.teamID = TEAMSNUMBER;
+        this.skinPath = skinPath;
         
         // Initialisation automatique des worms et position espacée
         for (int i = 0; i < number; i++) {
@@ -96,12 +99,13 @@ public class TeamModel {
     /**
      * Constructeur pour le load d'une sauvegarde 
      */
-    public TeamModel(GroundModel groundModel, World world, String teamName, int wormNumber, int teamID, CharacterData[] characterDatas,int COLORTEAM,List<InventoryJson> inventory ){
+    public TeamModel(GroundModel groundModel, World world, String teamName, int wormNumber, int teamID, CharacterData[] characterDatas,int COLORTEAM,List<InventoryJson> inventory , String skinPath){
         this.teamName = teamName;
         this.number = wormNumber;
         this.teamID = teamID;
         this.COLORTEAM = COLORTEAM;
         this.inventory = inventory;
+        this.skinPath = skinPath;
         this.money = 0;
         
         this.tabModelWorms = new CharacterModel[number];
@@ -161,7 +165,7 @@ public class TeamModel {
 
     // Getter Data
     public TeamData toData(){
-        return new TeamData(teamID, number, tabModelWorms,teamName,COLORTEAM, inventory, money);
+        return new TeamData(teamID, number, tabModelWorms,teamName,COLORTEAM, inventory, money,skinPath);
     }
     
 

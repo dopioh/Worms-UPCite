@@ -37,6 +37,8 @@ public class TeamInitialisation {
     
     private static int SPACING = 25;
     public static int[] alreadyUsed = new int[5];
+
+    private String skinPath;
     
     
     // Prendre le minimum de data necessaire en parametre
@@ -67,8 +69,9 @@ public class TeamInitialisation {
         //System.out.println("Nombre de worms pour " + teamName + "est de : " + teamNumber);
         boolean facingRight = (startX < groundModel.getWidth() / 2);
         this.name = teamName;
+        this.skinPath = skinPath;
         colorGiving();
-        teamModel = new TeamModel(groundModel, world, name, startX, SPACING, teamNumber, false, facingRight, false,COLORTEAM, nameWorms);
+        teamModel = new TeamModel(groundModel, world, name, startX, SPACING, teamNumber, false, facingRight, false,COLORTEAM, nameWorms,skinPath);
         teamView = new TeamView(teamNumber,color, skinPath, facingRight);
         SPACING += 3; // pour que si il y'a plus de 2 equipes, les worms ne se superposent pas
     }
@@ -85,7 +88,8 @@ public class TeamInitialisation {
     public TeamInitialisation(GroundModel groundModel,World world,int TeamID ,String teamName, int teamNumber,CharacterData[] characterData, Color color, String skinPath, List<InventoryJson> inventory){
         this.name = teamName;
         this.color = color;
-        teamModel = new TeamModel(groundModel, world, teamName, teamNumber, TeamID, characterData,COLORTEAM, inventory);
+        this.skinPath = skinPath;
+        teamModel = new TeamModel(groundModel, world, teamName, teamNumber, TeamID, characterData,COLORTEAM, inventory,skinPath);
         teamView = new TeamView(teamNumber,color, skinPath, true); // facingRight a changer apres
     }
 
@@ -102,11 +106,12 @@ public class TeamInitialisation {
      */
     public TeamInitialisation(GroundModel groundModel,World world,int TeamID ,String teamName, int teamNumber,CharacterData[] characterData, int COLOR, String skinPath,List<InventoryJson> inventory, int money){
         this.name = teamName;
+        this.skinPath = skinPath;
         COLORTEAM = COLOR;
         colorGiving();
-        teamModel = new TeamModel(groundModel, world, teamName, teamNumber, TeamID, characterData,COLORTEAM,inventory);
-        teamModel.setMoney(money);
+        teamModel = new TeamModel(groundModel, world, teamName, teamNumber, TeamID, characterData,COLORTEAM,inventory,skinPath);
         teamView = new TeamView(teamNumber,color, skinPath, true); // facingRight a changer apres
+        teamModel.setMoney(money);
     }
 
     public TeamModel getTeamModel(){
@@ -128,25 +133,28 @@ public class TeamInitialisation {
      */
     private void colorGiving(){
 
-        if (COLORTEAM >= 5){
+        if (COLORTEAM >= 6){
             COLORTEAM = 0;
         }
 
         switch (COLORTEAM) {
             case 0:
-                this.color = Color.RED;
+                this.color = new Color(255, 115, 126);
                 break;
             case 1 : 
-                this.color = Color.BLUE;
+                this.color = new Color(146, 130, 255);
                 break;
             case 2 : 
-                this.color = Color.PINK;
+                this.color = new Color(137, 247, 136);
                 break;
             case 3 : 
-                this.color = Color.GREEN;
+                this.color = new Color(61, 61, 71);
                 break;
             case 4 : 
-                this.color = Color.YELLOW;
+                this.color = new Color(100, 227, 114);
+                break;
+            case 5 : 
+            this.color =new Color(255, 255, 56);
                 break;
         }
         COLORTEAM++;

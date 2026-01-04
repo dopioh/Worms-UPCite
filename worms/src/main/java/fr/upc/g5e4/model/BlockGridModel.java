@@ -6,7 +6,7 @@ package fr.upc.g5e4.model;
  */
 public class BlockGridModel {
     
-    public static final int BLOCK_SIZE = 12;  // Taille d'un bloc en pixels
+    public static final int BLOCK_SIZE = 16;  // Taille d'un bloc en pixels
     
     private final BlockType[][] grid;         // la grille de blocs (colonnes, lignes)
     private final BlockHealthGrid healthGrid; // grille de santé des blocs
@@ -281,6 +281,10 @@ public class BlockGridModel {
     public int getPixelHeight() { return pixelHeight; }
     public int getWaterLevel() { return waterLevel; }
     public int getBlockSize() { return BLOCK_SIZE; }
+
+    public BlockType[][] getbBlockTypes(){
+        return this.grid;
+    }
 
     /**
      * Réinitialise le flag dirty (après reconstruction de la physique)

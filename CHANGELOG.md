@@ -201,6 +201,7 @@
 - CONTRIBUTING.MD
 - DESIGN.MD
 - Systeme d'image en cache pour optimiser
+- Prenom de chaque Worm au dessus d'eux (la couleur depend du background)
 
 ### Modified
 
@@ -214,6 +215,7 @@
 - Maj du DIAGRAMME.MD
 - Maj du ARCHITECTURE.md
 - Amélioration de CHANGELOG.md
+- Remonte le niveau de l'eau
 
 ### Fixed
 
@@ -227,6 +229,10 @@
 - Fix tir lié au zoom
 - Body des blocks invisible après destruction
 - L'image de fond dans main menu qui ne redimensionne pas bien en full screen
+- Fix `player_save.txt` quand le dossier `sauvegardes` n'existe pas
+- Fix save pour ajouter les buffs
+- Fix save qui se lance quand y'en a une meme si on appuie sur le bouton "Nouvelle partie"
+- Fix Noms des worms qui s'enregistraient pas correctement dans `CharacterModel`
 
 ### Configuration
 

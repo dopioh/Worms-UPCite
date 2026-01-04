@@ -28,7 +28,7 @@ public class CharacterDataTest {
 
     @BeforeEach
     void setUp() {
-        characterData = new CharacterData(1,"Worm-1",150,300,100, 50,false,true);
+        characterData = new CharacterData(1,"Worm-1",150,300,100, 50,false,true, 0, 0);
     }
 
 
@@ -36,7 +36,7 @@ public class CharacterDataTest {
     @Test
     void testCharacterDataWithDeadWorm() {
         CharacterData deadWorm = new CharacterData(
-            2, "Worm-2", 200, 400, 0, 0, true, false);
+            2, "Worm-2", 200, 400, 0, 0, true, false, 0, 0);
 
         assertEquals(2, deadWorm.getID()); // ca vaut vrmt le coup de le mettre..?
         assertTrue(deadWorm. getIsDead());
@@ -47,7 +47,7 @@ public class CharacterDataTest {
     @Test
     void testCharacterDataWithZeroShield() {
         CharacterData noShieldWorm = new CharacterData(
-            3, "Worm-3", 100, 200, 75, 0, false, true);
+            3, "Worm-3", 100, 200, 75, 0, false, true,0,0);
 
         assertEquals(0, noShieldWorm.getShield());
         assertEquals(75, noShieldWorm.getHealth());
@@ -57,7 +57,7 @@ public class CharacterDataTest {
     @Test
     void testCharacterDataPreservesAllFields() {
         CharacterData data = new CharacterData(
-            42, "TestWorm", 123.456, 789.012, 85, 25, false, true);
+            42, "TestWorm", 123.456, 789.012, 85, 25, false, true,0,0);
 
         assertEquals(42, data. getID(),"L'ID ne correspond pas, les autres assert n'ont pas pu etre testes, veuillez corriger ce test et le relancer.");
         assertEquals("TestWorm", data.getName(),"Le nom ne correspond pas, les autres assert n'ont pas pu etre testes, veuillez corriger ce test et le relancer.");
