@@ -84,7 +84,7 @@ public class WormRaceOverlay extends JPanel {
     
     private void loadImages() {
         // image titre
-        titleImage = ImageCache.get("/wormrace.png");
+        titleImage = ImageCache.get("/wormRace.png");
         
         // image worms
         wormImages = new BufferedImage[6];

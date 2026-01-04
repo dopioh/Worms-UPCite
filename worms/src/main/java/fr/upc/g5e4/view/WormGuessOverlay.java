@@ -82,7 +82,7 @@ public class WormGuessOverlay extends JPanel {
     }
     
     private void loadImages() {
-        titleImage = ImageCache.get("/wormguess.png");
+        titleImage = ImageCache.get("/wormGuess.png");
         
         wormImages = new BufferedImage[6];
         wormImages[0] = ImageCache.get("/wormCostar.png");

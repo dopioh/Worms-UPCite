@@ -117,7 +117,7 @@ public class WormJackOverlay extends JPanel {
     }
     
     private void loadImages() {
-        titleImage = ImageCache.get("/wormjack.png");
+        titleImage = ImageCache.get("/wormJack.png");
         if (titleImage == null) {
             System.err.println("Erreur lors du chargement des images WormJack");
         }
