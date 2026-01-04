@@ -1,7 +1,9 @@
 package fr.upc.g5e4.controller;
 
 import fr.upc.g5e4.GameLauncher;
+import fr.upc.g5e4.view.PauseOverlay;
 import fr.upc.g5e4.model.MapConfig;
+import fr.upc.g5e4.model.SoundPlayer;
 import fr.upc.g5e4.view.SettingsView;
 import fr.upc.g5e4.view.TeamSettingsView;
 
@@ -17,6 +19,11 @@ public class SettingsController {
     public SettingsController(GameLauncher gameLauncher, TeamSettingsView teamSettingsView) {
         this.gameLauncher = gameLauncher;
         this.view = new SettingsView(teamSettingsView);
+
+        //Pour l'onglet Autres
+        view.setSoundButtonState(!SoundPlayer.isMuted());
+        view.setFullscreenButtonState(gameLauncher.isFullScreen());
+
         initializeMapSettings();
         addListeners();
     }
@@ -66,7 +73,11 @@ public class SettingsController {
         // Listeners pour les onglets
         view.getBtnMapTab().addActionListener(e -> view.showPanel("Map"));
         view.getBtnTeamsTab().addActionListener(e -> view.showPanel("Equipes"));
-        view.getBtnOtherTab().addActionListener(e -> view.showPanel("Autre"));
+        view.getBtnOtherTab().addActionListener(e -> {
+            view.setSoundButtonState(!SoundPlayer.isMuted());
+            view.setFullscreenButtonState(gameLauncher.isFullScreen());
+            view.showPanel("Autre");
+        });
         
         // Listeners pour les dropdowns de la map
         view.getSizeComboBox().addActionListener(e -> {
@@ -77,6 +88,29 @@ public class SettingsController {
             handleTerrainChange();
             view.updateMapPreview(); // Mettre à jour l'aperçu
         });
+
+        view.getBtnSound().addActionListener(e -> {
+            boolean newMuted = !SoundPlayer.isMuted();
+            SoundPlayer.setMuted(newMuted);
+            boolean enabled = !newMuted;
+            view.setSoundButtonState(enabled);
+            PauseOverlay po = gameLauncher.getPauseOverlay();
+            if (po != null) po.setSoundOn(enabled);
+        });
+
+        view.getBtnResetSave().addActionListener(e -> {
+            //Fonction a mettre pour la sauvegarde @MEIIII
+            System.out.println("Meiu");
+        });
+
+        view.getBtnFullscreen().addActionListener(e -> {
+            gameLauncher.requestToggleFullScreen();  
+            boolean fs = gameLauncher.isFullScreen();
+            view.setFullscreenButtonState(fs);
+            PauseOverlay po = gameLauncher.getPauseOverlay();
+            if (po != null) po.setFullScreenOn(fs);
+        });
+
         view.getStyleComboBox().addActionListener(e -> {
             handleStyleChange();
         });

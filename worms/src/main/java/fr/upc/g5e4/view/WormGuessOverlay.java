@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import fr.upc.g5e4.controller.PlayerDataController;
+import fr.upc.g5e4.util.ImageCache;
 
 /**
  * Overlay pour le mini-jeu WormGuess
@@ -81,20 +82,18 @@ public class WormGuessOverlay extends JPanel {
     }
     
     private void loadImages() {
-        try {
-            titleImage = javax.imageio.ImageIO.read(getClass().getResource("/wormguess.png"));
-            
-            wormImages = new BufferedImage[6];
-            wormImages[0] = javax.imageio.ImageIO.read(getClass().getResource("/wormCostar.png"));
-            wormImages[1] = javax.imageio.ImageIO.read(getClass().getResource("/wormNoel.png"));
-            wormImages[2] = javax.imageio.ImageIO.read(getClass().getResource("/wormPinky.png"));
-            wormImages[3] = javax.imageio.ImageIO.read(getClass().getResource("/wormPixel.png"));
-            wormImages[4] = javax.imageio.ImageIO.read(getClass().getResource("/wormCuisto.png"));
-            wormImages[5] = javax.imageio.ImageIO.read(getClass().getResource("/wormNerd.png"));
-
-            
-        } catch (Exception e) {
-            System.err.println("Erreur lors du chargement des images WormGuess: " + e.getMessage());
+        titleImage = ImageCache.get("/wormguess.png");
+        
+        wormImages = new BufferedImage[6];
+        wormImages[0] = ImageCache.get("/wormCostar.png");
+        wormImages[1] = ImageCache.get("/wormNoel.png");
+        wormImages[2] = ImageCache.get("/wormPinky.png");
+        wormImages[3] = ImageCache.get("/wormPixel.png");
+        wormImages[4] = ImageCache.get("/wormCuisto.png");
+        wormImages[5] = ImageCache.get("/wormNerd.png");
+        
+        if (titleImage == null || wormImages[0] == null) {
+            System.err.println("Erreur lors du chargement des images WormGuess");
         }
     }
     

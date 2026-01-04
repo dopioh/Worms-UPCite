@@ -6,6 +6,7 @@ import fr.upc.g5e4.model.CharacterModel;
 import fr.upc.g5e4.model.Item;
 import fr.upc.g5e4.model.Weapon;
 import fr.upc.g5e4.model.Projectile;
+import fr.upc.g5e4.model.SoundPlayer;
 import fr.upc.g5e4.model.BlockGridModel;
 import fr.upc.g5e4.model.PhysicsWorld;
 import fr.upc.g5e4.model.WindModel;
@@ -13,7 +14,6 @@ import fr.upc.g5e4.model.GameManager;
 import fr.upc.g5e4.view.ItemView;
 import java.util.ArrayList;
 import java.util.List;
-import fr.upc.g5e4.model.SoundPlayer;
 
 public class ItemController {
     private final ItemView view;

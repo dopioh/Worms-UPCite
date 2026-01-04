@@ -16,8 +16,9 @@
         {
             "objectType" : "GADGET",
             "name" : "Teleporter",
-            "maxUsages" : 999999,
-            "isInfinite" : true    
+            "maxUsages" : 1,
+            "isInfinite" : false,
+            "remainingUses" : 6
         },
         {
             "objectType" : "GADGET",
@@ -50,8 +51,9 @@
         {
             "objectType" : "GADGET",
             "name" : "Drill",
-            "maxUsages" : 999999,
-            "isInfinite" : true
+            "maxUsages" : 10,
+            "isInfinite" : false,
+            "remainingUses" : 20
         },
         {
             "objectType" : "WEAPON",

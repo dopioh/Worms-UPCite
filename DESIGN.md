@@ -8,6 +8,9 @@ Nous avons utilisés le moteur physique JBox2D lancé par Daniel Murphy, un port
 
 >Cependant, nous avons utilisés la documentation de Box2D car elle était très complète et très facile à adapter en Java. 
 
+## Affichage Graphique : AWT & Swing
+Notre jeu utilise les bibliothèques AWT et Swing (natives a Java) pour faire le rendu graphique.
+
 ## Gestion des données : [Gson](https://github.com/google/gson)
 Afin d'implémenter notre système de sauvegarde et d'inventaire, nous avons utilisés la bibliothèque Gson de Google qui permet de convertir des objets Java en Json et inversement. 
 

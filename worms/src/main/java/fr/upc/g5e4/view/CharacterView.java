@@ -3,9 +3,9 @@ package fr.upc.g5e4.view;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import javax.imageio.ImageIO;
 
 import org.jbox2d.common.Vec2;
+import fr.upc.g5e4.util.ImageCache;
 import org.jbox2d.dynamics.Body;
 
 import fr.upc.g5e4.model.CharacterModel;
@@ -67,10 +67,10 @@ public class CharacterView {
      * @param path le chemin du sprite dans resources
      */
     private void loadSprite(String path) {
-        try {
-            spriteImage = ImageIO.read(getClass().getResourceAsStream(path));
+        spriteImage = ImageCache.get(path);
+        if (spriteImage != null) {
             useSprite = true;
-        } catch (IOException | IllegalArgumentException e) {
+        } else {
             System.err.println("Impossible de charger le sprite: " + path);
             System.err.println("(utilisation d'un carré aux couleurs de l'equipe)");
             useSprite = false;
@@ -253,11 +253,9 @@ public class CharacterView {
         String className = weapon.getClass().getSimpleName();
         String spritePath = getWeaponSpritePath(className);
         
-        try {
-            weaponSprite = ImageIO.read(getClass().getResourceAsStream(spritePath));
-        } catch (IOException | IllegalArgumentException e) {
+        weaponSprite = ImageCache.get(spritePath);
+        if (weaponSprite == null) {
             System.err.println("Impossible de charger le sprite d'arme: " + spritePath);
-            weaponSprite = null;
         }
     }
     
@@ -284,11 +282,9 @@ public class CharacterView {
         // on crée le chemin du sprite basé sur le nom du gadget
         String spritePath = getGadgetSpritePath(gadgetName);
         
-        try {
-            gadgetSprite = ImageIO.read(getClass().getResourceAsStream(spritePath));
-        } catch (IOException | IllegalArgumentException e) {
+        gadgetSprite = ImageCache.get(spritePath);
+        if (gadgetSprite == null) {
             System.err.println("Impossible de charger le sprite de gadget: " + spritePath);
-            gadgetSprite = null;
         }
     }
     

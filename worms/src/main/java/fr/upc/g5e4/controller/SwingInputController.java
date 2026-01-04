@@ -1,4 +1,3 @@
-// File: fr/upc/g5e4/controller/SwingInputController.java
 package fr.upc.g5e4.controller;
 //import java.awt.*;
 import java.awt.event.*;
@@ -7,6 +6,7 @@ import javax.swing.JPanel;
 import org.jbox2d.common.Vec2;
 
 import fr.upc.g5e4.model.GameManager;
+import fr.upc.g5e4.model.SoundPlayer;
 import fr.upc.g5e4.model.CharacterModel;
 import fr.upc.g5e4.view.*;
 import fr.upc.g5e4.controller.SwingInputController;
@@ -31,6 +31,8 @@ public class SwingInputController extends JPanel{
     private double shootingAngle = 0;  // angle de visée en degrés
 
     private InventoryOverlay inventoryOverlay; 
+    private Runnable backToMenuAction;
+    private Runnable fullScreenToggleAction;
     private JFrame gameFrame;
     private PauseOverlay pauseOverlay;
     private HelpOverlay helpOverlay;
@@ -61,6 +63,23 @@ public class SwingInputController extends JPanel{
     }
 
     //Setters 
+
+    /**
+     * Runnable de Retour au menu (Quit)
+     * @param action
+     */
+    public void setBackToMenuAction(Runnable action) {
+        this.backToMenuAction = action;
+    }
+
+    /**
+     * Runnable de Fullscreen
+     * @param action
+     */
+    public void setFullScreenToggleAction(Runnable action) {
+        this.fullScreenToggleAction = action;
+    }
+
     /**
     * Définit le rendu de la trajectoire
     */
@@ -111,7 +130,81 @@ public class SwingInputController extends JPanel{
 
     public void setPauseOverlay(PauseOverlay overlay) {
         this.pauseOverlay = overlay;
+        if (this.pauseOverlay == null) return;
+
+        this.pauseOverlay.setListener(new PauseOverlay.Listener() {
+            @Override
+            public void onHelpClicked() {
+                if (helpOverlay != null) helpOverlay.setHelpVisible(true);
+            }
+
+            @Override
+            public void onToggleVent(boolean enabled) {
+                if (gameManager != null) gameManager.toggleVent(enabled);
+            }
+
+            @Override
+            public void onSaveClicked() {
+                if (gameManager != null) gameManager.actionPerformed(); 
+            }
+
+            @Override
+            public void onFlyModePressed() {
+                if (personnageController != null) {
+                    personnageController.toggleFlyMode();
+                }
+            }
+
+
+            @Override
+            public void onToggleBlueprint(boolean enabled) {
+                if (gameManager != null && gameManager.getGamePanel() != null) {
+                    gameManager.getGamePanel().setBlueprintMode(enabled);
+                    gameManager.getGamePanel().repaint();
+                }
+            }
+
+            @Override
+            public void onToggleFullScreen(boolean enabled) {
+                if (fullScreenToggleAction != null) {
+                    fullScreenToggleAction.run();
+                }
+            }
+
+            @Override
+            public void onToggleSound(boolean enabled) {
+                SoundPlayer.setMuted(!enabled);
+            }
+
+            @Override
+            public void onQuitClicked() {
+                if (pauseOverlay != null) pauseOverlay.setPauseVisible(false);
+                if (helpOverlay != null) helpOverlay.setHelpVisible(false);
+                if (inventoryOverlay != null) inventoryOverlay.setInventoryVisible(false);
+
+                // stop game loop (le menu n'a pas besoin du timer)
+                if (gameManager != null && gameManager.getGameLoop() != null) {
+                    gameManager.getGameLoop().timerStop();
+                }
+
+                if (backToMenuAction != null) {
+                    backToMenuAction.run();
+                }
+            }
+
+            @Override
+            public void onCloseClicked() {
+                if (pauseOverlay != null) pauseOverlay.setPauseVisible(false);
+                if (helpOverlay != null) helpOverlay.setHelpVisible(false);
+
+                if (gameManager != null && gameManager.getGameLoop() != null) {
+                    gameManager.getGameLoop().resumeTimer();
+                }
+            }
+        });
     }
+
+
  
     
     public void setHelpOverlay(HelpOverlay overlay) {
@@ -145,84 +238,15 @@ public class SwingInputController extends JPanel{
                         break;
 
                     // Caméra déplacements
-                    case KeyEvent.VK_LEFT:
-                        if(cameraController != null) cameraController.activateLeft();
-                        break;
-                    case KeyEvent.VK_RIGHT:
-                        if(cameraController != null) cameraController.activateRight();
-                        break;
-                    
-                    // Caméra zoom
-                    case KeyEvent.VK_T:
-                        if(cameraController != null) cameraController.zoomIn();
-                        break;
-                    case KeyEvent.VK_G:
-                        if(cameraController != null) cameraController.zoomOut();
-                        break;
-                    case KeyEvent.VK_SPACE:
-                        if(cameraController != null) cameraController.centerOnCharacter();
-                        break;
-                    
-                    // modif: A déclenche nextRound
-                    case KeyEvent.VK_A:
-                        if(gameManager != null) gameManager.nextRound();
-                        break;
-
-                    // Changement d'arme (touche E)
-                    case KeyEvent.VK_E:
-                        if(gameManager != null) gameManager.switchWeapon();
-                        System.out.println("switch");
-                        break;
-
-                    // Sauvegarde de la partie actuel
-                    case KeyEvent.VK_J:
-                        gameManager.actionPerformed();
-                        System.out.println("Save Buttun Pressed");
-                        break;
-                    
-                    // Toggle mode vol (touche P)
-                    case KeyEvent.VK_P:
-                        personnageController.toggleFlyMode();
-                        System.out.println("SUPERMAAAAAAAAAAAAN (todo : ajouter cape)");
-                        break;
-                    // Touche Echap pour ouvrir les parametres
-                    case KeyEvent.VK_ESCAPE:
-                        if (pauseOverlay != null) {
-                            boolean v = pauseOverlay.isPauseVisible();
-                            pauseOverlay.setPauseVisible(!v);
-
-                            // si on ferme pause, on ferme aussi help
-                            if (v && helpOverlay != null) {
-                                helpOverlay.setHelpVisible(false);
-                            }
-                        }
-                        break;
-
-                    case KeyEvent.VK_I:
-                        if (inventoryOverlay != null) {
-                        boolean visible = inventoryOverlay.isInventoryVisible();
-                        inventoryOverlay.setInventoryVisible(!visible);
-                        }
-                        break;
-                    
-                    // Touche H pour ajouter un item de test au nametag
-                    case KeyEvent.VK_H:
-                        if (gameManager != null && personnageController != null) {
-                            // Récupérer le worm actif et son index
-                            CharacterModel activeWorm = personnageController.getModel();
-                            int wormIndex = gameManager.getActiveWormIndex();
-                            int teamIndex = gameManager.getCurrentTeamIndex();
-                            
-                            // Récupérer le CharacterView correspondant
-                            fr.upc.g5e4.view.CharacterView charView = null;
-                            charView = gameManager.getListTeamInit().get(teamIndex).getTeamView().getCharacterView(wormIndex);
-                            
-                            if (charView != null) {
-                                charView.getNameTagView().addItemFromResource("/wormPinky.png", "test_item");
-                                System.out.println("Item ajouté au nametag");
-                            }
-                        }
-                        break;
+                    // case KeyEvent.VK_LEFT:
+                    //     if(cameraController != null) cameraController.activateLeft();
+                    //     break;
+                    // case KeyEvent.VK_RIGHT:
+                    //     if(cameraController != null) cameraController.activateRight();
+                    //     break;
+                    // case KeyEvent.VK_SPACE:
+                    //     if(cameraController != null) cameraController.centerOnCharacter();
+                    //     break;
                 }
             }
             
@@ -240,22 +264,33 @@ public class SwingInputController extends JPanel{
                     case KeyEvent.VK_Z:
                         personnageController.deactivateJump();
                         break;
-
-                    // Caméra relâchement touches
-                    case KeyEvent.VK_UP:
-                    case KeyEvent.VK_DOWN:
-                        break;
-                    case KeyEvent.VK_LEFT:
-                        if(cameraController != null) cameraController.deactivateLeft();
-                        break;
-                    case KeyEvent.VK_RIGHT:
-                        if(cameraController != null) cameraController.deactivateRight();
-                        break;
+                    // case KeyEvent.VK_LEFT:
+                    //     if(cameraController != null) cameraController.deactivateLeft();
+                    //     break;
+                    // case KeyEvent.VK_RIGHT:
+                    //     if(cameraController != null) cameraController.deactivateRight();
+                    //     break;
                 }
             }
         });
 
-        // Tir au clic gauche -> vers la souris
+        addMouseWheelListener(new MouseWheelListener() {
+            @Override
+            public void mouseWheelMoved(MouseWheelEvent e) {
+                if (pauseOverlay != null && pauseOverlay.isPauseVisible()) return; //Si pause overlay n'est pas ouvert
+                if (inventoryOverlay != null && inventoryOverlay.isInventoryVisible()) return;// Si Iventory n'est pas ouvert
+                if (cameraController == null) return;
+
+                int notches = e.getWheelRotation();  
+                if (notches < 0) {
+                    cameraController.zoomIn();
+                } else if (notches > 0) {
+                    cameraController.zoomOut();
+                }
+            }
+        });
+
+        // Tir au clic gauche 
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -427,15 +462,43 @@ public class SwingInputController extends JPanel{
             
             // gestion spéciale pour la Foreuse (clic gauche = casser bloc)
             if ("Drill".equals(equipped.name) && gameManager != null) {
+                // Vérifier si ce gadget peut être utilisé
+                if (!equipped.canUseThisTurn()) {
+                    System.out.println("[Drill] Plus d'utilisations disponibles pour ce tour !");
+                    return;
+                }
+                
                 int[] worldCoords = screenToWorldCoordinates(x, y);
                 gameManager.getItemController().drillBreakBlocks(worldCoords[0], worldCoords[1]);
+                
+                // Enregistrer l'utilisation
+                equipped.registerUseThisTurn();
+                equipped.remainingUses--;
+                inventoryOverlay.repaint();
                 return;
             }
             
             // gestion spéciale pour le Teleporter a cause de l'inversion y
             if ("Teleporter".equals(equipped.name) && gameManager != null) {
+                // vérifier si ce gadget peut être utilisé
+                if (!equipped.canUseThisTurn()) {
+                    System.out.println("[Gadget] Ce gadget ne peut plus être utilisé ce tour !");
+                    return;
+                }
+                
+                // vérifier le total d'utilisations de gadgets 
+                if (!inventoryOverlay.canUseAnotherGadget()) {
+                    System.out.println("[Gadget] Limite atteinte! Vous avez déjà utilisé 2 gadgets ce tour.");
+                    return;
+                }
+                
                 int[] worldCoords = screenToWorldCoordinates(x, y);
                 gameManager.getItemController().teleportWorm(worldCoords[0], worldCoords[1], personnageController.getModel());
+                
+                // enregistrer l'utilisation et décrémenter
+                equipped.registerUseThisTurn();
+                equipped.remainingUses--;
+                inventoryOverlay.repaint();
                 return;
             }
             
@@ -550,9 +613,20 @@ public class SwingInputController extends JPanel{
             var equipped = inventoryOverlay.getEquippedGadget();
             if (equipped != null && gameManager != null) {
                 if ("Drill".equals(equipped.name)) {
+                    // Vérifier si ce gadget peut être utilisé
+                    if (!equipped.canUseThisTurn()) {
+                        System.out.println("[Drill] Plus d'utilisations disponibles pour ce tour !");
+                        return;
+                    }
+                    
                     int[] worldCoords = screenToWorldCoordinates(e.getX(), e.getY());
                     gameManager.getItemController().drillPlaceBlock(worldCoords[0], worldCoords[1], 
                         fr.upc.g5e4.model.BlockType.DIRT);
+                    
+                    // Enregistrer l'utilisation
+                    equipped.registerUseThisTurn();
+                    equipped.remainingUses--;
+                    inventoryOverlay.repaint();
                 }
             }
         }

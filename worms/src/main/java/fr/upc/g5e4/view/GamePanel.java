@@ -1,4 +1,3 @@
-// File: fr/upc/g5e4/view/GamePanel.java
 package fr.upc.g5e4.view;
 
 import fr.upc.g5e4.controller.CameraController;
@@ -8,10 +7,9 @@ import fr.upc.g5e4.model.camera.CameraModel;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Path2D;
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.ArrayList;
+import fr.upc.g5e4.util.ImageCache;
 
 /**
  * Classe qui sert pour tous les graphismes du monde
@@ -34,8 +32,6 @@ public class GamePanel extends JPanel {
     private BufferedImage backgroundImage; // Image de fond BG
     // Vue pour dessiner les blocs
     private BlockGridView blockGridView;
-    // ajout: label pour afficher le temps restant (vue)
-    private final JLabel roundTimerLabel = new JLabel("Temps restant : 30s");
 
     //accès direct au GameManager pour le pointeur graphique 
     private final fr.upc.g5e4.model.GameManager gameManager;
@@ -74,12 +70,10 @@ public class GamePanel extends JPanel {
         setLayout(null);
         
         // Charger l'image de fond selon le style configuré
-        try {
-            String bgPath = MapConfig.getBackgroundStyle().getImagePath();
-            backgroundImage = ImageIO.read(getClass().getResourceAsStream(bgPath));
-        } catch (IOException | IllegalArgumentException e) {
-            System.err.println("Impossible de charger l'image de fond BG : " + e.getMessage());
-            backgroundImage = null;
+        String bgPath = MapConfig.getBackgroundStyle().getImagePath();
+        backgroundImage = ImageCache.get(bgPath);
+        if (backgroundImage == null) {
+            System.err.println("Impossible de charger l'image de fond BG : " + bgPath);
         }
         /*
         // Charger la texture du ground
@@ -91,13 +85,6 @@ public class GamePanel extends JPanel {
             
         }
              */
-
-        // ajout: configuration du label chrono
-        roundTimerLabel.setFont(new Font("Arial", Font.BOLD, 18));
-        roundTimerLabel.setForeground(Color.WHITE);
-        roundTimerLabel.setBounds(20, 10, 220, 30);
-        roundTimerLabel.setOpaque(false);
-        this.add(roundTimerLabel);
 
         /*
         // Bouton de sauvegarde
@@ -113,11 +100,6 @@ public class GamePanel extends JPanel {
 
     public static float getPPM() {
         return PPM;
-    }
-
-    // ajout: API publique pour mettre à jour l'affichage du chrono
-    public void setRoundTimer(int seconds) {
-        SwingUtilities.invokeLater(() -> roundTimerLabel.setText("Temps restant : " + seconds + "s"));
     }
     
     // Activer le mode blueprint (style bleu foncé)
