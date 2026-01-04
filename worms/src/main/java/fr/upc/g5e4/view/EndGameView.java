@@ -412,7 +412,15 @@ public class EndGameView extends JPanel {
     }
     
     private void updateParticles() {
-        particles.removeIf(Particle::isDead);
+        // supprimer les particules mortes
+        java.util.List<Particle> toRemove = new java.util.ArrayList<>();
+        for (Particle p : particles) {
+            if (p.isDead()) {
+                toRemove.add(p);
+            }
+        }
+        particles.removeAll(toRemove);
+        
         for (Particle p : particles) {
             p.update();
         }
@@ -617,10 +625,13 @@ public class EndGameView extends JPanel {
         int index = 0;
         // Trier pour afficher l'équipe gagnante en premier
         java.util.List<String> sortedTeams = new java.util.ArrayList<>(allTeamStats.keySet());
-        sortedTeams.sort((a, b) -> {
-            if (a.equals(winningTeamName)) return -1;
-            if (b.equals(winningTeamName)) return 1;
-            return a.compareTo(b);
+        java.util.Collections.sort(sortedTeams, new java.util.Comparator<String>() {
+            @Override
+            public int compare(String a, String b) {
+                if (a.equals(winningTeamName)) return -1;
+                if (b.equals(winningTeamName)) return 1;
+                return a.compareTo(b);
+            }
         });
         
         for (String teamName : sortedTeams) {

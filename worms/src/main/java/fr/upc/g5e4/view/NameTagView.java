@@ -116,7 +116,16 @@ public class NameTagView {
      * @return true si l'item a été retiré, false sinon
      */
     public boolean removeItem(String name) {
-        return itemIcons.removeIf(item -> item.name != null && item.name.equals(name));
+        boolean removed = false;
+        java.util.List<ItemIcon> toRemove = new java.util.ArrayList<>();
+        for (ItemIcon item : itemIcons) {
+            if (item.name != null && item.name.equals(name)) {
+                toRemove.add(item);
+                removed = true;
+            }
+        }
+        itemIcons.removeAll(toRemove);
+        return removed;
     }
     
     /**
