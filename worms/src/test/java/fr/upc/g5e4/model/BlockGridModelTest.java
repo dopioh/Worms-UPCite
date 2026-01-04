@@ -116,8 +116,8 @@ public class BlockGridModelTest {
         int gridX = 5;
         int gridY = 4;
         
-        assertEquals(60, model.gridToPixelX(gridX)); // 5 * 12 = 60
-        assertEquals(48, model.gridToPixelY(gridY)); // 4 * 12 = 48
+        assertEquals(80, model.gridToPixelX(gridX)); // 5 * 16 = 80
+        assertEquals(64, model.gridToPixelY(gridY)); // 4 * 16 = 64
     }
 
     @Test
