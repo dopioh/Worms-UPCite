@@ -37,7 +37,7 @@ build:
 
 
     - cd worms
-    - mvn $MAVEN_CLI_OPTS clean compile
+    - mvn $MAVEN_CLI_OPTS -U clean compile
 #  cache:
 #    key: "$CI_COMMIT_REF_NAME"
 #    policy: push
