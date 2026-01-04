@@ -26,6 +26,13 @@ public class MapConfig {
      */
     private static MapSize mapSize = MapSize.MEDIUM;
     
+    /**
+     * Style de fond:
+     * - JOUR: Fond de jour (BG_Jour.png)
+     * - NUIT: Fond de nuit (BG.png)
+     */
+    private static BackgroundStyle backgroundStyle = BackgroundStyle.JOUR;
+    
     // =============================================
     
     /**
@@ -60,6 +67,24 @@ public class MapConfig {
         
         public int getHeight() {
             return height;
+        }
+    }
+    
+    /**
+     * Enum pour les styles de fond
+     */
+    public enum BackgroundStyle {
+        JOUR("/BG_Jour.png"),
+        NUIT("/BG.png");
+        
+        private final String imagePath;
+        
+        BackgroundStyle(String imagePath) {
+            this.imagePath = imagePath;
+        }
+        
+        public String getImagePath() {
+            return imagePath;
         }
     }
     
@@ -103,5 +128,19 @@ public class MapConfig {
      */
     public static void setMapSize(MapSize size) {
         mapSize = size;
+    }
+    
+    /**
+     * Retourne le style de fond configuré
+     */
+    public static BackgroundStyle getBackgroundStyle() {
+        return backgroundStyle;
+    }
+    
+    /**
+     * Modifie le style de fond
+     */
+    public static void setBackgroundStyle(BackgroundStyle style) {
+        backgroundStyle = style;
     }
 }

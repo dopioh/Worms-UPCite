@@ -187,6 +187,9 @@
 - Dégâts de zone 
 - Readme.md expliquant le projet (comment jouer etc)
 - Ajout d'un pointeur graphique (flèche rouge) au-dessus du joueur actif
+- Ajout background avec effet parallax
+    - choix dans parametre onglet map
+- AUTHORS.md
 
 ### Modified
 
