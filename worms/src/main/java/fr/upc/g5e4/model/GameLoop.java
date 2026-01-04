@@ -5,6 +5,7 @@ package fr.upc.g5e4.model;
 //import fr.upc.g5e4.model.*;
 //import fr.upc.g5e4.view.*;
 import fr.upc.g5e4.view.GamePanel;
+import fr.upc.g5e4.view.AudioManager;
 
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -48,6 +49,9 @@ public class GameLoop{
         // pour pas que 30 passe par dessus le temps sauvegardee dans le cas de resumeGame()
         int initialSeconds = roundTimeRemaining / 60;
         this.gamePanel.setRoundTimer(initialSeconds);
+
+        // Lance la musique du jeu
+        AudioManager.getInstance().playBackgroundMusic("/sfx/game-music.wav");
 
         // Initialiser l'affichage du chrono dans la vue -> Ca sert a rien ? 
         //this.gamePanel.setRoundTimer(30);

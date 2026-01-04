@@ -7,6 +7,7 @@ import javax.swing.JOptionPane;
 import fr.upc.g5e4.GameLauncher;
 import fr.upc.g5e4.model.TeamSettingsModel;
 import fr.upc.g5e4.model.io.SaveLoad;
+import fr.upc.g5e4.view.AudioManager;
 import fr.upc.g5e4.view.MainMenuView;
 import fr.upc.g5e4.view.SettingsView;
 import fr.upc.g5e4.view.TeamSettingsView;
@@ -24,6 +25,7 @@ public class MainMenuController {
         this.view = view;
         this.gameLauncher = gameLauncher;
         addListeners();
+        startMenuMusic();
     }
 
     //relie les buttons aux actions
@@ -44,6 +46,9 @@ public class MainMenuController {
    }
 
     private void startNewGame() throws IOException {
+        // arrête la musique du menu
+        AudioManager.getInstance().stopBackgroundMusic();
+        
         // Utilise le GameLauncher existant pour basculer vers le jeu
         if (gameLauncher == null){
             this.gameLauncher = new GameLauncher();
@@ -52,17 +57,12 @@ public class MainMenuController {
     }
 
     /**
-     * Methode pour lancer une sauvegarde
+     * methode pour lancer une sauvegarde
      */
     private void resumeGame(){ 
-        // Pour l'instant juste un message
-        /*
-        JOptionPane.showMessageDialog(gameLauncher.getMainFrame(), 
-            "Fonctionnalité à venir", 
-            "Poursuivre", 
-            JOptionPane.INFORMATION_MESSAGE); //determine l'icône qui s'affiche à gauche du texte
-        */
-
+        // arrête la musique du menu
+        AudioManager.getInstance().stopBackgroundMusic();
+        
         try {
             SaveLoad sv = new SaveLoad();
             this.gameLauncher.startFromGameSave(sv.getSaveData());
@@ -80,14 +80,14 @@ public class MainMenuController {
     private void openConfig() {
         TeamSettingsView teamSettingsView = new TeamSettingsView(gameLauncher.getPlayerDataController()); // creer la vue 
 
-        // Créer le contrôleur des réglages qui gère les listeners
+        // créer le contrôleur des réglages qui gère les listeners
         SettingsController settingsController = new SettingsController(gameLauncher, teamSettingsView);
 
-        // Creer la partie Terminal 
+        // creer la partie Terminal 
         TeamSettingsModel teamSettingsModel = new TeamSettingsModel(teamSettingsView,gameLauncher.getPlayerDataController());
         TeamSettingsController teamSettingsController = teamSettingsModel.getTeamSettingsController();
 
-        // Afficher les réglages via GameLauncher qui gère la navigation
+        // afficher les réglages via GameLauncher qui gère la navigation
         gameLauncher.showSettings(settingsController.getView());
     }
 
@@ -95,8 +95,13 @@ public class MainMenuController {
         view.getTutorialOverlay().setVisible(true);
     }
 
+    private void startMenuMusic() {
+        // la musique du menu principal
+        AudioManager.getInstance().playBackgroundMusic("/sfx/menu-music.wav");
+    }
 
     private void quitGame() {
+        AudioManager.getInstance().stopBackgroundMusic();
         System.exit(0);
     }
 

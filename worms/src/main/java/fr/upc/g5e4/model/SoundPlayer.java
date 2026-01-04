@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import fr.upc.g5e4.view.AudioManager;
 
 public final class SoundPlayer {
     private SoundPlayer() {}
@@ -11,6 +12,7 @@ public final class SoundPlayer {
     // Cache pour les clips audio pré-chargés
     private static final Map<String, byte[]> audioCache = new HashMap<>();
     private static boolean initialized = false;
+    private static float weaponSoundVolume = 0.5f;  // 50% du volume pour les armes psq ça casse les oreilles derien les amis
     
     /**
      * Initialise le système audio et pré-charge les sons communs
@@ -64,6 +66,13 @@ public final class SoundPlayer {
     }
     
     /**
+     *le son d'une arme avec volume réduit 
+     */
+    public static void playWeaponSound(String resourcePath) {
+        new Thread(() -> playSyncWeapon(resourcePath)).start();
+    }
+    
+    /**
      * Joue un son de manière synchrone
      */
     private static void playSync(String resourcePath) {
@@ -112,6 +121,15 @@ public final class SoundPlayer {
         System.err.println("[SFX] Erreur lecture: " + resourcePath);
         e.printStackTrace();
     }
+    }
+    
+    /**
+     * joue un son d'arme de manière réduit 
+     */
+    private static void playSyncWeapon(String resourcePath) {
+        // met le volume à 50% pour l'arme et le garde
+        AudioManager.getInstance().setVolume(weaponSoundVolume);
+        playSync(resourcePath);
     }
     
     /**

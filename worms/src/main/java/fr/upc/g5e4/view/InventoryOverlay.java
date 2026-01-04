@@ -341,8 +341,20 @@ public class InventoryOverlay extends JComponent {
                 Rectangle r = itemBounds.get(i);
                 if (r.contains(x, y)) {
                     if (currentCategory != Category.BOUTIQUE) {
+                        InventoryJson item = lastFiltered.get(i);
+                        
+                        // ça bloque les clic sur les gadget ou arme utilisé
+                        if ((currentCategory == Category.ARMES && equippedItem != null && 
+                            !"GADGET".equals(equippedItem.objectType) && 
+                            !item.name.equals(equippedItem.name) &&
+                            equippedItem.useThisTurn > 0) ||
+                            (currentCategory == Category.GADGET && countUsedGadgets() >= 2 &&
+                            !item.name.equals(equippedItem != null ? equippedItem.name : null))) {
+                            return; 
+                        }
+                        
                         selectedIndex = i;
-                        equipItem(lastFiltered.get(i));
+                        equipItem(item);
                     }
                     repaint();
                     return;
@@ -561,6 +573,16 @@ public class InventoryOverlay extends JComponent {
             // fond sélectionné
             if (i == selectedIndex) {
                 g2.setColor(new Color(80, 80, 120));
+            } else if (currentCategory == Category.ARMES && equippedItem != null && 
+                       !"GADGET".equals(equippedItem.objectType) && 
+                       !item.name.equals(equippedItem.name) &&
+                       equippedItem.useThisTurn > 0) {
+                //griser les autres armes si une arme a été utilisé
+                g2.setColor(new Color(40, 40, 40));
+            } else if (currentCategory == Category.GADGET && countUsedGadgets() >= 2 &&
+                       !item.name.equals(equippedItem != null ? equippedItem.name : null)) {
+                // griser les gadgets si au plus 2 gadgets ont déjà été utilisés 
+                g2.setColor(new Color(40, 40, 40));
             } else {
                 g2.setColor(new Color(60, 60, 60));
             }
@@ -577,12 +599,39 @@ public class InventoryOverlay extends JComponent {
 
             BufferedImage img = itemImages.get(item.name.toLowerCase());
             if (img != null) {
-                g2.drawImage(img, imgX, imgY, imgSize, imgSize, null);
+                // vérifier si c'est une arme grisée OU un gadget grisé
+                boolean isGrayedOut = (currentCategory == Category.ARMES && equippedItem != null && 
+                                    !"GADGET".equals(equippedItem.objectType) && 
+                                    !item.name.equals(equippedItem.name) &&
+                                    equippedItem.useThisTurn > 0) ||
+                                    (currentCategory == Category.GADGET && countUsedGadgets() >= 2 &&
+                                    !item.name.equals(equippedItem != null ? equippedItem.name : null));
+                
+                if (isGrayedOut) {
+                    // image avec transparence
+                    g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.4f));
+                    g2.drawImage(img, imgX, imgY, imgSize, imgSize, null);
+                    g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
+                } else {
+                    g2.drawImage(img, imgX, imgY, imgSize, imgSize, null);
+                }
             }
 
             // nom arme
             g2.setFont(g2.getFont().deriveFont(10f));
-            g2.setColor(Color.WHITE);
+            
+            // griser le texte aussi si l'arme a été utilisée ou gadget grisé
+            if ((currentCategory == Category.ARMES && equippedItem != null && 
+                !"GADGET".equals(equippedItem.objectType) && 
+                !item.name.equals(equippedItem.name) &&
+                equippedItem.useThisTurn > 0) ||
+                (currentCategory == Category.GADGET && countUsedGadgets() >= 2 &&
+                !item.name.equals(equippedItem != null ? equippedItem.name : null))) {
+                g2.setColor(new Color(120, 120, 120));
+            } else {
+                g2.setColor(Color.WHITE);
+            }
+            
             FontMetrics fm = g2.getFontMetrics();
             int textW = fm.stringWidth(item.name);
 
@@ -756,6 +805,21 @@ public class InventoryOverlay extends JComponent {
 
     public InventoryJson getEquippedItem() {
         return equippedItem;
+    }
+
+    /**
+     * compte le nombre de gadgets qui ont déjà été utilisés ce tour
+     */
+    private int countUsedGadgets() {
+        int count = 0;
+        if (inventory != null) {
+            for (InventoryJson item : inventory) {
+                if (item != null && "GADGET".equalsIgnoreCase(item.objectType) && item.useThisTurn > 0) {
+                    count++;
+                }
+            }
+        }
+        return count;
     }
 
     private void equipItem(InventoryJson item) {

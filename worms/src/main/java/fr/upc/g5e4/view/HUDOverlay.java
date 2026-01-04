@@ -132,6 +132,17 @@ public class HUDOverlay extends JComponent {
         g2.setFont(g2.getFont().deriveFont(Font.BOLD, 12f));
         g2.drawString(timerRemaining + "s", timerX + timerW + 10, timerY + 12);
 
+        // ---------- Message arme verrouillée ----------
+        InventoryJson equippedItem = (inventoryOverlay != null) ? inventoryOverlay.getEquippedItem() : null;
+        if (equippedItem != null && equippedItem.useThisTurn > 0 && "ARMES".equalsIgnoreCase(equippedItem.objectType)) {
+            g2.setColor(new Color(255, 50, 50));  // Red warning color
+            g2.setFont(g2.getFont().deriveFont(java.awt.Font.BOLD, 18f));
+            String warningText = "Arme verrouillée!";
+            java.awt.FontMetrics fm = g2.getFontMetrics();
+            int textW = fm.stringWidth(warningText);
+            g2.drawString(warningText, (w - textW) / 2, hudY - 20);
+        }
+
         // ---------- Fond HUD ----------
         g2.setColor(new Color(255,255,255,235));
         g2.fillRoundRect(hudX, hudY, hudW, hudH, 18, 18);

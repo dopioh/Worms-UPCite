@@ -103,7 +103,7 @@ public class ItemController {
             // on fait jouer le son de l'arme
             String soundPath = getWeaponSoundPath(weapon);
             if (soundPath != null) {
-                SoundPlayer.play(soundPath);
+                SoundPlayer.playWeaponSound(soundPath);
             }
 
             Projectile projectile = weapon.fire(shooter, world, allWorms, direction, windModel);
