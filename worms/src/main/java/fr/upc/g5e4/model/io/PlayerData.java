@@ -131,8 +131,8 @@ public class PlayerData {
         
         // Obliger d'initialiser a la main sans boucle car chaque SkinModel a des param diff pour chaque
         tabSkinPlayer[0] = new SkinModel("Worm de base","/wormPixel.png", true);
-        tabSkinPlayer[1] = new SkinModel("Worm Noel Edition","/wormNoel.png", false);
-        tabSkinPlayer[2] = new SkinModel("Worm Pinky Edition","/wormPinky.png", false);
+        tabSkinPlayer[1] = new SkinModel("Worm Noel Edition","/wormNoel.png", true);
+        tabSkinPlayer[2] = new SkinModel("Worm Pinky Edition","/wormPinky.png", true);
         tabSkinPlayer[3] = new SkinModel("Worm Nerd Edition","/wormNerd.png", false);
         tabSkinPlayer[4] = new SkinModel("Worm Cuisto Edition","/wormCuisto.png", false);
         tabSkinPlayer[5] = new SkinModel("Worm Costar Edition","/wormCostar.png", false);

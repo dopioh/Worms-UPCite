@@ -36,7 +36,7 @@ build:
     - rm -f /root/.m2/settings.xml || true
     
     - cd worms
-    - mvn $MAVEN_CLI_OPTS clean compile
+    - mvn $MAVEN_CLI_OPTS -U clean compile
 #  cache:
 #    key: "$CI_COMMIT_REF_NAME"
 #    policy: push

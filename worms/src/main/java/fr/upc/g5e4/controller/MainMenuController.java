@@ -50,9 +50,7 @@ public class MainMenuController {
         AudioManager.getInstance().stopBackgroundMusic();
         
         // Utilise le GameLauncher existant pour basculer vers le jeu
-        if (gameLauncher == null){
-            this.gameLauncher = new GameLauncher();
-        }
+        gameLauncher.resetGame();   // pour reset le jeu au cas ou une save serait toujours en memoire
         gameLauncher.startGame();
     }
 
