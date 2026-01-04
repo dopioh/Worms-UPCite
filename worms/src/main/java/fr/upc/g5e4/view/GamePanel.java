@@ -1,4 +1,3 @@
-// File: fr/upc/g5e4/view/GamePanel.java
 package fr.upc.g5e4.view;
 
 import fr.upc.g5e4.controller.CameraController;

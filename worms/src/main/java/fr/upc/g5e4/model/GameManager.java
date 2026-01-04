@@ -1,4 +1,3 @@
-// File: fr/upc/g5e4/model/GameManager.java
 package fr.upc.g5e4.model;
 
 //import java.awt.Color;

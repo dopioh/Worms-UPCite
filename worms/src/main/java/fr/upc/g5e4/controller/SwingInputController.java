@@ -1,4 +1,3 @@
-// File: fr/upc/g5e4/controller/SwingInputController.java
 package fr.upc.g5e4.controller;
 //import java.awt.*;
 import java.awt.event.*;

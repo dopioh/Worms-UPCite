@@ -317,7 +317,7 @@ public class PauseOverlay extends JComponent {
 
         drawActionRow(g2,"Fly mode","Active/désactive le vol pour le worm actif",contentX, row1Y, contentW, rowH,hovered == Hover.ACTION_FLY,Hover.ACTION_FLY,flyAnim);
         drawToggleRow(g2, "Blueprint", "Affiche le mode Blueprint",contentX, row2Y, contentW, rowH,blueprintOn, hovered == Hover.TOGGLE_BLUEPRINT,Hover.TOGGLE_BLUEPRINT);
-        drawToggleRow(g2, "Vent", "Active/Désactive le vent",contentX, row3Y, contentW, rowH,ventOn, hovered == Hover.TOGGLE_VENT,Hover.TOGGLE_VENT);
+        drawToggleRow(g2, "Vent", "Active/Désactive le vent (reduit les FPS)",contentX, row3Y, contentW, rowH,ventOn, hovered == Hover.TOGGLE_VENT,Hover.TOGGLE_VENT);
         drawToggleRow(g2, "Plein écran", "Mode plein écran",contentX, row4Y, contentW, rowH,fullScreenOn, hovered == Hover.TOGGLE_FULLSCREEN,Hover.TOGGLE_FULLSCREEN);
         drawToggleRow(g2, "Son", "Active/Désactive les SFX",contentX, row5Y, contentW, rowH,soundOn, hovered == Hover.TOGGLE_SOUND,Hover.TOGGLE_SOUND);
 
