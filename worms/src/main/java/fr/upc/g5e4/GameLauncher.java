@@ -35,7 +35,7 @@ public class GameLauncher{
 
 
     private boolean screen;
-    
+
     // Composants pour la fenêtre unique
     private JFrame mainFrame;
     private CardLayout cardLayout;
@@ -274,7 +274,9 @@ public class GameLauncher{
         this.hudOverlay.setInventoryOverlay(inventoryOverlay);
         //Menu parametres 
         this.pauseOverlay = new PauseOverlay();
-        this.pauseOverlay.setBounds(0, 0, width, height); 
+        this.pauseOverlay.setBounds(0, 0, width, height);
+        this.pauseOverlay.setSoundOn(!SoundPlayer.isMuted());
+        this.pauseOverlay.setFullScreenOn(isFullScreen);
         hudOverlay.setPauseOverlay(pauseOverlay);
         //How to play
         this.helpOverlay = new HelpOverlay();
@@ -342,6 +344,13 @@ public class GameLauncher{
         checkGameOverTimer.start();
     }
     
+    /**
+     * Pour declencher le fullscreen dans les settings
+     */
+    public void requestToggleFullScreen() {
+        toggleFullScreen(); 
+    }
+
     private void toggleFullScreen() {
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice gd = ge.getDefaultScreenDevice();
@@ -541,6 +550,9 @@ public class GameLauncher{
     public PlayerDataController getPlayerDataController(){
         return this.playerDataController;
     } 
+    public PauseOverlay getPauseOverlay() {
+        return pauseOverlay;
+    }
 
     public static void main(String[] args) throws IOException{
 

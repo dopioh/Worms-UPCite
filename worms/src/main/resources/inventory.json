@@ -22,14 +22,14 @@
         {
             "objectType" : "GADGET",
             "name" : "PotionHeal",
-            "maxUsages" : 3,
+            "maxUsages" : 2,
             "isInfinite" : false,
             "remainingUses" : 3
         },
         {
             "objectType" : "GADGET",
             "name" : "PotionShield",
-            "maxUsages" : 3,
+            "maxUsages" : 2,
             "isInfinite" : false,
             "remainingUses" : 3
         },
