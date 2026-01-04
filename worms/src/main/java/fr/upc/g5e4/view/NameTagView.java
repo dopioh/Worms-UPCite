@@ -215,10 +215,16 @@ public class NameTagView {
         
         int currentY = boxY + padding;
         
-        // 1. Dessiner les items alignés en haut
+        // Dessiner les items alignés en haut
         if (!itemIcons.isEmpty()) {
             // nettoyer les items expirés
-            itemIcons.removeIf(ItemIcon::isExpired);
+            List<ItemIcon> itemsToRemove = new ArrayList<>();
+            for (ItemIcon icon : itemIcons) {
+                if (icon.isExpired()) {
+                    itemsToRemove.add(icon);
+                }
+            }
+            itemIcons.removeAll(itemsToRemove);
             
             int totalItemsWidth = itemIcons.size() * ITEM_SIZE + (itemIcons.size() - 1) * ITEM_SPACING;
             int itemsStartX = centerX - totalItemsWidth / 2;
@@ -236,7 +242,7 @@ public class NameTagView {
                         double seconds = remaining / 1000.0;
                         String timerText = String.format("%.0f", seconds);
                         
-                        //texte du timer
+                        // texte du timer
                         g2d.setColor(Color.WHITE);
                         g2d.setFont(new Font("Arial", Font.BOLD, 8));
                         FontMetrics fm = g2d.getFontMetrics();
@@ -249,7 +255,7 @@ public class NameTagView {
             currentY += ITEM_SIZE + ITEM_SPACING * 2;
         }
         
-        // 2. Dessiner la barre de shield (bleue)
+        // Dessiner la barre de shield (bleue)
         int barX = centerX - BAR_WIDTH / 2;
         long currentTime = System.currentTimeMillis();
         final long ANIMATION_DURATION = 600;
@@ -266,7 +272,7 @@ public class NameTagView {
                        displayed[1], 100.0, shieldBarColor, shieldBorderColor);
         currentY += BAR_HEIGHT + BAR_SPACING;
         
-        // 3. Dessiner la barre de vie (verte)
+        // Dessiner la barre de vie (verte)
         drawProgressBar(g2d, barX, currentY, BAR_WIDTH, BAR_HEIGHT, 
                        displayed[0], 100.0, healthBarColor, healthBorderColor);
     }

@@ -424,7 +424,7 @@ public class EndGameView extends JPanel {
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         
-        // 1. Dessiner le fond de la map en sombre
+        // Dessiner le fond de la map en sombre
         if (backgroundSnapshot != null) {
             // Assombrir l'arrière-plan
             g2d.drawImage(backgroundSnapshot, 0, 0, getWidth(), getHeight(), null);
@@ -435,10 +435,10 @@ public class EndGameView extends JPanel {
             g2d.fillRect(0, 0, getWidth(), getHeight());
         }
         
-        // 2. Dessiner les particules (derrière)
+        // Dessiner les particules (derrière)
         drawParticles(g2d, false);
         
-        // 3. Dessiner le trophée
+        // Dessiner le trophée
         float scale = getScale();
         if (trophyImage != null) {
             int trophyDrawSize = (int)(TROPHY_SIZE * scale);
@@ -451,19 +451,19 @@ public class EndGameView extends JPanel {
                          getTrophyY() - trophyDrawSize/2, 
                          trophyDrawSize, trophyDrawSize, null);
         } else {
-            // Fallback: rectangle doré
+            // Fallback rectangle doré
             int trophyDrawSize = (int)(TROPHY_SIZE * scale);
             g2d.setColor(new Color(255, 215, 0));
             g2d.fillRect(getTrophyX() - trophyDrawSize/2, getTrophyY() - trophyDrawSize/2, trophyDrawSize, trophyDrawSize);
         }
         
-        // 4. Dessiner les worms de l'équipe gagnante
+        // Dessiner les worms de l'équipe gagnante
         drawWorms(g2d);
         
-        // 5. Dessiner les particules (devant)
+        // Dessiner les particules (devant)
         drawParticles(g2d, true);
         
-        // 6. Dessiner le texte et les statistiques
+        // Dessiner le texte et les statistiques
         drawVictoryText(g2d);
     }
     
@@ -499,7 +499,7 @@ public class EndGameView extends JPanel {
                     }
                 }
             } else {
-                // Fallback: carré simple
+                // Fallback carré simple
                 int scaledX = (int)(state.x * scale) + offsetX;
                 int scaledY = (int)(state.y * scale) + offsetY;
                 int size = (int)(50 * scale);
@@ -544,7 +544,7 @@ public class EndGameView extends JPanel {
         int offsetY = getOffsetY();
         float scale = getScale();
         
-        // Animation: fade-in et slide-in depuis la gauche
+        // Animation fade-in et slide-in depuis la gauche
         float animProgress = 1.0f;
         int slideOffset = 0;
         
