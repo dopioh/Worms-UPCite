@@ -27,7 +27,7 @@
 
     - Ajout de tickets, Validation et Acceptations de MR
 
-    - Brainstorm d'idées pour tout le proje
+    - Brainstorm d'idées pour tout le projet
 
     - Ajout CONTRIBUTING.md
 
@@ -53,6 +53,11 @@
 
     - Suppression des touches claviers -> Liaison paramètres
 
+    - Brainstorming d'idée de temps en temps
+
+    - Restructuration Taches/Ticket pour le projet
+
+    - Approbation pour certaines MR
 
 - [DESROQUES Ian](https://moule.informatique.u-paris.fr/desroque)
 - [ROSE Raphael](https://moule.informatique.u-paris.fr/rose)
