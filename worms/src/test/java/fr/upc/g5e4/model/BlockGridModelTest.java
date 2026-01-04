@@ -104,8 +104,8 @@ public class BlockGridModelTest {
 
     @Test
     public void testPixelToGridConversion() {
-        int pixelX = 60; // 60 / 12 = 5
-        int pixelY = 48; // 48 / 12 = 4
+        int pixelX = 80; // 80 / 16 = 5
+        int pixelY = 64; // 64 / 16 = 4
         
         assertEquals(5, model.pixelToGridX(pixelX));
         assertEquals(4, model.pixelToGridY(pixelY));
