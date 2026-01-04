@@ -78,6 +78,11 @@ public class GameLoop{
                     gameManager.getItemController().updateProjectiles(FIXHZ);
                 }
                 
+                // met a jour la visibilité des décorations (disparaissent si sol détruit)
+                if (gameManager.getDecorationManager() != null) {
+                    gameManager.getDecorationManager().updateVisibility();
+                }
+                
                 // met a jour l'animation du vent
                 if (gameManager.getWindOverlay() != null) {
                     gameManager.getWindOverlay().update();

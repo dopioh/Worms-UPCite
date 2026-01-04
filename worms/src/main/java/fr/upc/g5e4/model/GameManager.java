@@ -42,6 +42,7 @@ public class GameManager {
     private final GamePanel gamePanel;
     private GroundModel model;  // Gardé pour compatibilité avec TeamModel
     private BlockGridModel blockGridModel;  // Nouveau système de terrain en blocs
+    private DecorationManager decorationManager;  // Gestion des décorations
     private final PhysicsWorld physic;
     private final World world;
     private final Body water;
@@ -153,6 +154,10 @@ public class GameManager {
         this.blockGridModel = new BlockGridModel(sizeX, sizeY, waterLevel);
         blockGridModel.generateWithGroundY(groundY);
         
+        // création des décorations sur le terrain
+        this.decorationManager = new DecorationManager(blockGridModel);
+        decorationManager.generateDecorations(12);  // ~12 décorations aléatoires
+        
         // on garde le GroundModel pour compatibilité avec TeamModel
         this.model = new GroundModel(groundY, sizeX, sizeY, waterLevel);
 
@@ -232,6 +237,8 @@ public class GameManager {
         this.gamePanel = new GamePanel(model, camera, cameraController, listTeamInital, this); 
         // Passer le BlockGridModel au GamePanel pour le rendu en blocs
         this.gamePanel.setBlockGridModel(this.blockGridModel);
+        // Passer le DecorationManager au GamePanel pour le rendu des décos
+        this.gamePanel.setDecorationManager(this.decorationManager);
         // Passer l'ItemController au GamePanel pour dessiner les projectiles
         this.gamePanel.setItemController(this.itemController);
         // Ajoute le contrôleur pour capter les touches
@@ -273,6 +280,10 @@ public class GameManager {
 
         int[] groundY = saveData.getGroundModel().getGroundY();
         this.blockGridModel = b;
+        
+        // création des décorations pour les parties chargées
+        this.decorationManager = new DecorationManager(blockGridModel);
+        decorationManager.generateDecorations(12);
 
         this.model = saveData.getGroundModel();
 
@@ -390,6 +401,9 @@ public class GameManager {
         // Passer le BlockGridModel au GamePanel pour le rendu en blocs
         this.gamePanel.setBlockGridModel(this.blockGridModel);
         
+        // Passer le DecorationManager au GamePanel pour le rendu des décos
+        this.gamePanel.setDecorationManager(this.decorationManager);
+        
         // Passer l'ItemController au GamePanel pour dessiner les projectiles
         this.gamePanel.setItemController(this.itemController);
 
@@ -451,6 +465,11 @@ public class GameManager {
     
     public BlockGridModel getBlockGridModel() {
         return this.blockGridModel;
+    }
+    
+    /** @return le gestionnaire de décorations */
+    public DecorationManager getDecorationManager() {
+        return this.decorationManager;
     }
 
     public GamePanel getGamePanel() {
