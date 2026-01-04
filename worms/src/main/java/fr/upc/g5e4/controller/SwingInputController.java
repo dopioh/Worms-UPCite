@@ -122,6 +122,9 @@ public class SwingInputController extends JPanel{
     public void addControls() {    
         //System.out.println("addControls() called");
         
+        // Désactiver le menu contextuel pour permettre au clic droit d'être détecté
+        setComponentPopupMenu(null);
+        
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -254,18 +257,36 @@ public class SwingInputController extends JPanel{
             @Override
             public void mousePressed(MouseEvent e) {
                 requestFocusInWindow();  // Récupérer le focus au clic
+                int button = e.getButton();
+                
+                // clic droit permet de placer un bloc avec la Foreuse
+                if (button == MouseEvent.BUTTON3 || e.isPopupTrigger()) {
+                    handleDrillRightClick(e);
+                    e.consume();
+                    return;
+                }
+                
+                // Clic gauche normal
                 if (e.getButton() == MouseEvent.BUTTON1) {
-                    // Vérifier que l'inventaire n'est pas ouvert pour éviter le double tir
-                    if (inventoryOverlay != null && inventoryOverlay.isInventoryVisible()) {
-                        return;  // L'inventaire gère le tir
-                    }
                     mouseButtonPressed = true;
                     updateTrajectoryFromMouse(e.getX(), e.getY());
                 }
             }
-
+            
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON3) {
+                    handleDrillRightClick(e);
+                }
+            }
+            
             @Override
             public void mouseReleased(MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON3) {
+                    handleDrillRightClick(e);
+                    e.consume();
+                    return;
+                }
                 if (e.getButton() == MouseEvent.BUTTON1 && mouseButtonPressed) {
                     mouseButtonPressed = false;
                     fireWeaponAtAngle(e.getX(), e.getY());
@@ -399,6 +420,16 @@ public class SwingInputController extends JPanel{
 
         // vérifier si un gadget est équipé au lieu d'une arme
         if (inventoryOverlay != null && inventoryOverlay.getEquippedGadget() != null) {
+            var equipped = inventoryOverlay.getEquippedGadget();
+            
+            // Gestion spéciale pour la Drill (clic gauche = casser bloc)
+            if ("Drill".equals(equipped.name) && gameManager != null) {
+                int[] worldCoords = screenToWorldCoordinates(x, y);
+                gameManager.getItemController().drillBreakBlocks(worldCoords[0], worldCoords[1]);
+                return;
+            }
+            
+            // Pour les autres gadgets, utiliser la méthode standard
             inventoryOverlay.useEquippedGadget();
             return;
         }
@@ -471,5 +502,49 @@ public class SwingInputController extends JPanel{
         }
     }
     
-   
+    /**
+     * Convertit les coordonnées écran en coordonnées du monde du jeu
+     * Prend en compte le zoom et le décalage de la caméra
+     * @param screenX coordonnée X écran
+     * @param screenY coordonnée Y écran
+     * @return tableau [worldX, worldY] en pixels du terrain
+     */
+    private int[] screenToWorldCoordinates(int screenX, int screenY) {
+        // Par défaut, on suppose pas de caméra/zoom
+        double zoomFactor = 1.0;
+        double cameraX = 0.0;
+        double cameraY = 0.0;
+        
+        if (cameraController != null) {
+            zoomFactor = cameraController.getCamera().getZoomFactor();
+            cameraX = cameraController.getCamera().getX();
+            cameraY = cameraController.getCamera().getY();
+        }
+        
+        // Inverser le zoom d'abord (diviser par le zoom)
+        double xAfterZoom = screenX / zoomFactor;
+        double yAfterZoom = screenY / zoomFactor;
+        
+        // Compenser le décalage de la caméra
+        int worldX = (int)(xAfterZoom + cameraX);
+        int worldY = (int)(yAfterZoom + cameraY);
+        
+        return new int[]{worldX, worldY};
+    }
+    
+    /**
+     * Gère le clic droit pour placer un bloc avec la Drill
+     */
+    public void handleDrillRightClick(java.awt.event.MouseEvent e) {
+        if (inventoryOverlay != null) {
+            var equipped = inventoryOverlay.getEquippedGadget();
+            if (equipped != null && gameManager != null) {
+                if ("Drill".equals(equipped.name)) {
+                    int[] worldCoords = screenToWorldCoordinates(e.getX(), e.getY());
+                    gameManager.getItemController().drillPlaceBlock(worldCoords[0], worldCoords[1], 
+                        fr.upc.g5e4.model.BlockType.DIRT);
+                }
+            }
+        }
+    }
 }

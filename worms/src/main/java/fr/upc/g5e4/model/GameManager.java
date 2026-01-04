@@ -993,7 +993,7 @@ public class GameManager {
                 currentWorm.setHealth(Math.min(100, currentWorm.getHealth() + 50));
                 currentWorm.healEffect();
                 // Pas d'étiquette pour le heal
-                System.out.println("[Gadget] Potion Heal : +50 HP");
+                System.out.println("Potion Heal : +50 HP");
                 SoundPlayer.play("/sfx/potionheal-sound.wav");
                 gadgetsUsedThisTurn++;
                 // enregistrer l'utilisation du gadget
@@ -1005,7 +1005,7 @@ public class GameManager {
                 currentWorm.setShield(Math.min(100, currentWorm.getShield() + 25));
                 currentWorm.shieldEffect();
                 // Pas d'étiquette pour le shield
-                System.out.println("[Gadget] Potion Shield : +25 Shield");
+                System.out.println("Potion Shield : +25 Shield");
                 SoundPlayer.play("/sfx/potionshield-sound.wav");
                 gadgetsUsedThisTurn++;
                 // enregistrer l'utilisation du gadget
@@ -1019,7 +1019,7 @@ public class GameManager {
                 if (charView != null) {
                     charView.getNameTagView().addItemFromResource("/buffs/speed_buff.png", "speed_buff_icon", 20000);
                 }
-                System.out.println("[Gadget] Potion Speed : +50% vitesse");
+                System.out.println("Potion Speed : +50% vitesse");
                 SoundPlayer.play("/sfx/potionspeed-sound.wav");
                 gadgetsUsedThisTurn++;
                 // enregistrer l'utilisation du gadget
@@ -1033,7 +1033,7 @@ public class GameManager {
                 if (charView != null) {
                     charView.getNameTagView().addItemFromResource("/buffs/jump_buff.png", "jump_buff_icon", 20000);
                 }
-                System.out.println("[Gadget] Potion Jump : +50% saut");
+                System.out.println("Potion Jump : +50% saut");
                 SoundPlayer.play("/sfx/potionjump-sound.wav");
                 gadgetsUsedThisTurn++;
                 // enregistrer l'utilisation du gadget
@@ -1042,13 +1042,17 @@ public class GameManager {
                 }
                 break;
             case "Bumper":
-                System.out.println("[Gadget] Bumper utilisé");
+                System.out.println("Bumper utilisé");
                 // SoundPlayer.play("/sfx/bumper-sound.wav");
                 gadgetsUsedThisTurn++;
                 // enregistrer l'utilisation du gadget
                 if (gadgetFromInventory != null && gadgetFromInventory.canUseThisTurn()) {
                     gadgetFromInventory.registerUseThisTurn();
                 }
+                break;
+            case "Drill":
+                System.out.println("Drill équipée; Clic gauche pour  1 bloc, clic droit pour en poser");
+                SoundPlayer.play("/sfx/drill.wav");
                 break;
             default:
                 System.out.println("[Gadget] Gadget inconnu : " + itemName);

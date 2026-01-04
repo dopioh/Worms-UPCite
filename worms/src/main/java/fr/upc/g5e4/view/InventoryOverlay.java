@@ -164,8 +164,13 @@ public class InventoryOverlay extends JComponent {
             @Override
             public void mouseReleased(MouseEvent e) {
                 // Quand inventaire fermé, passer l'événement au controller
-                if (!visible && inputControllerRef != null && e.getButton() == MouseEvent.BUTTON1) {
-                    inputControllerRef.fireWeaponAtAngle(e.getX(), e.getY());
+                if (!visible && inputControllerRef != null) {
+                    if (e.getButton() == MouseEvent.BUTTON1) {
+                        inputControllerRef.fireWeaponAtAngle(e.getX(), e.getY());
+                    } else if (e.getButton() == MouseEvent.BUTTON3) {
+                        // Passer aussi le clic droit pour la Drill
+                        inputControllerRef.handleDrillRightClick(e);
+                    }
                 }
             }
         });

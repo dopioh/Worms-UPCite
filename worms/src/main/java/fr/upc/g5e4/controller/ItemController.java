@@ -376,4 +376,57 @@ public class ItemController {
         System.err.println("Aucun fichier son trouvé pour l'arme: " + className);
         return null;
     }
+    
+    /**
+     *utilise la Foreuse pour casser un bloc au clic
+     * @param pixelX position X du clic en pixels
+     * @param pixelY position Y du clic en pixels
+     */
+    public void drillBreakBlocks(int pixelX, int pixelY) {
+        if (blockGridModel == null) return;
+        
+        // Convertir en coordonnées grille
+        int gridX = blockGridModel.pixelToGridX(pixelX);
+        int gridY = blockGridModel.pixelToGridY(pixelY);
+        
+        //casser le bloc cliqué
+        if (blockGridModel.destroyBlock(gridX, gridY)) {
+            //supprimer les blocs flottants
+            blockGridModel.removeFloatingBlocks(gridX, gridY, 5);
+            
+            //recalculer la physique
+            if (blockGridModel.isDirty()) {
+                physicsWorld.recreateGroundFromBlockGrid(blockGridModel);
+                blockGridModel.clearDirty();
+                SoundPlayer.play("/sfx/drill-break.wav");
+            }
+        }
+    }
+    
+    /**
+     * utilise la Foreuse pour poser un bloc au clic
+     * @param pixelX position X du clic en pixels
+     * @param pixelY position Y du clic en pixels
+     * @param blockType type de bloc à poser
+     */
+    public void drillPlaceBlock(int pixelX, int pixelY, fr.upc.g5e4.model.BlockType blockType) {
+        if (blockGridModel == null) return;
+        
+        // convertir en coordonnées grille
+        int gridX = blockGridModel.pixelToGridX(pixelX);
+        int gridY = blockGridModel.pixelToGridY(pixelY);
+        
+        // vérifier que la position est vide (AIR)
+        if (blockGridModel.getBlock(gridX, gridY) == fr.upc.g5e4.model.BlockType.AIR) {
+            blockGridModel.setBlock(gridX, gridY, blockType);
+            
+            // recalculer la physique
+            if (blockGridModel.isDirty()) {
+                physicsWorld.recreateGroundFromBlockGrid(blockGridModel);
+                blockGridModel.clearDirty();
+                SoundPlayer.play("/sfx/drill-place.wav");
+            }
+        }
+    }
 }
+

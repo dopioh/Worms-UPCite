@@ -48,6 +48,12 @@
             "remainingUses" : 2
         },
         {
+            "objectType" : "GADGET",
+            "name" : "Drill",
+            "maxUsages" : 2147483647,
+            "isInfinite" : true
+        },
+        {
             "objectType" : "WEAPON",
             "name" : "ak47",
             "maxUsages" : 3,
