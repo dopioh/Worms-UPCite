@@ -588,12 +588,12 @@ public class GameLauncher{
         // backgrounds et UI
         ImageCache.preload(
             "/background.png", "/Reglage_BG.png",
-            "/backpack.png", "/parametre.png", "/title.png"
+            "/backpack.png", "/parametre.png", "/title.png", "/BG_Jour.png"
         );
         
         // gambling
         ImageCache.preload(
-            "/wormrace.png", "/wormguess.png", "/wormjack.png"
+            "/wormRace.png", "/wormGuess.png", "/wormJack.png"
         );
         
         // fin de jeu

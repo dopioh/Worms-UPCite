@@ -17,13 +17,14 @@ import fr.upc.g5e4.util.ImageCache;
  */
 public class BlockGridView {
     
+    // on aura pas utiliser des texutres custom mais si jamais c'est la :)
     private final Map<BlockType, BufferedImage> textures;
     private BufferedImage groundTexture;  // Texture générale (fallback)
     private boolean useTextures = false;
     
     // Couleur pré-créée pour les bordures
     private static final Color BORDER_COLOR = new Color(0, 0, 0, 30);
-    private static final Color WATER_COLOR = new Color(75, 147, 240, 150);
+    private static final Color WATER_COLOR = new Color(75, 147, 240);
     
     /**
      * Constructeur pour la vue de terrain en grille de blocs

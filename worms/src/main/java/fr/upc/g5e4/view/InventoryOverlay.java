@@ -95,14 +95,14 @@ public class InventoryOverlay extends JComponent {
         loadImage("BaseballBat", "/baseballbat.png");
         
         // Boutique
-        loadImage("luckyblock", "/luckyblock.png");
-        loadImage("wormcostar", "/wormcostar.png");
-        loadImage("wormnerd", "/wormnerd.png");
-        loadImage("wormcuisto", "/wormcuisto.png");
-        loadImage("wormnoel", "/wormnoel.png");
-        loadImage("wormjack", "/wormjack.png");
-        loadImage("wormrace", "/wormrace.png");
-        loadImage("wormguess", "/wormguess.png");
+        //loadImage("luckyblock", "/luckyblock.png");
+        loadImage("wormcostar", "/wormCostar.png");
+        loadImage("wormnerd", "/wormNerd.png");
+        loadImage("wormcuisto", "/wormCuisto.png");
+        loadImage("wormnoel", "/wormNoel.png");
+        loadImage("wormjack", "/wormJack.png");
+        loadImage("wormrace", "/wormRace.png");
+        loadImage("wormguess", "/wormGuess.png");
 
         // gadget & boutique
         loadImage("PotionSpeed", "/gadgets/potion_speed.png");
