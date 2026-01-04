@@ -108,10 +108,10 @@ public class CharacterView {
     
         // Animation walk
         boolean isWalking = Math.abs(vel.x) > 0.5f && model.isOnGround();
-        if (isWalking) walkTime += 0.25; else walkTime = 0;
+        if (isWalking) walkTime += 0.22; else walkTime = 0;
         
-        double yOffset = isWalking ? Math.sin(walkTime) * 2 : 0;       //mouvement vertical avec courbe sinus repetant entre -1 et 1
-        double angle = isWalking ? Math.sin(walkTime * 0.5) * 5 : 0;
+        double yOffset = isWalking ? Math.sin(walkTime) * 1.8 : 0;       //mouvement vertical avec courbe sinus repetant entre -1 et 1
+        double angle = isWalking ? Math.sin(walkTime * 0.5) * 4 : 0;
     
         Color drawColor = getColorWithStatusEffect(model);
         Graphics2D g2dCopy = (Graphics2D) g2d.create();
