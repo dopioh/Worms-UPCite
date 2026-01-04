@@ -29,6 +29,9 @@ public class CharacterView {
     private String currentGadget; // gadget actuellement équipé 
     private BufferedImage gadgetSprite; // sprite du gadget
     
+    // Animation de marche
+    private double walkTime = 0;
+    
     /**
      * Constructeur de la classe PersonnageView avec couleur, taille et sprite par defaut
      */
@@ -94,52 +97,53 @@ public class CharacterView {
      * @param model Le model du worm
      */
     private void drawBody(Graphics2D g2d, CharacterModel model) {
-        if (model.isDead()) {
-            return;
-        }
+        if (model.isDead()) return;
         
         Body body = model.getBody();
-        Vec2 m_position = body.getPosition();
+        Vec2 pos = body.getPosition();
+        Vec2 vel = body.getLinearVelocity();
     
-        // Conversion mètres -> pixels
-        int x = (int)(m_position.x * CharacterModel.getPPM());
-        int y = (int)((24 - m_position.y) * CharacterModel.getPPM());  // Conversion et Inversion Y
+        int x = (int)(pos.x * CharacterModel.getPPM());
+        int y = (int)((24 - pos.y) * CharacterModel.getPPM());
     
-        // obtient la couleur de l'effet de statut
+        // Animation walk
+        boolean isWalking = Math.abs(vel.x) > 0.5f && model.isOnGround();
+        if (isWalking) walkTime += 0.25; else walkTime = 0;
+        
+        double yOffset = isWalking ? Math.sin(walkTime) * 2 : 0;
+        double angle = isWalking ? Math.sin(walkTime * 0.5) * 5 : 0;
+    
         Color drawColor = getColorWithStatusEffect(model);
+        Graphics2D g2dCopy = (Graphics2D) g2d.create();
         
         if (useSprite && spriteImage != null) {
             // dessiner le sprite
             int spriteWidth = size+10;
             int spriteHeight = size+10;
             
-            Graphics2D g2dCopy = (Graphics2D) g2d.create();
-            
             //clone le sprite et le colorie après un effet
-            BufferedImage spriteToShow = spriteImage;
+            BufferedImage sprite = spriteImage;
             if (model.getCurrentStatus() != CharacterModel.StatusEffect.NONE) {
-                spriteToShow = colorizeSprite(spriteImage, drawColor);
+                sprite = colorizeSprite(spriteImage, drawColor);
             }
             
-            // si on se deplace vers la gauche on inverse le sprite
-            if (!model.isFacingRight()) {
-                g2dCopy.translate(x, y - spriteHeight/2);   // fix hitbox ici -> il fallait mettre x et pas x + spriteWidth/2
-                g2dCopy.scale(-1, 1);  // inverse horizontalement
-                g2dCopy.drawImage(spriteToShow, -spriteWidth/2, 0, spriteWidth, spriteHeight, null);
-            } else {
-                g2dCopy.drawImage(spriteToShow, x - spriteWidth/2, y - spriteHeight/2, spriteWidth, spriteHeight, null);
-            }
-            
-            g2dCopy.dispose();
-        } else { // sinon on dessine un carré de la couleur avec effet
-            g2d.setColor(drawColor);
-            g2d.fillRect(x - size/2, y - size/2, size, size);
+            g2dCopy.translate(x, y - spriteHeight/2 + yOffset);
+            g2dCopy.rotate(Math.toRadians(model.isFacingRight() ? angle : -angle), 0, spriteHeight/2);
+            if (!model.isFacingRight()) g2dCopy.scale(-1, 1);
+            g2dCopy.drawImage(sprite, -spriteWidth/2, 0, spriteWidth, spriteHeight, null);
+        } else {
+            g2dCopy.setColor(drawColor);
+            g2dCopy.translate(x, y + yOffset);
+            g2dCopy.rotate(Math.toRadians(angle), 0, 0);
+            g2dCopy.fillRect(-size/2, -size/2, size, size);
         }
         
+        g2dCopy.dispose();
         // on dessine l'arme si le worm en est equipé
-        drawWeapon(g2d, model, x, y);        
+        drawWeapon(g2d, model, x, (int)(y + yOffset));
         // on dessine le gadget si le worm en est equipe
-        drawGadget(g2d, model, x, y);    }
+        drawGadget(g2d, model, x, (int)(y + yOffset));
+    }
     
     /**
      * Dessine le sprite de l'arme équipée sur le worm
