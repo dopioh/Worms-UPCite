@@ -1,6 +1,10 @@
 package fr.upc.g5e4.model.io;
 
 import fr.upc.g5e4.model.*;
+import fr.upc.g5e4.model.CharacterModel.StatusEffect;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 
 import org.jbox2d.dynamics.*;
 
@@ -21,12 +25,15 @@ public class CharacterData {
     private double health;
     private double shield;
 
-    // on met pas speed psq je pars du principe que sans gadget temp 
-    // tous on la meme vitesse
+    private double jump;
+    private double speed;
 
     private boolean isDead;
 
     private boolean facingRight;
+
+    // buff worm
+    private ArrayList<BuffEffect> activeBuffs;
 
     /**
      * 
@@ -38,7 +45,7 @@ public class CharacterData {
      * @param shield ses points de bouclier
      * @param isDead son statut (mort ou vivant)
      */
-    public CharacterData(int ID, String name, double xcord, double ycord, double health, double shield, boolean isDead,boolean facingRight){
+    public CharacterData(int ID, String name, double xcord, double ycord, double health, double shield, boolean isDead,boolean facingRight,double jump,double speed, ArrayList<BuffEffect> activeBuffs){
             this.ID = ID;
             this.name = name;
             this.xcord =xcord;
@@ -47,6 +54,36 @@ public class CharacterData {
             this.shield = shield;
             this.isDead = isDead;
             this.facingRight = facingRight;
+            this.speed = speed;
+            this.jump = jump;
+            this.activeBuffs = activeBuffs;
+    }
+
+    /**
+     * Constructeur pour les tests unitaires
+     * @param ID
+     * @param name
+     * @param xcord
+     * @param ycord
+     * @param health
+     * @param shield
+     * @param isDead
+     * @param facingRight
+     * @param jump
+     * @param speed
+     */
+    public CharacterData(int ID, String name, double xcord, double ycord, double health, double shield, boolean isDead,boolean facingRight,double jump,double speed){
+            this.ID = ID;
+            this.name = name;
+            this.xcord =xcord;
+            this.ycord =ycord;
+            this.health = health;
+            this.shield = shield;
+            this.isDead = isDead;
+            this.facingRight = facingRight;
+            this.speed = speed;
+            this.jump = jump;
+            this.activeBuffs = null;
     }
 
     public int getID(){
@@ -82,7 +119,7 @@ public class CharacterData {
     }
 
     public CharacterModel dataToModel(GroundModel model, World world){
-        CharacterModel cm = new CharacterModel(model, world, ID, name, xcord, ycord, health, shield, isDead,facingRight);
+        CharacterModel cm = new CharacterModel(model, world, ID, name, xcord, ycord, health, shield, isDead,facingRight,speed,jump,activeBuffs);
         return cm;
     }
 }

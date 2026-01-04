@@ -27,6 +27,12 @@ public class PlayerDataController {
      */
     public PlayerDataController() {
         File dossier = new File("sauvegardes");
+        if (!dossier.exists()){
+            boolean created = dossier.mkdirs(); 
+            if (created) {
+                System.out.println("Dossier 'sauvegardes' créé.");
+            }
+        }
         this.saveFile = new File(dossier, "player_save.txt");
         this.gson = new GsonBuilder().setPrettyPrinting().serializeNulls().disableHtmlEscaping().create();
         this.playerData = null;
@@ -64,14 +70,15 @@ public class PlayerDataController {
      */
     public void chargerJoueur() {
         try {
-            File file = new File("./sauvegardes/player_save.txt");
+            File file = new File("sauvegardes/player_save.txt");
             FileReader fileReader = new FileReader(file);
             this.playerData = gson.fromJson(fileReader, PlayerData.class);
 
         } catch (Exception e) {
             System.out.println("[LoadPlayer] il y'a eu une erreur imprevu lors de l'appel de la fonction 'chargerJoueur()'..");
             System.out.print("[LoadPlayer] Un fichier de sauvegarde vierge va etre creer..Renitialisation des donnees joueurs..");
-            this.playerData = new PlayerData("Joueur"); // Vu que on a que un joueur, on lui donne la possibilite de choisir son nom ou pas ?
+            nouveauJoueur();
+            sauvegarderJoueur();
            // e.printStackTrace();
         }
     }
@@ -85,7 +92,7 @@ public class PlayerDataController {
      * @return vrai si il existe une save, faux sinon 
      */
     public static boolean isThereSavePlayer(){
-        System.out.print("isThereSavePlayer() called");
+        System.out.println("isThereSavePlayer() called");
         File file = new File("./sauvegardes/player_save.txt");
         if (file.exists()){
             System.out.println("Une save existe");
@@ -98,5 +105,6 @@ public class PlayerDataController {
         return false;
         
     }
+
 
 }

@@ -281,6 +281,10 @@ public class BlockGridModel {
     public int getWaterLevel() { return waterLevel; }
     public int getBlockSize() { return BLOCK_SIZE; }
 
+    public BlockType[][] getbBlockTypes(){
+        return this.grid;
+    }
+
     /**
      * Réinitialise le flag dirty (après reconstruction de la physique)
      */

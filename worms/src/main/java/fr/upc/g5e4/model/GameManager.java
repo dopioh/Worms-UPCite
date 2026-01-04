@@ -17,6 +17,7 @@ import fr.upc.g5e4.model.weapons.*;
 import fr.upc.g5e4.model.InventoryModel.InventoryJson;
 import fr.upc.g5e4.model.InventoryModel.InventoryRoot;
 import fr.upc.g5e4.model.PhysicsWorld.WaterSensorListener;
+import fr.upc.g5e4.model.io.CustomTeamData;
 //import fr.upc.g5e4.model.WindModel.Dir;
 import fr.upc.g5e4.model.camera.CameraModel;
 import fr.upc.g5e4.model.io.SaveData;
@@ -112,7 +113,7 @@ public class GameManager {
      * @see GameLauncher
      * @see PhysicsWorld#createGroundFromModel()
      */
-    public GameManager(int nbrEquipe) {
+    public GameManager() {
         // Initialiser le système audio en arrière-plan pour éviter le lag au premier tir
         //this.saveDataBool = false;
         SoundPlayer.initialize();
@@ -122,7 +123,7 @@ public class GameManager {
         int sizeX = MapConfig.getMapWidth();
         int sizeY = MapConfig.getMapHeight();
         // Eau uniquement pour le mode ISLANDS
-        int waterLevel = (MapConfig.getMapType() == MapConfig.MapType.ISLANDS) ? 480 : sizeY + 100;
+        int waterLevel = (MapConfig.getMapType() == MapConfig.MapType.ISLANDS) ? 480 : sizeY - 100;
         // =============================================
         
         // generation procédurale du terrain avec seed (le temps de la machine)
@@ -169,18 +170,18 @@ public class GameManager {
         this.listTeamInital = new ArrayList<>();
 
         // initialise le nbr de worm par equipe
-        this.nbrWormsByTeam = 3;
+        this.nbrWormsByTeam = TeamConfig.NBR_WORM_EQUIPE;
 
         // Récupérer le skin sélectionné dans les paramètres
         String selectedSkin = SkinSettings.getCurrentSkin();
 
         // creation des equipes selon le nombre que on veut
-        createTeam(nbrEquipe, selectedSkin);
+        createTeam(TeamConfig.NBR_EQUIPE, TeamConfig.aCustomForATeam);
 
         // initialisation des index 
         currentTeamIndex = 0;
         this.currentTeam = listTeamInital.get(currentTeamIndex).getTeamModel();
-        this.teamCursor = new int[nbrEquipe];
+        this.teamCursor = new int[TeamConfig.NBR_EQUIPE];
         this.activeWormIndex = 0;
         this.activeWormController = new CharacterController(listTeamInital.get(currentTeamIndex).getTeamModel().getWorm(activeWormIndex));
         activeWormController.setGameManager(this);
@@ -258,17 +259,15 @@ public class GameManager {
     public GameManager(SaveData saveData){
         //this.saveDataBool = true;
         //this.saveData = saveData;
+        BlockGridModel b = saveData.getBlockGridModel();
 
         // On part du principe que la taille du terrain ne changera jamais 
-        int sizeX = 1280;  // Taille du terrain
-        int sizeY = 720;
-        int waterLevel = 800;
-
-        System.out.println("Ca marche ?"); // oui, ca casse a la ligne de en dessous
+        int sizeX = b.getPixelWidth();  // Taille du terrain
+        int sizeY = b.getPixelHeight();
+        int waterLevel = b.getWaterLevel(); // a recup de saveData aussi..
 
         int[] groundY = saveData.getGroundModel().getGroundY();
-        this.blockGridModel = new BlockGridModel(sizeX, sizeY, waterLevel);
-        blockGridModel.generateWithGroundY(groundY);
+        this.blockGridModel = b;
 
         this.model = saveData.getGroundModel();
 
@@ -351,6 +350,22 @@ public class GameManager {
         activeWormController.setCurrentWeapon(defaultWeapon);
         // Mettre à jour l'arme dans la vue
         updateWeaponInView(activeWormController.getModel(), defaultWeapon);
+
+        // Normalement les index pour cv et cm sont les memes
+        for (TeamInitialisation tm : listTeamInital) {
+                TeamModel td = tm.getTeamModel();
+                TeamView tv = tm.getTeamView();
+    
+            // on parcourt les worms de CETTE equipe specifique
+            for (int i = 0; i < td.getTabWorms().length; i++) {
+                CharacterView cv = tv.getCharacterView(i);
+    
+                CharacterModel currentWorm = td.getTabWorms()[i]; 
+
+                currentWorm.restoreVisuals(cv);
+            }
+        }
+        
 
         // Initialisation caméra avec le worm actif (fenêtre 1280x720, terrain 6000x720)
         this.cameraController = new CameraController(camera,listTeamInital.get(currentTeamIndex).getTeamModel().getWorm(activeWormIndex));
@@ -598,47 +613,6 @@ public class GameManager {
     }
 
     /**
-     * FONCTION MAL CODER - QUI A FAIT CA ????
-     * 
-     * Ajoute une nouvelle équipe au jeu (pour supporter N équipes)
-     * IMPORTANT: À appeler AVANT le démarrage du jeu
-     *
-     * @param team L'équipe à ajouter
-     * @param view La vue correspondante de l'équipe
-     */
-    public void addTeam(TeamModel team,TeamView view) { // Pourquoi ? Alors que on a createTeam, et puis on a TeamInitialisation
-        if (team != null && view != null) {
-            // Extraction des paramètres nécessaires
-            String teamName = team.getTeamName();
-            int teamNumber = team.getWormNumberAtStart();
-            // Position de départ : on prend la position X du premier worm
-            int startX = 100; // Valeur par défaut
-            try {
-                if (team.getTabWorms() != null && team.getTabWorms().length > 0) {
-                    startX = (int) team.getTabWorms()[0].getXcord();
-                }
-            } catch (Exception e) {
-                // fallback sur la valeur par défaut
-            }
-            String skinPath = "/wormPixel.png";
-            // Si la TeamView possède un sprite personnalisé, on peut tenter de le récupérer
-            // (à adapter si TeamView expose ce champ)
-            // Construction de TeamInitialisation
-            TeamInitialisation teamInit = new TeamInitialisation(
-                this.model, // GroundModel
-                this.world, // World
-                teamName,
-                teamNumber,
-                startX,
-                skinPath
-            );
-            listTeamInital.add(teamInit);
-            listTeamModel.add(team);
-            System.out.println("Équipe ajoutée: " + team.getTeamName() + " (Total: " + listTeamModel.size() + " équipes)");
-        }
-    }
-
-    /**
      * Retourne le nombre total d'équipes
      */
     public int getTeamCount() {
@@ -775,7 +749,7 @@ public class GameManager {
     }
     
     // Initialiser un nombre N d'equipes avec un skin spécifique
-    public void createTeam(int number, String skinPath){
+    public void createTeam(int number, ArrayList<CustomTeamData> customTeam){
         int mapWidth = model.getWidth();
         int margin = 100; // Marge pour ne pas spawner au bord
         int usableWidth = mapWidth - (2 * margin); // Espace utilisable
@@ -783,7 +757,20 @@ public class GameManager {
         int index = 0;
 
         for (int i = 0; i < number; i++){
+
+            String skinPath;
+            CustomTeamData ctd;
+            if (customTeam != null && i < customTeam.size()){
+                ctd = customTeam.get(i);
+                skinPath = ctd.getSkin().getFilePath();
+            } else {
+                ctd = new CustomTeamData();
+                skinPath = "/worm.png";
+            }
+            
+
             this.nbrTeams++;
+            
 
             // Répartir les équipes uniformément sur la map
             //int startX = margin + sectionWidth * (i + 1);
@@ -798,7 +785,7 @@ public class GameManager {
 
             index++;
 
-            String name = "Team " + this.nbrTeams;
+            String name = ctd.getTeamName();
 
             TeamInitialisation temp = new TeamInitialisation(model, world, name, this.nbrWormsByTeam, startX, skinPath);
     
@@ -983,7 +970,7 @@ public class GameManager {
                 }
                 break;
             case "PotionSpeed":
-                currentWorm.applySpeedBuff();
+                currentWorm.applySpeedBuff(20000);
                 // ajouter l'étiquette via la vue du worm avec timer (20 secondes)
                 if (charView != null) {
                     charView.getNameTagView().addItemFromResource("/buffs/speed_buff.png", "speed_buff_icon", 20000);
@@ -997,7 +984,7 @@ public class GameManager {
                 }
                 break;
             case "PotionJump":
-                currentWorm.applyJumpBuff();
+                currentWorm.applyJumpBuff(20000);
                 // ajouter l'étiquette via la vue du worm avec timer (20 secondes)
                 if (charView != null) {
                     charView.getNameTagView().addItemFromResource("/buffs/jump_buff.png", "jump_buff_icon", 20000);
@@ -1017,6 +1004,50 @@ public class GameManager {
                 // enregistrer l'utilisation du gadget
                 if (gadgetFromInventory != null && gadgetFromInventory.canUseThisTurn()) {
                     gadgetFromInventory.registerUseThisTurn();
+                }
+                break;
+            default:
+                System.out.println("[Gadget] Gadget inconnu : " + itemName);
+                break;
+        }
+    }
+
+    /**
+     * Methode pour recuperer les buff actif apres le load d'une save
+     * @param itemName
+     * @param tempsRestant
+     */
+    public void useGadgetDuringSave(BuffEffect.BuffType itemName,long tempsRestantL, CharacterModel cm){
+        int tempsRestant = (int) tempsRestantL;
+
+        CharacterModel currentWorm = cm;
+        
+        // récupérer la vue du worm pour ajouter l'étiquette au nametag et afficher le sprite du gadget
+        fr.upc.g5e4.view.CharacterView charView = null;
+        int wormIndex = getActiveWormIndex();
+        int teamIndex = getCurrentTeamIndex();
+        if (wormIndex >= 0 && teamIndex >= 0 && teamIndex < getListTeamInit().size()) {
+            charView = getListTeamInit().get(teamIndex).getTeamView().getCharacterView(wormIndex);
+        }   
+        
+        // afficher le sprite du gadget
+        //if (charView != null) {
+        //    charView.setCurrentGadgetSprite(itemName);
+        //}
+
+        switch (itemName) {
+            case BuffEffect.BuffType.SPEED_BOOST:
+                currentWorm.applySpeedBuff(tempsRestant);
+                // ajouter l'étiquette via la vue du worm avec timer (20 secondes)
+                if (charView != null) {
+                    charView.getNameTagView().addItemFromResource("/buffs/speed_buff.png", "speed_buff_icon", tempsRestant);
+                }
+                break;
+            case BuffEffect.BuffType.JUMP_BOOST:
+                currentWorm.applyJumpBuff(tempsRestant);
+                // ajouter l'étiquette via la vue du worm avec timer (20 secondes)
+                if (charView != null) {
+                    charView.getNameTagView().addItemFromResource("/buffs/jump_buff.png", "jump_buff_icon", tempsRestant);
                 }
                 break;
             default:

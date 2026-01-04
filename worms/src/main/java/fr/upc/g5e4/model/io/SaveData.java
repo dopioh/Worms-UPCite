@@ -47,6 +47,9 @@ public class SaveData {
     // GameStats : 
     private Map<String, GameStats> teamStats;
 
+    // AJOUT NOUVEAU TERRAIN
+    private BlockGridModel blockGridModel;
+
     /**
      * Constructeur pour initialiser une SaveData a partir d'une game active
      * @param gameManager game active
@@ -69,6 +72,8 @@ public class SaveData {
         this.teamStats = gameManager.getAllTeamStats();
 
         this.windData = WindData.WindModelToWindData(gameManager.getWindModel());
+
+        this.blockGridModel = gameManager.getBlockGridModel();
     }
 
     /**
@@ -119,6 +124,10 @@ public class SaveData {
 
     public WindData getWindData() {
         return windData;
+    }
+
+    public BlockGridModel getBlockGridModel(){
+        return this.blockGridModel;
     }
 
 }

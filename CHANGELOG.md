@@ -177,6 +177,8 @@
 - Fix tir lié au zoom
 - body des blocks invisible après destruction
 - l'image de fond dans main menu qui ne redimentionne pas bien lors du passage en full screen sur un grand ecran
+- fix `player_save.txt` quand le dossier `sauvegardes` n'existe pas
+- fix save pour ajouter les buffs
 
 ### Modified
 
@@ -184,3 +186,4 @@
 - Maj du DIAGRAMME.MD
 - Maj du ARCHITECTURE.md
 - Amélioration de CHANGELOG.md
+- Remonte le niveau de l'eau 

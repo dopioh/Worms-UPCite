@@ -1,9 +1,9 @@
-/*package fr.upc.g5e4;
+package fr.upc.g5e4;
 
 import com.google.gson.Gson;
 
 import fr.upc.g5e4.FileUtile;
-import fr.upc.g5e4.model.PlayerData;
+import fr.upc.g5e4.model.io.PlayerData;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -12,7 +12,7 @@ import java.io.File;
 /**
  * Classe de test pour DoneesJoueur
  */
-/*public class PlayerDataTest {
+public class PlayerDataTest {
     
     private static final File SAVE_FILE = new File("target/test-classes/joueur.json");
     private final Gson gson = new Gson();
@@ -20,7 +20,7 @@ import java.io.File;
     @Test
     public void testSerializationToJson() {
         // Création d'un joueur test
-        PlayerData joueur = new PlayerData("MEi", 100, -10);
+        PlayerData joueur = new PlayerData("MEi");
         
         // Conversion en JSON
         String json = gson.toJson(joueur);
@@ -36,8 +36,8 @@ import java.io.File;
         
         // Vérification des données
         assertEquals("MEi", loadedJoueur.getName());
-        assertEquals(100, loadedJoueur.getXp());
-        assertEquals(-10, loadedJoueur.getMoney());
+        assertEquals(0, loadedJoueur.getXp());
+        assertEquals(0, loadedJoueur.getMoney());
         
         // Nettoyage
         SAVE_FILE.delete();
@@ -63,4 +63,4 @@ import java.io.File;
         // Nettoyage
         SAVE_FILE.delete();
     }
-}*/
+}
