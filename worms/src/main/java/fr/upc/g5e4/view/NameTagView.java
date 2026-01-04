@@ -197,8 +197,8 @@ public class NameTagView {
         int centerY = (int)((24 - position.y) * CharacterModel.getPPM());
         
         // Dimensions
-        final int ITEM_SIZE = 18;
-        final int ITEM_SPACING = 3;
+        final int ITEM_SIZE = 25 ;
+        final int ITEM_SPACING = 0;
         final int BAR_WIDTH = 70;
         final int BAR_HEIGHT = 8;
         final int BAR_SPACING = 3;
@@ -248,6 +248,7 @@ public class NameTagView {
                 }
             }
             currentY += ITEM_SIZE + ITEM_SPACING * 2;
+            
         }
         
         // 2. Dessiner la barre de shield (bleue)
@@ -270,6 +271,29 @@ public class NameTagView {
         // 3. Dessiner la barre de vie (verte)
         drawProgressBar(g2d, barX, currentY, BAR_WIDTH, BAR_HEIGHT, 
                        displayed[0], 100.0, healthBarColor, healthBorderColor);
+
+
+        String name = model.getName();
+
+        if (name != null && !name.isEmpty()) {
+            g2d.setFont(new Font("googleSansFont", Font.BOLD, 22));
+
+            org.jbox2d.dynamics.Body body = model.getBody();
+            org.jbox2d.common.Vec2 pos = body.getPosition();
+            int x = (int)(pos.x * fr.upc.g5e4.model.CharacterModel.getPPM());
+            int y = (int)((24 - pos.y) * fr.upc.g5e4.model.CharacterModel.getPPM());
+            
+            int textX = x - 40;
+            int textH = y - 70;
+
+            g2d.setColor(Color.PINK);
+            g2d.drawString(name, textX + 1, textH);
+
+            g2d.setColor(Color.WHITE);
+            g2d.drawString(name, textX, textH);
+            
+            //currentY += textHeight - 4; // 4px de marge
+        }
     }
     
     

@@ -240,16 +240,19 @@ public class GamePanel extends JPanel {
                     // Flèche rouge, petite, inversée (pointe vers le bas), et plus haut
                     int arrowW = 8;
                     int arrowH = 14;
-                    int yOffset = 60;
+                    int yOffset = 110;
                     int[] xPoints = {x, x - arrowW/2, x + arrowW/2};
                     int[] yPoints = {y - yOffset + arrowH, y - yOffset, y - yOffset};
 
 
                     // Flèche
+
+                    // mettre des couleurs diff
                     g2.setColor(Color.RED);
                     g2.fillPolygon(xPoints, yPoints, 3);
-                    g2.setColor(Color.BLACK);
+                    g2.setColor(Color.WHITE);
                     g2.drawPolygon(xPoints, yPoints, 3);
+
                 }
             }
         } catch (Exception e) {

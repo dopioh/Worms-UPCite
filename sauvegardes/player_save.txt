@@ -35,7 +35,42 @@
     }
   ],
   "customTeamManager": {
-    "nbrCustomTeam": 0,
-    "listCustomTeamData": []
+    "nbrCustomTeam": 2,
+    "listCustomTeamData": [
+      {
+        "teamName": "COUCOUUU",
+        "skin": {
+          "skinName": "Worm Noel Edition",
+          "filePath": "/wormNoel.png",
+          "unlocked": true
+        },
+        "nbrWorms": 6,
+        "wormsName": [
+          "COUCOUUUUU",
+          "PETITTT",
+          "HIHIHIHIHJIH",
+          "bot",
+          "bot",
+          "bot"
+        ]
+      },
+      {
+        "teamName": "PINKYS",
+        "skin": {
+          "skinName": "Worm Nerd Edition",
+          "filePath": "/wormNerd.png",
+          "unlocked": true
+        },
+        "nbrWorms": 6,
+        "wormsName": [
+          "yaya",
+          "meimei",
+          "raph",
+          "bot",
+          "bot",
+          "bot"
+        ]
+      }
+    ]
   }
 }
