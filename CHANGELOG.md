@@ -216,6 +216,8 @@
 - Maj du ARCHITECTURE.md
 - Amélioration de CHANGELOG.md
 - Remonte le niveau de l'eau
+- Couleur de l'eau
+- Taille des blocks
 
 ### Fixed
 
@@ -231,6 +233,7 @@
 - Coins pixelisés sur les images arrondies
 - Suppression de touche Echap dans main menu
 - Adaptation des Tests pour le nouveau système d'équipe
+- Certaines images chargeaient deux fois dans le cache
 
 ### Configuration
 
