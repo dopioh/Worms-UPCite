@@ -78,10 +78,7 @@
     - Le worm est textuellement équipé 
 
 ## [v.0.3 : SPRINT 3](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/3)
-<<<<<<< HEAD
-=======
 ---
->>>>>>> dev
 
 ### Added
 
@@ -103,11 +100,8 @@
 - Constructeurs `TeamView` et `CharacterView` avec chemin vers sprite
 - Fonction `loadSprite` avec gestion d'erreurs
 - Affichage du sprite dans la bonne direction
-<<<<<<< HEAD
-=======
 - SFX bruit de Tir
 - Vent
->>>>>>> dev
 
 ### Modified
 
@@ -157,24 +151,16 @@
 ### Optimisation
 
 - Performance
-<<<<<<< HEAD
-    - Centralisation repaint dans un seul Timer
-    - Pré-création d'objets graphiques réutilisables
-- Lag Audio : Système de cache avec pré-chargement
-=======
     - Centralisation de repaint dans un seul Timer (gameLoop) pour avoir un seul repaint()
     - Pré-création d'objets graphiques réutilisables (couleurs, strokes) pour réduire les allocations mémoire
 - Lag Audio : Système de cache avec pré-chargement des sons en mémoire
->>>>>>> dev
 
 
 ## [v.0.5 : SPRINT 5](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/5) (unreleased)
 
 ### Added
 
-<<<<<<< HEAD
-=======
-- **Page reglages**
+- **Page réglages**
     - Système d'onglets : Map, Équipes, Autre
     - Support du plein écran avec scaling automatique
     - Bouton retour vers le menu principal
@@ -186,18 +172,17 @@
     - Prévisualisation en temps réel de la map
 - **Composant PillTextField**
     - Entrée de texte qui suit la DA
-- **Customisation d'equipe**
+- **Customisation d'équipe**
     - Se save dans `player_save.txt` 
-    - Choix nom d'equipe, skin de l'equipe (parmi ceux debloquer) et nom des 6 worms de l'equipe
-- **Onglet Equipe**
-    - A Gauche :  
-        - Choix du nombre d'equipe, de worms et attribution des CustomTeams pour la prochaine partie
-        - on peut lancer une game sans configurer (reglages des equipes par defaut)
-    - A Droite :  
-        - Systeme de customisation d'equipe
+    - Choix nom d'équipe, skin de l'équipe (parmi ceux débloqués) et nom des 6 worms de l'équipe
+- **Onglet Équipe**
+    - À Gauche :  
+        - Choix du nombre d'équipes, de worms et attribution des CustomTeams pour la prochaine partie
+        - On peut lancer une game sans configurer (réglages des équipes par défaut)
+    - À Droite :  
+        - Système de customisation d'équipe
 - **Skins**
-    - Ajout des 5 skins (hors wormPixel) debloquable
->>>>>>> dev
+    - Ajout des 5 skins (hors wormPixel) débloquables
 - Algorithme FloodFill pour supprimer les blocks non liés au sol
 - Fixture unique par block
 - Boutique
@@ -209,26 +194,14 @@
 - Sons pour les gadgets
 - Dégâts de zone 
 - Readme.md expliquant le projet (comment jouer etc)
-<<<<<<< HEAD
-- Ajout d’un pointeur graphique (flèche rouge) au-dessus du joueur actif dans la vue GamePanel pour indiquer visuellement le worm en cours de jeu.
-
-### Fixed
-
-- Double tir
-- Fix tir lié au zoom
-- body des blocks invisible après destruction
-- l'image de fond dans main menu qui ne redimentionne pas bien lors du passage en full screen sur un grand ecran
-- fix `player_save.txt` quand le dossier `sauvegardes` n'existe pas
-- fix save pour ajouter les buffs
-=======
-- Ajout d'un pointeur graphique (flèche rouge) au-dessus du joueur actif
+- Ajout d'un pointeur graphique (flèche rouge) au-dessus du joueur actif dans la vue GamePanel pour indiquer visuellement le worm en cours de jeu
 - Ajout background avec effet parallax
-    - choix dans parametre onglet map
+    - Choix dans paramètre onglet map
 - AUTHORS.md
 - CONTRIBUTING.MD
 - DESIGN.MD
-- Systeme d'image en cache pour optimiser
->>>>>>> dev
+- Système d'images en cache pour optimiser
+- Animation de marche pour les worms (rotation)
 
 ### Modified
 
@@ -242,26 +215,25 @@
 - Maj du DIAGRAMME.MD
 - Maj du ARCHITECTURE.md
 - Amélioration de CHANGELOG.md
-<<<<<<< HEAD
-- Remonte le niveau de l'eau 
-=======
+- Remonte le niveau de l'eau
 
 ### Fixed
 
+- Double tir
+- Fix tir lié au zoom
+- Body des blocks invisible après destruction
+- L'image de fond dans main menu qui ne redimensionne pas bien lors du passage en full screen sur un grand écran
+- Fix `player_save.txt` quand le dossier `sauvegardes` n'existe pas
+- Fix save pour ajouter les buffs
 - JComboBox invisibles en plein écran
 - Problème du notch et menu macOS sur le contenu en plein écran
 - Image de prévisualisation pas mise à jour au retour dans les settings
 - Coins pixelisés sur les images arrondies
 - Suppression de touche Echap dans main menu
 - Adaptation des Tests pour le nouveau système d'équipe
-- Double tir
-- Fix tir lié au zoom
-- Body des blocks invisible après destruction
-- L'image de fond dans main menu qui ne redimensionne pas bien en full screen
 
 ### Configuration
 
 - Ajout de support Java 24 et 25
     - JaCoCo : 0.8.12 → 0.8.13
     - Mockito : 5.14.2 → 5.21.0
->>>>>>> dev
