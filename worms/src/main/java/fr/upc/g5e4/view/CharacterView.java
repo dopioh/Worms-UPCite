@@ -110,7 +110,7 @@ public class CharacterView {
         boolean isWalking = Math.abs(vel.x) > 0.5f && model.isOnGround();
         if (isWalking) walkTime += 0.25; else walkTime = 0;
         
-        double yOffset = isWalking ? Math.sin(walkTime) * 2 : 0;
+        double yOffset = isWalking ? Math.sin(walkTime) * 2 : 0;       //mouvement vertical avec courbe sinus repetant entre -1 et 1
         double angle = isWalking ? Math.sin(walkTime * 0.5) * 5 : 0;
     
         Color drawColor = getColorWithStatusEffect(model);
@@ -128,10 +128,10 @@ public class CharacterView {
             }
             
             g2dCopy.translate(x, y - spriteHeight/2 + yOffset);
-            g2dCopy.rotate(Math.toRadians(model.isFacingRight() ? angle : -angle), 0, spriteHeight/2);
+            g2dCopy.rotate(Math.toRadians(model.isFacingRight() ? angle : -angle), 0, spriteHeight/2); //rotation (penche) vers la direction, point de rotation au centre de worm
             if (!model.isFacingRight()) g2dCopy.scale(-1, 1);
             g2dCopy.drawImage(sprite, -spriteWidth/2, 0, spriteWidth, spriteHeight, null);
-        } else {
+        } else { // worm en carré
             g2dCopy.setColor(drawColor);
             g2dCopy.translate(x, y + yOffset);
             g2dCopy.rotate(Math.toRadians(angle), 0, 0);
