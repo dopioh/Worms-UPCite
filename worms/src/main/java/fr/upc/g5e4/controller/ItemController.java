@@ -385,7 +385,7 @@ public class ItemController {
     public void drillBreakBlocks(int pixelX, int pixelY) {
         if (blockGridModel == null) return;
         
-        // Convertir en coordonnées grille
+        // convertir en coordonnées grille
         int gridX = blockGridModel.pixelToGridX(pixelX);
         int gridY = blockGridModel.pixelToGridY(pixelY);
         
@@ -428,5 +428,48 @@ public class ItemController {
             }
         }
     }
+
+    /**
+     * utilise le Teleporter pour se téléporter à une position
+     * @param screenPixelX position X du clic en pixels écran
+     * @param screenPixelY position Y du clic en pixels écran
+     * @param worm le worm à téléporter
+     */
+    public void teleportWorm(int screenPixelX, int screenPixelY, CharacterModel worm) {
+        if (worm == null || blockGridModel == null) return;
+        
+        // convertir pixels écran ensuite pixels monde 
+        double zoomFactor = 1.0;
+        double cameraX = 0.0;
+        double cameraY = 0.0;
+        
+        if (gameManager != null && gameManager.getCameraController() != null) {
+            zoomFactor = gameManager.getCameraController().getCamera().getZoomFactor();
+            cameraX = gameManager.getCameraController().getCamera().getX();
+            cameraY = gameManager.getCameraController().getCamera().getY();
+        }
+        
+        double xAfterZoom = screenPixelX / zoomFactor;
+        double yAfterZoom = screenPixelY / zoomFactor;
+        int worldPixelX = (int)(xAfterZoom + cameraX);
+        int worldPixelY = (int)(yAfterZoom + cameraY);
+        
+        // vérifier s'il y a un bloc solide à cette position
+        if (blockGridModel.isSolidAt(worldPixelX, worldPixelY)) {
+            return;
+        }
+        
+        // convertir pixels monde  mètres JBox2D avec inversion Y
+        float ppm = CharacterModel.getPPM();
+        float blockGridHeightPixels = blockGridModel.getHeight();
+        
+        float targetWorldX = worldPixelX / ppm;
+        float targetWorldY = (blockGridHeightPixels - worldPixelY) / ppm;
+        
+        // téléporter le worm
+        worm.getBody().setTransform(new org.jbox2d.common.Vec2(targetWorldX, targetWorldY), worm.getBody().getAngle());
+        SoundPlayer.play("/sfx/teleporter-sound.wav");
+    }
 }
+
 

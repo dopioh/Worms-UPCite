@@ -122,7 +122,10 @@ public class SwingInputController extends JPanel{
     public void addControls() {    
         //System.out.println("addControls() called");
         
-        // Désactiver le menu contextuel pour permettre au clic droit d'être détecté
+        setFocusable(true);
+        requestFocusInWindow();
+        
+        // désactiver le menu contextuel pour permettre au clic droit d'être détecté
         setComponentPopupMenu(null);
         
         addKeyListener(new KeyAdapter() {
@@ -422,10 +425,17 @@ public class SwingInputController extends JPanel{
         if (inventoryOverlay != null && inventoryOverlay.getEquippedGadget() != null) {
             var equipped = inventoryOverlay.getEquippedGadget();
             
-            // Gestion spéciale pour la Drill (clic gauche = casser bloc)
+            // gestion spéciale pour la Foreuse (clic gauche = casser bloc)
             if ("Drill".equals(equipped.name) && gameManager != null) {
                 int[] worldCoords = screenToWorldCoordinates(x, y);
                 gameManager.getItemController().drillBreakBlocks(worldCoords[0], worldCoords[1]);
+                return;
+            }
+            
+            // gestion spéciale pour le Teleporter a cause de l'inversion y
+            if ("Teleporter".equals(equipped.name) && gameManager != null) {
+                int[] worldCoords = screenToWorldCoordinates(x, y);
+                gameManager.getItemController().teleportWorm(worldCoords[0], worldCoords[1], personnageController.getModel());
                 return;
             }
             
@@ -503,14 +513,14 @@ public class SwingInputController extends JPanel{
     }
     
     /**
-     * Convertit les coordonnées écran en coordonnées du monde du jeu
-     * Prend en compte le zoom et le décalage de la caméra
+     * convertit les coordonnées écran en coordonnées du monde du jeu
+     * prend en compte le zoom et le décalage de la caméra
      * @param screenX coordonnée X écran
      * @param screenY coordonnée Y écran
      * @return tableau [worldX, worldY] en pixels du terrain
      */
     private int[] screenToWorldCoordinates(int screenX, int screenY) {
-        // Par défaut, on suppose pas de caméra/zoom
+        // par défaut, on suppose pas de caméra/zoom
         double zoomFactor = 1.0;
         double cameraX = 0.0;
         double cameraY = 0.0;
@@ -521,11 +531,11 @@ public class SwingInputController extends JPanel{
             cameraY = cameraController.getCamera().getY();
         }
         
-        // Inverser le zoom d'abord (diviser par le zoom)
+        // inverser le zoom d'abord comme partout
         double xAfterZoom = screenX / zoomFactor;
         double yAfterZoom = screenY / zoomFactor;
         
-        // Compenser le décalage de la caméra
+        // compenser le décalage de la caméra
         int worldX = (int)(xAfterZoom + cameraX);
         int worldY = (int)(yAfterZoom + cameraY);
         
@@ -533,7 +543,7 @@ public class SwingInputController extends JPanel{
     }
     
     /**
-     * Gère le clic droit pour placer un bloc avec la Drill
+     * gère le clic droit pour placer un bloc avec la Drill 
      */
     public void handleDrillRightClick(java.awt.event.MouseEvent e) {
         if (inventoryOverlay != null) {

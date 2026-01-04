@@ -35,6 +35,23 @@ public class HUDOverlay extends JComponent {
         }
     }
     
+    // --- Gadget HUD ---
+    private final java.util.Map<String, BufferedImage> gadgetImages = new java.util.HashMap<>();
+
+    private void loadGadgetImages() {
+        loadGadgetImage("potion_heal", "/gadgets/potion_heal-sprite.png");
+        loadGadgetImage("teleporter", "/gadgets/teleporter-sprite.png");
+        loadGadgetImage("drill", "/gadgets/drill-sprite.png");
+    }
+
+    private void loadGadgetImage(String name, String path) {
+        try {
+            gadgetImages.put(name.toLowerCase(), javax.imageio.ImageIO.read(getClass().getResource(path)));
+        } catch (Exception e) {
+            System.err.println("[HUD] image gadget introuvable: " + path);
+        }
+    }
+    
     // --- Backpack HUD ---
 
     private BufferedImage backpackIcon;
@@ -61,6 +78,7 @@ public class HUDOverlay extends JComponent {
 
         loadBackpack();
         loadWeaponImages();
+        loadGadgetImages();
 
         addMouseListener(new MouseAdapter() {
             @Override

@@ -94,7 +94,8 @@ public class InventoryOverlay extends JComponent {
         loadImage("PotionJump", "/gadgets/potion_jump.png");
         loadImage("PotionHeal", "/gadgets/potion_heal.png");
         loadImage("PotionShield", "/gadgets/potion_shield.png");
-        loadImage("Bumper", "/gadgets/bumper.png");
+        loadImage("Teleporter", "/gadgets/teleporter-sprite.png");
+        loadImage("Drill", "/gadgets/drill-sprite.png");
     }
 
     private void loadImage(String name, String path) {
@@ -168,7 +169,7 @@ public class InventoryOverlay extends JComponent {
                     if (e.getButton() == MouseEvent.BUTTON1) {
                         inputControllerRef.fireWeaponAtAngle(e.getX(), e.getY());
                     } else if (e.getButton() == MouseEvent.BUTTON3) {
-                        // Passer aussi le clic droit pour la Drill
+                        // passer aussi le clic droit pour la Foreuse
                         inputControllerRef.handleDrillRightClick(e);
                     }
                 }
@@ -231,13 +232,6 @@ public class InventoryOverlay extends JComponent {
         this.gameManager = gameManager;
     }
 
-    /**
-     * définit un rappel quand un gadget est utilisé
-     */
-    public void setOnGadgetUse(Runnable callback) {
-        this.onGadgetUse = callback;
-    }
-
     private SwingInputController inputControllerRef;
 
     /**
@@ -270,6 +264,13 @@ public class InventoryOverlay extends JComponent {
     private void handleClick(int x, int y) {
         // inventaire fermé -> clic = tir normal
         if (!visible) {
+            if (fireListener != null) {
+                fireListener.mousePressed(new MouseEvent(
+                    this, MouseEvent.MOUSE_PRESSED,
+                    System.currentTimeMillis(), 0,
+                    x, y, 1, false, MouseEvent.BUTTON1
+                ));
+            }
             if (fireListener != null) {
                 fireListener.mousePressed(new MouseEvent(
                     this, MouseEvent.MOUSE_PRESSED,

@@ -15,8 +15,8 @@
         },
         {
             "objectType" : "GADGET",
-            "name" : "bumper",
-            "maxUsages" : 5,
+            "name" : "Teleporter",
+            "maxUsages" : 999999,
             "isInfinite" : true    
         },
         {
@@ -50,7 +50,7 @@
         {
             "objectType" : "GADGET",
             "name" : "Drill",
-            "maxUsages" : 2147483647,
+            "maxUsages" : 999999,
             "isInfinite" : true
         },
         {
