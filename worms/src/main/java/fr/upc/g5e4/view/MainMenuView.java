@@ -8,8 +8,6 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
 
 import javax.imageio.ImageIO;
@@ -50,7 +48,6 @@ public class MainMenuView extends JPanel {
         loadBackgroundImage();
         initComponents();
         setupLayout();
-        setupResizeListener();
     }
     
     @Override
@@ -209,16 +206,10 @@ public class MainMenuView extends JPanel {
         setPreferredSize(new Dimension(1280, 720));
     }
     
-    private void setupResizeListener() {
-        addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentResized(ComponentEvent e) {
-                repositionComponents();
-            }
-        });
-    }
-    
-    private void repositionComponents() {
+    /**
+     * Repositionne les composants en fonction de la taille actuelle de la fenêtre
+     */
+    public void repositionComponents() {
         int width = getWidth();
         int height = getHeight();
         

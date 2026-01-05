@@ -95,19 +95,19 @@ public class SettingsView extends JPanel {
         initComponents();
         setupLayout();
         showPanel("Map");
-        
-        // Ajouter un listener pour détecter les changements de taille
-        addComponentListener(new java.awt.event.ComponentAdapter() {
-            @Override
-            public void componentResized(java.awt.event.ComponentEvent e) {
-                // Considérer comme plein écran si largeur > 1280
-                boolean newFullScreen = getWidth() > 1280;
-                if (newFullScreen != isFullScreen) {
-                    isFullScreen = newFullScreen;
-                    updateSizes(isFullScreen);
-                }
-            }
-        });
+    }
+    
+    /**
+     * Vérifie si les dimensions actuelles correspondent au plein écran
+     * @return true si en plein écran
+     */
+    public boolean checkFullScreen() {
+        boolean newFullScreen = getWidth() > 1280;
+        if (newFullScreen != isFullScreen) {
+            isFullScreen = newFullScreen;
+            updateSizes(isFullScreen);
+        }
+        return isFullScreen;
     }
     
     /**
