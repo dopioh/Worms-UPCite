@@ -8,9 +8,7 @@ public class DecorationModel {
     
     /** Types de décorations disponibles */
     public enum DecoType {
-        BENCH("Deco/Bench.png", 120, 40, true),     // Banc - nécessite plus de surface plate
-        LIGHT1("Deco/Light1.png", 20, 60, false),   // Lampe fine - peut être partout
-        LIGHT2("Deco/Light2.png", 20, 60, false),   // Lampe fine - peut être partout  
+        BENCH("Deco/Bench.png", 80, 30, true),     // Banc - nécessite plus de surface plate
         PLANT("Deco/Plant.png", 40, 35, true),      // Plante - préfère surface plate
         TREE1("Deco/Tree1.png", 70, 100, true),     // Arbre 1 - nécessite surface plate
         TREE2("Deco/Tree2.png", 70, 100, true);     // Arbre 2 - nécessite surface plate

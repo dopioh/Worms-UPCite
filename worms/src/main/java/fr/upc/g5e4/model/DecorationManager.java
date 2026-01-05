@@ -64,8 +64,8 @@ public class DecorationManager {
             
             // Vérifier si la surface est assez plate pour ce type
             if (type.needsFlatSurface() && !isSurfaceFlat(pixelX, type.getWidth())) {
-                // Essayer avec une déco qui n'a pas besoin de surface plate
-                type = pickLightType();
+                // Surface pas assez plate, passer à l'essai suivant
+                continue;
             }
             
             // Créer et ajouter la décoration
@@ -118,12 +118,7 @@ public class DecorationManager {
         return types[random.nextInt(types.length)];
     }
     
-    /**
-     * Choisit une déco de type light (fine, peut être partout)
-     */
-    private DecorationModel.DecoType pickLightType() {
-        return random.nextBoolean() ? DecorationModel.DecoType.LIGHT1 : DecorationModel.DecoType.LIGHT2;
-    }
+
     
     /**
      * Met à jour la visibilité des décos selon l'état du terrain.
