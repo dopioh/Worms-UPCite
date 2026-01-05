@@ -218,6 +218,10 @@
 - Remonte le niveau de l'eau
 - Couleur de l'eau
 - Taille des blocks
+- **Arriere plan de la map**
+    - ajustement pour qu'il a un peu moins de presence pour mettre en valeur plus les worms et terrain que l'arriere plan
+- **Animation**
+    - ajustement de l'animation walk pour rendre un peu moins agressive
 
 ### Fixed
 
@@ -234,6 +238,9 @@
 - Suppression de touche Echap dans main menu
 - Adaptation des Tests pour le nouveau système d'équipe
 - Certaines images chargeaient deux fois dans le cache
+- **full screen**
+    - Menu Réglage
+    - Titre main menu
 
 ### Configuration
 
