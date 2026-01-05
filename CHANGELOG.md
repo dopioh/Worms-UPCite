@@ -241,6 +241,7 @@
 - **full screen**
     - Menu Réglage
     - Titre main menu
+- Des sons jouée pendant les test
 
 ### Configuration
 
