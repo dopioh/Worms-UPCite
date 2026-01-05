@@ -242,6 +242,14 @@
     - Menu Réglage
     - Titre main menu
 - Des sons jouée pendant les test
+- **Écran de fin de partie**
+    - Stats par ID d'équipe au lieu du nom pour éviter la perte de données
+    - Noms d'équipes par défaut : "Team 1", "Team 2", etc.
+    - Les rounds commencent à 1 au lieu de 0
+    - Comptage correct des rounds dans les stats
+    - Kills par rocket launcher maintenant comptabilisés
+    - Validation des noms d'équipes (pas de doublons ou noms vides)
+    - Précision limitée à 100% maximum (un tir = un hit même en zone)
 
 ### Configuration
 
