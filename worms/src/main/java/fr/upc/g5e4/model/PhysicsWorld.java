@@ -187,45 +187,6 @@ public class PhysicsWorld {
     }
     
     /**
-     * reconstruit la physique du sol après modification des blocs
-     * (méthode utilisée après destruction de blocs par des armes)
-     * @param blockGrid le modèle de grille à utiliser
-     */
-    public void rebuildGroundPhysics(BlockGridModel blockGrid) {
-        recreateGroundFromBlockGrid(blockGrid);
-        //System.out.println("[PHYSICS] Physique reconstruite");
-    }
-    
-    /**
-     * Simplification d'un contour en supprimant les points intermédiaires alignés
-     * @param points La liste de points à simplifier
-     * @return La liste de points simplifiée
-     */
-    private List<Vec2> simplifyContour(List<Vec2> points) {
-        if (points.size() <= 3) {
-            return points;
-        }
-        
-        List<Vec2> result = new ArrayList<>();
-        result.add(points.get(0));
-        
-        for (int i = 1; i < points.size() - 1; i++) {
-            // on stock le point precedent, le point courant et le point suivant
-            Vec2 prev = points.get(i - 1);
-            Vec2 curr = points.get(i);
-            Vec2 next = points.get(i + 1);
-            
-            // on verifie que les trois points ne sont pas alignés horizontalement (en y)
-            if (Math.abs(prev.y - curr.y) > 0.001f || Math.abs(curr.y - next.y) > 0.001f) {
-                result.add(curr);
-            }
-        }
-        
-        result.add(points.get(points.size() - 1));
-        return result;
-    }
-    
-    /**
      * Crée les limites du terrain pour une grille de blocs
      */
     public void limitPanel(BlockGridModel blockGrid) {

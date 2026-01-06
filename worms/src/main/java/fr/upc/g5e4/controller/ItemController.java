@@ -284,8 +284,8 @@ public class ItemController {
         
         // Reconstruire la physique si des blocs ont été détruits
         if (modified && physicsWorld != null) {
-            System.out.println("[TERRAIN] Appel de rebuildGroundPhysics...");
-            physicsWorld.rebuildGroundPhysics(blockGridModel);
+            System.out.println("[TERRAIN] Appel de recreateGroundFromBlockGrid...");
+            physicsWorld.recreateGroundFromBlockGrid(blockGridModel);
         } else if (modified && physicsWorld == null) {
             System.out.println("[TERRAIN] ERROR: physicsWorld est NULL !");
         }

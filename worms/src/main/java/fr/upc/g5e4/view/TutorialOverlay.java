@@ -106,11 +106,13 @@ public class TutorialOverlay extends JPanel {
         createButtons();
         updateButtonStates();
         
-        // ecouteur de redimensionnement pour repositionner les boutons
+        // repaint au redimensionnement
         addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
-                repositionComponents();
+                if (isVisible()) {
+                    repaint();
+                }
             }
         });
     }
@@ -170,7 +172,7 @@ public class TutorialOverlay extends JPanel {
     }
     
     /**
-     * scale les composants en fonction de la taille de l'écran grace aux getWidth/getHeight
+     * scale les boutons en fonction de la taille de l'écran grace aux getWidth/getHeight
      */
     private void repositionComponents() {
         int width = getWidth();
@@ -185,15 +187,12 @@ public class TutorialOverlay extends JPanel {
         int buttonHeight = 40;
         int buttonMargin = 20;
         
-        // Position des boutons RELATIFS au panneau central
-        // En bas à droite du panneau
         int rightX = panelX + panelWidth - buttonWidth - buttonMargin;
         int bottomY = panelY + panelHeight - buttonHeight - buttonMargin;
         
+        // redim des boutons de controle de la pagination et de fermeture
         continueButton.setBounds(rightX, bottomY, buttonWidth, buttonHeight);
         backButton.setBounds(rightX - buttonWidth - 10, bottomY, buttonWidth, buttonHeight);
-        
-        // Bouton fermer en bas à gauche du panneau
         closeButton.setBounds(panelX + buttonMargin, bottomY, buttonWidth, buttonHeight);
     }
     
@@ -227,6 +226,9 @@ public class TutorialOverlay extends JPanel {
         int panelHeight = Math.min(500, height - 100);
         int panelX = (width - panelWidth) / 2;
         int panelY = (height - panelHeight) / 2;
+        
+        // repositionner les boutons lors du repaint
+        repositionComponents();
         
         // rectangle bords arrondis
         g2d.setColor(PANEL_BG);

@@ -168,15 +168,16 @@ public class CharacterController {
                 
                 isMoving = true;
             } else {
-                // Aucune touche pressée : on arrête complètement le mouvement horizontal
+                // on arrête complètement le mouvement horizontal si on n'appuie sur rien
+                // pour eviter le glissement
                 model.stopHorizontalMovement();
             }
         }
         
-        // Synchroniser les coordonnées du modèle avec le corps physique
+        // synchronise les coordonnées du modèle avec le corps physique
         Vec2 position = body.getPosition();
         model.setXcord(position.x * 30f); // Conversion mètres -> pixels
-        model.setYcord((10 - position.y) * 30f); //  // Inversion Y + conversion
+        model.setYcord((10 - position.y) * 30f); // Inversion Y + conversion
         
         return isMoving;
     }

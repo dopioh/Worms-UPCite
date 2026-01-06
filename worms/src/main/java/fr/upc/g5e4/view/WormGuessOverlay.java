@@ -70,7 +70,7 @@ public class WormGuessOverlay extends JPanel {
             }
         });
         
-        // Repaindre lors du redimensionnement
+        // repaint au redimensionnement
         addComponentListener(new java.awt.event.ComponentAdapter() {
             @Override
             public void componentResized(java.awt.event.ComponentEvent e) {

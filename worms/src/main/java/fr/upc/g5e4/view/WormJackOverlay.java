@@ -43,7 +43,7 @@ public class WormJackOverlay extends JPanel {
     private fr.upc.g5e4.controller.PlayerDataController playerDataController;
     private fr.upc.g5e4.model.GameManager gameManager;
     
-    // Classe interne : chaque carte a une instance de la classe Card
+    // Classe interne : chaque carte est une instance de la classe Card
     private static class Card {
         String value; // de 1 a 10
         String color;  // "C", "D", "H", "P"
