@@ -109,7 +109,7 @@ public class ItemController {
             Projectile projectile = weapon.fire(shooter, world, allWorms, direction, windModel);
             if (projectile != null) {
                 activeProjectiles.add(projectile);
-                System.out.println("Projectile lancé à l'angle: " + String.format("%.0f°", projectile.getShootingAngle()));
+                System.out.println("projectile lancé avec un angle de " + String.format("%.0f°", projectile.getShootingAngle()));
                 
                 // Tracker le tir
                 if (gameManager != null) {
@@ -185,9 +185,7 @@ public class ItemController {
                         // Appliquer l'impact au worm
                         worm.applyImpact(impactDirection, impactForce);
                         
-                        System.out.println("Cible " + worm.getName() + " touchée avec " + 
-                                         damage + " damage (impact: " + 
-                                         String.format("%.2f", impactForce) + ")");
+                        System.out.println(worm.getName() + " touché ! " + damage + " dégâts infligés (force d'impact : " + String.format("%.2f", impactForce) + ")");
                         applyTerrainDamage(projectile);
                         toRemove.add(projectile);
                         break;
@@ -251,24 +249,24 @@ public class ItemController {
         
         boolean modified = false; // indique si le terrain a été modifié
         
-        System.out.println("[TERRAIN] Impact à gridX=" + centerGridX + ", gridY=" + centerGridY);
-        System.out.println("[TERRAIN] PhysicsWorld est " + (physicsWorld == null ? "NULL" : "défini"));
+        System.out.println("impact sur le terrain à la position (" + centerGridX + ", " + centerGridY + ")");
+        System.out.println("physicsWorld : " + (physicsWorld == null ? "non initialisé" : "prêt"));
         
         // appliquer les degats au terrain
         if (weapon.getTerrainBlastRadius() > 0) {
             // dégats en zone 
             blockGridModel.damageBlocksInRadius(centerGridX, centerGridY, weapon.getTerrainBlastRadius(), weapon.getTerrainDamage());
-            System.out.println("[" + weapon.getName() + "] Dégâts terrain en zone : " + weapon.getTerrainDamage() + " PV, rayon " + weapon.getTerrainBlastRadius());
+            System.out.println(weapon.getName() + " inflige " + weapon.getTerrainDamage() + " dégâts au terrain (rayon de " + weapon.getTerrainBlastRadius() + " blocs)");
             modified = true;
         } else {
             // dégats ponctuels
             if (blockGridModel.damageBlock(centerGridX, centerGridY, weapon.getTerrainDamage())) {
                 modified = true;
             }
-            System.out.println("[" + weapon.getName() + "] Dégâts terrain ponctuels : " + weapon.getTerrainDamage() + " PV");
+            System.out.println(weapon.getName() + " inflige " + weapon.getTerrainDamage() + " dégâts ponctuels au terrain");
         }
         
-        System.out.println("[TERRAIN] Modified = " + modified);
+        System.out.println("terrain modifié : " + (modified ? "oui" : "non"));
         
         // appliquer les dégats d'explosion 
         applyExplosionDamageToWorms(projectile);
@@ -278,16 +276,16 @@ public class ItemController {
             // int searchRadius = weapon.getTerrainBlastRadius() > 0 ? (int)(weapon.getTerrainBlastRadius() * 4) : 20; // SI ON MANQUE DE RESSOURCES
             int floatingRemoved = blockGridModel.removeFloatingBlocks(centerGridX, centerGridY, 200);
             if (floatingRemoved > 0) {
-                System.out.println("[TERRAIN] " + floatingRemoved + " blocs flottants supprimés (rayon de recherche: 200)");
+                System.out.println(floatingRemoved + " blocs flottants nettoyés (rayon de recherche : 200)");
             }
         }
         
         // Reconstruire la physique si des blocs ont été détruits
         if (modified && physicsWorld != null) {
-            System.out.println("[TERRAIN] Appel de rebuildGroundPhysics...");
+            System.out.println("reconstruction de la physique du terrain en cours...");
             physicsWorld.rebuildGroundPhysics(blockGridModel);
         } else if (modified && physicsWorld == null) {
-            System.out.println("[TERRAIN] ERROR: physicsWorld est NULL !");
+            System.out.println("erreur : la physique du monde n'est pas initialisée !");
         }
     }
     
@@ -332,7 +330,7 @@ public class ItemController {
                 
                 // appliquer les dégats
                 worm.dealDamage(actualDamage, shooter);
-                System.out.println("[EXPLOSION] " + worm.getName() + " prend " + actualDamage + " dégâts (distance: " + String.format("%.2f", distance) + "m)");
+                System.out.println(worm.getName() + " subit " + actualDamage + " dégâts d'explosion (à " + String.format("%.2f", distance) + "m)");
                 
                 // appliquer un impact de recul
                 if (distance > 0) {
@@ -340,7 +338,7 @@ public class ItemController {
                     Vec2 impactDirection = new Vec2(distanceX / distance, distanceY / distance);
                     float impactForce = (float) (knockbackMultiplier * (1.0 - (distance / blastRadiusInMeters)) * 10.0f);
                     worm.applyImpact(impactDirection, impactForce);
-                    System.out.println("[EXPLOSION] Impact appliqué avec force " + String.format("%.2f", impactForce));
+                    System.out.println("onde de choc appliquée avec une force de " + String.format("%.2f", impactForce));
                 }
             }
         }
@@ -389,8 +387,21 @@ public class ItemController {
         int gridX = blockGridModel.pixelToGridX(pixelX);
         int gridY = blockGridModel.pixelToGridY(pixelY);
         
-        //casser le bloc cliqué
-        if (blockGridModel.destroyBlock(gridX, gridY)) {
+        boolean anyBlockDestroyed = false;
+        
+        // casser les blocs dans une zone 2x2
+        for (int x = 0; x < 2; x++) {
+            for (int y = 0; y < 2; y++) {
+                int targetX = gridX + x;
+                int targetY = gridY + y;
+                
+                if (blockGridModel.destroyBlock(targetX, targetY)) {
+                    anyBlockDestroyed = true;
+                }
+            }
+        }
+        
+        if (anyBlockDestroyed) {
             //supprimer les blocs flottants
             blockGridModel.removeFloatingBlocks(gridX, gridY, 5);
             
