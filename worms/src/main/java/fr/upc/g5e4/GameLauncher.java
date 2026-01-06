@@ -281,6 +281,7 @@ public class GameLauncher{
         this.pauseOverlay.setSoundOn(!SoundPlayer.isMuted());
         this.pauseOverlay.setFullScreenOn(isFullScreen);
         hudOverlay.setPauseOverlay(pauseOverlay);
+        hudOverlay.setCameraController(gameManager.getCameraController());
         //How to play
         this.helpOverlay = new HelpOverlay();
         this.helpOverlay.setBounds(0, 0, width, height);
@@ -588,7 +589,7 @@ public class GameLauncher{
         // backgrounds et UI
         ImageCache.preload(
             "/background.png", "/Reglage_BG.png",
-            "/backpack.png", "/parametre.png", "/title.png", "/BG_Jour.png"
+            "/backpack.png", "/parametre.png", "/title.png", "/BG_Jour.png", "/fleche-gauche.png", "/fleche-droite.png", "/centercam.png"
         );
         
         // gambling

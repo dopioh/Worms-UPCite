@@ -9,6 +9,8 @@ import java.awt.image.BufferedImage;
 import fr.upc.g5e4.model.GameManager;
 import fr.upc.g5e4.model.InventoryModel.InventoryJson;
 import fr.upc.g5e4.model.CharacterModel;
+import fr.upc.g5e4.controller.CameraController;
+import fr.upc.g5e4.controller.CharacterController;
 import fr.upc.g5e4.util.*;
 
 public class HUDOverlay extends JComponent {
@@ -16,6 +18,7 @@ public class HUDOverlay extends JComponent {
     private PauseOverlay pauseOverlay;
     private final GameManager gameManager;
     private InventoryOverlay inventoryOverlay;
+    private CameraController cameraController;
 
     // --- Weapon HUD ---
     private final java.util.Map<String, BufferedImage> weaponImages = new java.util.HashMap<>();
@@ -54,17 +57,28 @@ public class HUDOverlay extends JComponent {
         repaint();
     }
 
-    //ParametresHUD
+
+    //Variables HUD clic et/ou Image
+    //Parametres HUD
     private Rectangle gearBounds;
     private BufferedImage settingsIcon;
 
-    //Backpack HUD
+    //Backpack HUD 
     private BufferedImage backpackIcon;
+    private Rectangle bagBounds;
+
+    //Zone cliquable de Fin de tour
+    private Rectangle endTurnBounds;
 
     //Camera Arrows HUD
     private BufferedImage fRightIcon;
     private BufferedImage fLeftIcon;
+    private BufferedImage centerCamIcon;
 
+    private Rectangle centerCamBounds;
+    private Rectangle leftArrowBounds;
+    private Rectangle rightArrowBounds;
+    
     private void loadBackpack() {
         backpackIcon = ImageCache.get("/backpack.png");
         if (backpackIcon == null) {
@@ -89,6 +103,13 @@ public class HUDOverlay extends JComponent {
         }
     }
 
+    private void loadCenterCamIcon() {
+    centerCamIcon = ImageCache.get("/centercam.png");
+    if (centerCamIcon == null) {
+        System.err.println("[HUD] centercam.png introuvable");
+    }
+}
+
     //Timer
     private int timerRemainingFrames = 0;
     private int timerTotalFrames = 1;
@@ -102,10 +123,6 @@ public class HUDOverlay extends JComponent {
         repaint();
     }
 
-    // Bouton sac
-    private Rectangle bagBounds;
-    private Rectangle endTurnBounds;
-
     // Layout constants
     private static final int HUD_W = 520;
     private static final int HUD_H = 95;
@@ -117,11 +134,20 @@ public class HUDOverlay extends JComponent {
         loadBackpack();
         loadSettingsIcon();
         loadImages();
+        loadCameraArrowsIcon();
+        loadCenterCamIcon();
 
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 handleMousePressed(e);
+            }
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (cameraController != null) {
+                    cameraController.deactivateLeft();
+                    cameraController.deactivateRight();
+                }
             }
         });
     
@@ -183,6 +209,45 @@ public class HUDOverlay extends JComponent {
         g2.setFont(g2.getFont().deriveFont(Font.BOLD, 12f));
         int secondsLeft = (int) Math.ceil(timerRemainingFrames / 60.0);
         g2.drawString(secondsLeft + "s", timerX + timerW + 10, timerY + 12);
+
+        // Taille des fleches
+        int arrowSize = 34;
+        int arrowPad  = 10;
+        int arrowY    = timerY - arrowSize - 8;
+
+        int centerX = timerX + (timerW / 2);
+
+        // Positions des éléments
+        int leftX   = centerX - arrowSize * 2 - arrowPad;
+        int centerXBtn = centerX - arrowSize / 2;
+        int rightX  = centerX + arrowSize + arrowPad;
+
+        leftArrowBounds   = new Rectangle(leftX, arrowY, arrowSize, arrowSize);
+        centerCamBounds   = new Rectangle(centerXBtn, arrowY, arrowSize, arrowSize);
+        rightArrowBounds  = new Rectangle(rightX, arrowY, arrowSize, arrowSize);
+
+        // fond
+        g2.setColor(new Color(255, 255, 255, 180));
+        g2.fillRoundRect(leftX, arrowY, arrowSize, arrowSize, 12, 12);
+        g2.fillRoundRect(centerXBtn, arrowY, arrowSize, arrowSize, 12, 12);
+        g2.fillRoundRect(rightX, arrowY, arrowSize, arrowSize, 12, 12);
+
+        // contour
+        g2.setColor(new Color(0, 0, 0, 110));
+        g2.drawRoundRect(leftX, arrowY, arrowSize, arrowSize, 12, 12);
+        g2.drawRoundRect(centerXBtn, arrowY, arrowSize, arrowSize, 12, 12);
+        g2.drawRoundRect(rightX, arrowY, arrowSize, arrowSize, 12, 12);
+
+        // images
+        if (fLeftIcon != null) {
+            g2.drawImage(fLeftIcon, leftX + 6, arrowY + 6, arrowSize - 12, arrowSize - 12, null);
+        }
+        if (centerCamIcon != null) {
+            g2.drawImage(centerCamIcon, centerXBtn + 6, arrowY + 6, arrowSize - 12, arrowSize - 12, null);
+        }
+        if (fRightIcon != null) {
+            g2.drawImage(fRightIcon, rightX + 6, arrowY + 6, arrowSize - 12, arrowSize - 12, null);
+        }
 
         // Fond HUD
 
@@ -366,12 +431,32 @@ public class HUDOverlay extends JComponent {
             }
         }
         if (endTurnBounds != null && endTurnBounds.contains(e.getPoint())) {
-                if(gameManager != null) gameManager.nextRound();
-                repaint();
-                return;
-            }
+            if(gameManager != null) gameManager.nextRound();
+            repaint();
+            return;
+        }
+        
+        if (leftArrowBounds != null && leftArrowBounds.contains(e.getPoint())) {
+            if (cameraController != null) cameraController.activateLeft();
+            repaint();
+            return;
         }
 
+        if (rightArrowBounds != null && rightArrowBounds.contains(e.getPoint())) {
+            if (cameraController != null) cameraController.activateRight();
+            repaint();
+            return;
+        }
+
+        if (centerCamBounds != null && centerCamBounds.contains(e.getPoint())) {
+            if (cameraController != null) {
+                cameraController.centerOnCharacter();
+            }
+            repaint();
+            return;
+        }
+    }
+    
     private void computeLayout() {
         int w = getWidth();
         int h = getHeight();
@@ -383,20 +468,36 @@ public class HUDOverlay extends JComponent {
         int bagX = hudX + HUD_W + 20;
         int bagY = hudY + (HUD_H - bagSize) / 2;
 
-        bagBounds = new Rectangle(bagX, bagY, bagSize, bagSize);
-
         int gearSize = 44;
         int gearX = 18;
         int gearY = 18;
-
-        gearBounds = new Rectangle(gearX, gearY, gearSize, gearSize);
 
         int btnW = 140;
         int btnH = 44;
         int btnX = hudX - btnW - 20;
         int btnY = hudY + (HUD_H - btnH) / 2;
 
+        int timerW = HUD_W;
+        int timerH = 14;
+        int timerX = hudX;
+        int timerY = hudY - timerH - 10;
+
+        int arrowSize = 34;
+        int arrowPad  = 10;
+        int arrowY    = timerY - arrowSize - 8;
+
+        int centerX = timerX + (timerW / 2);
+
+        int leftX = centerX - arrowSize * 2 - arrowPad;
+        int centerXBtn = centerX - arrowSize / 2;
+        int rightX = centerX + arrowSize + arrowPad;
+        
+        bagBounds = new Rectangle(bagX, bagY, bagSize, bagSize);
+        gearBounds = new Rectangle(gearX, gearY, gearSize, gearSize);
         endTurnBounds = new Rectangle(btnX, btnY, btnW, btnH);
+        leftArrowBounds  = new Rectangle(leftX, arrowY, arrowSize, arrowSize);
+        centerCamBounds  = new Rectangle(centerXBtn, arrowY, arrowSize, arrowSize);
+        rightArrowBounds = new Rectangle(rightX, arrowY, arrowSize, arrowSize);
     }
 
 
@@ -404,10 +505,15 @@ public class HUDOverlay extends JComponent {
         this.pauseOverlay = p;
     }
 
+    public void setCameraController(CameraController cam){ 
+        this.cameraController = cam;
+    }
+
     @Override
     public boolean contains(int x, int y) {
         computeLayout();
-        return (bagBounds != null && bagBounds.contains(x, y)) || (gearBounds != null && gearBounds.contains(x, y)) || (endTurnBounds != null && endTurnBounds.contains(x, y));
+        return (bagBounds != null && bagBounds.contains(x, y)) || (gearBounds != null && gearBounds.contains(x, y)) || (endTurnBounds != null && endTurnBounds.contains(x, y)) 
+        || (leftArrowBounds != null && leftArrowBounds.contains(x, y)) || (rightArrowBounds != null && rightArrowBounds.contains(x, y)) || (centerCamBounds != null && centerCamBounds.contains(x, y));
     }
 }
 

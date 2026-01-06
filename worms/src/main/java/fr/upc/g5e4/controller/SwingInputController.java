@@ -10,7 +10,6 @@ import fr.upc.g5e4.model.SoundPlayer;
 import fr.upc.g5e4.model.CharacterModel;
 import fr.upc.g5e4.view.*;
 import fr.upc.g5e4.controller.SwingInputController;
-import fr.upc.g5e4.controller.CharacterController;
 
 import javax.swing.JFrame;
 
