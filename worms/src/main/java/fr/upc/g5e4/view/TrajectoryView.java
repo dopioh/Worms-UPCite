@@ -6,7 +6,7 @@ import org.jbox2d.common.Vec2;
 
 import fr.upc.g5e4.model.CharacterModel;
 import fr.upc.g5e4.model.Weapon;
-import fr.upc.g5e4.model.TrajectoryInterface;
+import fr.upc.g5e4.model.TrajectoryModel;
 
 /**
  * classe pour afficher la trajectoire de tir

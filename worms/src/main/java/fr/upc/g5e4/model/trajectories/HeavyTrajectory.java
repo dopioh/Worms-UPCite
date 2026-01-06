@@ -1,13 +1,13 @@
 package fr.upc.g5e4.model.trajectories;
 
 import org.jbox2d.common.Vec2;
-import fr.upc.g5e4.model.TrajectoryInterface;
+import fr.upc.g5e4.model.TrajectoryModel;
 
 /**
  * trajectoire lourde (forte gravité)
  * utilisée par les projectiles lourds 
  */
-public class HeavyTrajectory implements TrajectoryInterface {
+public class HeavyTrajectory implements TrajectoryModel {
     private static final float DROP_COEFFICIENT = 12.0f; // forte chute
     
     @Override

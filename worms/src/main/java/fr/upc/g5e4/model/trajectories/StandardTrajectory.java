@@ -1,13 +1,13 @@
 package fr.upc.g5e4.model.trajectories;
 
 import org.jbox2d.common.Vec2;
-import fr.upc.g5e4.model.TrajectoryInterface;
+import fr.upc.g5e4.model.TrajectoryModel;
 
 /**
  * trajectoire parabolique standard (gravité normale)
  * utilisée par la plupart des armes 
  */
-public class StandardTrajectory implements TrajectoryInterface {
+public class StandardTrajectory implements TrajectoryModel {
     private static final float DROP_COEFFICIENT = 5.0f; // effet de gravité modéré
     
     @Override

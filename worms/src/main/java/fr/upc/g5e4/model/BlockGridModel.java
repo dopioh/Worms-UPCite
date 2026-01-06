@@ -216,7 +216,7 @@ public class BlockGridModel {
         
         // ne peut pas endommager l'air
         if (!blockType.isSolid()) {
-            return false;
+            return false; 
         }
         
         // appliquer les dégats
@@ -228,12 +228,12 @@ public class BlockGridModel {
             // réinitialiser les PV à 0
             healthGrid.setHealth(gridX, gridY, 0);
             SoundPlayer.playBreakBlockSound();
-            return true;
+            return true; // le bloc est détruit
         }
         
         // bloc endommagé mais pas détruit - sa texture changera au rendu
         dirty = true;
-        return false;
+        return false; // le bloc n'est pas détruit
     }
     
     /**
@@ -244,7 +244,7 @@ public class BlockGridModel {
      * @param damage dégats à appliquer
      */
     public void damageBlocksInRadius(int centerGridX, int centerGridY, double radiusInBlocks, int damage) {
-        int radius = (int) Math.ceil(radiusInBlocks);
+        int radius = (int) Math.ceil(radiusInBlocks); // rayon en blocs arrondi vers le haut
         
         for (int gridX = centerGridX - radius; gridX <= centerGridX + radius; gridX++) {
             for (int gridY = centerGridY - radius; gridY <= centerGridY + radius; gridY++) {
@@ -257,10 +257,10 @@ public class BlockGridModel {
                 // vérifie si le bloc est dans le rayon
                 if (distance <= radiusInBlocks) {
                     // les blocs plus proches reçoivent plus de dégats
-                    double damageMultiplier = 1.0 - (distance / radiusInBlocks);
-                    int adjustedDamage = Math.max(1, (int) (damage * damageMultiplier));
+                    double damageMultiplier = 1.0 - (distance / radiusInBlocks); 
+                    int adjustedDamage = Math.max(1, (int) (damage * damageMultiplier)); 
                     
-                    damageBlock(gridX, gridY, adjustedDamage);
+                    damageBlock(gridX, gridY, adjustedDamage); // applique les dégats au bloc
                 }
             }
         }

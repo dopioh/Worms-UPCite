@@ -16,7 +16,7 @@ public abstract class Weapon extends Item {
     private int terrainDamage = 0;    // dégâts causés au terrain (en PV de blocs)
     private double terrainBlastRadius = 0.0; // rayon de dégâts au terrain en blocs
     private double shootingAngle = 0;  // angle de tir en degrés (0-360)
-    private TrajectoryInterface trajectoryCalculator;  // calculatrice de trajectoire spécifique à l'arme
+    private TrajectoryModel trajectoryCalculator;  // calculatrice de trajectoire spécifique à l'arme
 
     protected Weapon(String name, int maxUsages, boolean isInfinite,
                      int damage, double blastRadius, double speed, int range, double knockbackMultiplier) {
@@ -59,14 +59,14 @@ public abstract class Weapon extends Item {
     /**
      * définit le calculateur de trajectoire personnalisé pour une arme
      */
-    public void setTrajectoryCalculator(TrajectoryInterface calculator) {
+    public void setTrajectoryCalculator(TrajectoryModel calculator) {
         this.trajectoryCalculator = calculator;
     }
     
     /**
      * obtient le calculateur de trajectoire de cette arme
      */
-    public TrajectoryInterface getTrajectoryCalculator() {
+    public TrajectoryModel getTrajectoryCalculator() {
         return this.trajectoryCalculator;
     }
     
@@ -158,7 +158,7 @@ public abstract class Weapon extends Item {
         double projectileX = Math.cos(Math.toRadians(trajectoryAngle));
         double windX = Math.cos(Math.toRadians(windAngle));
         
-        // calcul du produit scalaire pour déterminer l'alignement
+        // calcul pour déterminer la ligne entre le vent et la trajectoire
         // 1.0 = vent exactement dans la même direction
         // -1.0 = vent exactement contraire
         // 0.0 = vent perpendiculaire

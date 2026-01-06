@@ -120,7 +120,7 @@ public class Projectile {
             return true; // Par défaut, arrête à la portée
         }
         
-        TrajectoryInterface trajectory = sourceWeapon.getTrajectoryCalculator();
+        TrajectoryModel trajectory = sourceWeapon.getTrajectoryCalculator();
         if (trajectory == null) {
             return true; // Par défaut, arrête à la portée
         }
