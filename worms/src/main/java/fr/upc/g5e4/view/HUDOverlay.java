@@ -61,6 +61,10 @@ public class HUDOverlay extends JComponent {
     //Backpack HUD
     private BufferedImage backpackIcon;
 
+    //Camera Arrows HUD
+    private BufferedImage fRightIcon;
+    private BufferedImage fLeftIcon;
+
     private void loadBackpack() {
         backpackIcon = ImageCache.get("/backpack.png");
         if (backpackIcon == null) {
@@ -71,6 +75,17 @@ public class HUDOverlay extends JComponent {
         settingsIcon = ImageCache.get("/parametre.png");
         if (settingsIcon == null) {
             System.err.println("[HUD] parametre.png introuvable");
+        }
+    }
+
+    private void loadCameraArrowsIcon() {
+        fRightIcon = ImageCache.get("/fleche-droite.png");
+        fLeftIcon = ImageCache.get("/fleche-gauche.png");
+        if (fLeftIcon == null) {
+            System.err.println("[HUD] fleche-gauche.png introuvable");
+        }
+        if (fRightIcon == null) {
+            System.err.println("[HUD] fleche-droite.png introuvable");
         }
     }
 
