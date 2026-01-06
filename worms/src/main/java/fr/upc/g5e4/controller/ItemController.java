@@ -484,35 +484,19 @@ public class ItemController {
 
     /**
      * utilise le Teleporter pour se téléporter à une position
-     * @param screenPixelX position X du clic en pixels écran
-     * @param screenPixelY position Y du clic en pixels écran
+     * @param worldPixelX position X du clic en pixels monde
+     * @param worldPixelY position Y du clic en pixels monde
      * @param worm le worm à téléporter
      */
-    public void teleportWorm(int screenPixelX, int screenPixelY, CharacterModel worm) {
+    public void teleportWorm(int worldPixelX, int worldPixelY, CharacterModel worm) {
         if (worm == null || blockGridModel == null) return;
-        
-        // convertir pixels écran ensuite pixels monde 
-        double zoomFactor = 1.0;
-        double cameraX = 0.0;
-        double cameraY = 0.0;
-        
-        if (gameManager != null && gameManager.getCameraController() != null) {
-            zoomFactor = gameManager.getCameraController().getCamera().getZoomFactor();
-            cameraX = gameManager.getCameraController().getCamera().getX();
-            cameraY = gameManager.getCameraController().getCamera().getY();
-        }
-        
-        double xAfterZoom = screenPixelX / zoomFactor;
-        double yAfterZoom = screenPixelY / zoomFactor;
-        int worldPixelX = (int)(xAfterZoom + cameraX);
-        int worldPixelY = (int)(yAfterZoom + cameraY);
         
         // vérifier s'il y a un bloc solide à cette position
         if (blockGridModel.isSolidAt(worldPixelX, worldPixelY)) {
             return;
         }
         
-        // convertir pixels monde  mètres JBox2D avec inversion Y
+        // convertir pixels monde en mètres JBox2D avec inversion Y
         float ppm = CharacterModel.getPPM();
         float blockGridHeightPixels = blockGridModel.getHeight();
         
