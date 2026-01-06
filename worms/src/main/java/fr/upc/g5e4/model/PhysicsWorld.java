@@ -256,6 +256,43 @@ public class PhysicsWorld {
 
         Body bRightWall = world.createBody(rightWall);
         bRightWall.createFixture(fDefRightW);
+
+        // Ceiling :
+
+        BodyDef bdCeiling = new BodyDef();
+        bdCeiling.type = BodyType.STATIC;
+        bdCeiling.position.set(0, 0); 
+
+        // conversion des dimensions en metres
+        float worldHeight = blockGrid.getPixelHeight() / PPM;
+        float worldWidth = blockGrid.getPixelWidth() / PPM;
+
+        EdgeShape eCeiling = new EdgeShape();
+        eCeiling.set(new Vec2(0, worldHeight), new Vec2(worldWidth, worldHeight));
+
+        FixtureDef fCeiling = new FixtureDef();
+        fCeiling.shape = eCeiling;
+        fCeiling.restitution = 0.3f; 
+
+        Body bCeiling = world.createBody(bdCeiling);
+        bCeiling.createFixture(fCeiling);
+
+        // Sol : ca kill le worm si il passe en dessous
+        /*
+        BodyDef bdSol = new BodyDef();
+        bdSol.type = BodyType.STATIC;
+        bdSol.position.set(0, 0); 
+
+        EdgeShape eSol = new EdgeShape();
+        eSol.set(new Vec2(0, worldHeight), new Vec2(worldWidth, worldHeight));
+
+        FixtureDef fSol = new FixtureDef();
+        fSol.shape = eSol;
+        fSol.restitution = 0.3f; 
+
+        Body bSol = world.createBody(bdSol);
+        bSol.createFixture(fSol);
+        */
     }
 
 
