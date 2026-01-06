@@ -462,19 +462,23 @@ public class SwingInputController extends JPanel{
             
             // gestion spéciale pour la Foreuse (clic gauche = casser bloc)
             if ("Drill".equals(equipped.name) && gameManager != null) {
-                // Vérifier si ce gadget peut être utilisé
+                // vérifier si ce gadget peut être utilisé ce tour
                 if (!equipped.canUseThisTurn()) {
-                    System.out.println("[Drill] Plus d'utilisations disponibles pour ce tour !");
+                    System.out.println("drill: limite de 10 utilisations par tour atteinte !");
                     return;
                 }
                 
                 int[] worldCoords = screenToWorldCoordinates(x, y);
-                gameManager.getItemController().drillBreakBlocks(worldCoords[0], worldCoords[1]);
+                CharacterController activeWorm = gameManager.getActiveWormController();
+                CharacterModel wormModel = (activeWorm != null) ? activeWorm.getModel() : null;
                 
-                // Enregistrer l'utilisation
-                equipped.registerUseThisTurn();
-                equipped.remainingUses--;
-                inventoryOverlay.repaint();
+                boolean success = gameManager.getItemController().drillBreakBlocks(worldCoords[0], worldCoords[1], wormModel);
+                
+                // enregistrer l'utilisation seulement si l'action a réussi
+                if (success) {
+                    equipped.registerUseThisTurn();
+                    inventoryOverlay.repaint();
+                }
                 return;
             }
             
@@ -613,20 +617,24 @@ public class SwingInputController extends JPanel{
             var equipped = inventoryOverlay.getEquippedGadget();
             if (equipped != null && gameManager != null) {
                 if ("Drill".equals(equipped.name)) {
-                    // Vérifier si ce gadget peut être utilisé
+                    // vérifier si ce gadget peut être utilisé ce tour
                     if (!equipped.canUseThisTurn()) {
-                        System.out.println("[Drill] Plus d'utilisations disponibles pour ce tour !");
+                        System.out.println("drill: limite de 10 utilisations par tour atteinte !");
                         return;
                     }
                     
                     int[] worldCoords = screenToWorldCoordinates(e.getX(), e.getY());
-                    gameManager.getItemController().drillPlaceBlock(worldCoords[0], worldCoords[1], 
-                        fr.upc.g5e4.model.BlockType.DIRT);
+                    CharacterController activeWorm = gameManager.getActiveWormController();
+                    CharacterModel wormModel = (activeWorm != null) ? activeWorm.getModel() : null;
                     
-                    // Enregistrer l'utilisation
-                    equipped.registerUseThisTurn();
-                    equipped.remainingUses--;
-                    inventoryOverlay.repaint();
+                    boolean success = gameManager.getItemController().drillPlaceBlock(worldCoords[0], worldCoords[1], 
+                        fr.upc.g5e4.model.BlockType.DIRT, wormModel);
+                    
+                    // enregistrer l'utilisation seulement si l'action a réussi
+                    if (success) {
+                        equipped.registerUseThisTurn();
+                        inventoryOverlay.repaint();
+                    }
                 }
             }
         }

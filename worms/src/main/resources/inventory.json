@@ -53,7 +53,7 @@
             "name" : "Drill",
             "maxUsages" : 10,
             "isInfinite" : false,
-            "remainingUses" : 20
+            "remainingUses" : 999999
         },
         {
             "objectType" : "WEAPON",

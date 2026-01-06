@@ -11,8 +11,8 @@ public class Drill extends Gadget {
     public Drill() {
         super(
             "Drill",
-            Integer.MAX_VALUE,  // Infini
-            true    // Infini
+            10,  // 10 utilisations par tour
+            true    // Infini pour toute la partie
         );
     }
 

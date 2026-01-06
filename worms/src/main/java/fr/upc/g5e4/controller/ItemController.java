@@ -39,7 +39,7 @@ public class ItemController {
     }
 
     /**
-     * Définit le monde physique (non utilisé dans le système Graphwar)
+     * Définit le monde physique JBox2D
      * @param world Le monde JBox2D
      */
     public void setWorld(World world) {
@@ -89,7 +89,7 @@ public class ItemController {
     }
 
     /**
-     * Utilise une arme avec projectile pour tirer dans une direction (système Graphwar)
+     * Utilise une arme avec projectile pour tirer dans une direction 
      * @param weapon L'arme à utiliser
      * @param shooter Le worm qui tire
      * @param direction Direction du tir (1 pour droite, -1 pour gauche)
@@ -185,7 +185,7 @@ public class ItemController {
                         // Appliquer l'impact au worm
                         worm.applyImpact(impactDirection, impactForce);
                         
-                        System.out.println(worm.getName() + " touché ! " + damage + " dégâts infligés (force d'impact : " + String.format("%.2f", impactForce) + ")");
+                        System.out.println(worm.getName() + " touché " + damage + " dégâts infligés : " + String.format("%.2f", impactForce) + ")");
                         applyTerrainDamage(projectile);
                         toRemove.add(projectile);
                         break;
@@ -227,30 +227,22 @@ public class ItemController {
         if (blockGridModel == null) {
             return;
         }
-        
         Weapon weapon = projectile.getSourceWeapon(); // arme qui a tiré le projectile
         if (weapon == null || weapon.getTerrainDamage() == 0) {
             return;
         }
-        
         Vec2 projectilePos = projectile.getCurrentPosition();
-        
         // convertit la position du monde (JBox2D en mètres) en coordonnées de grille
         float PPM = 30f;
-        
         // convertir de metres en pixels
         int pixelX = (int)(projectilePos.x * PPM);
         // Y est inversé entre JBox2D (Y augmente vers le haut) et pixels (Y augmente vers le bas)
         int pixelY = (int)(blockGridModel.getPixelHeight() - projectilePos.y * PPM);
-        
         // convertir de pixels en coordonnées de grille
         int centerGridX = blockGridModel.pixelToGridX(pixelX);
         int centerGridY = blockGridModel.pixelToGridY(pixelY);
-        
         boolean modified = false; // indique si le terrain a été modifié
-        
         System.out.println("impact sur le terrain à la position (" + centerGridX + ", " + centerGridY + ")");
-        System.out.println("physicsWorld : " + (physicsWorld == null ? "non initialisé" : "prêt"));
         
         // appliquer les degats au terrain
         if (weapon.getTerrainBlastRadius() > 0) {
@@ -263,7 +255,7 @@ public class ItemController {
             if (blockGridModel.damageBlock(centerGridX, centerGridY, weapon.getTerrainDamage())) {
                 modified = true;
             }
-            System.out.println(weapon.getName() + " inflige " + weapon.getTerrainDamage() + " dégâts ponctuels au terrain");
+            System.out.println(weapon.getName() + " inflige " + weapon.getTerrainDamage() + " dégâts au terrain");
         }
         
         System.out.println("terrain modifié : " + (modified ? "oui" : "non"));
@@ -276,16 +268,16 @@ public class ItemController {
             // int searchRadius = weapon.getTerrainBlastRadius() > 0 ? (int)(weapon.getTerrainBlastRadius() * 4) : 20; // SI ON MANQUE DE RESSOURCES
             int floatingRemoved = blockGridModel.removeFloatingBlocks(centerGridX, centerGridY, 200);
             if (floatingRemoved > 0) {
-                System.out.println(floatingRemoved + " blocs flottants nettoyés (rayon de recherche : 200)");
+                System.out.println("[TERRAIN] " + floatingRemoved + " blocs flottants supprimés (rayon de recherche: 200)"); 
             }
         }
         
         // Reconstruire la physique si des blocs ont été détruits
         if (modified && physicsWorld != null) {
-            System.out.println("reconstruction de la physique du terrain en cours...");
+            System.out.println("[TERRAIN] Appel de rebuildGroundPhysics...");
             physicsWorld.rebuildGroundPhysics(blockGridModel);
         } else if (modified && physicsWorld == null) {
-            System.out.println("erreur : la physique du monde n'est pas initialisée !");
+            System.out.println("[TERRAIN] ERROR: physicsWorld est NULL !");
         }
     }
     
@@ -330,7 +322,7 @@ public class ItemController {
                 
                 // appliquer les dégats
                 worm.dealDamage(actualDamage, shooter);
-                System.out.println(worm.getName() + " subit " + actualDamage + " dégâts d'explosion (à " + String.format("%.2f", distance) + "m)");
+                System.out.println(worm.getName() + " subit " + actualDamage + " dégats d'explosion (à " + String.format("%.2f", distance) + "m)");
                 
                 // appliquer un impact de recul
                 if (distance > 0) {
@@ -338,7 +330,7 @@ public class ItemController {
                     Vec2 impactDirection = new Vec2(distanceX / distance, distanceY / distance);
                     float impactForce = (float) (knockbackMultiplier * (1.0 - (distance / blastRadiusInMeters)) * 10.0f);
                     worm.applyImpact(impactDirection, impactForce);
-                    System.out.println("onde de choc appliquée avec une force de " + String.format("%.2f", impactForce));
+                    System.out.println("explosion appliquée avec une force de " + String.format("%.2f", impactForce));
                 }
             }
         }
@@ -380,8 +372,47 @@ public class ItemController {
      * @param pixelX position X du clic en pixels
      * @param pixelY position Y du clic en pixels
      */
-    public void drillBreakBlocks(int pixelX, int pixelY) {
-        if (blockGridModel == null) return;
+    /**
+     * vérifie que le clic est à portée du personnage actif
+     * @param pixelX position X du clic en pixels
+     * @param pixelY position Y du clic en pixels
+     * @param activeWorm le worm actif
+     * @param maxRange portée maximale en mètres
+     * @return true si à portée, false sinon
+     */
+    private boolean isDrillRange(int pixelX, int pixelY, CharacterModel activeWorm, float maxRange) {
+        if (activeWorm == null || blockGridModel == null) return true;
+        
+        Vec2 wormPos = activeWorm.getBody().getPosition();
+        float wormX = wormPos.x;
+        float wormY = wormPos.y;
+        
+        // convertir les coordonnées du clic de pixels en mètres avec inversion Y
+        float ppm = CharacterModel.getPPM();
+        float blockGridHeight = blockGridModel.getHeight();
+        float clickX = pixelX / ppm;
+        float clickY = (blockGridHeight - pixelY) / ppm;
+        
+        // calculer la distance entre le worm et le clic
+        float dx = clickX - wormX;
+        float dy = clickY - wormY;
+        float distance = (float) Math.sqrt(dx * dx + dy * dy);
+        
+        if (distance > maxRange) {
+            System.out.println("drill: trop loin du personnage ! (distance: " + String.format("%.1f", distance) + "m, max: " + maxRange + "m)");
+            return false;
+        }
+        
+        return true;
+    }
+    
+    public boolean drillBreakBlocks(int pixelX, int pixelY, CharacterModel activeWorm) {
+        if (blockGridModel == null) return false;
+        
+        // vérifier que le clic est à portée du personnage
+        if (!isDrillRange(pixelX, pixelY, activeWorm, 1.5f)) {
+            return false;
+        }
         
         // convertir en coordonnées grille
         int gridX = blockGridModel.pixelToGridX(pixelX);
@@ -412,6 +443,8 @@ public class ItemController {
                 SoundPlayer.play("/sfx/drill-break.wav");
             }
         }
+        
+        return anyBlockDestroyed;
     }
     
     /**
@@ -419,9 +452,15 @@ public class ItemController {
      * @param pixelX position X du clic en pixels
      * @param pixelY position Y du clic en pixels
      * @param blockType type de bloc à poser
+     * @param activeWorm le worm actif
      */
-    public void drillPlaceBlock(int pixelX, int pixelY, fr.upc.g5e4.model.BlockType blockType) {
-        if (blockGridModel == null) return;
+    public boolean drillPlaceBlock(int pixelX, int pixelY, fr.upc.g5e4.model.BlockType blockType, CharacterModel activeWorm) {
+        if (blockGridModel == null) return false;
+        
+        // vérifier que le clic est à portée du personnage
+        if (!isDrillRange(pixelX, pixelY, activeWorm, 1.0f)) {
+            return false;
+        }
         
         // convertir en coordonnées grille
         int gridX = blockGridModel.pixelToGridX(pixelX);
@@ -437,7 +476,10 @@ public class ItemController {
                 blockGridModel.clearDirty();
                 SoundPlayer.play("/sfx/drill-place.wav");
             }
+            return true;
         }
+        
+        return false;
     }
 
     /**
