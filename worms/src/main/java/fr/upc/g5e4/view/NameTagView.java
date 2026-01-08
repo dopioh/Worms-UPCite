@@ -280,7 +280,7 @@ public class NameTagView {
         String name = model.getName();
 
         if (name != null && !name.isEmpty()) {
-            g2d.setFont(new Font("googleSansFont", Font.BOLD, 25));
+            g2d.setFont(new Font("googleSansFont", Font.BOLD, 22));
     
             FontMetrics fm = g2d.getFontMetrics(); // on recup les mesures de la font pour calculer son positionnement
             int textWidth = fm.stringWidth(name);   // recup la largeur du texte
