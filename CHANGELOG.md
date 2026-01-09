@@ -202,7 +202,8 @@
 - DESIGN.MD
 - Système d'images en cache pour optimiser
 - Animation de marche pour les worms (rotation)
-- Déco (arbres)
+- **Arbres**
+    - Disparition automatique des décos quand le sol en dessous est détruit
 
 ### Modified
 
