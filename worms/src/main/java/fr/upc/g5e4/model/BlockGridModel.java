@@ -3,6 +3,7 @@ package fr.upc.g5e4.model;
 /**
  * Modèle de terrain en grille de blocs
  * Gère une grille 2D de blocs avec pour possibilité de modification/destruction
+ * @author Nassim & Billy
  */
 public class BlockGridModel {
     

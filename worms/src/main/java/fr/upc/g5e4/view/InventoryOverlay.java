@@ -11,6 +11,7 @@ import java.util.List;
 import fr.upc.g5e4.model.InventoryModel;
 import fr.upc.g5e4.model.InventoryModel.InventoryJson;
 import fr.upc.g5e4.controller.SwingInputController;
+import fr.upc.g5e4.controller.minigames.*;
 import fr.upc.g5e4.model.GameManager;
 import fr.upc.g5e4.controller.PlayerDataController;
 import fr.upc.g5e4.util.ImageCache;
@@ -66,9 +67,9 @@ public class InventoryOverlay extends JComponent {
     private PlayerDataController playerDataController;
     private int selectedShopIndex = -1;
     private final List<Rectangle> buyButtons = new ArrayList<>();
-    private WormRaceOverlay wormRaceOverlay;
-    private WormGuessOverlay wormGuessOverlay;
-    private WormJackOverlay wormJackOverlay;
+    private WormRaceController wormRaceController;
+    private WormGuessController wormGuessController;
+    private WormJackController wormJackController;
     
     // Items de la boutique
     private static class ShopItem {
@@ -917,28 +918,28 @@ public class InventoryOverlay extends JComponent {
         
         if ("WORMRACE".equalsIgnoreCase(shopItem.name)) {
             System.out.println("Déclenchement de WORMRACE");
-            if (wormRaceOverlay != null) {
-                wormRaceOverlay.showRace();
+            if (wormRaceController != null) {
+                wormRaceController.showGame();
             } else {
-                System.err.println("ERREUR: wormRaceOverlay est null!");
+                System.err.println("ERREUR: wormRaceController est null!");
             }
         }
         
         if ("WORMGUESS".equalsIgnoreCase(shopItem.name)) {
             System.out.println("Déclenchement de WORMGUESS");
-            if (wormGuessOverlay != null) {
-                wormGuessOverlay.showGame();
+            if (wormGuessController != null) {
+                wormGuessController.showGame();
             } else {
-                System.err.println("ERREUR: wormGuessOverlay est null!");
+                System.err.println("ERREUR: wormGuessController est null!");
             }
         }
         
         if ("WORMJACK".equalsIgnoreCase(shopItem.name)) {
             System.out.println("Déclenchement de WORMJACK");
-            if (wormJackOverlay != null) {
-                wormJackOverlay.showGame();
+            if (wormJackController != null) {
+                wormJackController.showGame();
             } else {
-                System.err.println("ERREUR: wormJackOverlay est null!");
+                System.err.println("ERREUR: wormJackController est null!");
             }
         }
         
@@ -1008,16 +1009,16 @@ public class InventoryOverlay extends JComponent {
         }
     }
     
-    public void setWormRaceOverlay(WormRaceOverlay overlay) {
-        this.wormRaceOverlay = overlay;
+    public void setWormRaceController(WormRaceController controller) {
+        this.wormRaceController = controller;
     }
     
-    public void setWormGuessOverlay(WormGuessOverlay overlay) {
-        this.wormGuessOverlay = overlay;
+    public void setWormGuessController(WormGuessController controller) {
+        this.wormGuessController = controller;
     }
     
-    public void setWormJackOverlay(WormJackOverlay overlay) {
-        this.wormJackOverlay = overlay;
+    public void setWormJackController(WormJackController controller) {
+        this.wormJackController = controller;
     }
 
     /**

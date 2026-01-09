@@ -11,6 +11,7 @@ import java.awt.*;
  * pour savoir a quel case du tableau on dessine
  * le constructeur ne servait qu'a créer le dictionnaire des textures custom 
  *  et comme c'est plus utilisé je l'ai supprimé)
+ * @author Nassim & Billy
  */
 public class BlockGridView {
 

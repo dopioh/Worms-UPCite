@@ -5,7 +5,8 @@ import java.awt.Color;
 /**
  * Types de blocs pour le terrain
  * Chaque type a une couleur, peut être solide ou non donc on utilise enum  et des points de vie
- */
+ * @author Nassim & Billy 
+*/
 public enum BlockType {
     AIR(false, new Color(0, 0, 0, 0), 0),                    // couleur transparente (vide/air) - 0 PV
     DIRT(true, new Color(139, 90, 43), 5),                   // couleur marron (terre) - 5 PV
