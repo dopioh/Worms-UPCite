@@ -505,7 +505,26 @@ public class ItemController {
         
         // téléporter le worm
         worm.getBody().setTransform(new org.jbox2d.common.Vec2(targetWorldX, targetWorldY), worm.getBody().getAngle());
+        
+        //permet de faire tomber le worm s'il est en l'air pendant la tp
+        FallIfInTheAir(worm);
+        
         SoundPlayer.play("/sfx/teleporter-sound.wav");
+    }
+    
+    /**
+     * vérifie si le worm est en l'air et applique une force vers le bas pour faire tomber
+     * @param worm le worm à vérifier
+     */
+    private void FallIfInTheAir(CharacterModel worm) {
+        if (worm == null) return;
+        
+        // vérifier si le worm est en l'air
+        if (!worm.isOnGround()) {
+            // appliquer une petite impulsion vers le bas pour initier la chute
+            org.jbox2d.common.Vec2 downwardForce = new org.jbox2d.common.Vec2(0, -0.1f);
+            worm.getBody().applyLinearImpulse(downwardForce, worm.getBody().getWorldCenter());
+        }
     }
 }
 

@@ -499,9 +499,8 @@ public class SwingInputController extends JPanel{
                 int[] worldCoords = screenToWorldCoordinates(x, y);
                 gameManager.getItemController().teleportWorm(worldCoords[0], worldCoords[1], personnageController.getModel());
                 
-                // enregistrer l'utilisation et décrémenter
+                // enregistrer l'utilisation 
                 equipped.registerUseThisTurn();
-                equipped.remainingUses--;
                 inventoryOverlay.repaint();
                 return;
             }

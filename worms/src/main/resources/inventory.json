@@ -18,7 +18,7 @@
             "name" : "Teleporter",
             "maxUsages" : 1,
             "isInfinite" : false,
-            "remainingUses" : 6
+            "remainingUses" : 3
         },
         {
             "objectType" : "GADGET",
