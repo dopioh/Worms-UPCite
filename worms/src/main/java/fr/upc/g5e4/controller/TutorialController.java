@@ -7,6 +7,7 @@ import fr.upc.g5e4.view.TutorialView;
 
 /**
  * Controller pour le tutoriel (bouton comment jouer)
+ * @author Nassim
  */
 public class TutorialController {
     

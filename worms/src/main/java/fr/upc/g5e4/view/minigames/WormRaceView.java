@@ -7,6 +7,7 @@ import fr.upc.g5e4.model.minigames.WormRaceModel;
 
 /**
  * View pour le mini-jeu WormRace
+ * @author Nassim
  */
 public class WormRaceView extends JPanel {
     

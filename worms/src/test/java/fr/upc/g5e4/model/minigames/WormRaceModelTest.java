@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests unitaires pour WormRaceModel
+ * @author Nassim
  */
 public class WormRaceModelTest {
     

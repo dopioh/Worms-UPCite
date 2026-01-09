@@ -11,6 +11,7 @@ import fr.upc.g5e4.view.minigames.WormRaceView;
 
 /**
  * Model pour le mini-jeu WormRace
+ * @author Nassim
  */
 public class WormRaceModel {
     

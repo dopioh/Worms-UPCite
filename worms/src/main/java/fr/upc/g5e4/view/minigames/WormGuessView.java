@@ -7,6 +7,7 @@ import fr.upc.g5e4.model.minigames.WormGuessModel;
 
 /**
  * View pour le mini-jeu WormGuess
+ * @author Nassim
  */
 public class WormGuessView extends JPanel {
     

@@ -9,6 +9,7 @@ import fr.upc.g5e4.model.minigames.WormRaceModel;
 
 /**
  * Tests unitaires pour WormRaceView
+ * @author Nassim
  */
 public class WormRaceViewTest {
     

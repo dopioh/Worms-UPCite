@@ -10,6 +10,7 @@ import fr.upc.g5e4.view.minigames.WormJackView;
 
 /**
  * Model pour le mini-jeu WormJack (Blackjack)
+ * @author Nassim
  */
 public class WormJackModel {
     

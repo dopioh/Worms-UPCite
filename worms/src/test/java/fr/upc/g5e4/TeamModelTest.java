@@ -13,6 +13,10 @@ import fr.upc.g5e4.model.CharacterModel;
 import fr.upc.g5e4.model.GroundModel;
 import fr.upc.g5e4.model.TeamModel;
 
+/**
+ * Tests unitaires pour TeamModel
+ * @author Nassim & Mei
+ */
 public class TeamModelTest {
     private GroundModel groundModel;
     private World world;

@@ -8,6 +8,7 @@ import fr.upc.g5e4.model.minigames.WormJackModel;
 
 /**
  * Tests unitaires pour WormJackView
+ * @author Nassim
  */
 public class WormJackViewTest {
     

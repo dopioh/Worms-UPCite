@@ -10,6 +10,7 @@ import fr.upc.g5e4.view.minigames.WormGuessView;
 
 /**
  * Model pour le mini-jeu WormGuess
+ * @author Nassim
  */
 public class WormGuessModel {
     

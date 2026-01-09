@@ -8,6 +8,7 @@ import java.util.List;
 
 /**
  * Tests unitaires pour WormJackModel
+ * @author Nassim
  */
 public class WormJackModelTest {
     

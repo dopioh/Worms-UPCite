@@ -9,6 +9,7 @@ import fr.upc.g5e4.model.GameManager;
 
 /**
  * Controller pour le mini-jeu WormJack
+ * @author Nassim
 */
 public class WormJackController {
     

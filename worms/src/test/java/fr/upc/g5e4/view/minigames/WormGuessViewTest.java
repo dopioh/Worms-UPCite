@@ -9,6 +9,7 @@ import fr.upc.g5e4.model.minigames.WormGuessModel;
 
 /**
  * Tests unitaires pour WormGuessView
+ * @author Nassim
  */
 public class WormGuessViewTest {
     

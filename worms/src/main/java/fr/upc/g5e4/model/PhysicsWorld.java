@@ -23,6 +23,7 @@ import fr.upc.g5e4.view.GamePanel;
      * <p>
      * 
      * @see Entity#createBody
+     * @author Mei & Nassim
      */
 public class PhysicsWorld {
 

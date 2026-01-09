@@ -8,7 +8,7 @@ import java.util.Map;
 /**
  * Cache pour toutes les images du jeu dans un dico
  * permet de NE PAS charger plusieurs fois la même image depuis le disque CAR chaque image est chargée qu'une seule fois
- * 
+ * @author Nassim
  */
 public class ImageCache {
     

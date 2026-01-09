@@ -3,6 +3,7 @@ import fr.upc.g5e4.view.TutorialView;
 
 /**
  * Model pour le tutoriel
+ * @author Nassim
  */
 public class TutorialModel {
     

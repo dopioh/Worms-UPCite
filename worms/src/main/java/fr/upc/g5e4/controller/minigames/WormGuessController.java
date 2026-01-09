@@ -9,6 +9,7 @@ import fr.upc.g5e4.model.GameManager;
 
 /**
  * Controller pour le mini-jeu WormGuess
+ * @author Nassim
  */
 public class WormGuessController {
     

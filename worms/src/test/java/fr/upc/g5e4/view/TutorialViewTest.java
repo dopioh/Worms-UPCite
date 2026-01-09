@@ -9,6 +9,7 @@ import fr.upc.g5e4.model.TutorialModel;
 
 /**
  * Tests unitaires pour TutorialView
+ * @author Nassim
  */
 public class TutorialViewTest {
     

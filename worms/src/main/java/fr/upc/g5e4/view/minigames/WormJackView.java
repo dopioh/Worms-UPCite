@@ -8,6 +8,7 @@ import fr.upc.g5e4.model.minigames.WormJackModel;
 
 /**
  * View pour le mini-jeu WormJack
+ * @author Nassim
  */
 public class WormJackView extends JPanel {
     
