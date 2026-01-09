@@ -90,7 +90,7 @@ public class MainMenuController {
     }
 
     private void openTutorial() {
-        view.getTutorialOverlay().setVisible(true);
+        view.getTutorialController().showTutorial();
     }
 
 
