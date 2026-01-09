@@ -7,12 +7,12 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
 
-import javax.imageio.ImageIO;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -21,8 +21,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import fr.upc.g5e4.util.ImageCache;
-
-import fr.upc.g5e4.view.UI.*;;
+import fr.upc.g5e4.view.UI.*;
 
 
 /**
@@ -111,8 +110,8 @@ public class MainMenuView extends JPanel {
         // Mettre à jour le titre
         ImageIcon titleIcon = loadImage("/title.png");
         if (titleIcon != null && titleLabel != null) {
-            java.awt.Image scaledImage = titleIcon.getImage().getScaledInstance(
-                titleWidth, -1, java.awt.Image.SCALE_SMOOTH);
+            Image scaledImage = titleIcon.getImage().getScaledInstance(
+                titleWidth, -1, Image.SCALE_SMOOTH);
             titleLabel.setIcon(new ImageIcon(scaledImage));
         } else if (titleLabel != null) {
             titleLabel.setFont(new Font("Arial", Font.BOLD, fullScreen ? 90 : 70));
@@ -199,8 +198,8 @@ public class MainMenuView extends JPanel {
         
         if (titleIcon != null) {
             // Redimensionne l'image à 400px de largeur
-            java.awt.Image scaledImage = titleIcon.getImage().getScaledInstance(
-                400, -1, java.awt.Image.SCALE_SMOOTH);
+            Image scaledImage = titleIcon.getImage().getScaledInstance(
+                400, -1, Image.SCALE_SMOOTH);
             titleLabel = new JLabel(new ImageIcon(scaledImage));
             titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
             parent.add(titleLabel);

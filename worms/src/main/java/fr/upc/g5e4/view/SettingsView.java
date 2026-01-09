@@ -1,5 +1,6 @@
 package fr.upc.g5e4.view;
 
+import java.awt.AlphaComposite;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -11,6 +12,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.RenderingHints;
+import java.awt.geom.RoundRectangle2D;
+import java.awt.image.BufferedImage;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -20,11 +23,8 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import fr.upc.g5e4.controller.MainMenuController;
 import fr.upc.g5e4.model.SoundPlayer;
 import fr.upc.g5e4.view.UI.*;
-import fr.upc.g5e4.GameLauncher;
-
 import fr.upc.g5e4.util.ImageCache;
 
 
@@ -177,7 +177,7 @@ public class SettingsView extends JPanel {
 
     private void loadBackgroundImage() {
         try {
-            java.awt.image.BufferedImage img = ImageCache.get("/Reglage_BG.png");
+            BufferedImage img = ImageCache.get("/Reglage_BG.png");
             if (img != null) {
                 backgroundImage = img;
             }
@@ -386,7 +386,7 @@ public class SettingsView extends JPanel {
         String imagePath = "/Map_shots/" + sizeEng + "_" + terrainEng + ".png";
         
         try {
-            java.awt.image.BufferedImage originalImg = ImageCache.get(imagePath);
+            BufferedImage originalImg = ImageCache.get(imagePath);
             if (originalImg != null) {
                 // Récupérer les dimensions de l'image originale
                 int originalWidth = originalImg.getWidth();
@@ -397,8 +397,8 @@ public class SettingsView extends JPanel {
                 int croppedHeight = originalHeight - cropTop;
                 
                 // Créer une image croppée
-                java.awt.image.BufferedImage croppedImg = new java.awt.image.BufferedImage(
-                    originalWidth, croppedHeight, java.awt.image.BufferedImage.TYPE_INT_ARGB);
+                BufferedImage croppedImg = new BufferedImage(
+                    originalWidth, croppedHeight, BufferedImage.TYPE_INT_ARGB);
                 Graphics2D g2d = croppedImg.createGraphics();
                 g2d.drawImage(originalImg, 0, 0, originalWidth, croppedHeight,
                               0, cropTop, originalWidth, originalHeight, null);
@@ -410,8 +410,8 @@ public class SettingsView extends JPanel {
                 Image scaledImg = croppedImg.getScaledInstance(imgWidth, imgHeight, Image.SCALE_SMOOTH);
                 
                 // Appliquer des coins arrondis à l'image
-                java.awt.image.BufferedImage finalImg = new java.awt.image.BufferedImage(
-                    imgWidth, imgHeight, java.awt.image.BufferedImage.TYPE_INT_ARGB);
+                BufferedImage finalImg = new BufferedImage(
+                    imgWidth, imgHeight, BufferedImage.TYPE_INT_ARGB);
                 Graphics2D g2 = finalImg.createGraphics();
                 
                 // Fix 1 Antialiasing pour des bords lisses
@@ -419,11 +419,11 @@ public class SettingsView extends JPanel {
 
                 // Fix 2 coins lisses (enfin)
                 int cornerRadius = 50;
-                java.awt.geom.RoundRectangle2D roundedRect = new java.awt.geom.RoundRectangle2D.Float(0, 0, imgWidth, imgHeight, cornerRadius, cornerRadius);
+                RoundRectangle2D roundedRect = new RoundRectangle2D.Float(0, 0, imgWidth, imgHeight, cornerRadius, cornerRadius);
                 // Dessiner le masque arrondi puis l'image par-dessus
-                g2.setComposite(java.awt.AlphaComposite.Src);
+                g2.setComposite(AlphaComposite.Src);
                 g2.fill(roundedRect);
-                g2.setComposite(java.awt.AlphaComposite.SrcAtop);
+                g2.setComposite(AlphaComposite.SrcAtop);
                 g2.drawImage(scaledImg, 0, 0, imgWidth, imgHeight, null);
                 g2.dispose();
                 
