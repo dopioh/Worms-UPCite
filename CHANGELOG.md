@@ -234,6 +234,7 @@
 - Suppression de touche Echap dans main menu
 - Adaptation des Tests pour le nouveau système d'équipe
 - Certaines images chargeaient deux fois dans le cache
+- Changement du systeme de detection des worms sous la map
 
 ### Configuration
 
