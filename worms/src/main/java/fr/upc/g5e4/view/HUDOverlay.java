@@ -104,11 +104,11 @@ public class HUDOverlay extends JComponent {
     }
 
     private void loadCenterCamIcon() {
-    centerCamIcon = ImageCache.get("/centercam.png");
-    if (centerCamIcon == null) {
-        System.err.println("[HUD] centercam.png introuvable");
+        centerCamIcon = ImageCache.get("/centercam.png");
+        if (centerCamIcon == null) {
+            System.err.println("[HUD] centercam.png introuvable");
+        }
     }
-}
 
     //Timer
     private int timerRemainingFrames = 0;
@@ -137,11 +137,30 @@ public class HUDOverlay extends JComponent {
         loadCameraArrowsIcon();
         loadCenterCamIcon();
 
-        addMouseListener(new MouseAdapter() {
+        MouseAdapter mouse = new MouseAdapter() {
+
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                Hover newHover = hitTest(e.getPoint());
+                if (newHover != hovered) {
+                    hovered = newHover;
+                    repaint();
+                }
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                if (hovered != Hover.NONE) {
+                    hovered = Hover.NONE;
+                    repaint();
+                }
+            }
+
             @Override
             public void mousePressed(MouseEvent e) {
                 handleMousePressed(e);
             }
+
             @Override
             public void mouseReleased(MouseEvent e) {
                 if (cameraController != null) {
@@ -149,8 +168,10 @@ public class HUDOverlay extends JComponent {
                     cameraController.deactivateRight();
                 }
             }
-        });
-    
+        };
+
+        addMouseMotionListener(mouse);
+        addMouseListener(mouse);
     }
 
     public void setInventoryOverlay(InventoryOverlay inv) {
@@ -174,11 +195,12 @@ public class HUDOverlay extends JComponent {
         int gearX = 18;
         int gearY = 18;
         gearBounds = new Rectangle(gearX, gearY, gearSize, gearSize);
+        boolean hoverGear = (hovered == Hover.GEAR);
 
-        g2.setColor(new Color(255,255,255,180));
+        g2.setColor(hoverGear ? new Color(255,255,255,210) : new Color(255,255,255,180));
         g2.fillRoundRect(gearX, gearY, gearSize, gearSize, 14, 14);
 
-        g2.setColor(new Color(0,0,0,90));
+        g2.setColor(hoverGear ? new Color(0,0,0,130) : new Color(0,0,0,90));
         g2.drawRoundRect(gearX, gearY, gearSize, gearSize, 14, 14);
 
         if (settingsIcon != null) {
@@ -218,25 +240,25 @@ public class HUDOverlay extends JComponent {
         int centerX = timerX + (timerW / 2);
 
         // Positions des éléments
-        int leftX   = centerX - arrowSize * 2 - arrowPad;
+        int leftX = centerX - arrowSize * 2 - arrowPad;
         int centerXBtn = centerX - arrowSize / 2;
-        int rightX  = centerX + arrowSize + arrowPad;
+        int rightX = centerX + arrowSize + arrowPad;
 
         leftArrowBounds   = new Rectangle(leftX, arrowY, arrowSize, arrowSize);
         centerCamBounds   = new Rectangle(centerXBtn, arrowY, arrowSize, arrowSize);
         rightArrowBounds  = new Rectangle(rightX, arrowY, arrowSize, arrowSize);
+        boolean hL = hovered == Hover.CAM_LEFT;
+        boolean hC = hovered == Hover.CAM_CENTER;
+        boolean hR = hovered == Hover.CAM_RIGHT;
 
-        // fond
-        g2.setColor(new Color(255, 255, 255, 180));
+        g2.setColor(hL ? new Color(255,255,255,220) : new Color(255,255,255,180));
         g2.fillRoundRect(leftX, arrowY, arrowSize, arrowSize, 12, 12);
-        g2.fillRoundRect(centerXBtn, arrowY, arrowSize, arrowSize, 12, 12);
-        g2.fillRoundRect(rightX, arrowY, arrowSize, arrowSize, 12, 12);
 
-        // contour
-        g2.setColor(new Color(0, 0, 0, 110));
-        g2.drawRoundRect(leftX, arrowY, arrowSize, arrowSize, 12, 12);
-        g2.drawRoundRect(centerXBtn, arrowY, arrowSize, arrowSize, 12, 12);
-        g2.drawRoundRect(rightX, arrowY, arrowSize, arrowSize, 12, 12);
+        g2.setColor(hC ? new Color(255,255,255,220) : new Color(255,255,255,180));
+        g2.fillRoundRect(centerXBtn, arrowY, arrowSize, arrowSize, 12, 12);
+
+        g2.setColor(hR ? new Color(255,255,255,220) : new Color(255,255,255,180));
+        g2.fillRoundRect(rightX, arrowY, arrowSize, arrowSize, 12, 12);
 
         // images
         if (fLeftIcon != null) {
@@ -347,10 +369,12 @@ public class HUDOverlay extends JComponent {
         int bagY = hudY + (HUD_H - bagSize) / 2;
 
         bagBounds = new Rectangle(bagX, bagY, bagSize, bagSize);
+        boolean hoverBag = (hovered == Hover.BAG);
 
-        g2.setColor(new Color(255, 255, 255, 170));
+        g2.setColor(hoverBag ? new Color(255, 255, 255, 210) : new Color(255, 255, 255, 170));
         g2.fillRoundRect(bagX, bagY, bagSize, bagSize, 18, 18);
-        g2.setColor(new Color(0, 0, 0, 120));
+
+        g2.setColor(hoverBag ? new Color(0, 0, 0, 160) : new Color(0, 0, 0, 120));
         g2.drawRoundRect(bagX, bagY, bagSize, bagSize, 18, 18);
 
         if (backpackIcon != null) {
@@ -363,10 +387,11 @@ public class HUDOverlay extends JComponent {
         int btnY = hudY + (HUD_H - btnH) / 2;
 
         endTurnBounds = new Rectangle(btnX, btnY, btnW, btnH);
+        boolean hoverEnd = (hovered == Hover.END_TURN);
 
-        g2.setColor(new Color(255, 160, 90, 220)); // Pour le hover c'est pas mal  new Color(255, 140, 70, 200));
+        g2.setColor(hoverEnd ? new Color(255, 175, 110, 240) : new Color(255, 140, 70, 200));
         g2.fillRoundRect(btnX, btnY, btnW, btnH, 16, 16);
-
+        
         g2.setColor(new Color(0,0,0,140));
         g2.drawRoundRect(btnX, btnY, btnW, btnH, 16, 16);
 
@@ -515,5 +540,22 @@ public class HUDOverlay extends JComponent {
         return (bagBounds != null && bagBounds.contains(x, y)) || (gearBounds != null && gearBounds.contains(x, y)) || (endTurnBounds != null && endTurnBounds.contains(x, y)) 
         || (leftArrowBounds != null && leftArrowBounds.contains(x, y)) || (rightArrowBounds != null && rightArrowBounds.contains(x, y)) || (centerCamBounds != null && centerCamBounds.contains(x, y));
     }
-}
+
+
+    //HOVER pour chaque éléments
+    private enum Hover {NONE,GEAR,BAG,END_TURN,CAM_LEFT,CAM_CENTER,CAM_RIGHT}
+
+    private Hover hovered = Hover.NONE;
+
+    private Hover hitTest(Point p) {
+        computeLayout();
+        if (gearBounds != null && gearBounds.contains(p)) return Hover.GEAR;
+        if (bagBounds != null && bagBounds.contains(p)) return Hover.BAG;
+        if (endTurnBounds != null && endTurnBounds.contains(p)) return Hover.END_TURN;
+        if (leftArrowBounds != null && leftArrowBounds.contains(p)) return Hover.CAM_LEFT;
+        if (centerCamBounds != null && centerCamBounds.contains(p)) return Hover.CAM_CENTER;
+        if (rightArrowBounds != null && rightArrowBounds.contains(p)) return Hover.CAM_RIGHT;
+        return Hover.NONE;
+    }
+}   
 

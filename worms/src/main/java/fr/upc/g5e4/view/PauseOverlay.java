@@ -79,7 +79,7 @@ public class PauseOverlay extends JComponent {
     public PauseOverlay() {
         setOpaque(false);
 
-        MouseAdapter mouse = new MouseAdapter() {
+        MouseAdapter mouse = new MouseAdapter(){
             @Override
             public void mouseMoved(MouseEvent e) {
                 if (!visible) return;
