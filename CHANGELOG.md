@@ -164,6 +164,7 @@
     - Système d'onglets : Map, Équipes, Autre
     - Support du plein écran avec scaling automatique
     - Bouton retour vers le menu principal
+    - Liaison des pages paramètres Menu "Autres" et "PauseOverlay"
 - **Composant PillButton**
     - Bouton arrondi stylisée avec effet hover et plus
 - **Composant PillComboBox**
@@ -205,7 +206,7 @@
 
 ### Modified
 
-- Suppression de tous les raccourcis Clavier
+- **Suppression de tous les raccourcis Clavier**
     - Remplacé par des boutons dans paramètres (Fonctionnalités Fly/BluePrint/FullScreen)
     - Remplacé par le scroll souris (Zoom)
 - **Système de plein écran**
