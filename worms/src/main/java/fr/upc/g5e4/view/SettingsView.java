@@ -177,14 +177,10 @@ public class SettingsView extends JPanel {
 
     private void loadBackgroundImage() {
         try {
-            java.net.URL url = getClass().getResource("/Reglage_BG.png");
-            if (url != null) {
-                //backgroundImage = new ImageIcon(url).getImage();
-                java.awt.image.BufferedImage img = ImageCache.get("/Reglage_BG.png");
-                if (img != null) {
-                    backgroundImage = img;
-                }
-            } 
+            java.awt.image.BufferedImage img = ImageCache.get("/Reglage_BG.png");
+            if (img != null) {
+                backgroundImage = img;
+            }
         } catch (Exception e) {
             System.err.println("Impossible de charger Reglage_BG.png: " + e.getMessage());
         }
@@ -390,14 +386,11 @@ public class SettingsView extends JPanel {
         String imagePath = "/Map_shots/" + sizeEng + "_" + terrainEng + ".png";
         
         try {
-            java.net.URL url = getClass().getResource(imagePath);
-            if (url != null) {
-                ImageIcon icon = new ImageIcon(url);
-                Image originalImg = icon.getImage();
-                
+            java.awt.image.BufferedImage originalImg = ImageCache.get(imagePath);
+            if (originalImg != null) {
                 // Récupérer les dimensions de l'image originale
-                int originalWidth = icon.getIconWidth();
-                int originalHeight = icon.getIconHeight();
+                int originalWidth = originalImg.getWidth();
+                int originalHeight = originalImg.getHeight();
                 
                 // Crop le haut de l'image (enlever la barre macOS)
                 int cropTop = 55;

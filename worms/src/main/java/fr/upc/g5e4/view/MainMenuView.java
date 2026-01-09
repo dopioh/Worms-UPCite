@@ -92,13 +92,10 @@ public class MainMenuView extends JPanel {
     
     private void loadBackgroundImage() {
         try {
-            java.net.URL url = getClass().getResource("/background.png");
-            if (url != null) {
             backgroundImage = ImageCache.get("/background.png");
             if (backgroundImage == null) {
                 System.err.println("Impossible de charger le fond du menu principal");
             }
-        }
         } catch (Exception e) {
             System.err.println("Erreur lors du chargement de l'image de fond: " + e.getMessage());
         }
@@ -229,8 +226,8 @@ public class MainMenuView extends JPanel {
     }
 
     private ImageIcon loadImage(String path) {
-        java.net.URL url = getClass().getResource(path);
-        return (url != null) ? new ImageIcon(url) : null;
+        BufferedImage img = ImageCache.get(path);
+        return (img != null) ? new ImageIcon(img) : null;
     }
 
     // Getters pour les boutons (le controller en aura besoin)
