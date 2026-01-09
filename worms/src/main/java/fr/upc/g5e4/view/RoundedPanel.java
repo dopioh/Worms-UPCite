@@ -4,7 +4,7 @@ import java.awt.*;
 import javax.swing.*;
 
 /**
- * JPanel avec des coins arrondis (utilisés pour la boutique)
+ * JPanel avec des coins arrondis (utilisés pour TeamSettingsView)
  */
 public class RoundedPanel extends JPanel {
     
