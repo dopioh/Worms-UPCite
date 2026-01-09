@@ -49,6 +49,8 @@ import fr.upc.g5e4.util.ImageCache;
 /**
  * Vue pour le panneau des réglages du jeu
  * Affiche les onglets Map, Equipes, Autre avec un fond personnalisé
+ * 
+ * @author Ian
  */
 public class SettingsView extends JPanel {
     

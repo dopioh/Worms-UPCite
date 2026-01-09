@@ -3,8 +3,8 @@ package fr.upc.g5e4.controller;
 import fr.upc.g5e4.GameLauncher;
 import fr.upc.g5e4.model.GameManager;
 import fr.upc.g5e4.model.GameStats;
-import fr.upc.g5e4.model.TeamInitialisation;
 import fr.upc.g5e4.model.TeamModel;
+import fr.upc.g5e4.model.TeamInitialisation;
 import fr.upc.g5e4.view.EndGameView;
 import fr.upc.g5e4.view.TeamView;
 
@@ -16,6 +16,7 @@ import fr.upc.g5e4.view.UI.*;
 
 /**
  * Contrôleur pour gérer l'écran de fin de partie
+ * @author Ian
  */
 public class EndGameController {
     private GameLauncher gameLauncher;

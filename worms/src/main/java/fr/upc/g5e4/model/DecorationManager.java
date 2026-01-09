@@ -5,25 +5,19 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Gère la génération et la mise à jour des décorations sur le terrain.
+ * Gère la génération et la mise à jour des décorations sur le terrain
  * Les décorations sont placées aléatoirement sur les surfaces plates.
+ * @author Ian
  */
 public class DecorationManager {
+    
+    private static final int MIN_SPACING = 150;
+    private static final int FLAT_TOLERANCE = 1;
     
     private final List<DecorationModel> decorations;
     private final BlockGridModel blockGrid;
     private final Random random;
     
-    /** Espacement minimum entre deux décorations */
-    private static final int MIN_SPACING = 150;
-    
-    /** Différence de hauteur max acceptée pour dire qu'une surface est plate (en nombre de blocs) */
-    private static final int FLAT_TOLERANCE = 1;
-    
-    /**
-     * Crée un gestionnaire de décorations.
-     * @param blockGrid le modèle de terrain
-     */
     public DecorationManager(BlockGridModel blockGrid) {
         this.blockGrid = blockGrid;
         this.decorations = new ArrayList<>();
@@ -68,9 +62,7 @@ public class DecorationManager {
                 continue;
             }
             
-            // Créer et ajouter la décoration
-            DecorationModel deco = new DecorationModel(type, pixelX, surfaceY);
-            decorations.add(deco);
+            decorations.add(new DecorationModel(type, pixelX, surfaceY));
             placed++;
         }
     }
@@ -88,7 +80,6 @@ public class DecorationManager {
         
         int centerY = blockGrid.getGroundHeightAt(centerX);
         
-        // Vérifier plusieurs points sur la largeur (tous les 8 pixels)
         for (int x = startX; x <= endX; x += 8) {
             int y = blockGrid.getGroundHeightAt(x);
             if (Math.abs(y - centerY) > FLAT_TOLERANCE * BlockGridModel.BLOCK_SIZE) {
@@ -99,7 +90,9 @@ public class DecorationManager {
     }
     
     /**
-     * Vérifie l'espacement avec les décorations existantes
+     * Vérifie l'espacement avec les décorations déjà placées
+     * @param pixelX position X de la nouvelle déco
+     * @return true si l'espacement est suffisant
      */
     private boolean hasEnoughSpacing(int pixelX) {
         for (DecorationModel deco : decorations) {
@@ -121,7 +114,6 @@ public class DecorationManager {
 
     
     /**
-     * Met à jour la visibilité des décos selon l'état du terrain.
      * Une déco disparaît si le sol en dessous est détruit
      */
     public void updateVisibility() {
@@ -132,10 +124,7 @@ public class DecorationManager {
             int gridX = blockGrid.pixelToGridX(deco.getPixelX());
             int gridY = blockGrid.pixelToGridY(deco.getPixelY());
             
-            // Vérifier le bloc en dessous
-            boolean hasGround = blockGrid.getBlock(gridX, gridY).isSolid();
-            
-            if (!hasGround) {
+            if (!blockGrid.getBlock(gridX, gridY).isSolid()) {
                 deco.setVisible(false);
             }
         }
@@ -154,9 +143,6 @@ public class DecorationManager {
         return visible;
     }
     
-    /**
-     * @return toutes les décorations
-     */
     public List<DecorationModel> getAllDecorations() {
         return decorations;
     }

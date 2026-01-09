@@ -1,17 +1,16 @@
 package fr.upc.g5e4.model;
 
 /**
- * Représente une décoration placée sur le terrain.
- * Chaque décoration a une position et un type (image).
+ * Décoration placée sur le terrain.
  */
 public class DecorationModel {
     
     /** Types de décorations disponibles */
     public enum DecoType {
-        BENCH("Deco/Bench.png", 80, 30, true),     // Banc - nécessite plus de surface plate
-        PLANT("Deco/Plant.png", 40, 35, true),      // Plante - préfère surface plate
-        TREE1("Deco/Tree1.png", 70, 100, true),     // Arbre 1 - nécessite surface plate
-        TREE2("Deco/Tree2.png", 70, 100, true);     // Arbre 2 - nécessite surface plate
+        // BENCH("Deco/Bench.png", 80, 30, true),
+        // PLANT("Deco/Plant.png", 40, 35, true),
+        // TREE1("Deco/Tree1.png", 70, 100, true),
+        TREE2("Deco/Tree2.png", 70, 100, true);
         
         private final String imagePath;
         private final int width;
@@ -32,15 +31,17 @@ public class DecorationModel {
     }
     
     private final DecoType type;
-    private final int pixelX;      // Position X en pixels (centre bas de la déco)
-    private final int pixelY;      // Position Y en pixels (bas de la déco)
-    private boolean visible;       // Si la déco est visible (disparaît si sol détruit)
+    private final int pixelX;
+    private final int pixelY;
+    private boolean visible;
     
     /**
      * Crée une nouvelle décoration.
      * @param type le type de décoration
      * @param pixelX position X en pixels
      * @param pixelY position Y en pixels (bas de la déco)
+     * 
+     * @author Ian
      */
     public DecorationModel(DecoType type, int pixelX, int pixelY) {
         this.type = type;

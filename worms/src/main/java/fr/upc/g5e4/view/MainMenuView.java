@@ -27,6 +27,7 @@ import fr.upc.g5e4.view.UI.*;
 /**
  * Vue de l'écran d'accueil du jeu Worms
  * Affiche le menu principal avec les boutons d'action
+ * @author Ian
  */
 public class MainMenuView extends JPanel {
     
