@@ -146,7 +146,8 @@ public class GameLoop{
 
                 // décrémente le temps du round, met à jour la vue et change si nécessaire
                 if (!timerPaused) {
-                    roundTimeRemaining--; 
+                    roundTimeRemaining-= deltaTime*60; // pour que ca suive les vrais secondes irl
+                    //System.out.println(roundTimeRemaining); 
                     gameManager.setRoundTimeSave(roundTimeRemaining);
                     if (roundTimeRemaining % 60 == 0) {
                         int secondsLeft = roundTimeRemaining / 60; 
