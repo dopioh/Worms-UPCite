@@ -73,7 +73,7 @@ public class ProjectileSystemTest {
         weapon.setShootingAngle(45);
         weapon.use();
         
-        Projectile projectile = weapon.fire(shooter, world, new CharacterModel[]{target}, 1);
+        ProjectileModel projectile = weapon.fire(shooter, world, new CharacterModel[]{target}, 1);
         
         assertNotNull(projectile);
         assertEquals(45, projectile.getShootingAngle(), 0.01);
@@ -89,7 +89,7 @@ public class ProjectileSystemTest {
             weapon.setShootingAngle(angle);
             weapon.use();
             
-            Projectile projectile = weapon.fire(shooter, world, new CharacterModel[]{target}, 1);
+            ProjectileModel projectile = weapon.fire(shooter, world, new CharacterModel[]{target}, 1);
             
             assertEquals(angle, projectile.getShootingAngle(), 0.01);
             assertEquals(shooter, projectile.getShooter());
@@ -101,7 +101,7 @@ public class ProjectileSystemTest {
         weapon.setShootingAngle(45);
         weapon.use();
         
-        Projectile projectile = weapon.fire(shooter, world, new CharacterModel[]{target}, 1);
+        ProjectileModel projectile = weapon.fire(shooter, world, new CharacterModel[]{target}, 1);
         
         // Le projectile doit avoir la portée de l'arme
         assertEquals(weapon.getRange(), projectile.getRange(), 0.01);
@@ -120,7 +120,7 @@ public class ProjectileSystemTest {
         fastWeapon.setShootingAngle(45);
         fastWeapon.use();
         
-        Projectile projectile = fastWeapon.fire(shooter, world, new CharacterModel[]{target}, 1);
+        ProjectileModel projectile = fastWeapon.fire(shooter, world, new CharacterModel[]{target}, 1);
         
         assertNotNull(projectile);
         // Vérifier que le projectile est créé avec les paramètres corrects
@@ -165,7 +165,7 @@ public class ProjectileSystemTest {
         weapon.setShootingAngle(45);
         weapon.use();
         
-        Projectile projectile = weapon.fire(shooter, world, new CharacterModel[]{target}, 1);
+        ProjectileModel projectile = weapon.fire(shooter, world, new CharacterModel[]{target}, 1);
         
         assertNotNull(projectile.getShooter());
         assertEquals(shooter.getName(), projectile.getShooter().getName());
@@ -176,7 +176,7 @@ public class ProjectileSystemTest {
         weapon.setShootingAngle(45);
         weapon.use();
         
-        Projectile projectile = weapon.fire(shooter, world, new CharacterModel[]{target}, 1);
+        ProjectileModel projectile = weapon.fire(shooter, world, new CharacterModel[]{target}, 1);
         
         // Le projectile doit pouvoir accéder aux dégâts de l'arme
         assertNotNull(projectile.getSourceWeapon());
@@ -188,12 +188,12 @@ public class ProjectileSystemTest {
         weapon.setShootingAngle(30);
         weapon.use();
         
-        Projectile projectile1 = weapon.fire(shooter, world, new CharacterModel[]{target}, 1);
+        ProjectileModel projectile1 = weapon.fire(shooter, world, new CharacterModel[]{target}, 1);
         
         weapon.setShootingAngle(60);
         weapon.use();
         
-        Projectile projectile2 = weapon.fire(shooter, world, new CharacterModel[]{target}, 1);
+        ProjectileModel projectile2 = weapon.fire(shooter, world, new CharacterModel[]{target}, 1);
         
         assertNotNull(projectile1);
         assertNotNull(projectile2);

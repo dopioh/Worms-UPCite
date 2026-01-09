@@ -92,7 +92,7 @@ public abstract class Weapon extends Item {
      * @param allWorms Tableau de tous les worms du jeu
      * @param direction direction du tir (1 pour droite, -1 pour gauche)
      */
-    public Projectile fire(CharacterModel shooter, org.jbox2d.dynamics.World world, 
+    public ProjectileModel fire(CharacterModel shooter, org.jbox2d.dynamics.World world, 
         CharacterModel[] allWorms, int direction) {
         return fire(shooter, world, allWorms, direction, null);
     }
@@ -105,7 +105,7 @@ public abstract class Weapon extends Item {
      * @param direction direction du tir (1 pour droite, -1 pour gauche)
      * @param windModel le modele du vent (peut être null)
      */
-    public Projectile fire(CharacterModel shooter, org.jbox2d.dynamics.World world, 
+    public ProjectileModel fire(CharacterModel shooter, org.jbox2d.dynamics.World world, 
         CharacterModel[] allWorms, int direction, WindModel windModel) {
         Vec2 shooterPos = shooter.getBody().getPosition();
         
@@ -117,7 +117,7 @@ public abstract class Weapon extends Item {
         }
         
         // créer le projectile avec la portée ajustée
-        Projectile projectile = new Projectile(this, shooter, shooterPos, adjustedRange, this.speed, this.shootingAngle);
+        ProjectileModel projectile = new ProjectileModel(this, shooter, shooterPos, adjustedRange, this.speed, this.shootingAngle);
         String windInfo = windModel != null ? String.format(" (vent: %s %.0f%% -> portée ajustée: %.1f)", 
             windModel.getDir().label, windModel.getStrength() * 100, adjustedRange) : "";
         System.out.println("[" + this.getName() + "] Tir à angle " + String.format("%.0f°", shootingAngle) + 

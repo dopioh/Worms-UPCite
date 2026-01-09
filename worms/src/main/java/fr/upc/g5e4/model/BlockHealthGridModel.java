@@ -3,7 +3,7 @@ package fr.upc.g5e4.model;
 /**
  * permet de gérer les PV de chaque bloc du terrain
  */
-public class BlockHealthGrid {
+public class BlockHealthGridModel {
     private final int[][] health;  // grille de santé parallèle à la grille de blocs
     private final int gridWidth;
     private final int gridHeight;
@@ -13,7 +13,7 @@ public class BlockHealthGrid {
      * @param gridWidth largeur de la grille en nombre de blocs
      * @param gridHeight hauteur de la grille en nombre de blocs
      */
-    public BlockHealthGrid(int gridWidth, int gridHeight) {
+    public BlockHealthGridModel(int gridWidth, int gridHeight) {
         this.gridWidth = gridWidth;
         this.gridHeight = gridHeight;
         this.health = new int[gridWidth][gridHeight];

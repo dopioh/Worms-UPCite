@@ -69,7 +69,7 @@ public class CharacterModel{
     private static final long STATUS_DURATION = 1000; // en milliseconde 
     
     // buffs temporaires - support multiple buffs simultanés
-    private ArrayList<BuffEffect> activeBuffs = new ArrayList<>();
+    private ArrayList<BuffModel> activeBuffs = new ArrayList<>();
     
     // Référence optionnelle à la vue du worm pour afficher les icônes de buff
     private fr.upc.g5e4.view.CharacterView characterView = null;
@@ -145,7 +145,7 @@ public class CharacterModel{
      * @param isDead true si le worm est mort
      * @param facingRight true si il regarde a droite
      */
-    public CharacterModel(GroundModel model, World world,int ID, String name, double xcord, double ycord, double health, double shield, boolean isDead, boolean facingRight, double speed, double jump, ArrayList<BuffEffect> activeEffects){
+    public CharacterModel(GroundModel model, World world,int ID, String name, double xcord, double ycord, double health, double shield, boolean isDead, boolean facingRight, double speed, double jump, ArrayList<BuffModel> activeEffects){
         this.model = model;
         this.world = world;
         this.ID = ID;
@@ -213,8 +213,8 @@ public class CharacterModel{
         
         // Appliquer tous les buffs de speed actifs
         double finalSpeed = speed;
-        for (BuffEffect buff : activeBuffs) {
-            if (buff.isActive() && buff.getType() == BuffEffect.BuffType.SPEED_BOOST) {
+        for (BuffModel buff : activeBuffs) {
+            if (buff.isActive() && buff.getType() == BuffModel.BuffType.SPEED_BOOST) {
                 finalSpeed *= buff.getMultiplier();
             }
         }
@@ -227,8 +227,8 @@ public class CharacterModel{
         
         // Appliquer tous les buffs de jump actifs
         double finalJump = jump;
-        for (BuffEffect buff : activeBuffs) {
-            if (buff.isActive() && buff.getType() == BuffEffect.BuffType.JUMP_BOOST) {
+        for (BuffModel buff : activeBuffs) {
+            if (buff.isActive() && buff.getType() == BuffModel.BuffType.JUMP_BOOST) {
                 finalJump *= buff.getMultiplier();
             }
         }
@@ -243,9 +243,9 @@ public class CharacterModel{
             if (!buff.isActive()) {
                 // supprime l'étiquette du buff qui expire
                 if (characterView != null) {
-                    if (buff.getType() == BuffEffect.BuffType.SPEED_BOOST) {
+                    if (buff.getType() == BuffModel.BuffType.SPEED_BOOST) {
                         characterView.getNameTagView().removeItem("speed_buff_icon");
-                    } else if (buff.getType() == BuffEffect.BuffType.JUMP_BOOST) {
+                    } else if (buff.getType() == BuffModel.BuffType.JUMP_BOOST) {
                         characterView.getNameTagView().removeItem("jump_buff_icon");
                     }
                 }
@@ -548,12 +548,12 @@ public class CharacterModel{
             currentX = persoBody.getPosition().x * PPM; 
             currentY = model.getHeight() - (persoBody.getPosition().y * PPM);
         }
-        ArrayList<BuffEffect> savedBuffs = new ArrayList<>();
+        ArrayList<BuffModel> savedBuffs = new ArrayList<>();
         if (this.activeBuffs != null) {
-            for (BuffEffect buff : this.activeBuffs) {
+            for (BuffModel buff : this.activeBuffs) {
                 if (buff.isActive()) {
                     // sauvegarde le buff avec le temps restant en pause
-                    savedBuffs.add(new BuffEffect(buff.getType(), buff.getRemainingTime()));
+                    savedBuffs.add(new BuffModel(buff.getType(), buff.getRemainingTime()));
                 }
             }
         }
@@ -645,7 +645,7 @@ public class CharacterModel{
      * applique un buff speed(vitesse +50%) 
      */
     public void applySpeedBuff(int tempsRestant) {
-        activeBuffs.add(new BuffEffect(BuffEffect.BuffType.SPEED_BOOST, tempsRestant));
+        activeBuffs.add(new BuffModel(BuffModel.BuffType.SPEED_BOOST, tempsRestant));
         speedBuffEffect();  // déclenche l'animation visuelle rose
         System.out.println("[BUFF] " + name + " reçoit Speed Boost pour 20s");
         
@@ -659,7 +659,7 @@ public class CharacterModel{
      * applique un buff jump (saut +50%) pendant 20 secondes
      */
     public void applyJumpBuff(int tempsRestant) {
-        activeBuffs.add(new BuffEffect(BuffEffect.BuffType.JUMP_BOOST, tempsRestant));
+        activeBuffs.add(new BuffModel(BuffModel.BuffType.JUMP_BOOST, tempsRestant));
         jumpBuffEffect();  // déclenche l'animation visuelle jaune
         System.out.println("[BUFF] " + name + " reçoit Jump Boost pour 20s");
         
@@ -672,7 +672,7 @@ public class CharacterModel{
     /**
      * @return le buff actif actuellement (ou null)
      */
-    public BuffEffect getActiveBuff() {
+    public BuffModel getActiveBuff() {
         // nettoie les buffs expirés
         cleanExpiredBuffs();
         
@@ -697,7 +697,7 @@ public class CharacterModel{
         return 1.0;
     }
 
-    public ArrayList<BuffEffect> getAllActiveEffects(){
+    public ArrayList<BuffModel> getAllActiveEffects(){
         return this.activeBuffs;
     }
 
@@ -705,18 +705,18 @@ public class CharacterModel{
      * Restaure les effets visuels ET physiques des buffs après un chargement.
      */
     public void restoreVisuals(CharacterView cv) {
-        for (BuffEffect buff : activeBuffs) {
+        for (BuffModel buff : activeBuffs) {
             System.out.println("[RestoreVisuals] Called pour la cv : " + cv);
             buff.refreshTimeStart();
             long remaining = buff.getRemainingTime();
-            if (buff.getType() == BuffEffect.BuffType.SPEED_BOOST) {
+            if (buff.getType() == BuffModel.BuffType.SPEED_BOOST) {
                 System.out.println("[RestoreVisuals] BuffType SPEED : Called pour la cv : " + cv);
                 speedBuffEffect(); 
                 if (cv != null) {
                     System.out.println(remaining);
                     cv.getNameTagView().addItemFromResource("/buffs/speed_buff.png", "speed_buff_icon", (int) remaining);
                 }
-            } else if (buff.getType() == BuffEffect.BuffType.JUMP_BOOST) {
+            } else if (buff.getType() == BuffModel.BuffType.JUMP_BOOST) {
                 System.out.println("[RestoreVisuals] BuffType JUMP : Called pour la cv : " + cv);
                 jumpBuffEffect(); 
                 if (cv != null) {

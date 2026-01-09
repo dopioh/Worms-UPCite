@@ -9,7 +9,7 @@ public class BlockGridModel {
     public static final int BLOCK_SIZE = 12;  // Taille d'un bloc en pixels
     
     private final BlockType[][] grid;         // la grille de blocs (colonnes, lignes)
-    private final BlockHealthGrid healthGrid; // grille de santé des blocs
+    private final BlockHealthGridModel healthGrid; // grille de santé des blocs
     private final int gridWidth;              // nombre de colonnes
     private final int gridHeight;             // nombre de lignes
     private final int pixelWidth;             // largeur totale en pixels
@@ -34,7 +34,7 @@ public class BlockGridModel {
         // on crée la grille de blocs
         this.grid = new BlockType[gridWidth][gridHeight];
         // on crée la grille des PV
-        this.healthGrid = new BlockHealthGrid(gridWidth, gridHeight);
+        this.healthGrid = new BlockHealthGridModel(gridWidth, gridHeight);
         
         // on initialise la grille avec de l'air partout
         for (int x = 0; x < gridWidth; x++) {
@@ -270,7 +270,7 @@ public class BlockGridModel {
      * GEtter de la grille de santé
      * @return la grille de PV des blocs
      */
-    public BlockHealthGrid getHealthGrid() {
+    public BlockHealthGridModel getHealthGrid() {
         return healthGrid;
     }
     

@@ -5,7 +5,7 @@ import org.jbox2d.common.Vec2;
 import fr.upc.g5e4.model.CharacterModel;
 import fr.upc.g5e4.model.Item;
 import fr.upc.g5e4.model.Weapon;
-import fr.upc.g5e4.model.Projectile;
+import fr.upc.g5e4.model.ProjectileModel;
 import fr.upc.g5e4.model.SoundPlayer;
 import fr.upc.g5e4.model.BlockGridModel;
 import fr.upc.g5e4.model.PhysicsWorld;
@@ -22,7 +22,7 @@ public class ItemController {
     private CharacterModel[] allWorms;
     private BlockGridModel blockGridModel;
     private WindModel windModel;
-    private List<Projectile> activeProjectiles;
+    private List<ProjectileModel> activeProjectiles;
     private GameManager gameManager;
 
     public ItemController(ItemView view) {
@@ -106,7 +106,7 @@ public class ItemController {
                 SoundPlayer.playWeaponSound(soundPath);
             }
 
-            Projectile projectile = weapon.fire(shooter, world, allWorms, direction, windModel);
+            ProjectileModel projectile = weapon.fire(shooter, world, allWorms, direction, windModel);
             if (projectile != null) {
                 activeProjectiles.add(projectile);
                 System.out.println("projectile lancé avec un angle de " + String.format("%.0f°", projectile.getShootingAngle()));
@@ -127,9 +127,9 @@ public class ItemController {
      * @param deltaTime temps écoulé en secondes
      */
     public void updateProjectiles(float deltaTime) {
-        List<Projectile> toRemove = new ArrayList<>();
+        List<ProjectileModel> toRemove = new ArrayList<>();
         // met à jour chaque projectile
-        for (Projectile projectile : activeProjectiles) {
+        for (ProjectileModel projectile : activeProjectiles) {
             if (!projectile.update(deltaTime)) { // retourne faux si le projectile a dépassé sa portée
                 applyTerrainDamage(projectile); 
                 toRemove.add(projectile);
@@ -203,7 +203,7 @@ public class ItemController {
      * @param projectile le projectile
      * @return true si le projectile a touché le sol
      */
-    private boolean hitGround(Projectile projectile) {
+    private boolean hitGround(ProjectileModel projectile) {
         if (blockGridModel == null) {
             return false;
         }
@@ -223,7 +223,7 @@ public class ItemController {
      * applique les degats au terrain quand le projectile touche le sol
      * @param projectile Le projectile qui impacte le terrain
      */
-    private void applyTerrainDamage(Projectile projectile) {
+    private void applyTerrainDamage(ProjectileModel projectile) {
         if (blockGridModel == null) {
             return;
         }
@@ -285,7 +285,7 @@ public class ItemController {
      * applique les dégats de zone
      * @param projectile Le projectile qui a explosé
      */
-    private void applyExplosionDamageToWorms(Projectile projectile) {
+    private void applyExplosionDamageToWorms(ProjectileModel projectile) {
         if (allWorms == null) {
             return;
         }
@@ -339,7 +339,7 @@ public class ItemController {
     /**
      * retourne la liste des projectiles actifs
      */
-    public List<Projectile> getActiveProjectiles() {
+    public List<ProjectileModel> getActiveProjectiles() {
         return activeProjectiles;
     }
     

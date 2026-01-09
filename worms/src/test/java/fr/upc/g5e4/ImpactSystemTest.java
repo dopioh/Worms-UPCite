@@ -3,7 +3,7 @@ package fr.upc.g5e4;
 import fr.upc.g5e4.controller.ItemController;
 import fr.upc.g5e4.model.CharacterModel;
 import fr.upc.g5e4.model.GroundModel;
-import fr.upc.g5e4.model.Projectile;
+import fr.upc.g5e4.model.ProjectileModel;
 import fr.upc.g5e4.model.Weapon;
 import fr.upc.g5e4.view.ItemView;
 
@@ -65,7 +65,7 @@ class ImpactSystemTest {
         testWeapon.use();
         
         // Créer un projectile
-        Projectile projectile = testWeapon.fire(shooter, world, new CharacterModel[]{target}, 1);
+        ProjectileModel projectile = testWeapon.fire(shooter, world, new CharacterModel[]{target}, 1);
         
         // Vérifier que le projectile existe et a les bonnes propriétés
         assertNotNull(projectile);
@@ -103,7 +103,7 @@ class ImpactSystemTest {
         testWeapon.use();
         
         // Créer un projectile et l'ajouter directement à la liste
-        Projectile projectile = testWeapon.fire(shooter, world, new CharacterModel[]{target}, 1);
+        ProjectileModel projectile = testWeapon.fire(shooter, world, new CharacterModel[]{target}, 1);
         controller.getActiveProjectiles().add(projectile);
         controller.setAllWorms(new CharacterModel[]{shooter, target});
         

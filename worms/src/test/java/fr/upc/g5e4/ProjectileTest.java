@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Coordonnés avec l'implémentation réelle de la classe Projectile
  */
 public class ProjectileTest {
-    private Projectile projectile;
+    private ProjectileModel projectile;
     private Weapon weapon;
     private CharacterModel shooter;
     private World world;
@@ -44,7 +44,7 @@ public class ProjectileTest {
         
         // Créer un projectile
         Vec2 position = new Vec2(100, 20);
-        projectile = new Projectile(weapon, shooter, position, 20, 10, 45);
+        projectile = new ProjectileModel(weapon, shooter, position, 20, 10, 45);
     }
 
     // ========== Tests d'initialisation ==========
@@ -118,7 +118,7 @@ public class ProjectileTest {
     void testTrajectoryAngle0Degrees() {
         // Créer un projectile tirant à 0° (horizontalement à droite)
         Vec2 position = new Vec2(0, 10);
-        Projectile projectile0 = new Projectile(weapon, shooter, position, 20, 10, 0);
+        ProjectileModel projectile0 = new ProjectileModel(weapon, shooter, position, 20, 10, 0);
         
         Vec2 pos_0_0 = projectile0.getPositionAtTime(0.0f);
         Vec2 pos_0_5 = projectile0.getPositionAtTime(0.5f);
@@ -151,7 +151,7 @@ public class ProjectileTest {
     void testTrajectoryAngle90Degrees() {
         // Créer un projectile tirant à 90° (verticalement vers le haut)
         Vec2 position = new Vec2(0, 0);
-        Projectile projectile90 = new Projectile(weapon, shooter, position, 20, 10, 90);
+        ProjectileModel projectile90 = new ProjectileModel(weapon, shooter, position, 20, 10, 90);
         
         Vec2 pos_0_0 = projectile90.getPositionAtTime(0.0f);
         Vec2 pos_0_5 = projectile90.getPositionAtTime(0.5f);
@@ -171,7 +171,7 @@ public class ProjectileTest {
     void testTrajectoryAngle180Degrees() {
         // Créer un projectile tirant à 180° (horizontalement à gauche)
         Vec2 position = new Vec2(100, 10);
-        Projectile projectile180 = new Projectile(weapon, shooter, position, 20, 10, 180);
+        ProjectileModel projectile180 = new ProjectileModel(weapon, shooter, position, 20, 10, 180);
         
         Vec2 pos_0_0 = projectile180.getPositionAtTime(0.0f);
         Vec2 pos_0_5 = projectile180.getPositionAtTime(0.5f);
@@ -188,7 +188,7 @@ public class ProjectileTest {
     void testTrajectoryAngle270Degrees() {
         // Créer un projectile tirant à 270° (verticalement vers le bas)
         Vec2 position = new Vec2(0, 20);
-        Projectile projectile270 = new Projectile(weapon, shooter, position, 20, 10, 270);
+        ProjectileModel projectile270 = new ProjectileModel(weapon, shooter, position, 20, 10, 270);
         
         Vec2 pos_0_0 = projectile270.getPositionAtTime(0.0f);
         Vec2 pos_0_5 = projectile270.getPositionAtTime(0.5f);
@@ -209,7 +209,7 @@ public class ProjectileTest {
         
         for (int angle : angles) {
             Vec2 position = new Vec2(0, 0);
-            Projectile projectileAngled = new Projectile(weapon, shooter, position, 20, 10, angle);
+            ProjectileModel projectileAngled = new ProjectileModel(weapon, shooter, position, 20, 10, angle);
             
             // Vérifier que le projectile a l'angle correct
             assertEquals(angle, projectileAngled.getShootingAngle(), 0.01);

@@ -33,7 +33,7 @@ public class CharacterData {
     private boolean facingRight;
 
     // buff worm
-    private ArrayList<BuffEffect> activeBuffs;
+    private ArrayList<BuffModel> activeBuffs;
 
     /**
      * 
@@ -45,7 +45,7 @@ public class CharacterData {
      * @param shield ses points de bouclier
      * @param isDead son statut (mort ou vivant)
      */
-    public CharacterData(int ID, String name, double xcord, double ycord, double health, double shield, boolean isDead,boolean facingRight,double jump,double speed, ArrayList<BuffEffect> activeBuffs){
+    public CharacterData(int ID, String name, double xcord, double ycord, double health, double shield, boolean isDead,boolean facingRight,double jump,double speed, ArrayList<BuffModel> activeBuffs){
             this.ID = ID;
             this.name = name;
             this.xcord =xcord;

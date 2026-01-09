@@ -16,7 +16,7 @@ public class ItemControllerTerrainTest {
 
     private ItemController itemController;
     private BlockGridModel blockGridModel;
-    private BlockHealthGrid healthGrid;
+    private BlockHealthGridModel healthGrid;
     private World world;
     private static final float PPM = 30f;
 
@@ -71,7 +71,7 @@ public class ItemControllerTerrainTest {
         }
         
         // créer un projectile test
-        Projectile projectile = createTestProjectile(100, 100); // Au-dessus du terrain
+        ProjectileModel projectile = createTestProjectile(100, 100); // Au-dessus du terrain
         
         // vérifier que le projectile n'a pas touché le sol (au-dessus)
     }
@@ -84,7 +84,7 @@ public class ItemControllerTerrainTest {
         blockGridModel.setBlock(12, 10, BlockType.GRASS);
         
         // créer un projectile au-dessus du terrain
-        Projectile projectile = createTestProjectile(10.5f, 5.0f);
+        ProjectileModel projectile = createTestProjectile(10.5f, 5.0f);
         
         // le projectile doit être dans la liste des projectiles actifs
         int initialCount = itemController.getActiveProjectiles().size();
@@ -186,7 +186,7 @@ public class ItemControllerTerrainTest {
             }
         }
         
-        BlockHealthGrid healthGrid = blockGridModel.getHealthGrid();
+        BlockHealthGridModel healthGrid = blockGridModel.getHealthGrid();
         
         // appliquer une explosion (rayon 2.0, dégâts 5)
         blockGridModel.damageBlocksInRadius(5, 5, 2.0, 5);
@@ -204,12 +204,12 @@ public class ItemControllerTerrainTest {
     /**
      * crée un projectile test à une position donnée
      */
-    private Projectile createTestProjectile(float x, float y) {
+    private ProjectileModel createTestProjectile(float x, float y) {
         Weapon testWeapon = new Ak47();
         CharacterModel shooter = null; // Pour les tests simples
         Vec2 position = new Vec2(x, y);
         
-        Projectile projectile = new Projectile(
+        ProjectileModel projectile = new ProjectileModel(
             testWeapon,
             shooter,
             position,

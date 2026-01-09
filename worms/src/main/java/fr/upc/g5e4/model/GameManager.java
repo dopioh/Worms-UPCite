@@ -1052,7 +1052,7 @@ public class GameManager {
      * @param itemName
      * @param tempsRestant
      */
-    public void useGadgetDuringSave(BuffEffect.BuffType itemName,long tempsRestantL, CharacterModel cm){
+    public void useGadgetDuringSave(BuffModel.BuffType itemName,long tempsRestantL, CharacterModel cm){
         int tempsRestant = (int) tempsRestantL;
 
         CharacterModel currentWorm = cm;
@@ -1071,14 +1071,14 @@ public class GameManager {
         //}
 
         switch (itemName) {
-            case BuffEffect.BuffType.SPEED_BOOST:
+            case BuffModel.BuffType.SPEED_BOOST:
                 currentWorm.applySpeedBuff(tempsRestant);
                 // ajouter l'étiquette via la vue du worm avec timer (20 secondes)
                 if (charView != null) {
                     charView.getNameTagView().addItemFromResource("/buffs/speed_buff.png", "speed_buff_icon", tempsRestant);
                 }
                 break;
-            case BuffEffect.BuffType.JUMP_BOOST:
+            case BuffModel.BuffType.JUMP_BOOST:
                 currentWorm.applyJumpBuff(tempsRestant);
                 // ajouter l'étiquette via la vue du worm avec timer (20 secondes)
                 if (charView != null) {

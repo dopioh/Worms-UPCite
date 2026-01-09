@@ -4,7 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-import fr.upc.g5e4.model.BuffEffect;
+import fr.upc.g5e4.model.BuffModel;
 import org.jbox2d.dynamics.World;
 
 /**
@@ -12,8 +12,8 @@ import org.jbox2d.dynamics.World;
  */
 public class BuffEffectTest {
     
-    private BuffEffect speedBuff;
-    private BuffEffect jumpBuff;
+    private BuffModel speedBuff;
+    private BuffModel jumpBuff;
     private World world;
     
     @BeforeEach
@@ -22,8 +22,8 @@ public class BuffEffectTest {
         world = new World(new org.jbox2d.common.Vec2(0, -10));
         
         //créer des buffs
-        speedBuff = new BuffEffect(BuffEffect.BuffType.SPEED_BOOST, 5000); // 5 secondes
-        jumpBuff = new BuffEffect(BuffEffect.BuffType.JUMP_BOOST, 3000);   // 3 secondes
+        speedBuff = new BuffModel(BuffModel.BuffType.SPEED_BOOST, 5000); // 5 secondes
+        jumpBuff = new BuffModel(BuffModel.BuffType.JUMP_BOOST, 3000);   // 3 secondes
     }
     
     /**
@@ -40,7 +40,7 @@ public class BuffEffectTest {
      */
     @Test
     public void testSpeedBuffMultiplier() {
-        assertEquals(BuffEffect.BuffType.SPEED_BOOST, speedBuff.getType());
+        assertEquals(BuffModel.BuffType.SPEED_BOOST, speedBuff.getType());
         assertEquals(1.5, speedBuff.getMultiplier());
     }
     
@@ -49,7 +49,7 @@ public class BuffEffectTest {
      */
     @Test
     public void testJumpBuffMultiplier() {
-        assertEquals(BuffEffect.BuffType.JUMP_BOOST, jumpBuff.getType());
+        assertEquals(BuffModel.BuffType.JUMP_BOOST, jumpBuff.getType());
         assertEquals(1.5, jumpBuff.getMultiplier());
     }
     
@@ -72,7 +72,7 @@ public class BuffEffectTest {
      */
     @Test
     public void testBuffExpiration() throws InterruptedException {
-        BuffEffect shortBuff = new BuffEffect(BuffEffect.BuffType.SPEED_BOOST, 100);
+        BuffModel shortBuff = new BuffModel(BuffModel.BuffType.SPEED_BOOST, 100);
         
         assertTrue(shortBuff.isActive());
         
@@ -87,7 +87,7 @@ public class BuffEffectTest {
      */
     @Test
     public void testRemainingTimeNeverNegative() throws InterruptedException {
-        BuffEffect shortBuff = new BuffEffect(BuffEffect.BuffType.JUMP_BOOST, 50);
+        BuffModel shortBuff = new BuffModel(BuffModel.BuffType.JUMP_BOOST, 50);
         
         Thread.sleep(200);
         
@@ -101,8 +101,8 @@ public class BuffEffectTest {
      */
     @Test
     public void testBuffTypes() {
-        assertEquals("Speed Boost", BuffEffect.BuffType.SPEED_BOOST.getName());
-        assertEquals("Jump Boost", BuffEffect.BuffType.JUMP_BOOST.getName());
+        assertEquals("Speed Boost", BuffModel.BuffType.SPEED_BOOST.getName());
+        assertEquals("Jump Boost", BuffModel.BuffType.JUMP_BOOST.getName());
     }
     
     /**
@@ -110,8 +110,8 @@ public class BuffEffectTest {
      */
     @Test
     public void testMultipleBuffs() {
-        BuffEffect buff1 = new BuffEffect(BuffEffect.BuffType.SPEED_BOOST, 5000);
-        BuffEffect buff2 = new BuffEffect(BuffEffect.BuffType.JUMP_BOOST, 3000);
+        BuffModel buff1 = new BuffModel(BuffModel.BuffType.SPEED_BOOST, 5000);
+        BuffModel buff2 = new BuffModel(BuffModel.BuffType.JUMP_BOOST, 3000);
         
         assertTrue(buff1.isActive());
         assertTrue(buff2.isActive());
@@ -128,8 +128,8 @@ public class BuffEffectTest {
      */
     @Test
     public void testInitialDuration() {
-        BuffEffect buff5sec = new BuffEffect(BuffEffect.BuffType.SPEED_BOOST, 5000);
-        BuffEffect buff3sec = new BuffEffect(BuffEffect.BuffType.JUMP_BOOST, 3000);
+        BuffModel buff5sec = new BuffModel(BuffModel.BuffType.SPEED_BOOST, 5000);
+        BuffModel buff3sec = new BuffModel(BuffModel.BuffType.JUMP_BOOST, 3000);
         
         long remaining5 = buff5sec.getRemainingTime();
         long remaining3 = buff3sec.getRemainingTime();
