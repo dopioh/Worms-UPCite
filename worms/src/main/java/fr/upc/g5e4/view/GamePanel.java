@@ -70,6 +70,9 @@ public class GamePanel extends JPanel {
         setLayout(null);
         
         // Charger l'image de fond selon le style configuré
+        if (MapConfig.getBackgroundStyle() == null){
+            MapConfig.setBackgroundStyle(MapConfig.BackgroundStyle.JOUR);
+        }
         String bgPath = MapConfig.getBackgroundStyle().getImagePath();
         backgroundImage = ImageCache.get(bgPath);
         if (backgroundImage == null) {

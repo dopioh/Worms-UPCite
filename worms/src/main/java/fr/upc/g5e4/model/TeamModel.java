@@ -6,6 +6,8 @@ import org.jbox2d.dynamics.World;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+
 import fr.upc.g5e4.model.InventoryModel.InventoryJson;
 
 import fr.upc.g5e4.model.io.*;
@@ -66,6 +68,18 @@ public class TeamModel {
         // Initialisation automatique des worms et position espacée
         for (int i = 0; i < number; i++) {
             double xPosition = startX + (i * spacing);
+            System.out.println("StartX avant condition : " + startX);
+
+            if (xPosition >= groundModel.getWidth()){ // au cas ou xPos est hors map et le worm spawn dans le vide
+                Random rd = new Random();
+                startX -= 20;
+                System.out.println("StartX pendant condition : " + startX);
+                while (xPosition >= groundModel.getWidth()){
+                    int nbrR = rd.nextInt(3, 100);
+                    xPosition -= nbrR;
+                }
+            }
+
             double yPosition = groundModel.getHeight() - 600;
 
             String wormName;

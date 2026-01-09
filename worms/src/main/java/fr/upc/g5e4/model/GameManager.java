@@ -787,8 +787,14 @@ public class GameManager {
     // Initialiser un nombre N d'equipes avec un skin spécifique
     public void createTeam(int number, ArrayList<CustomTeamData> customTeam){
         int mapWidth = model.getWidth();
-        int margin = 100; // Marge pour ne pas spawner au bord
-        int usableWidth = mapWidth - (2 * margin); // Espace utilisable
+        int margin = 50; // Marge pour ne pas spawner au bord
+        int usableWidth; // Espace utilisable
+        if (number > 3 && TeamConfig.NBR_WORM_EQUIPE > 3){
+            usableWidth = mapWidth - (4 * margin);
+            System.out.println("Usable Width : " + usableWidth);
+        } else {
+            usableWidth = mapWidth - (2 * margin);
+        }
 
         int index = 0;
 

@@ -2,9 +2,9 @@ package fr.upc.g5e4.model;
 
 import fr.upc.g5e4.view.*;
 import fr.upc.g5e4.model.InventoryModel.InventoryJson;
-import fr.upc.g5e4.model.InventoryModel.InventoryRoot;
+//import fr.upc.g5e4.model.InventoryModel.InventoryRoot;
 //import fr.upc.g5e4.controller.*;
-import fr.upc.g5e4.model.io.*;
+//import fr.upc.g5e4.model.io.*;
 import fr.upc.g5e4.model.io.CharacterData;
 
 import java.awt.Color;
@@ -73,24 +73,8 @@ public class TeamInitialisation {
         colorGiving();
         teamModel = new TeamModel(groundModel, world, name, startX, SPACING, teamNumber, false, facingRight, false,COLORTEAM, nameWorms,skinPath);
         teamView = new TeamView(teamNumber,color, skinPath, facingRight);
-        SPACING += 3; // pour que si il y'a plus de 2 equipes, les worms ne se superposent pas
-    }
-    
-
-    /**
-     * Constructeur pour load une sauvegarde
-     * @param groundModel
-     * @param world
-     * @param teamName
-     * @param teamNumber
-     * @param characterData tableau des data des worms
-     */
-    public TeamInitialisation(GroundModel groundModel,World world,int TeamID ,String teamName, int teamNumber,CharacterData[] characterData, Color color, String skinPath, List<InventoryJson> inventory){
-        this.name = teamName;
-        this.color = color;
-        this.skinPath = skinPath;
-        teamModel = new TeamModel(groundModel, world, teamName, teamNumber, TeamID, characterData,COLORTEAM, inventory,skinPath);
-        teamView = new TeamView(teamNumber,color, skinPath, true); // facingRight a changer apres
+        //upSpacing(groundModel); // pour que si il y'a plus de 2 equipes, les worms ne se superposent pas
+        SPACING += 3;
     }
 
     /**
