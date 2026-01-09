@@ -5,8 +5,8 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
-import javax.imageio.ImageIO;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -608,7 +608,6 @@ public class EndGameView extends JPanel {
         g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, animProgress));
         
         // Afficher les statistiques de toutes les équipes
-        int teamCount = allTeamStats.size();
         int rectWidth = (int)(350 * scale);
         int baseRectHeight = (int)(180 * scale);  // Hauteur de base pour chaque équipe
         int spacing = (int)(20 * scale);  // Espacement entre les rectangles
@@ -616,7 +615,7 @@ public class EndGameView extends JPanel {
         
         int index = 0;
         // Trier pour afficher l'équipe gagnante en premier
-        java.util.List<String> sortedTeams = new java.util.ArrayList<>(allTeamStats.keySet());
+        List<String> sortedTeams = new ArrayList<>(allTeamStats.keySet());
         sortedTeams.sort((a, b) -> {
             if (a.equals(winningTeamName)) return -1;
             if (b.equals(winningTeamName)) return 1;
