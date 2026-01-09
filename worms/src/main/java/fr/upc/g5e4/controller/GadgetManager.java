@@ -67,12 +67,6 @@ public class GadgetManager {
                 success = true;
                 break;
                 
-            case "Bumper":
-                System.out.println("Bumper utilisé");
-                // SoundPlayer.play("/sfx/bumper-sound.wav");
-                success = true;
-                break;
-                
             case "Drill":
                 System.out.println("Drill équipée; Clic gauche pour casser 1 bloc, clic droit pour en poser");
                 SoundPlayer.play("/sfx/drill.wav");
