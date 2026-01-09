@@ -508,8 +508,6 @@ public class ItemController {
         
         //permet de faire tomber le worm s'il est en l'air pendant la tp
         FallIfInTheAir(worm);
-        
-        SoundPlayer.play("/sfx/teleporter-sound.wav");
     }
     
     /**

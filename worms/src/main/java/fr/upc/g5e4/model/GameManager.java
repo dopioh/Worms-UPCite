@@ -970,125 +970,30 @@ public class GameManager {
         int teamIndex = getCurrentTeamIndex();
         if (wormIndex >= 0 && teamIndex >= 0 && teamIndex < getListTeamInit().size()) {
             charView = getListTeamInit().get(teamIndex).getTeamView().getCharacterView(wormIndex);
-        }   
-        
-        // afficher le sprite du gadget
-        if (charView != null) {
-            charView.setCurrentGadgetSprite(itemName);
         }
         
         // trouver le gadget dans l'inventaire pour enregistrer son utilisation
         InventoryJson gadgetFromInventory = findGadgetInInventory(itemName);
         
-        switch (itemName) {
-            case "PotionHeal":
-                currentWorm.setHealth(Math.min(100, currentWorm.getHealth() + 50));
-                currentWorm.healEffect();
-                // Pas d'étiquette pour le heal
-                System.out.println("Potion Heal : +50 HP");
-                SoundPlayer.play("/sfx/potionheal-sound.wav");
-                // enregistrer l'utilisation du gadget
-                if (gadgetFromInventory != null && gadgetFromInventory.canUseThisTurn()) {
-                    gadgetFromInventory.registerUseThisTurn();
-                }
-                break;
-            case "PotionShield":
-                currentWorm.setShield(Math.min(100, currentWorm.getShield() + 25));
-                currentWorm.shieldEffect();
-                // Pas d'étiquette pour le shield
-                System.out.println("Potion Shield : +25 Shield");
-                SoundPlayer.play("/sfx/potionshield-sound.wav");
-                // enregistrer l'utilisation du gadget
-                if (gadgetFromInventory != null && gadgetFromInventory.canUseThisTurn()) {
-                    gadgetFromInventory.registerUseThisTurn();
-                }
-                break;
-            case "PotionSpeed":
-                currentWorm.applySpeedBuff(20000);
-                // ajouter l'étiquette via la vue du worm avec timer (20 secondes)
-                if (charView != null) {
-                    charView.getNameTagView().addItemFromResource("/buffs/speed_buff.png", "speed_buff_icon", 20000);
-                }
-                System.out.println("Potion Speed : +50% vitesse");
-                SoundPlayer.play("/sfx/potionspeed-sound.wav");
-                // enregistrer l'utilisation du gadget
-                if (gadgetFromInventory != null && gadgetFromInventory.canUseThisTurn()) {
-                    gadgetFromInventory.registerUseThisTurn();
-                }
-                break;
-            case "PotionJump":
-                currentWorm.applyJumpBuff(20000);
-                // ajouter l'étiquette via la vue du worm avec timer (20 secondes)
-                if (charView != null) {
-                    charView.getNameTagView().addItemFromResource("/buffs/jump_buff.png", "jump_buff_icon", 20000);
-                }
-                System.out.println("Potion Jump : +50% saut");
-                SoundPlayer.play("/sfx/potionjump-sound.wav");
-                // enregistrer l'utilisation du gadget
-                if (gadgetFromInventory != null && gadgetFromInventory.canUseThisTurn()) {
-                    gadgetFromInventory.registerUseThisTurn();
-                }
-                break;
-            case "Bumper":
-                System.out.println("Bumper utilisé");
-                // SoundPlayer.play("/sfx/bumper-sound.wav");
-                // enregistrer l'utilisation du gadget
-                if (gadgetFromInventory != null && gadgetFromInventory.canUseThisTurn()) {
-                    gadgetFromInventory.registerUseThisTurn();
-                }
-                break;
-            case "Drill":
-                System.out.println("Drill équipée; Clic gauche pour  1 bloc, clic droit pour en poser");
-                SoundPlayer.play("/sfx/drill.wav");
-                break;
-            default:
-                System.out.println("[Gadget] Gadget inconnu : " + itemName);
-                break;
-        }
+        // utiliser le GadgetManager pour appliquer l'effet du gadget
+        fr.upc.g5e4.controller.GadgetManager.useGadget(itemName, currentWorm, charView, gadgetFromInventory);
     }
 
     /**
      * Methode pour recuperer les buff actif apres le load d'une save
-     * @param itemName
-     * @param tempsRestant
+     * @param buffType Type de buff à appliquer
+     * @param tempsRestant Temps restant du buff
+     * @param CM Le CharacterModel sur lequel appliquer le buff
      */
-    public void useGadgetDuringSave(BuffModel.BuffType itemName,long tempsRestantL, CharacterModel cm){
-        int tempsRestant = (int) tempsRestantL;
-
-        CharacterModel currentWorm = cm;
-        
-        // récupérer la vue du worm pour ajouter l'étiquette au nametag et afficher le sprite du gadget
-        fr.upc.g5e4.view.CharacterView charView = null;
+    public void useGadgetDuringSave(BuffModel.BuffType buffType, long tempsRestant, CharacterModel CM) {
+        fr.upc.g5e4.view.CharacterView charView = null; // vue du worm actif
         int wormIndex = getActiveWormIndex();
         int teamIndex = getCurrentTeamIndex();
         if (wormIndex >= 0 && teamIndex >= 0 && teamIndex < getListTeamInit().size()) {
             charView = getListTeamInit().get(teamIndex).getTeamView().getCharacterView(wormIndex);
         }   
         
-        // afficher le sprite du gadget
-        //if (charView != null) {
-        //    charView.setCurrentGadgetSprite(itemName);
-        //}
-
-        switch (itemName) {
-            case BuffModel.BuffType.SPEED_BOOST:
-                currentWorm.applySpeedBuff(tempsRestant);
-                // ajouter l'étiquette via la vue du worm avec timer (20 secondes)
-                if (charView != null) {
-                    charView.getNameTagView().addItemFromResource("/buffs/speed_buff.png", "speed_buff_icon", tempsRestant);
-                }
-                break;
-            case BuffModel.BuffType.JUMP_BOOST:
-                currentWorm.applyJumpBuff(tempsRestant);
-                // ajouter l'étiquette via la vue du worm avec timer (20 secondes)
-                if (charView != null) {
-                    charView.getNameTagView().addItemFromResource("/buffs/jump_buff.png", "jump_buff_icon", tempsRestant);
-                }
-                break;
-            default:
-                System.out.println("[Gadget] Gadget inconnu : " + itemName);
-                break;
-        }
+        fr.upc.g5e4.controller.GadgetManager.applyBuffFromSave(buffType, tempsRestant, CM, charView);
     }
 
     public java.util.List<InventoryModel.InventoryJson> getCurrentTeamInventory() {
