@@ -162,7 +162,7 @@ public class CharacterView {
         int weaponHeight = size;
         int weaponX, weaponY = 0;
 
-        // exeption grenade
+        // exeption grenade / rocketlauncher
         if (currentWeapon instanceof Grenade) {
             // reduire taille de la grenade
             weaponWidth = (int)(size * 0.9);

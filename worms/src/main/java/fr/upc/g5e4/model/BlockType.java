@@ -32,7 +32,7 @@ public enum BlockType {
     }
 
     /**
-     * On prend la couleur par défaut du bloc si y'a pas de texture
+     * Retourne la couleur du bloc
      * @return la couleur du bloc
      */
     public Color getColor() {

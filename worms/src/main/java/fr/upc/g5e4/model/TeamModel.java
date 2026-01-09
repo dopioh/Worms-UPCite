@@ -81,7 +81,7 @@ public class TeamModel {
                 withCollision
             );
             
-            // Définir la direction initiale
+            // au debut les worms regardent a droite
             tabModelWorms[i].setFacingRight(facingRight);
         }
     }

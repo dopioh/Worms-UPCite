@@ -1,6 +1,46 @@
 # Participants au Projet Worms du Groupe 5 Equipe 4 :
 
 - ## [Militon Mei](https://moule.informatique.u-paris.fr/militon)
+    
+    - Premiere version gitlab du projet (1ere version README.md)
+
+    - Premiere version du Terrain avec
+
+    - Physique du jeu avec Loop du jeu
+
+    - Ajout limite de la map
+
+    - Set Up projet (release, CI)
+
+        - 4 phases (build,test,deploy et release auto)
+
+    - Ajout Vue Console
+        - Terrain
+        - Equipes
+        - Data Equipe 
+        - Menu simple 
+        - Tir simple 
+        
+    - Ajout Systeme de Sauvegarde 
+
+    - Refactor code pour passer a N-equipes
+
+    - Ajout Equipes Custom (save dans `player_save.txt`)
+
+    - Ajout Interface Settings
+        - Creer une equipe Custom
+        - Choisir les equipes pour la prochaine partie
+
+    - Ajout nom Worm
+    
+    - Amelioration de la fluidite du jeu
+
+    - Creation 5 skins Worm 
+
+    - Review/merge de la plupart des MR
+
+    - Brainstorm de la plupart des idees
+
 - ## [MAZRI Nassim](https://moule.informatique.u-paris.fr/mazri)
 
     - Ajout des deplacements
