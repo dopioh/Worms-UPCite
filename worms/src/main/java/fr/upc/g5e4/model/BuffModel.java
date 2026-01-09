@@ -2,6 +2,7 @@ package fr.upc.g5e4.model;
 
 /**
  * Classe pour un buff temporaire qui affecte les stats du worm (ajouté d'autre si idée vient)
+ * @author Billy
  */
 public class BuffModel {
     public enum BuffType {

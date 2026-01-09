@@ -6,6 +6,7 @@ import fr.upc.g5e4.model.TrajectoryModel;
 /**
  * trajectoire sans chute (ligne droite)
  * utilisée par les armes de mêlée 
+ * @author Billy
  */
 public class NoDropTrajectory implements TrajectoryModel {
     private static final float DROP_COEFFICIENT = 0.0f; // pas de chute

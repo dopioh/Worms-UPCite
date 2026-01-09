@@ -6,6 +6,7 @@ import fr.upc.g5e4.model.TrajectoryModel;
 /**
  * trajectoire rapide (faible gravité)
  * utilisée pour les projectiles rapides 
+ * @author Billy
  */
 public class FastTrajectory implements TrajectoryModel {
     private static final float DROP_COEFFICIENT = 2.0f; // chute minime

@@ -6,6 +6,7 @@ import fr.upc.g5e4.model.TrajectoryModel;
 /**
  * trajectoire lourde (forte gravité)
  * utilisée par les projectiles lourds 
+ * @author Billy
  */
 public class HeavyTrajectory implements TrajectoryModel {
     private static final float DROP_COEFFICIENT = 12.0f; // forte chute

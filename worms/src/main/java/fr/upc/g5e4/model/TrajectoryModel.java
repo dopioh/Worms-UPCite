@@ -5,6 +5,7 @@ import org.jbox2d.common.Vec2;
 /**
  * Interface définissant comment un projectile suit sa trajectoire
  * Chaque arme peut avoir sa propre courbe 
+ * @author Billy
  */
 public interface TrajectoryModel {
     /**

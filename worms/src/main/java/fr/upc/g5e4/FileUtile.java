@@ -8,6 +8,7 @@ import java.io.IOException;
 
 /**
  * Classe utilitaire pour la gestion des fichiers
+ * @author Billy
  */
 
 public class FileUtile {

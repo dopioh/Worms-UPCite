@@ -5,7 +5,8 @@ import fr.upc.g5e4.model.ProjectileModel;
 import org.jbox2d.common.Vec2;
 
 /**
- * Classe pour dessiner les projectiles avec trajectoire mathématique (style Graphwar)
+ * Classe pour dessiner les projectiles avec trajectoire mathématique
+ * @author Billy
  */
 public class ProjectileView {
     private static final float PPM = 30f;
@@ -24,9 +25,9 @@ public class ProjectileView {
         }
         
         //permet de ne pas voir le projectile de la batte de baseball
-        //if ("Baseball Bat".equals(projectile.getSourceWeapon().getName())) {
-          //  return;
-        //}
+        if ("Baseball Bat".equals(projectile.getSourceWeapon().getName())) {
+            return;
+        }
         
         Vec2 worldPos = projectile.getCurrentPosition();
         

@@ -7,6 +7,7 @@ import fr.upc.g5e4.view.CharacterView;
 
 /**
  * Classe destiné à l'utilisation des gadgets
+ * @author Billy
  */
 public class GadgetManager {
     

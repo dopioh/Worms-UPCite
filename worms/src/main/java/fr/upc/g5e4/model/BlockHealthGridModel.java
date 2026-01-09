@@ -2,6 +2,7 @@ package fr.upc.g5e4.model;
 
 /**
  * permet de gérer les PV de chaque bloc du terrain
+ * @author Billy
  */
 public class BlockHealthGridModel {
     private final int[][] health;  // grille de santé parallèle à la grille de blocs

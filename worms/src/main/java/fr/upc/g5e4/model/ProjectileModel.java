@@ -5,6 +5,7 @@ import fr.upc.g5e4.model.trajectories.NoDropTrajectory;
 
 /**
  * Classe représentant un projectile avec une trajectoire courbe mathématique
+ * @author Billy
  */
 public class ProjectileModel {
     private Weapon sourceWeapon;

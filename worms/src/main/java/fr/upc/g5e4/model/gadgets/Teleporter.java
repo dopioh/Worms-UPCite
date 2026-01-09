@@ -4,6 +4,7 @@ import fr.upc.g5e4.model.Gadget;
 
 /**
  * Gadget Teleporter : se téléporte au clic (si aucun bloc à la position)
+ * @author Billy
  */
 public class Teleporter extends Gadget {
 

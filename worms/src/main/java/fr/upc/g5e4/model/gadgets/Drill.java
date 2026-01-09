@@ -3,8 +3,10 @@ package fr.upc.g5e4.model.gadgets;
 import fr.upc.g5e4.model.Gadget;
 
 /**
- * Gadget Drill : casse un bloc au clic gauche
+ * Gadget Drill : 
+ * Casse un bloc au clic gauche
  * Pose un bloc au clic droit
+ * @author Billy
  */
 public class Drill extends Gadget {
 

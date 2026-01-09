@@ -6,6 +6,7 @@ import fr.upc.g5e4.model.TrajectoryModel;
 /**
  * trajectoire parabolique standard (gravité normale)
  * utilisée par la plupart des armes 
+ * @author Billy
  */
 public class StandardTrajectory implements TrajectoryModel {
     private static final float DROP_COEFFICIENT = 5.0f; // effet de gravité modéré
