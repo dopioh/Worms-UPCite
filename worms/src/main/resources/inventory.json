@@ -52,8 +52,8 @@
             "objectType" : "GADGET",
             "name" : "Drill",
             "maxUsages" : 10,
-            "isInfinite" : false,
-            "remainingUses" : 999999
+            "isInfinite" : true,
+            "remainingUses" : null
         },
         {
             "objectType" : "WEAPON",

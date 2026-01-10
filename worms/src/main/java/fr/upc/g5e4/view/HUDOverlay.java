@@ -282,7 +282,10 @@ public class HUDOverlay extends JComponent {
             String ammoText;
             if (eq == null) {
                 ammoText = "--";
-            } else if (eq.isInfinite || eq.remainingUses == null) {
+            } else if (eq.isInfinite) {
+                // Arme infinie mais avec limite par tour
+                ammoText = eq.getRemainingUseThisTurn() + "/" + eq.maxUsages + " (∞)";
+            } else if (eq.remainingUses == null) {
                 ammoText = "∞";
             } else {
                 ammoText = String.valueOf(eq.getRemainingUseThisTurn() +"/"+ eq.maxUsages+ " Max:"+eq.remainingUses);
