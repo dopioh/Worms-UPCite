@@ -24,36 +24,46 @@ stages:
   - deploy
   - release_job
 
-# ETAPE 1 : BUILD - Teste sur plusieurs versions de Java
+# ETAPE 1 : BUILD - Teste sur plusieurs versions de Java et maven
+# Pas besoin de tester les architectures ici (Le bytecode Java peut fonctionner sur differents systemes sans etre modifie)
 
 build:
   stage: build
   parallel:
     matrix:
       - JAVA_VERSION: ["23", "24", "25"]
-  image: maven:3.9-eclipse-temurin-${JAVA_VERSION}
+        MAVEN_VERSION: ["3.8", "3.9"]
+  image: maven:${MAVEN_VERSION}-eclipse-temurin-${JAVA_VERSION}
   script: 
-    # force la suppression du proxy au cas où il reste en mémoire
+    # force la suppression du proxy au cas où il reste en mémoire pour proxy
     - unset MAVEN_OPTS || true
     - rm -f /root/.m2/settings.xml || true
     
     - cd worms
     - mvn $MAVEN_CLI_OPTS -U clean compile
-#  cache:
-#    key: "$CI_COMMIT_REF_NAME"
-#    policy: push
+    #  cache:
+    #    key: "$CI_COMMIT_REF_NAME"
+    #    policy: push
+
   artifacts:
     paths:
       - worms/target
+    expire_in: 1 week
 
-# ETAPE 2 : TEST - Teste sur plusieurs versions de Java
+# ETAPE 2 : TEST - Teste sur plusieurs versions de Java, maven et architectures
 
 test:
   stage: test
   parallel:
     matrix:
       - JAVA_VERSION: ["23", "24", "25"]
-  image: maven:3.9-eclipse-temurin-${JAVA_VERSION}
+        MAVEN_VERSION: ["3.8", "3.9"]
+        ARCH: ["arm64", "amd64"]
+  image:
+    name: maven:${MAVEN_VERSION}-eclipse-temurin-${JAVA_VERSION}
+    platform: linux/${ARCH}
+  before_script:
+    - echo "Testing on ${ARCH} architecture"
   script: 
     - cd worms
     - mvn $MAVEN_CLI_OPTS test
@@ -61,7 +71,7 @@ test:
   dependencies :
     - build
 
-# ETAPE 3 : DEPLOIEMENT - Utilise Java 23 pour le déploiement final
+# ETAPE 3 : DEPLOIEMENT - Utilise Java 23 pour le deploiement
 
 deploy:
   stage: deploy
