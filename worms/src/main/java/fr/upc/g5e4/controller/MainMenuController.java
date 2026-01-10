@@ -72,7 +72,11 @@ public class MainMenuController {
         
         try {
             SaveLoad sv = new SaveLoad();
-            this.gameLauncher.startFromGameSave(sv.getSaveData());
+            boolean lancement = this.gameLauncher.startFromGameSave(sv.getSaveData());
+            if (!lancement == true){
+                JOptionPane.showMessageDialog(gameLauncher.getMainFrame(),"Aucune sauvegarde enregistrer, veillez d'abord lancer une game et la sauvegarder !", "AUCUNE SAVE FILE TROUVER",
+            JOptionPane.INFORMATION_MESSAGE); //determine l'icône qui s'affiche à gauche du texte
+            }
         } catch (IOException e) {
             JOptionPane.showMessageDialog(gameLauncher.getMainFrame(), 
             "Impossible de lancer une sauvegarde", 

@@ -119,7 +119,7 @@ public class CharacterModel{
         this.model = model;
         this.world = world;
         this.ID = wormsCounter++;
-        this.name = name + "-" + this.ID;
+        this.name = name;
         this.xcord = xcord;
         this.ycord = ycord;
         this.health = health;

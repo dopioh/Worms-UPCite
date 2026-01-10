@@ -55,23 +55,35 @@
 
     - Ajout des equipes
 
+    - Ajout parametre de colision entre les equipes
+
     - Géneration procédurale du terrain
 
     - Terrain par tableaux 2D de block
 
     - Boutique
 
-    - Casino
+    - Casino : Mini-jeux WormRace, WormJack, WormGuess
 
     - SFX pour les armes, les worms et les blocks
 
-    - Ajout de tickets, Validation et Acceptations de MR
+    - Systeme de sprite weapon automatique
+
+    - Systeme de sfx weapon/item automatique
+
+    - Ajout de tickets, validation et acceptations de MR
 
     - Brainstorm d'idées pour tout le projet
 
     - Ajout CONTRIBUTING.md
 
-    - Ajout systeme d'image dans le cache
+    - Ajout DESIGN.MD
+
+    - Ajout systeme d'image en cache
+
+    - Systeme de money par tour
+
+    - Tutoriel "Comment Jouer ?" dans le menu principal
 
 
 - ## [WU Billy](https://moule.informatique.u-paris.fr/wub)

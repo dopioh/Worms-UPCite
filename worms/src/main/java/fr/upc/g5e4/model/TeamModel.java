@@ -3,10 +3,15 @@ package fr.upc.g5e4.model;
 //import java.util.ArrayList;
 
 import org.jbox2d.dynamics.World;
+
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+
 import fr.upc.g5e4.model.InventoryModel.InventoryJson;
 
 import fr.upc.g5e4.model.io.*;
+import fr.upc.g5e4.model.io.CharacterData;
 
 //import java.awt.Color;
 
@@ -45,7 +50,7 @@ public class TeamModel {
      * @param facingRight Direction initiale des worms (true = droite, false = gauche)
      * @param withCollision Active les collisions entre worms (true = avec collisions, false = sans)
      */
-    public TeamModel(GroundModel groundModel, World world, String teamName, double startX, double spacing, int wormNumber, boolean console, boolean facingRight, boolean withCollision,int COLORTEAM,String skinPath) {
+    public TeamModel(GroundModel groundModel, World world, String teamName, double startX, double spacing, int wormNumber, boolean console, boolean facingRight, boolean withCollision,int COLORTEAM,ArrayList<String> nameWorms,String skinPath) {
         if (wormNumber < 1) {
             throw new IllegalArgumentException("Une équipe doit avoir au moins 1 worm");
         }
@@ -63,9 +68,28 @@ public class TeamModel {
         // Initialisation automatique des worms et position espacée
         for (int i = 0; i < number; i++) {
             double xPosition = startX + (i * spacing);
+            System.out.println("StartX avant condition : " + startX);
+
+            if (xPosition >= groundModel.getWidth()){ // au cas ou xPos est hors map et le worm spawn dans le vide
+                Random rd = new Random();
+                startX -= 20;
+                System.out.println("StartX pendant condition : " + startX);
+                while (xPosition >= groundModel.getWidth()){
+                    int nbrR = rd.nextInt(3, 100);
+                    xPosition -= nbrR;
+                }
+            }
+
             double yPosition = groundModel.getHeight() - 600;
+
+            String wormName;
+            if (nameWorms == null){
+                wormName = "bot";
+            } else {
+                wormName = nameWorms.get(i);
+                System.out.println(wormName);
+            }
             
-            String wormName = "Worm";
             
             tabModelWorms[i] = new CharacterModel(
                 groundModel, 

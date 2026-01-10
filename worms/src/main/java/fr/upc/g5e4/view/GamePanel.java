@@ -74,6 +74,9 @@ public class GamePanel extends JPanel {
         setLayout(null);
         
         // Charger l'image de fond selon le style configuré
+        if (MapConfig.getBackgroundStyle() == null){
+            MapConfig.setBackgroundStyle(MapConfig.BackgroundStyle.JOUR);
+        }
         String bgPath = MapConfig.getBackgroundStyle().getImagePath();
         backgroundImage = ImageCache.get(bgPath);
         if (backgroundImage == null) {
@@ -268,16 +271,19 @@ public class GamePanel extends JPanel {
                     // Flèche rouge, petite, inversée (pointe vers le bas), et plus haut
                     int arrowW = 8;
                     int arrowH = 14;
-                    int yOffset = 60;
+                    int yOffset = 110;
                     int[] xPoints = {x, x - arrowW/2, x + arrowW/2};
                     int[] yPoints = {y - yOffset + arrowH, y - yOffset, y - yOffset};
 
 
                     // Flèche
+
+                    // mettre des couleurs diff
                     g2.setColor(Color.RED);
                     g2.fillPolygon(xPoints, yPoints, 3);
-                    g2.setColor(Color.BLACK);
+                    g2.setColor(new Color(186, 19, 19));
                     g2.drawPolygon(xPoints, yPoints, 3);
+
                 }
             }
         } catch (Exception e) {
