@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests pour la classe BlockGridModel
+ * @author Nassim
  */
 public class BlockGridModelTest {
 

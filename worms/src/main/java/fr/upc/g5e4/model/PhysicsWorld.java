@@ -23,6 +23,7 @@ import fr.upc.g5e4.view.GamePanel;
      * <p>
      * 
      * @see Entity#createBody
+     * @author Mei & Nassim
      */
 public class PhysicsWorld {
 
@@ -238,22 +239,21 @@ public class PhysicsWorld {
         Body bCeiling = world.createBody(bdCeiling);
         bCeiling.createFixture(fCeiling);
 
-        // Sol : ca kill le worm si il passe en dessous
-        /*
-        BodyDef bdSol = new BodyDef();
-        bdSol.type = BodyType.STATIC;
-        bdSol.position.set(0, 0); 
+        // Sol : sensor qui tue le worm s'il passe en dessous (comme l'eau)
+        BodyDef bdDeathZone = new BodyDef();
+        bdDeathZone.type = BodyType.STATIC;
+        bdDeathZone.position.set(worldWidth / 2, -2.0f); // position sous la map
 
-        EdgeShape eSol = new EdgeShape();
-        eSol.set(new Vec2(0, worldHeight), new Vec2(worldWidth, worldHeight));
+        PolygonShape deathZoneShape = new PolygonShape();
+        deathZoneShape.setAsBox(worldWidth / 2, 1.0f); // deathzone de 1 mètre de hauteur
 
-        FixtureDef fSol = new FixtureDef();
-        fSol.shape = eSol;
-        fSol.restitution = 0.3f; 
+        FixtureDef fDeathZone = new FixtureDef();
+        fDeathZone.shape = deathZoneShape;
+        fDeathZone.isSensor = true;
+        fDeathZone.userData = "death_zone";
 
-        Body bSol = world.createBody(bdSol);
-        bSol.createFixture(fSol);
-        */
+        Body bDeathZone = world.createBody(bdDeathZone);
+        bDeathZone.createFixture(fDeathZone);
     }
 
 
@@ -359,6 +359,27 @@ public class PhysicsWorld {
         public void beginContact(Contact contact){          // contact est une classe abtraite qui "s'instancie" automatiquement des que deux body (ou seulement leur fixtures ?) se touche
             Fixture a = contact.getFixtureA();              
             Fixture b = contact.getFixtureB();
+
+            // check contact avec death zone
+            if ("death_zone".equals(a.getUserData()) || "death_zone".equals(b.getUserData())) {
+                Body bodyA = a.getBody();
+                Body bodyB = b.getBody();
+                
+                // Identifier le worm qui touche la zone de mort
+                for (CharacterModel worm : allWorms) {
+                    if (worm == null || worm.isDead()) continue;
+                    
+                    Body wormBody = worm.getBody();
+                    if (wormBody == bodyA || wormBody == bodyB) {
+                        worm.setDead(true);
+                        destroy.add(worm);
+                        SoundPlayer.playDepopSound();
+                        System.out.println("DEPOP: " + worm.getName() + " est tombé hors de la map!");
+                        break;
+                    }
+                }
+                return;
+            }
 
             // il y'a un body water et un body worm
             Body bodyA = a.getBody();

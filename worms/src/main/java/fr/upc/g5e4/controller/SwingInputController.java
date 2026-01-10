@@ -18,7 +18,7 @@ import javax.swing.JFrame;
  * Pour le moment je reprends l'ancien model et elle herite de JPanel
  * Mais le mieux serait de la recréer de 0 et pas qu'elle herite de JPanel 
  * 
- * @author Nassim et Raphaël pour plus d'info sur son fonctionnement
+ * @author Raphaël pour plus d'info sur son fonctionnement
  */
 public class SwingInputController extends JPanel{
     private CharacterController personnageController;

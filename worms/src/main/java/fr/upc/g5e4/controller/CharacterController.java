@@ -12,11 +12,12 @@ import fr.upc.g5e4.model.Weapon;
 /**
  * Contrôleur pour le worm
  * Gère la logique de contrôle
+ * @author Nassim & Billy
  */
 public class CharacterController {
     private CharacterModel model;
     
-    // Variables pour gérer les touches maintenues
+    // Variables pour gérer les touches pressées
     private boolean LeftKeyPressed = false;
     private boolean RightKeyPressed = false;
     private boolean SpaceKeyPressed = false;
