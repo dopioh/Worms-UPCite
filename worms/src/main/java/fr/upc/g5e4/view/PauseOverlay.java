@@ -27,6 +27,7 @@ public class PauseOverlay extends JComponent {
         void onToggleSound(boolean enabled);
         void onQuitClicked();
         void onCloseClicked();
+        void onToggleTeamKill(boolean enabled);
     }
 
     private Listener listener;
@@ -40,12 +41,13 @@ public class PauseOverlay extends JComponent {
     private Rectangle toggleVentBounds;
     private Rectangle toggleFullScreenBounds;
     private Rectangle toggleSoundBounds;
+    private Rectangle toggleTeamKillBounds;
 
     private Rectangle btnHelpBounds;
     private Rectangle btnSaveBounds;
     private Rectangle btnQuitBounds;
 
-    private enum Hover {NONE,ACTION_FLY, TOGGLE_BLUEPRINT, TOGGLE_VENT, TOGGLE_FULLSCREEN, TOGGLE_SOUND ,HELP, SAVE, QUIT, CLOSE}
+    private enum Hover {NONE,ACTION_FLY, TOGGLE_BLUEPRINT, TOGGLE_VENT, TOGGLE_TEAMKILL, TOGGLE_FULLSCREEN, TOGGLE_SOUND ,HELP, SAVE, QUIT, CLOSE}
 
     private float flyAnim = 0f; 
     private Timer flyAnimTimer;
@@ -56,6 +58,7 @@ public class PauseOverlay extends JComponent {
     private boolean ventOn = true;
     private boolean fullScreenOn = false;
     private boolean soundOn = true;
+    private boolean teamKillOn = false;
     
     private int scrollY = 0;
     private int maxScrollY = 0;
@@ -154,6 +157,13 @@ public class PauseOverlay extends JComponent {
                     repaint();
                     return;
                 }
+
+                if (toggleTeamKillBounds != null && toggleTeamKillBounds.contains(p)) {
+                    teamKillOn = !teamKillOn;
+                    if (listener != null) listener.onToggleTeamKill(teamKillOn);
+                    repaint();
+                    return;
+                }
             }
         };
 
@@ -213,6 +223,15 @@ public class PauseOverlay extends JComponent {
         this.ventOn = ventOn;
         repaint();
     }
+
+    /**
+     * Permet de synchroniser l'état du toggle TeamKill depuis l'extérieur.
+     */
+    public void setTeamKillOn(boolean teamKillOn) {
+        this.teamKillOn = teamKillOn;
+        repaint();
+    }
+
 
     @Override
     protected void paintComponent(Graphics g) {
@@ -279,7 +298,7 @@ public class PauseOverlay extends JComponent {
         int rowH = 60;
         int gapY = 10;
 
-        int totalRows = 5;
+        int totalRows = 6;
         int virtualContentHeight = totalRows * rowH + (totalRows - 1) * gapY;
 
         maxScrollY = Math.max(0, virtualContentHeight - contentH);
@@ -295,12 +314,15 @@ public class PauseOverlay extends JComponent {
         int row3Y = row2Y + rowH + gapY;
         int row4Y = row3Y + rowH + gapY;
         int row5Y = row4Y + rowH + gapY;
+        int row6Y = row5Y + rowH + gapY;
+
 
         drawActionRow(g2,"Fly mode","Active/désactive le vol pour le worm actif",contentX, row1Y, contentW, rowH,hovered == Hover.ACTION_FLY,Hover.ACTION_FLY,flyAnim);
         drawToggleRow(g2, "Blueprint", "Affiche le mode Blueprint",contentX, row2Y, contentW, rowH,blueprintOn, hovered == Hover.TOGGLE_BLUEPRINT,Hover.TOGGLE_BLUEPRINT);
         drawToggleRow(g2, "Vent", "Active/Désactive le vent (reduit les FPS)",contentX, row3Y, contentW, rowH,ventOn, hovered == Hover.TOGGLE_VENT,Hover.TOGGLE_VENT);
         drawToggleRow(g2, "Plein écran", "Mode plein écran",contentX, row4Y, contentW, rowH,fullScreenOn, hovered == Hover.TOGGLE_FULLSCREEN,Hover.TOGGLE_FULLSCREEN);
         drawToggleRow(g2, "Son", "Active/Désactive les SFX",contentX, row5Y, contentW, rowH,soundOn, hovered == Hover.TOGGLE_SOUND,Hover.TOGGLE_SOUND);
+        drawToggleRow(g2, "TeamKill", "Autorise les dégats entre alliés", contentX, row6Y, contentW, rowH, teamKillOn,hovered == Hover.TOGGLE_TEAMKILL, Hover.TOGGLE_TEAMKILL);
 
         // reset translate et clip
         g2.translate(0, scrollY);
@@ -382,6 +404,7 @@ public class PauseOverlay extends JComponent {
             case TOGGLE_VENT -> toggleVentBounds = screenRect;
             case TOGGLE_FULLSCREEN -> toggleFullScreenBounds = screenRect;
             case TOGGLE_SOUND -> toggleSoundBounds = screenRect;
+            case TOGGLE_TEAMKILL -> toggleTeamKillBounds = screenRect;
         }
     }
 
@@ -442,6 +465,7 @@ public class PauseOverlay extends JComponent {
         if (toggleVentBounds != null && toggleVentBounds.contains(p)) return Hover.TOGGLE_VENT;
         if (toggleFullScreenBounds != null && toggleFullScreenBounds.contains(p)) return Hover.TOGGLE_FULLSCREEN;
         if (toggleSoundBounds != null && toggleSoundBounds.contains(p)) return Hover.TOGGLE_SOUND;
+        if (toggleTeamKillBounds != null && toggleTeamKillBounds.contains(p)) return Hover.TOGGLE_TEAMKILL;
 
         return Hover.NONE;
     }

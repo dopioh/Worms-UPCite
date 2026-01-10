@@ -175,6 +175,10 @@ public class SwingInputController extends JPanel{
                 SoundPlayer.setMuted(!enabled);
             }
 
+            public void onToggleTeamKill(boolean enabled) {
+                System.out.println("Raphaël doit implémenter");
+            }
+
             @Override
             public void onQuitClicked() {
                 if (pauseOverlay != null) pauseOverlay.setPauseVisible(false);

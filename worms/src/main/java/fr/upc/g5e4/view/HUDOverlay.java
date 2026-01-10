@@ -85,7 +85,7 @@ public class HUDOverlay extends JComponent {
     private Rectangle leftArrowBounds;
     private Rectangle rightArrowBounds;
     
-    // Chargement de tous les icones ----------------------------------------------------------
+    // Chargement de tous les icones
     private void loadBackpack() {
         backpackIcon = ImageCache.get("/backpack.png");
         if (backpackIcon == null) {
@@ -117,7 +117,7 @@ public class HUDOverlay extends JComponent {
         }
     }
 
-    //Timer -----------------------------------------------------------
+    //Timer 
     private int timerRemainingFrames = 0;
     private int timerTotalFrames = 1;
 
