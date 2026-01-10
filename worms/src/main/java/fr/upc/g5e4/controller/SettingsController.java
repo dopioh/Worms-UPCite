@@ -71,6 +71,14 @@ public class SettingsController {
         // Listener pour le bouton retour
         view.getBtnBack().addActionListener(e -> handleBackButton());
         
+        // Listener pour détecter les changements de taille
+        view.addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentResized(java.awt.event.ComponentEvent e) {
+                view.checkFullScreen();
+            }
+        });
+        
         // Listeners pour les onglets
         view.getBtnMapTab().addActionListener(e -> view.showPanel("Map"));
         view.getBtnTeamsTab().addActionListener(e -> view.showPanel("Equipes"));

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 /**
  * Modèle du Personnage
  * Initialise ses stats et position
+ * @author Nassim & Billy & Ian & Mei
  */
 public class CharacterModel{
     private static int wormsCounter = 0;

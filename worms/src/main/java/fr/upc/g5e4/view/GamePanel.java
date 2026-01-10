@@ -18,6 +18,7 @@ import fr.upc.g5e4.util.ImageCache;
 public class GamePanel extends JPanel {
     private final GroundModel model;  // Gardé pour compatibilité
     private BlockGridModel blockGridModel;  // système de terrain en blocs
+    private DecorationManager decorationManager;  // gestionnaire de décorations
     private final CameraModel camera;
 
     private final TrajectoryView trajectoryView;
@@ -32,6 +33,8 @@ public class GamePanel extends JPanel {
     private BufferedImage backgroundImage; // Image de fond BG
     // Vue pour dessiner les blocs
     private BlockGridView blockGridView;
+    // Vue pour dessiner les décorations
+    private DecorationView decorationView;
 
     //accès direct au GameManager pour le pointeur graphique 
     private final fr.upc.g5e4.model.GameManager gameManager;
@@ -61,6 +64,7 @@ public class GamePanel extends JPanel {
         this.listTeamInitialisation = listTeamInitialisation;
         this.trajectoryView = new TrajectoryView();
         this.blockGridView = new BlockGridView();
+        this.decorationView = new DecorationView();
         this.gameManager = gameManager;
         initializePanel();
     }
@@ -131,6 +135,14 @@ public class GamePanel extends JPanel {
      */
     public void setBlockGridModel(BlockGridModel blockGridModel) {
         this.blockGridModel = blockGridModel;
+    }
+    
+    /**
+     * Définit le gestionnaire de décorations pour le rendu
+     * @param decorationManager Le gestionnaire de décorations
+     */
+    public void setDecorationManager(DecorationManager decorationManager) {
+        this.decorationManager = decorationManager;
     }
 
     @Override
@@ -233,6 +245,10 @@ public class GamePanel extends JPanel {
             g2.fill(path);
         }
 
+        // Décorations (derrière les worms)
+        if (decorationManager != null) {
+            decorationView.draw(g2, decorationManager);
+        }
 
         // Équipes de worms
         for (TeamInitialisation t : listTeamInitialisation){

@@ -45,8 +45,8 @@ public class SaveData {
     
     // Inventaire -> dans TeamInit et TeamModel
 
-    // GameStats : 
-    private Map<String, GameStats> teamStats;
+    // GameStats :
+    private Map<Integer, GameStats> teamStats;
 
     // Map Jour ou Nuit
     private static MapConfig.BackgroundStyle bg;
@@ -128,7 +128,7 @@ public class SaveData {
         return teamCursor;
     }
 
-    public Map<String, GameStats> getAllTeamStats(){
+    public Map<Integer, GameStats> getAllTeamStats(){
         return teamStats;
     }
 

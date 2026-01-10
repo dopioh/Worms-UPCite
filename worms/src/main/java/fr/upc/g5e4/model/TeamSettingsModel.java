@@ -51,15 +51,38 @@ public class TeamSettingsModel {
 
     public void saveCustom(){
         String teamName = view.getTeamName();
+        
+        // verifier si nom est vide
+        if (teamName == null || teamName.trim().isEmpty()) {
+            showDialog("Le nom de l'équipe ne peut pas être vide!", javax.swing.JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        // verifier si le nom existe déjà
+        ArrayList<CustomTeamData> existingTeams = playerDataController.getPlayerData().getCustomTeamManager().getListCustomTeamData();
+        for (CustomTeamData existing : existingTeams) {
+            if (existing.getTeamName().equalsIgnoreCase(teamName.trim())) {
+                showDialog("Une équipe avec ce nom existe déjà!", javax.swing.JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        }
+        
         SkinModel skin = playerDataController.getPlayerData().findSkinModelByName(view.getSkinChooseSTR());
         ArrayList<String> allWormsName = view.getAllWormsName();
 
         // on save dans le playerController -> PlayerData
-
-        this.playerDataController.getPlayerData().getCustomTeamManager().createCustomTeam(teamName, skin, 6, allWormsName);
+        this.playerDataController.getPlayerData().getCustomTeamManager().createCustomTeam(teamName.trim(), skin, 6, allWormsName);
         this.playerDataController.sauvegarderJoueur();
 
         view.reloadCustomTeamChoose();
+        
+        showDialog("Équipe créée!", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+    }
+    
+    private void showDialog(String message, int type) {
+        if (!java.awt.GraphicsEnvironment.isHeadless() && view != null) {
+            javax.swing.JOptionPane.showMessageDialog(view, message, "info", type);
+        }
     }
 
     public ArrayList<CustomTeamData> findClassByName(){

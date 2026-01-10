@@ -23,6 +23,7 @@ import fr.upc.g5e4.view.GamePanel;
      * <p>
      * 
      * @see Entity#createBody
+     * @author Mei & Nassim
      */
 public class PhysicsWorld {
 
@@ -187,45 +188,6 @@ public class PhysicsWorld {
     }
     
     /**
-     * reconstruit la physique du sol après modification des blocs
-     * (méthode utilisée après destruction de blocs par des armes)
-     * @param blockGrid le modèle de grille à utiliser
-     */
-    public void rebuildGroundPhysics(BlockGridModel blockGrid) {
-        recreateGroundFromBlockGrid(blockGrid);
-        //System.out.println("[PHYSICS] Physique reconstruite");
-    }
-    
-    /**
-     * Simplification d'un contour en supprimant les points intermédiaires alignés
-     * @param points La liste de points à simplifier
-     * @return La liste de points simplifiée
-     */
-    private List<Vec2> simplifyContour(List<Vec2> points) {
-        if (points.size() <= 3) {
-            return points;
-        }
-        
-        List<Vec2> result = new ArrayList<>();
-        result.add(points.get(0));
-        
-        for (int i = 1; i < points.size() - 1; i++) {
-            // on stock le point precedent, le point courant et le point suivant
-            Vec2 prev = points.get(i - 1);
-            Vec2 curr = points.get(i);
-            Vec2 next = points.get(i + 1);
-            
-            // on verifie que les trois points ne sont pas alignés horizontalement (en y)
-            if (Math.abs(prev.y - curr.y) > 0.001f || Math.abs(curr.y - next.y) > 0.001f) {
-                result.add(curr);
-            }
-        }
-        
-        result.add(points.get(points.size() - 1));
-        return result;
-    }
-    
-    /**
      * Crée les limites du terrain pour une grille de blocs
      */
     public void limitPanel(BlockGridModel blockGrid) {
@@ -277,22 +239,21 @@ public class PhysicsWorld {
         Body bCeiling = world.createBody(bdCeiling);
         bCeiling.createFixture(fCeiling);
 
-        // Sol : ca kill le worm si il passe en dessous
-        /*
-        BodyDef bdSol = new BodyDef();
-        bdSol.type = BodyType.STATIC;
-        bdSol.position.set(0, 0); 
+        // Sol : sensor qui tue le worm s'il passe en dessous (comme l'eau)
+        BodyDef bdDeathZone = new BodyDef();
+        bdDeathZone.type = BodyType.STATIC;
+        bdDeathZone.position.set(worldWidth / 2, -2.0f); // position sous la map
 
-        EdgeShape eSol = new EdgeShape();
-        eSol.set(new Vec2(0, worldHeight), new Vec2(worldWidth, worldHeight));
+        PolygonShape deathZoneShape = new PolygonShape();
+        deathZoneShape.setAsBox(worldWidth / 2, 1.0f); // deathzone de 1 mètre de hauteur
 
-        FixtureDef fSol = new FixtureDef();
-        fSol.shape = eSol;
-        fSol.restitution = 0.3f; 
+        FixtureDef fDeathZone = new FixtureDef();
+        fDeathZone.shape = deathZoneShape;
+        fDeathZone.isSensor = true;
+        fDeathZone.userData = "death_zone";
 
-        Body bSol = world.createBody(bdSol);
-        bSol.createFixture(fSol);
-        */
+        Body bDeathZone = world.createBody(bdDeathZone);
+        bDeathZone.createFixture(fDeathZone);
     }
 
 
@@ -398,6 +359,27 @@ public class PhysicsWorld {
         public void beginContact(Contact contact){          // contact est une classe abtraite qui "s'instancie" automatiquement des que deux body (ou seulement leur fixtures ?) se touche
             Fixture a = contact.getFixtureA();              
             Fixture b = contact.getFixtureB();
+
+            // check contact avec death zone
+            if ("death_zone".equals(a.getUserData()) || "death_zone".equals(b.getUserData())) {
+                Body bodyA = a.getBody();
+                Body bodyB = b.getBody();
+                
+                // Identifier le worm qui touche la zone de mort
+                for (CharacterModel worm : allWorms) {
+                    if (worm == null || worm.isDead()) continue;
+                    
+                    Body wormBody = worm.getBody();
+                    if (wormBody == bodyA || wormBody == bodyB) {
+                        worm.setDead(true);
+                        destroy.add(worm);
+                        SoundPlayer.playDepopSound();
+                        System.out.println("DEPOP: " + worm.getName() + " est tombé hors de la map!");
+                        break;
+                    }
+                }
+                return;
+            }
 
             // il y'a un body water et un body worm
             Body bodyA = a.getBody();
