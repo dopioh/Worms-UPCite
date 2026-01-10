@@ -156,7 +156,7 @@ public class GameManager {
         
         // création des décorations sur le terrain
         this.decorationManager = new DecorationManager(blockGridModel);
-        decorationManager.generateDecorations(12);  // ~12 décorations aléatoires
+        decorationManager.generateDecorations(6);  // environ 6 décorations aléatoires
         
         // on garde le GroundModel pour compatibilité avec TeamModel
         this.model = new GroundModel(groundY, sizeX, sizeY, waterLevel);
@@ -283,7 +283,7 @@ public class GameManager {
         
         // création des décorations pour les parties chargées
         this.decorationManager = new DecorationManager(blockGridModel);
-        decorationManager.generateDecorations(12);
+        decorationManager.generateDecorations(6);
 
         this.model = saveData.getGroundModel();
 

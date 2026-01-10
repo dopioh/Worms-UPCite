@@ -61,7 +61,8 @@ public class EndGameController {
                 winningTeam, 
                 winningTeamView, 
                 winnerName,
-                gameManager.getAllTeamStats()
+                gameManager.getAllTeamStats(),
+                gameManager.getListTeamInit()
             );
         });
     }
