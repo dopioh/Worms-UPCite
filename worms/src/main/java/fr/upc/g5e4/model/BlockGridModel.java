@@ -3,10 +3,11 @@ package fr.upc.g5e4.model;
 /**
  * Modèle de terrain en grille de blocs
  * Gère une grille 2D de blocs avec pour possibilité de modification/destruction
+ * @author Nassim & Billy
  */
 public class BlockGridModel {
     
-    public static final int BLOCK_SIZE = 12;  // Taille d'un bloc en pixels
+    public static final int BLOCK_SIZE = 16;  // Taille d'un bloc en pixels (on peut régler la taille comme on veut)
     
     private final BlockType[][] grid;         // la grille de blocs (colonnes, lignes)
     private final BlockHealthGridModel healthGrid; // grille de santé des blocs
@@ -118,7 +119,7 @@ public class BlockGridModel {
      * @return true si le bloc a été modifié, false si hors limites
      */
     public boolean setBlock(int gridX, int gridY, BlockType type) {
-        if (gridX < 0 || gridX >= gridWidth || gridY < 0 || gridY >= gridHeight) { 
+        if (!isValidPosition(gridX, gridY)) { 
             return false; // si on est hors limite alors on retourne false
         }
         if (grid[gridX][gridY] != type) { 
@@ -198,7 +199,7 @@ public class BlockGridModel {
         int gridX = pixelToGridX(pixelX);
         for (int gridY = 0; gridY < gridHeight; gridY++) {
             if (getBlock(gridX, gridY).isSolid()) {
-                return gridY * BLOCK_SIZE;
+                return gridToPixelY(gridY);
             }
         }
         return pixelHeight;  // aucun bloc solide trouvé on renvoie la hauteur totale du terrain
@@ -275,6 +276,8 @@ public class BlockGridModel {
     }
     
     // Getters utiles
+    public int getWidth() { return pixelWidth; }
+    public int getHeight() { return pixelHeight; }
     public int getGridWidth() { return gridWidth; }
     public int getGridHeight() { return gridHeight; }
     public int getPixelWidth() { return pixelWidth; }
@@ -287,7 +290,7 @@ public class BlockGridModel {
     }
 
     /**
-     * Réinitialise le flag dirty (après reconstruction de la physique)
+     * Réinitialise le flag dirty (on l'utilise après reconstruction de la physique)
      */
     public void clearDirty() { dirty = false; }
 
@@ -336,14 +339,14 @@ public class BlockGridModel {
             return true;
         }
         
-        // on peut marquer comme visité
+        // on marque comme visité
         visited[x][y] = true;
         
         // vérifier les 4 directions (haut, bas, gauche, droite)
-        return floodFillFromBottom(x, y + 1, visited) ||  // Bas
-               floodFillFromBottom(x, y - 1, visited) ||  // Haut
-               floodFillFromBottom(x - 1, y, visited) ||  // Gauche
-               floodFillFromBottom(x + 1, y, visited);    // Droite
+        return floodFillFromBottom(x, y + 1, visited) ||
+               floodFillFromBottom(x, y - 1, visited) ||
+               floodFillFromBottom(x - 1, y, visited) ||
+               floodFillFromBottom(x + 1, y, visited);
     }
     
     /**
@@ -369,17 +372,5 @@ public class BlockGridModel {
         
         return removed;
     }
-
-    /**
-     * retourne la largeur totale du terrain en pixels
-     * @return largeur en pixels
-     */
-    public int getWidth() { return pixelWidth; }
-    
-    /**
-     * retourne la hauteur totale du terrain en pixels
-     * @return hauteur en pixels
-     */
-    public int getHeight() { return pixelHeight; }
 }
 

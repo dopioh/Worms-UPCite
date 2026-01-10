@@ -18,10 +18,10 @@ public final class SoundPlayer {
     // Cache pour les clips audio pré-chargés
     private static final Map<String, byte[]> audioCache = new HashMap<>();
     private static boolean initialized = false;
-    private static float weaponSoundVolume = 0.5f;  // 50% du volume pour les armes psq ça casse les oreilles derien les amis
     
-    // Clip pour la musique de fond
+    // pour la musique de fond
     private static Clip backgroundMusicClip = null;
+    private static boolean manuallyPaused = false;  // true si mise en pause par le menu pause
     
     /**
      * Initialise le système audio et pré-charge les sons communs
@@ -161,7 +161,10 @@ public final class SoundPlayer {
         if (m) {
             pauseBackgroundMusic();
         } else {
-            resumeBackgroundMusic();
+            // reprendre que si pas en pause manuelle
+            if (!manuallyPaused) {
+                resumeBackgroundMusic();
+            }
         }
     }
 
@@ -174,7 +177,7 @@ public final class SoundPlayer {
     }
     
     /**
-     * Jouer une musique de fond en boucle
+     *Joue une musique de fond en boucle
      * @param resourcePath chemin vers le fichier audio
      */
     public static void playBackgroundMusic(String resourcePath) {
@@ -192,7 +195,7 @@ public final class SoundPlayer {
             AudioInputStream ais = AudioSystem.getAudioInputStream(bis);
             AudioFormat base = ais.getFormat();
             
-            // Conversion vers PCM 16-bit
+            // Conversion vers PCM 16-bit (format sûr)
             AudioFormat decoded = new AudioFormat(
                     AudioFormat.Encoding.PCM_SIGNED,
                     base.getSampleRate(),
@@ -208,16 +211,16 @@ public final class SoundPlayer {
             backgroundMusicClip = AudioSystem.getClip();
             backgroundMusicClip.open(dais);
             
-            // Jouer en boucle infinie
+            // Joue en boucle infinie
             backgroundMusicClip.loop(Clip.LOOP_CONTINUOUSLY);
             
             if (!muted) {
                 backgroundMusicClip.start();
             }
             
-            System.out.println("[MUSIC] Musique lancée: " + resourcePath);
+            System.out.println("Musique lancée: " + resourcePath);
         } catch (Exception e) {
-            System.err.println("[MUSIC] Erreur lecture: " + resourcePath);
+            System.err.println("Erreur lecture: " + resourcePath);
             e.printStackTrace();
         }
     }
@@ -240,6 +243,7 @@ public final class SoundPlayer {
      *met en pause la musique de fond
      */
     public static void pauseBackgroundMusic() {
+        manuallyPaused = true;
         if (backgroundMusicClip != null && backgroundMusicClip.isRunning()) {
             backgroundMusicClip.stop();
         }
@@ -249,7 +253,9 @@ public final class SoundPlayer {
      * reprend la musique de fond
      */
     public static void resumeBackgroundMusic() {
-        if (backgroundMusicClip != null && !backgroundMusicClip.isRunning()) {
+        manuallyPaused = false;
+        // reprendre que si pas mute
+        if (!muted && backgroundMusicClip != null && !backgroundMusicClip.isRunning()) {
             backgroundMusicClip.start();
         }
     }

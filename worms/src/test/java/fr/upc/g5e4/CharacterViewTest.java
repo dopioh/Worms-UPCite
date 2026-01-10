@@ -8,7 +8,7 @@ import fr.upc.g5e4.view.NameTagView;
 
 /**
  * Tests unitaires pour PersonnageView (avec Junit)
- * 
+ * @author Nassim
  */
 public class CharacterViewTest {
     

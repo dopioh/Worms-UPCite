@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests pour la classe BlockGridModel
+ * @author Nassim
  */
 public class BlockGridModelTest {
 
@@ -104,8 +105,8 @@ public class BlockGridModelTest {
 
     @Test
     public void testPixelToGridConversion() {
-        int pixelX = 60; // 60 / 12 = 5
-        int pixelY = 48; // 48 / 12 = 4
+        int pixelX = 80; // 80 / 16 = 5
+        int pixelY = 64; // 64 / 16 = 4
         
         assertEquals(5, model.pixelToGridX(pixelX));
         assertEquals(4, model.pixelToGridY(pixelY));
@@ -116,8 +117,8 @@ public class BlockGridModelTest {
         int gridX = 5;
         int gridY = 4;
         
-        assertEquals(60, model.gridToPixelX(gridX)); // 5 * 12 = 60
-        assertEquals(48, model.gridToPixelY(gridY)); // 4 * 12 = 48
+        assertEquals(80, model.gridToPixelX(gridX)); // 5 * 16 = 80
+        assertEquals(64, model.gridToPixelY(gridY)); // 4 * 16 = 64
     }
 
     @Test
