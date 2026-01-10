@@ -138,7 +138,8 @@ public class InventoryOverlay extends JComponent {
         itemDescriptions.put("potionjump", "Augmente le saut +50% pour 20s");
         itemDescriptions.put("potionheal", "Restaure 50 HP");
         itemDescriptions.put("potionshield", "Ajoute 25 de shield");
-        itemDescriptions.put("bumper", "Rebondis");
+        itemDescriptions.put("drill", "casse/pose des blocs avec clic gauche/droit");
+        itemDescriptions.put("teleporter", "teleporte toi ou tu veux dans la map");
     }
 
 

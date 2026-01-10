@@ -77,7 +77,7 @@ public final class SoundPlayer {
      *le son d'une arme avec volume réduit 
      */
     public static void playWeaponSound(String resourcePath) {
-        new Thread(() -> playSyncWeapon(resourcePath)).start();
+        new Thread(() -> playWeapon(resourcePath)).start();
     }
     
     /**
@@ -134,7 +134,7 @@ public final class SoundPlayer {
     /**
      * joue un son d'arme de manière réduit 
      */
-    private static void playSyncWeapon(String resourcePath) {
+    private static void playWeapon(String resourcePath) {
         // met le volume à 50% pour l'arme et le garde
         AudioManager.getInstance().setVolume(weaponSoundVolume);
         playSync(resourcePath);
