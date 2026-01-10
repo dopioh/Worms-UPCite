@@ -77,169 +77,54 @@
 - [WU Billy](https://moule.informatique.u-paris.fr/wub)
 - [SHAN Hugo](https://moule.informatique.u-paris.fr/shanh)
 
-* Approbation de certaines MR
-* BrainStorming de temps en temps
+    - Brainstorming d'idée de temps en temps
 
-###### ***Sprint 1  oct. 26, 2025–nov. 14, 2025***
+    - Approbation pour certaines MR
 
+    - Création de multiples Overlay:
+        - Vent (Direction et force du vent)
+        - HUD (Informations du joueur ainsi qu'ouverture des autres Overlays)
+        - Help (Page d'affichage des contrôles du jeu)
+        - Pause (Mise en pause/paramètres "EN JEU")
+        - Inventory (La ou toutes les armes sont équipées)
 
+    - Classe Inventaire:
+        - Model Inventaire (Utilisation d'item par tour/par partie, Reset Inventaire, etc...)
+        - Interface de l'inventaire
+        - Inventory.json
+        - Inventaire partagé par équipe
+        - Descriptif des items
 
-Ajout:
+    - Interactions avec les interfaces "Overlays"
+    
+    - Classe Vent: 
+        - Model du vent (Vecteur, Label (ex: N,NE))
+        - Interface graphique du vent
 
-* &nbsp;Création de l'interface de l'inventaire (JDialog) 
-* &nbsp;Modèle de l'inventaire (Utilisation de chaque item par round/totaux,etc..)
-* &nbsp;Création d'une classe Item temporaire (Armes Gadgets) 
-* &nbsp;Inventory.json (JavaScript Object Notation) pour stocker chaque information (C'est la les statistiques de chaque arme)
+    - Classe Son:
+        - Lecteur de son
+        - Ajout du premier SFX (AK47)
+        - On/Off Peut ignorer le son
 
+    - Restructuration des tickets Gitlab pour les 3 premiers sprint 
 
+    - Changement graphique:
+        - Ajout d'effet Hover
+        - Fix des barres de vie et bouclier 
 
-Problèmes: 
+    - Timer "dynamique" qui descend fluidement
 
-* Certaines fonctions du modèles n'étaient pas correctement liées
+    - Recherche d'icônes pour les armes sur "Flaticon"
 
+    - Fonctionnalités en jeu 
+        - Supression des touches raccourcis clavier pour une liaison aux Overlays
+        - Ajout du scroll souris pour contrôler la caméra
 
+    - Liaison paramètres Menu/En jeu
 
-###### ***Sprint 2 nov. 15, 2025–nov. 28, 2025***
+    - Flash de l'écran notifiant le changement de round
 
-
-
-Suppressions:
-
-* Interface de l'inventaire en Jdialog (ne plaisait pas à tout le monde)
-* Modèle de classe Items
-
-
-
-Ajout:
-
-* Raccourci clavier "I" et "Esc" (Pour l'ouverture du Overlay et la fermeture du jeu)
-* [Icone du sac](https://fr.pngtree.com/freepng/vector-cartoon-inventory-game-ui_6038258.html) cliquable en haut a droite de l'écran (Ouvrant l'inventaire)
-* Interface Overlay interactif (moche) 
-
-
-
-Problèmes:
-
-* (trouvé a la fin du sprint) Le détecteur de clic souris prenait le dessus sur celui du clic et empêchait le tir 
-
-
-
-###### ***Sprint 3 nov. 28, 2025–déc. 12, 2025***
-
-
-
-Ajouts: 
-
-* Une fonction Contains(x,y) servant a regler le problème de souris
-* Liaison des tirs à l'inventaire (Utilisation décrémente l'inventaire) 
-* Ajout du premier SFX (AK47) à toutes les armes pour le moment
-* Modèle du vent j'ai aussi tenté de l'appliquer au tir mais j'ai un peu fait foiré la fonction de Billy
-* Interface Overlay du vent 
-
-
-
-* Suppression du clic souris pour activer le sac
-
-
-
-Problèmes:
-
-* Le tir avait une trajectoire étrange
-* Le tir n'était au final pas bien lié a l'inventaire (tache transférée a une autre personne)
-* L'overlay du vent était pas optimisé et un peu lourd, ce qui donnait un frameRate très bas au jeu
-* L'overlay du vent était fixé aux coordonnées(fixe pas des variables) de la fenêtre de jeu de base mais quand le plein écran est activé il ne s'actualisait pas avec les coordonnées de l'écran plein
-
-
-
-
-
-###### ***Sprint 4 déc. 13, 2025–déc. 26, 2025***
-
-
-
-Découverte du site https://www.flaticon.com/fr/ pour les icones
-
-
-
-* Restructuration des tickets sur Gitlab
-* Changement de la valeur de position de l'overlay Vent par variable
-* Modification de Esc pour quitter le jeu par l'ouverture d'un overlay Pause
-
-
-
-Ajouts:
-
-* Création d'overlay (Pause/Help/HUD):
-
-&nbsp;  - Pause: une page de parametres simple et nulle avec des placeholders pour VENT QUIT SAVE
-
-&nbsp;  - Help: une page de guide de tous les raccourcis du jeu sur le moment
-
-&nbsp;  - HUD: Les informations du joueur qui sont toujours affichées (Barre de vie/bouclier) + Sac cliquable de l'inventaire + Barre de timer du jeu 
-
-* Overlay Inventaire graphiquement amélioré (Mit sur la gauche, Icone d'image pour chaque objet, Différentes sections pour (ARMES GADGET et CRAFT(idée qui au final était abandonnée))
-* Inventaire Hover de l'arme ou d'un gadget affiche sa description
-
-
-
-Problèmes:
-
-* La barre de timer ne marchait pas encore
-* Les couleurs des barres étaient pas bonnes (Verte pour les 2) et positions inversées
-* Le sac cliquable 
-* L'inventaire était partagé pour chacune des équipes
-* On pouvait tirer autant de fois que voulu 
-* Les icones ne s'affichait pas partout (Inventaire/HUD) seulement une partie fonctionnait
-* A chaque début de tour un worm était déjà équipée d'une arme par défaut
-
-
-
-###### ***Sprint 5 déc. 27, 2025–jan. 9, 2026***
-
-
-
-Fix:
-
-* Les worms n'ont plus rien dans leur main quand le tour commence (Le garde par contre quand le tour est fini)
-* Icones entièrement réglé
-* Timer qui (glisse) et qui marche bien
-* Couleurs des barres et position
-* Clic sur chacun des Overlays 
-* Inventaire différé pour chaque team
-* Limitations des tirs (Billy s'en est occupé)
-
-
-
-Suppressions:
-
-* Chacune des touches raccourcis claviers
-* Texte du timer écrit en haut a gauche (Remplacé par la barre timer)
-
-
-
-Ajouts:
-
-* Les touches claviers supprimées avait toutes des fonctionnalités (Vol,FullScreen,OuverturePause,etc..)
-
-donc ajout d'un bouton pour mettre fin au tour, Ajout d'un icone parametre cliquable pour ouvrir Pause
-
-* Pause est maintenant une page de parametres contenant des boutons simple cliquable(Sauvegarde,Help,Quit, Vol) mais aussi des boutons avec toggle (Vol,FullScreen,Son,BluePrint)
-* Quit est d'ailleurs rélié au menu principal
-* Ajout de la possibilité "ignorer" le son 
-* Ajout de bouton sur le HUDOverlay et scroll souris pour bouger la caméra
-* Ajout de l'image de l'arme ainsi que de ses munitions dans la description (InventoryOverlay) ainsi que dans le (HUD)
-* Liaison des paramètres Menu et enJeu (Le son restera marqué éteint si l'un change l'autre aussi, le fond d'écran aussi)
-* Amélioration de tous les overlays avec effet Hover
-* Pause sur le jeu a l'ouverture de PauseOverlay
-
-
-
-Problèmes:
-
-* Je ne sais pas comment bien optimiser le code, le jeu est devenu très lent après coup car trop d'actualisation par seconde
-* Certains usages dans mes fichiers sont border (dans InventoryOverlay.java et HUDOverlay.java) pour rester fixé au MVC, étant donné que ce sont des "View Interactifs" le fait de pouvoir appeler .nextRound() au clic souris par exemple est peut être par approprié
-
-Solution : Création d'un overlayManager (Partie Controller) mais l'idée a été abandonnée car a la fin du sprint quand tout le monde a merge, il y avait trop de conflit qui résultait de ce changement. J'aurais du le créer dès le début. 
+    - Freeze du jeu pour que les projectiles et finissent leurs trajectoire avant que le round se termine
 
 - [DESROQUES Ian](https://moule.informatique.u-paris.fr/desroque)
 - [ROSE Raphael](https://moule.informatique.u-paris.fr/rose)
