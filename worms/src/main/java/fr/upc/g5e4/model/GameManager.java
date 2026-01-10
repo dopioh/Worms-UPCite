@@ -84,11 +84,28 @@ public class GameManager {
     private int roundTimeRemaining = 1800;
     private int roundTimeSave = 1800;
 
+    private boolean inputFrozen = false;
+
+    /**
+     * Vérifie si les entrées utilisateur sont désactivées
+     * @return true si oui, false sinon
+     */
+    public boolean isInputFrozen() {
+        return inputFrozen;
+    }
+
+    /**
+     * Active ou désactive les entrées utilisateur
+     * @param frozen true pour activer,false sinon
+     */
+    public void setInputFrozen(boolean freeze) {
+        this.inputFrozen = freeze;
+    }
     
     private InventoryOverlay inventoryOverlay;
     private HUDOverlay hudOverlay;
     private fr.upc.g5e4.view.WindOverlay windOverlay;
-    // --- Vent toggle ---
+    //Vent toggle
     private boolean windEnabled = true;
 
     // Vent "réel" du tour (mémorisé même si windEnabled=false)
