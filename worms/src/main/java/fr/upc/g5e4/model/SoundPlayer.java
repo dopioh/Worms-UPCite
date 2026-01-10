@@ -1,6 +1,8 @@
 package fr.upc.g5e4.model;
+
 import javax.sound.sampled.*;
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,6 +32,14 @@ public final class SoundPlayer {
     public static void initialize() {
         if (initialized) return;
         
+        // detecter si on est en mode test et muter automatiquement
+        if (isRunningTests()) {
+            muted = true;
+            initialized = true;
+            System.out.println("[SFX] Mode test détecté - sons désactivés");
+            return;
+        }
+        
         try {
             // Initialiser le système audio en arrère-plan
             new Thread(() -> {
@@ -45,6 +55,20 @@ public final class SoundPlayer {
         } catch (Exception e) {
             System.err.println("[SFX] Erreur lancement thread: " + e.getMessage());
         }
+    }
+    
+    /**
+     * Détecte si le code est exécuté dans un contexte de test
+     */
+    private static boolean isRunningTests() {
+        // regarder la stack trace
+        for (StackTraceElement element : Thread.currentThread().getStackTrace()) {
+            if (element.getClassName().startsWith("org.junit.") || 
+                element.getClassName().startsWith("org.testng.")) {
+                return true;
+            }
+        }
+        return false;
     }
     
     /**
@@ -85,53 +109,54 @@ public final class SoundPlayer {
     
     /**
      * Joue un son de manière synchrone
+     * @param resourcePath le chemin de la ressource sonore
      */
     private static void playSync(String resourcePath) {
-    try {
-        InputStream raw;
-        
-        // Utiliser le cache si disponible
-        if (audioCache.containsKey(resourcePath)) {
-            raw = new java.io.ByteArrayInputStream(audioCache.get(resourcePath));
-        } else {
-            raw = SoundPlayer.class.getResourceAsStream(resourcePath);
-            if (raw == null) {
-                System.err.println("[SFX] Introuvable: " + resourcePath);
-                return;
+        try {
+            InputStream raw;
+            
+            // Utiliser le cache si disponible
+            if (audioCache.containsKey(resourcePath)) {
+                raw = new ByteArrayInputStream(audioCache.get(resourcePath));
+            } else {
+                raw = SoundPlayer.class.getResourceAsStream(resourcePath);
+                if (raw == null) {
+                    System.err.println("[SFX] Introuvable: " + resourcePath);
+                    return;
+                }
             }
+
+            BufferedInputStream bis = new BufferedInputStream(raw);
+            AudioInputStream audioInput = AudioSystem.getAudioInputStream(bis);
+            AudioFormat base = audioInput.getFormat();
+
+            // Conversion forcée vers un format sûr
+            AudioFormat decoded = new AudioFormat(
+                    AudioFormat.Encoding.PCM_SIGNED,
+                    base.getSampleRate(),
+                    16,
+                    base.getChannels(),
+                    base.getChannels() * 2,
+                    base.getSampleRate(),
+                    false
+            );
+
+            AudioInputStream decodedAudio = AudioSystem.getAudioInputStream(decoded, audioInput);
+
+            Clip clip = AudioSystem.getClip();
+            clip.open(decodedAudio);
+            clip.start();
+
+            clip.addLineListener(ev -> {
+                if (ev.getType() == LineEvent.Type.STOP) {
+                    clip.close();
+                }
+            });
+
+        } catch (Exception e) {
+            System.err.println("[SFX] Erreur lecture: " + resourcePath);
+            e.printStackTrace();
         }
-
-        BufferedInputStream bis = new BufferedInputStream(raw);
-        AudioInputStream ais = AudioSystem.getAudioInputStream(bis);
-        AudioFormat base = ais.getFormat();
-
-        // Conversion forcée vers PCM 16-bit (format sûr)
-        AudioFormat decoded = new AudioFormat(
-                AudioFormat.Encoding.PCM_SIGNED,
-                base.getSampleRate(),
-                16,
-                base.getChannels(),
-                base.getChannels() * 2,
-                base.getSampleRate(),
-                false
-        );
-
-        AudioInputStream dais = AudioSystem.getAudioInputStream(decoded, ais);
-
-        Clip clip = AudioSystem.getClip();
-        clip.open(dais);
-        clip.start();
-
-        clip.addLineListener(ev -> {
-            if (ev.getType() == LineEvent.Type.STOP) {
-                clip.close();
-            }
-        });
-
-    } catch (Exception e) {
-        System.err.println("[SFX] Erreur lecture: " + resourcePath);
-        e.printStackTrace();
-    }
     }
     
 

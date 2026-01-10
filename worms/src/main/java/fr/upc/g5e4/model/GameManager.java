@@ -42,6 +42,7 @@ public class GameManager {
     private final GamePanel gamePanel;
     private GroundModel model;  // Gardé pour compatibilité avec TeamModel
     private BlockGridModel blockGridModel;  // Nouveau système de terrain en blocs
+    private DecorationManager decorationManager;  // Gestion des décorations
     private final PhysicsWorld physic;
     private final World world;
     private final Body water;
@@ -99,7 +100,7 @@ public class GameManager {
     private final Random windRng = new Random();
     
     // Statistiques de jeu - support pour un nombre variable d'équipes
-    private Map<String, GameStats> teamStats = new HashMap<>();
+    private Map<Integer, GameStats> teamStats = new HashMap<>();
 
     //private boolean saveDataBool;
     //private SaveData saveData;
@@ -152,6 +153,10 @@ public class GameManager {
         // création du BlockGridModel (système de terrain en blocs)
         this.blockGridModel = new BlockGridModel(sizeX, sizeY, waterLevel);
         blockGridModel.generateWithGroundY(groundY);
+        
+        // création des décorations sur le terrain
+        this.decorationManager = new DecorationManager(blockGridModel);
+        decorationManager.generateDecorations(6);  // environ 6 décorations aléatoires
         
         // on garde le GroundModel pour compatibilité avec TeamModel
         this.model = new GroundModel(groundY, sizeX, sizeY, waterLevel);
@@ -232,6 +237,8 @@ public class GameManager {
         this.gamePanel = new GamePanel(model, camera, cameraController, listTeamInital, this); 
         // Passer le BlockGridModel au GamePanel pour le rendu en blocs
         this.gamePanel.setBlockGridModel(this.blockGridModel);
+        // Passer le DecorationManager au GamePanel pour le rendu des décos
+        this.gamePanel.setDecorationManager(this.decorationManager);
         // Passer l'ItemController au GamePanel pour dessiner les projectiles
         this.gamePanel.setItemController(this.itemController);
         // Ajoute le contrôleur pour capter les touches
@@ -273,6 +280,10 @@ public class GameManager {
 
         int[] groundY = saveData.getGroundModel().getGroundY();
         this.blockGridModel = b;
+        
+        // création des décorations pour les parties chargées
+        this.decorationManager = new DecorationManager(blockGridModel);
+        decorationManager.generateDecorations(6);
 
         this.model = saveData.getGroundModel();
 
@@ -390,6 +401,9 @@ public class GameManager {
         // Passer le BlockGridModel au GamePanel pour le rendu en blocs
         this.gamePanel.setBlockGridModel(this.blockGridModel);
         
+        // Passer le DecorationManager au GamePanel pour le rendu des décos
+        this.gamePanel.setDecorationManager(this.decorationManager);
+        
         // Passer l'ItemController au GamePanel pour dessiner les projectiles
         this.gamePanel.setItemController(this.itemController);
 
@@ -451,6 +465,11 @@ public class GameManager {
     
     public BlockGridModel getBlockGridModel() {
         return this.blockGridModel;
+    }
+    
+    /** @return le gestionnaire de décorations */
+    public DecorationManager getDecorationManager() {
+        return this.decorationManager;
     }
 
     public GamePanel getGamePanel() {
@@ -529,17 +548,17 @@ public class GameManager {
         return hudOverlay;
     }
     
-    public Map<String, GameStats> getAllTeamStats() {
+    public Map<Integer, GameStats> getAllTeamStats() {
         return teamStats;
     }
 
-    public GameStats getTeamStats(String teamName) {
-        return teamStats.get(teamName);
+    public GameStats getTeamStats(int teamId) {
+        return teamStats.get(teamId);
     }
 
     public GameStats getCurrentTeamStats() {
-        String currentTeamName = getCurrentTeamName();
-        return teamStats.get(currentTeamName);
+        int currentTeamId = currentTeam.getTeamID();
+        return teamStats.get(currentTeamId);
     }
 
     public int[] getTeamCursor(){
@@ -738,6 +757,12 @@ public class GameManager {
             }
         }
         
+        // incrémenter le compteur de rounds pour l'équipe qui vient de jouer
+        GameStats currentStats = getCurrentTeamStats();
+        if (currentStats != null) {
+            currentStats.incrementRounds();
+        }
+        
         roundNumber++;
         currentTeamIndex = (currentTeamIndex + 1) % listTeamInital.size(); 
         currentTeam = listTeamInital.get(currentTeamIndex).getTeamModel();
@@ -822,6 +847,10 @@ public class GameManager {
             index++;
 
             String name = ctd.getTeamName();
+            //si le nom est default donner un nom unique basé sur l'index
+            if (name.equalsIgnoreCase("Default")) {
+                name = "Team " + (i + 1);
+            }
 
             TeamInitialisation temp = new TeamInitialisation(model, world, name, this.nbrWormsByTeam, startX, skinPath);
     
@@ -829,7 +858,7 @@ public class GameManager {
             listTeamModel.add(temp.getTeamModel());
             
             // Initialiser les statistiques pour cette équipe
-            teamStats.put(name, new GameStats());
+            teamStats.put(temp.getTeamModel().getTeamID(), new GameStats());
         }
     }
 
