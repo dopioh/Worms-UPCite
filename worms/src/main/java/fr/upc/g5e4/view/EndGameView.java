@@ -13,6 +13,7 @@ import java.util.Random;
 import fr.upc.g5e4.model.CharacterModel;
 import fr.upc.g5e4.model.GameStats;
 import fr.upc.g5e4.model.TeamModel;
+import fr.upc.g5e4.model.TeamInitialisation;
 import fr.upc.g5e4.util.ImageCache;
 /**
  * Vue pour l'écran de fin de partie
@@ -21,8 +22,10 @@ import fr.upc.g5e4.util.ImageCache;
 public class EndGameView extends JPanel {
     private TeamModel winningTeam;
     private TeamView winningTeamView;
-    private Map<String, GameStats> allTeamStats;
+    private Map<Integer, GameStats> allTeamStats;
+    private java.util.List<TeamInitialisation> allTeams;  // Pour récupérer les noms par ID
     private String winningTeamName;
+    private int winningTeamId;
     
     private BufferedImage trophyImage;
     private BufferedImage sparkleImage;
@@ -165,11 +168,14 @@ public class EndGameView extends JPanel {
     }
     
     public EndGameView(TeamModel winningTeam, TeamView winningTeamView, String winningTeamName, 
-                       Map<String, GameStats> allTeamStats, BufferedImage backgroundSnapshot) {
+                       Map<Integer, GameStats> allTeamStats, java.util.List<TeamInitialisation> allTeams,
+                       BufferedImage backgroundSnapshot) {
         this.winningTeam = winningTeam;
         this.winningTeamView = winningTeamView;
         this.winningTeamName = winningTeamName;
+        this.winningTeamId = winningTeam.getTeamID();
         this.allTeamStats = allTeamStats;
+        this.allTeams = allTeams;
         this.backgroundSnapshot = backgroundSnapshot;
         
         setLayout(null);
@@ -577,7 +583,7 @@ public class EndGameView extends JPanel {
         
         // Nom de l'équipe gagnante - ancré à gauche
         g2d.setFont(customFont.deriveFont((float)(36 * scale)));
-        String teamText = winningTeamName;
+        String teamText = getTeamDisplayName(winningTeamId);
         int teamX = (int)(100 * scale) + offsetX + slideOffset;  // Même alignement
         g2d.drawString(teamText, teamX, (int)(200 * scale) + offsetY);
         
@@ -624,19 +630,22 @@ public class EndGameView extends JPanel {
         
         int index = 0;
         // Trier pour afficher l'équipe gagnante en premier
-        java.util.List<String> sortedTeams = new java.util.ArrayList<>(allTeamStats.keySet());
-        java.util.Collections.sort(sortedTeams, new java.util.Comparator<String>() {
+        java.util.List<Integer> sortedTeamIds = new java.util.ArrayList<>(allTeamStats.keySet());
+        java.util.Collections.sort(sortedTeamIds, new java.util.Comparator<Integer>() {
             @Override
-            public int compare(String a, String b) {
-                if (a.equals(winningTeamName)) return -1;
-                if (b.equals(winningTeamName)) return 1;
+            public int compare(Integer a, Integer b) {
+                if (a.equals(winningTeamId)) return -1;
+                if (b.equals(winningTeamId)) return 1;
                 return a.compareTo(b);
             }
         });
         
-        for (String teamName : sortedTeams) {
-            GameStats stats = allTeamStats.get(teamName);
-            boolean isWinner = teamName.equals(winningTeamName);
+        for (Integer teamId : sortedTeamIds) {
+            GameStats stats = allTeamStats.get(teamId);
+            boolean isWinner = teamId.equals(winningTeamId);
+            
+            // Récupérer le nom d'affichage de l'équipe
+            String displayName = getTeamDisplayName(teamId);
             
             int rectX = (int)(100 * scale) + offsetX + slideOffset;
             int rectY = startY + index * (baseRectHeight + spacing);
@@ -657,7 +666,6 @@ public class EndGameView extends JPanel {
             // Nom de l'équipe
             g2d.setFont(statsFont.deriveFont(Font.BOLD, (float)(24 * scale)));
             g2d.setColor(isWinner ? new Color(139, 69, 19) : Color.WHITE);  // Brun foncé pour le gagnant, blanc pour les autres
-            String displayName = teamName;
             g2d.drawString(displayName, 
                           rectX + (int)(20 * scale), 
                           rectY + (int)(35 * scale));
@@ -695,6 +703,29 @@ public class EndGameView extends JPanel {
         
         // Restaurer la transparence originale
         g2d.setComposite(originalComposite);
+    }
+    
+    /**
+     * Récupère le nom d'affichage d'une équipe par son ID.
+     * @param teamId L'ID de l'équipe
+     * @return Le nom d'affichage de l'équipe
+     */
+    private String getTeamDisplayName(int teamId) {
+        if (allTeams == null) {
+            return "Team " + teamId;
+        }
+        
+        for (TeamInitialisation team : allTeams) {
+            if (team.getTeamModel().getTeamID() == teamId) {
+                String name = team.getName();
+                // Si le nom est vide, utiliser Team X
+                if (name == null || name.isEmpty()) {
+                    return "Team " + teamId;
+                }
+                return name;
+            }
+        }
+        return "Team " + teamId;
     }
     
     public void stopAnimation() {
