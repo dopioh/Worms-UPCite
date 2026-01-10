@@ -7,7 +7,8 @@ import de.articdive.jnoise.pipeline.JNoise;
  * Générateur de bruit de Perlin pour créer un terrain procédural en 1D
  * Utilise la librairie JNoise pour une implémentation rapide
  * (une génération est propre a sa seed, si on réutilise la seed on aura toujours le même terrain)
- */
+ * @author Nassim
+*/
 public class PerlinNoise {
     private final JNoise noiseGenerator;
     

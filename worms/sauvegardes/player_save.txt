@@ -1,0 +1,41 @@
+{
+  "name": "Joueur",
+  "xp": 0,
+  "money": 0,
+  "tabSkinPlayer": [
+    {
+      "skinName": "Worm de base",
+      "filePath": "/wormPixel.png",
+      "unlocked": true
+    },
+    {
+      "skinName": "Worm Noel Edition",
+      "filePath": "/wormNoel.png",
+      "unlocked": true
+    },
+    {
+      "skinName": "Worm Pinky Edition",
+      "filePath": "/wormPinky.png",
+      "unlocked": true
+    },
+    {
+      "skinName": "Worm Nerd Edition",
+      "filePath": "/wormNerd.png",
+      "unlocked": false
+    },
+    {
+      "skinName": "Worm Cuisto Edition",
+      "filePath": "/wormCuisto.png",
+      "unlocked": false
+    },
+    {
+      "skinName": "Worm Costar Edition",
+      "filePath": "/wormCostar.png",
+      "unlocked": false
+    }
+  ],
+  "customTeamManager": {
+    "nbrCustomTeam": 0,
+    "listCustomTeamData": []
+  }
+}

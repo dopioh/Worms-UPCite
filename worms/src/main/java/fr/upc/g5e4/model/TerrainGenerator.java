@@ -3,6 +3,7 @@ package fr.upc.g5e4.model;
 /**
  * Générateur de terrain procédural utilisant le bruit de Perlin
  * Supporte plusieurs types de terrains: standard, montagnes, îles, plat
+ * @author Nassim & Ian
  */
 public class TerrainGenerator {
     private final PerlinNoise perlin;

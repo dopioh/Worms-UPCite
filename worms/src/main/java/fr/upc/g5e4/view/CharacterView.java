@@ -10,12 +10,13 @@ import org.jbox2d.dynamics.Body;
 
 import fr.upc.g5e4.model.CharacterModel;
 import fr.upc.g5e4.model.Weapon;
-//j'ai ajoute l'import de la grenade et du lance-roquettes pour les exeptions de taille
+
 import fr.upc.g5e4.model.weapons.Grenade;
 import fr.upc.g5e4.model.weapons.RocketLauncher;
 
 /**
  * Vue pour l'affichage graphique
+ * @author Nassim & Billy & Ian
  */
 public class CharacterView {
     private int size;
@@ -162,7 +163,7 @@ public class CharacterView {
         int weaponHeight = size;
         int weaponX, weaponY = 0;
 
-        // exeption grenade
+        // exeption grenade / rocketlauncher
         if (currentWeapon instanceof Grenade) {
             // reduire taille de la grenade
             weaponWidth = (int)(size * 0.9);

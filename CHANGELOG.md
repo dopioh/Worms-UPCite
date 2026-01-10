@@ -242,6 +242,7 @@
     - Menu Réglage
     - Titre main menu
 - Des sons jouée pendant les test
+- Changement du systeme de detection des worms sous la map
 
 ### Configuration
 
