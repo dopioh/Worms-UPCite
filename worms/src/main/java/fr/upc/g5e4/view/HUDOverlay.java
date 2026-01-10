@@ -29,6 +29,8 @@ public class HUDOverlay extends JComponent {
         loadImage("PotionJump", "/gadgets/potion_jump.png");
         loadImage("PotionHeal", "/gadgets/potion_heal.png");
         loadImage("PotionShield", "/gadgets/potion_shield.png");
+        loadImage("teleporter", "/gadgets/teleporter-sprite.png");
+        loadImage("drill", "/gadgets/drill-sprite.png");
     }
 
     private void loadImage(String name, String path) {
@@ -37,23 +39,6 @@ public class HUDOverlay extends JComponent {
             weaponImages.put(name.toLowerCase(), img);
         } else {
             System.err.println("[HUD] image arme introuvable: " + path);
-        }
-    }
-    
-    // --- Gadget HUD ---
-    private final java.util.Map<String, BufferedImage> gadgetImages = new java.util.HashMap<>();
-
-    private void loadGadgetImages() {
-        loadGadgetImage("potion_heal", "/gadgets/potion_heal-sprite.png");
-        loadGadgetImage("teleporter", "/gadgets/teleporter-sprite.png");
-        loadGadgetImage("drill", "/gadgets/drill-sprite.png");
-    }
-
-    private void loadGadgetImage(String name, String path) {
-        try {
-            gadgetImages.put(name.toLowerCase(), javax.imageio.ImageIO.read(getClass().getResource(path)));
-        } catch (Exception e) {
-            System.err.println("[HUD] image gadget introuvable: " + path);
         }
     }
     
@@ -119,7 +104,6 @@ public class HUDOverlay extends JComponent {
         setOpaque(false);
 
         loadBackpack();
-        loadGadgetImages();
         loadSettingsIcon();
         loadImages();
 
