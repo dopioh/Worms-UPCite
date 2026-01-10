@@ -1,10 +1,7 @@
 package fr.upc.g5e4.Inventory;
-import fr.upc.g5e4.model.InventoryModel;
 import fr.upc.g5e4.model.InventoryModel.InventoryJson;
-import fr.upc.g5e4.model.InventoryModel.InventoryRoot;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -190,7 +187,7 @@ public class InventoryModelTest {
 //         assertTrue(foundBat, "L'inventaire devrait contenir un objet 'BaseballBat'");
 //     }
 
-    /* ---------- Multiple usage pattern tests (added Dec 11, 2025) ---------- */
+    /* ---------- Multiple usage pattern tests  ---------- */
 
     @Test
     void testCompleteWeaponLifecycleFinite() {
@@ -263,7 +260,6 @@ public class InventoryModelTest {
 
     @Test
     void testMultipleItemsIndependence() {
-        // Ensure multiple items don't affect each other
         InventoryJson item1 = makeItem("Grenade1", "WEAPON", 2, false, 5);
         InventoryJson item2 = makeItem("Grenade2", "WEAPON", 2, false, 5);
 

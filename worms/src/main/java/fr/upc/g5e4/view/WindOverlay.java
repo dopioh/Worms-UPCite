@@ -4,9 +4,6 @@ import fr.upc.g5e4.model.WindModel;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 
 /**
  * Overlay affichant la direction et la force du vent dans le jeu. @see WindModel.java
@@ -18,8 +15,7 @@ import java.util.Random;
  * @version 1.0
  */
 public class WindOverlay extends JComponent {
-    private final WindModel wind;       // modèle du vent
-    private final Random rng = new Random();
+    private final WindModel wind;
 
     // Pré-création des objets graphiques pour éviter les allocations à chaque frame + access facile aux couleurs
     private static final Color BG_COLOR = new Color(0, 0, 0, 120);
@@ -28,7 +24,6 @@ public class WindOverlay extends JComponent {
     private static final Color BAR_BG = new Color(255, 255, 255, 60);
     private static final Color BAR_FG = new Color(120, 200, 255, 200);
     private static final BasicStroke ARROW_STROKE = new BasicStroke(3.0f);
-    private final Rectangle clipRect = new Rectangle();
 
     public WindOverlay(WindModel wind) {
         this.wind = wind;
@@ -98,10 +93,10 @@ public class WindOverlay extends JComponent {
         int len = 36;      // longueur de la flèche
         int headLen = 8;   // longueur de la tête
 
-        // demi-longueur utile en retirant la tête (sinon ça dépasse)
+        // demi-longueur utile en retirant la tête 
         int half = (len / 2);
 
-        // Point de départ et point d'arrivée : centrés autour de (cx,cy)
+        // Point de départ et point d'arrivée
         int x1 = cx - (int) (ux * half);
         int y1 = cy - (int) (uy * half);
         int x2 = cx + (int) (ux * half);

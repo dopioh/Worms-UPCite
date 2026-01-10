@@ -26,7 +26,6 @@ public class GamePanel extends JPanel {
     private boolean blueprintMode = false;
 
     private ItemController itemController;
-    private JButton saveButton;
     private static final float PPM = 30f;
     private BufferedImage groundTexture;
     private BufferedImage backgroundImage; // Image de fond BG

@@ -10,9 +10,15 @@ import fr.upc.g5e4.model.GameManager;
 import fr.upc.g5e4.model.InventoryModel.InventoryJson;
 import fr.upc.g5e4.model.CharacterModel;
 import fr.upc.g5e4.controller.CameraController;
-import fr.upc.g5e4.controller.CharacterController;
-import fr.upc.g5e4.util.*;
+import fr.upc.g5e4.util.ImageCache;
 
+/**
+ * Overlay affichant les informations de jeu (HUD)
+ * (Timer, PV, Bouclier, Arme équipée, Bouton Fin de tour, Bouton Sac à dos, Bouton Paramètres, Flèches de caméra)
+ * 
+ * Ce fichier est une **view interactive** qui relaie des actions vers`GameManager`, `PauseOverlay`, `InventoryOverlay` et `CameraController`.
+ * @author Hugo
+ */
 public class HUDOverlay extends JComponent {
 
     private PauseOverlay pauseOverlay;
@@ -60,7 +66,7 @@ public class HUDOverlay extends JComponent {
 
     //Variables HUD clic et/ou Image
     //Parametres HUD
-    private Rectangle gearBounds;
+    private Rectangle settingsBounds;
     private BufferedImage settingsIcon;
 
     //Backpack HUD 
@@ -79,6 +85,7 @@ public class HUDOverlay extends JComponent {
     private Rectangle leftArrowBounds;
     private Rectangle rightArrowBounds;
     
+    // Chargement de tous les icones ----------------------------------------------------------
     private void loadBackpack() {
         backpackIcon = ImageCache.get("/backpack.png");
         if (backpackIcon == null) {
@@ -110,12 +117,13 @@ public class HUDOverlay extends JComponent {
         }
     }
 
-    //Timer
+    //Timer -----------------------------------------------------------
     private int timerRemainingFrames = 0;
     private int timerTotalFrames = 1;
 
     /**
-     * Appelé depuis GameLoop à chaque tick (60 FPS) pour une barre fluide.
+     * Appelé depuis GameLoop à chaque tick 
+     * pour mettre a jour le timer affiché dans le HUD
      */
     public void setTimerFrames(int remainingFrames, int totalFrames) {
         this.timerRemainingFrames = Math.max(0, remainingFrames);
@@ -127,6 +135,7 @@ public class HUDOverlay extends JComponent {
     private static final int HUD_W = 520;
     private static final int HUD_H = 95;
 
+    /** Constructeur initialisant l'overlay HUD sur le gameManager gm*/
     public HUDOverlay(GameManager gm) {
         this.gameManager = gm;
         setOpaque(false);
@@ -138,7 +147,6 @@ public class HUDOverlay extends JComponent {
         loadCenterCamIcon();
 
         MouseAdapter mouse = new MouseAdapter() {
-
             @Override
             public void mouseMoved(MouseEvent e) {
                 Hover newHover = hitTest(e.getPoint());
@@ -174,6 +182,10 @@ public class HUDOverlay extends JComponent {
         addMouseListener(mouse);
     }
 
+    /**
+     * Définit l'overlay d'inventaire 
+     * @param inv
+     */
     public void setInventoryOverlay(InventoryOverlay inv) {
         this.inventoryOverlay = inv;
     }
@@ -183,7 +195,7 @@ public class HUDOverlay extends JComponent {
         super.paintComponent(g);
         if (!(g instanceof Graphics2D g2)) return;
 
-        // rendu plus propre
+        // rendu plus propre (lissage des textes et formes)
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
@@ -191,20 +203,20 @@ public class HUDOverlay extends JComponent {
         int h = getHeight();
 
         // Bouton pour les parametres
-        int gearSize = 44;
-        int gearX = 18;
-        int gearY = 18;
-        gearBounds = new Rectangle(gearX, gearY, gearSize, gearSize);
-        boolean hoverGear = (hovered == Hover.GEAR);
+        int settingsSize = 44;
+        int settingsX = 18;
+        int settingsY = 18;
+        settingsBounds = new Rectangle(settingsX, settingsY, settingsSize, settingsSize);
+        boolean hoversettings = (hovered == Hover.settings);
 
-        g2.setColor(hoverGear ? new Color(255,255,255,210) : new Color(255,255,255,180));
-        g2.fillRoundRect(gearX, gearY, gearSize, gearSize, 14, 14);
+        g2.setColor(hoversettings ? new Color(255,255,255,210) : new Color(255,255,255,180));
+        g2.fillRoundRect(settingsX, settingsY, settingsSize, settingsSize, 14, 14);
 
-        g2.setColor(hoverGear ? new Color(0,0,0,130) : new Color(0,0,0,90));
-        g2.drawRoundRect(gearX, gearY, gearSize, gearSize, 14, 14);
+        g2.setColor(hoversettings ? new Color(0,0,0,130) : new Color(0,0,0,90));
+        g2.drawRoundRect(settingsX, settingsY, settingsSize, settingsSize, 14, 14);
 
         if (settingsIcon != null) {
-            g2.drawImage(settingsIcon, gearX + 8, gearY + 8, gearSize - 16, gearSize - 16, null);
+            g2.drawImage(settingsIcon, settingsX + 8, settingsY + 8, settingsSize - 16, settingsSize - 16, null);
         }
 
         //Dimensions HUD
@@ -272,7 +284,6 @@ public class HUDOverlay extends JComponent {
         }
 
         // Fond HUD
-
         g2.setColor(new Color(0, 0, 0, 70));
         g2.fillRoundRect(hudX + 3, hudY + 4, HUD_W, HUD_H, 18, 18);
 
@@ -381,6 +392,7 @@ public class HUDOverlay extends JComponent {
             g2.drawImage(backpackIcon, bagX + 10, bagY + 10, bagSize - 20, bagSize - 20, null);
         }
 
+        //Fin de tour 
         int btnW = 140;
         int btnH = 44;
         int btnX = hudX - btnW - 20; 
@@ -422,15 +434,15 @@ public class HUDOverlay extends JComponent {
         float t = (max <= 0) ? 0f : (float) (value / max);
         t = Math.max(0f, Math.min(1f, t));
 
-        // track
+        // Barre de fond
         g2.setColor(new Color(0, 0, 0, 160));
         g2.fillRoundRect(x, y, w, h, 12, 12);
 
-        // fill
+        // Remplissage de la barre
         g2.setColor(fillColor);
         g2.fillRoundRect(x, y, (int) (w * t), h, 12, 12);
 
-        // text inside bar 
+        // Texte 
         g2.setColor(new Color(255, 255, 255, 220));
         g2.setFont(g2.getFont().deriveFont(Font.BOLD, 12f));
         g2.drawString(label + " : " + (int) value, x + 8, y + 11);
@@ -445,7 +457,7 @@ public class HUDOverlay extends JComponent {
                 return;
             }
         }
-        if (gearBounds != null && gearBounds.contains(e.getPoint())) {
+        if (settingsBounds != null && settingsBounds.contains(e.getPoint())) {
             if (pauseOverlay != null) {
                 pauseOverlay.setPauseVisible(true);
                 if (gameManager != null && gameManager.getGameLoop() != null) {
@@ -482,6 +494,7 @@ public class HUDOverlay extends JComponent {
         }
     }
     
+    /*Calcule toutes les zones cliquables */
     private void computeLayout() {
         int w = getWidth();
         int h = getHeight();
@@ -493,11 +506,11 @@ public class HUDOverlay extends JComponent {
         int bagX = hudX + HUD_W + 20;
         int bagY = hudY + (HUD_H - bagSize) / 2;
 
-        int gearSize = 44;
-        int gearX = 18;
-        int gearY = 18;
+        int settingsSize = 44;
+        int settingsX = 18;
+        int settingsY = 18;
 
-        int btnW = 140;
+        int btnW = 140; // Bouton Fin de tour
         int btnH = 44;
         int btnX = hudX - btnW - 20;
         int btnY = hudY + (HUD_H - btnH) / 2;
@@ -512,44 +525,56 @@ public class HUDOverlay extends JComponent {
         int arrowY    = timerY - arrowSize - 8;
 
         int centerX = timerX + (timerW / 2);
-
         int leftX = centerX - arrowSize * 2 - arrowPad;
         int centerXBtn = centerX - arrowSize / 2;
         int rightX = centerX + arrowSize + arrowPad;
         
         bagBounds = new Rectangle(bagX, bagY, bagSize, bagSize);
-        gearBounds = new Rectangle(gearX, gearY, gearSize, gearSize);
+        settingsBounds = new Rectangle(settingsX, settingsY, settingsSize, settingsSize);
         endTurnBounds = new Rectangle(btnX, btnY, btnW, btnH);
         leftArrowBounds  = new Rectangle(leftX, arrowY, arrowSize, arrowSize);
         centerCamBounds  = new Rectangle(centerXBtn, arrowY, arrowSize, arrowSize);
         rightArrowBounds = new Rectangle(rightX, arrowY, arrowSize, arrowSize);
     }
 
-
+    /**
+     * Définit l'overlay de pause
+     * @param p overlay de pause
+     */
     public void setPauseOverlay(PauseOverlay p) {
         this.pauseOverlay = p;
     }
 
+    /**
+     * Définit le contrôleur de caméra
+     * @param cam contrôleur de caméra
+     */
     public void setCameraController(CameraController cam){ 
         this.cameraController = cam;
     }
 
+    /**
+     * Empêche les clics lorsque le bouton n'est pas affiché
+     * @param x,y coordonnées du clic
+     * @return true si le clic est dans l'overlay visible, false sinon
+     */
     @Override
     public boolean contains(int x, int y) {
         computeLayout();
-        return (bagBounds != null && bagBounds.contains(x, y)) || (gearBounds != null && gearBounds.contains(x, y)) || (endTurnBounds != null && endTurnBounds.contains(x, y)) 
+        return (bagBounds != null && bagBounds.contains(x, y)) || (settingsBounds != null && settingsBounds.contains(x, y)) || (endTurnBounds != null && endTurnBounds.contains(x, y)) 
         || (leftArrowBounds != null && leftArrowBounds.contains(x, y)) || (rightArrowBounds != null && rightArrowBounds.contains(x, y)) || (centerCamBounds != null && centerCamBounds.contains(x, y));
     }
 
 
     //HOVER pour chaque éléments
-    private enum Hover {NONE,GEAR,BAG,END_TURN,CAM_LEFT,CAM_CENTER,CAM_RIGHT}
+    private enum Hover {NONE,settings,BAG,END_TURN,CAM_LEFT,CAM_CENTER,CAM_RIGHT}
 
     private Hover hovered = Hover.NONE;
 
+    //Détermine quel élément est survolé par la souris
     private Hover hitTest(Point p) {
         computeLayout();
-        if (gearBounds != null && gearBounds.contains(p)) return Hover.GEAR;
+        if (settingsBounds != null && settingsBounds.contains(p)) return Hover.settings;
         if (bagBounds != null && bagBounds.contains(p)) return Hover.BAG;
         if (endTurnBounds != null && endTurnBounds.contains(p)) return Hover.END_TURN;
         if (leftArrowBounds != null && leftArrowBounds.contains(p)) return Hover.CAM_LEFT;

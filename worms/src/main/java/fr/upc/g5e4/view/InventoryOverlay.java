@@ -8,7 +8,6 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-import fr.upc.g5e4.model.InventoryModel;
 import fr.upc.g5e4.model.InventoryModel.InventoryJson;
 import fr.upc.g5e4.controller.SwingInputController;
 import fr.upc.g5e4.controller.minigames.*;
@@ -26,6 +25,14 @@ import fr.upc.g5e4.util.ImageCache;
  * @author Hugo
  * @version 1.0
  */
+/**
+ * Overlay Swing affichant l'inventaire du joueur
+ * 
+ * Affichage des objets filtrés par catégories (armes, gadgets, boutique)
+ * Sélection et équipement d'un objet
+ * Hover pour afficher une description
+ * @version 1.1
+ */
 public class InventoryOverlay extends JComponent {
     private enum Category {
         ARMES, GADGET, BOUTIQUE
@@ -33,7 +40,7 @@ public class InventoryOverlay extends JComponent {
 
     private String equippedItemKey = null; 
     private Category currentCategory = Category.ARMES;
-    private boolean ReleaseEat = false;
+    private boolean ReleaseSecure = false;   //Evite le tir fantôme au relachement du clic de la souris
 
 
     private List<InventoryJson> inventory;
@@ -54,7 +61,6 @@ public class InventoryOverlay extends JComponent {
 
     private Rectangle closeButtonBounds;
     
-    // --- Grille INVENTAIRE ---
     private static final int CELL_SIZE = 96;   // taille des cases
     private static final int CELL_GAP  = 16;   // espace entre cases
     private static final int GRID_COLS = 3;    // 3 colonnes pour ARMES/GADGET (5 pour BOUTIQUE)
@@ -122,11 +128,9 @@ public class InventoryOverlay extends JComponent {
         }
     }
 
-    // --- HOVER ---
     private Category hoveredTab = null;   // onglet survolé
     private int hoveredIndex = -1;        // case survolée (index dans lastFiltered)
 
-    // --- DESCRIPTIONS ---
     private final java.util.Map<String, String> itemDescriptions = new java.util.HashMap<>();
 
     private void loadDescriptions() {
@@ -141,7 +145,10 @@ public class InventoryOverlay extends JComponent {
         itemDescriptions.put("bumper", "Rebondis");
     }
 
-
+    /**
+     * Crée un overlay d'inventaire
+     * @param inventory liste des items de l'inventaire
+     */
     public InventoryOverlay(List<InventoryJson> inventory) {
         this.inventory = inventory;
         setVisible(false);
@@ -178,8 +185,8 @@ public class InventoryOverlay extends JComponent {
 
             @Override
             public void mouseReleased(MouseEvent e) {
-                if (ReleaseEat) {
-                    ReleaseEat = false;
+                if (ReleaseSecure) {
+                    ReleaseSecure = false;
                     return;
                 }
                 // Quand inventaire fermé, passer l'événement au controller
@@ -189,9 +196,9 @@ public class InventoryOverlay extends JComponent {
             }
         });
 
-        // HOVER
+        
         addMouseMotionListener(new MouseAdapter() {
-            @Override
+            @Override //Controle du comportement Hover
             public void mouseMoved(MouseEvent e) {
                 if (!visible) {
                     // passer l'événement au controller de tir
@@ -299,7 +306,7 @@ public class InventoryOverlay extends JComponent {
         // Clic sur le bouton fermer
         if (closeButtonBounds != null && closeButtonBounds.contains(x, y)) {
             // évite le tir “fantôme” au mouseReleased
-            ReleaseEat = true;
+            ReleaseSecure = true;
             setInventoryVisible(false);
             return;
         }
@@ -364,7 +371,7 @@ public class InventoryOverlay extends JComponent {
                     if (currentCategory != Category.BOUTIQUE) {
                         selectedIndex = i;
                         equipItem(lastFiltered.get(i));
-                        ReleaseEat = true;
+                        ReleaseSecure = true;
                         setInventoryVisible(false);
                     }
                     repaint();
@@ -379,7 +386,6 @@ public class InventoryOverlay extends JComponent {
     @Override
     protected void paintComponent(Graphics g){
         super.paintComponent(g);
-        int w = getWidth();
         int h = getHeight();
 
         Graphics2D g2 = (Graphics2D) g;
@@ -661,8 +667,7 @@ public class InventoryOverlay extends JComponent {
                 //Fond de la description
                 g2.setColor(new Color(0,0,0,120));
                 g2.fillRoundRect(boxX, boxY, boxW, boxH, 12, 12);
-                
-                int leftPad = 10;
+
                 int rightPad = 10;
                 
                 // Nom
@@ -776,7 +781,6 @@ public class InventoryOverlay extends JComponent {
     }
 
     private void computeLayout() {
-        int w = getWidth();
         int h = getHeight();
 
         // panneau inventaire à gauche (adapté selon la catégorie)
