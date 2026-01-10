@@ -217,7 +217,7 @@ public class SwingInputController extends JPanel{
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                //System.out.println("key pressed");
+                if (gameManager != null && gameManager.isInputFrozen()) return;
                 switch(e.getKeyCode()) {
                     // Personnage
                     case KeyEvent.VK_Q:
@@ -234,7 +234,7 @@ public class SwingInputController extends JPanel{
             
             @Override
             public void keyReleased(KeyEvent e) {
-                //System.out.println("key released");
+                if (gameManager != null && gameManager.isInputFrozen()) return;
                 switch(e.getKeyCode()) {
                     // Personnage
                     case KeyEvent.VK_Q:
@@ -270,6 +270,10 @@ public class SwingInputController extends JPanel{
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
+                if (gameManager != null && gameManager.isInputFrozen()) {
+                    disableTrajectory();
+                    return;
+                }
                 requestFocusInWindow();  // Récupérer le focus au clic
                 if (e.getButton() == MouseEvent.BUTTON1) {
                     // Vérifier que l'inventaire n'est pas ouvert pour éviter le double tir
@@ -283,6 +287,7 @@ public class SwingInputController extends JPanel{
 
             @Override
             public void mouseReleased(MouseEvent e) {
+                if (gameManager != null && gameManager.isInputFrozen()) return;
                 if (e.getButton() == MouseEvent.BUTTON1 && mouseButtonPressed) {
                     mouseButtonPressed = false;
                     fireWeaponAtAngle(e.getX(), e.getY());
@@ -294,6 +299,10 @@ public class SwingInputController extends JPanel{
         addMouseMotionListener(new java.awt.event.MouseMotionListener() {
             @Override
             public void mouseMoved(MouseEvent e) {
+                if (gameManager != null && gameManager.isInputFrozen()) {
+                    disableTrajectory();
+                    return;
+                }
                 if (mouseButtonPressed) {
                     updateTrajectoryFromMouse(e.getX(), e.getY());
                 }
@@ -301,6 +310,11 @@ public class SwingInputController extends JPanel{
 
             @Override
             public void mouseDragged(MouseEvent e) {
+                if (gameManager != null && gameManager.isInputFrozen()) {
+                    disableTrajectory();
+                    return;
+                }
+
                 if (mouseButtonPressed) {
                     updateTrajectoryFromMouse(e.getX(), e.getY());
                 }

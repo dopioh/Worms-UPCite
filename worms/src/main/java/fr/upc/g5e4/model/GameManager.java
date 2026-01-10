@@ -761,6 +761,7 @@ public class GameManager {
         if (currentTeam != null) {
             currentTeam.resetInventoryTurn();
         }
+        freezeInputsForSeconds(3);
         // réinitialise le flag d'utilisation d'arme pour le nouveau tour
         resetWeaponUsedFlag();
         // réinitialise le compteur de gadgets utilisés
@@ -1344,5 +1345,12 @@ public class GameManager {
         return 2 - gadgetsUsedThisTurn;
     }
 
+    //Sert a freeze le jeu pour "seconds" secondes
+    private void freezeInputsForSeconds(int seconds) {
+        setInputFrozen(true);
+        Timer timer = new Timer(seconds * 1000, e -> {setInputFrozen(false); ((Timer) e.getSource()).stop();});
+        timer.setRepeats(false);
+        timer.start();
+    }
 }
 
