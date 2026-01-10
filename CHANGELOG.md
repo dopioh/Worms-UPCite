@@ -250,6 +250,7 @@
     - Comptage correct des rounds dans les stats
     - Kills par rocket launcher maintenant comptabilisés dans stats
     - Précision limitée à 100% max (un tir = un hit même en zone)
+- Systeme de detection des worms sous la map
 
 ### Configuration
 
