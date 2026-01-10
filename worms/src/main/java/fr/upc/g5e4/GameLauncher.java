@@ -209,10 +209,10 @@ public class GameLauncher{
      * @see SaveLoad
      * @see SaveData
      */
-    public void startFromGameSave(SaveData saveData) throws IOException{
+    public boolean startFromGameSave(SaveData saveData) throws IOException{
         resetGame(); // au cas ou 
         if (saveData == null){
-            initializeGame(false);
+            return false;
         } else {
             this.saveData = saveData;
             initializeGame(true);
@@ -227,7 +227,7 @@ public class GameLauncher{
         if (gameManager != null && gameManager.getImputController() != null) {
             gameManager.getImputController().requestFocusInWindow(); // focus l'inputController
         }
-
+        return true;
     }
     
     /**

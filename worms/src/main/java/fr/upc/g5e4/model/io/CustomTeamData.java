@@ -73,7 +73,7 @@ public class CustomTeamData {
         nbrWorms = 6;
         wormsName = new ArrayList<>();
         for (int i = 0 ; i < nbrWorms ; i++){
-            wormsName.add(String.valueOf(i));
+            wormsName.add("bot");
         }
     }
 

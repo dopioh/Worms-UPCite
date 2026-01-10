@@ -48,11 +48,11 @@ public class SaveData {
     // GameStats :
     private Map<Integer, GameStats> teamStats;
 
-    // AJOUT NOUVEAU TERRAIN
-    private BlockGridModel blockGridModel;
-
     // Map Jour ou Nuit
     private static MapConfig.BackgroundStyle bg;
+
+    // AJOUT NOUVEAU TERRAIN (mettre en dernier dans l'ordre des attributs sinon compliquer a debug sauvegardes.txt)
+    private BlockGridModel blockGridModel;
 
     /**
      * Constructeur pour initialiser une SaveData a partir d'une game active
@@ -75,10 +75,14 @@ public class SaveData {
 
         this.teamStats = gameManager.getAllTeamStats();
 
+        bg = MapConfig.getBackgroundStyle();
+        if (bg == null){
+            bg = MapConfig.BackgroundStyle.JOUR;
+        }
+
         this.windData = WindData.WindModelToWindData(gameManager.getWindModel());
 
         this.blockGridModel = gameManager.getBlockGridModel();
-        bg = MapConfig.getBackgroundStyle();
 
     }
 

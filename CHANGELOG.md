@@ -160,7 +160,7 @@
 
 ### Added
 
-- **Page réglages**
+- **Page reglages**
     - Système d'onglets : Map, Équipes, Autre
     - Support du plein écran avec scaling automatique
     - Bouton retour vers le menu principal
@@ -242,6 +242,8 @@
 - Suppression de touche Echap dans main menu
 - Adaptation des Tests pour le nouveau système d'équipe
 - Certaines images chargeaient deux fois dans le cache
+- Fix save qui se lance quand y'en a une meme si on appuie sur le bouton "Nouvelle partie"
+- Fix Noms des worms qui s'enregistraient pas correctement dans `CharacterModel`
 - **full screen**
     - Menu Réglage
     - Titre main menu

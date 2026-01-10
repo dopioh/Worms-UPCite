@@ -4,6 +4,7 @@ import fr.upc.g5e4.GameLauncher;
 import fr.upc.g5e4.view.PauseOverlay;
 import fr.upc.g5e4.model.MapConfig;
 import fr.upc.g5e4.model.SoundPlayer;
+import fr.upc.g5e4.model.io.SaveLoad;
 import fr.upc.g5e4.view.SettingsView;
 import fr.upc.g5e4.view.TeamSettingsView;
 
@@ -109,6 +110,7 @@ public class SettingsController {
         view.getBtnResetSave().addActionListener(e -> {
             //Fonction a mettre pour la sauvegarde @MEIIII
             System.out.println("Meiu");
+            SaveLoad.suppSaveFile();
         });
 
         view.getBtnFullscreen().addActionListener(e -> {
