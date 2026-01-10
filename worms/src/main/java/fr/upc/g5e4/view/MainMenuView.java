@@ -21,7 +21,13 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import fr.upc.g5e4.util.ImageCache;
+
 import fr.upc.g5e4.view.UI.*;
+
+import fr.upc.g5e4.model.TutorialModel;
+import fr.upc.g5e4.view.TutorialView;
+import fr.upc.g5e4.controller.TutorialController;
+
 
 
 /**
@@ -41,7 +47,7 @@ public class MainMenuView extends JPanel {
     private JButton btnConfig;
     private JButton btnQuit;
     private JLabel titleLabel;
-    private TutorialOverlay tutorialOverlay;
+    private TutorialController tutorialController;
     private JPanel centerPanel;
     private BufferedImage backgroundImage;
 
@@ -127,26 +133,22 @@ public class MainMenuView extends JPanel {
     }
 
     private void initComponents() {
-        // Utilise un layout null pour positionnement absolu
         setLayout(null);
         setOpaque(true);
         
-        // Panel au centre avec titre et boutons
+        // panel des boutons du menu
         centerPanel = new JPanel();
         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
         centerPanel.setOpaque(false);
         
-        // Titre
         addTitle(centerPanel);
 
-        // Création des boutons
         btnNewGame = createMenuButton("Nouvelle Partie");
         btnResume = createMenuButton("Poursuivre une partie");
         btnHowToPlay = createMenuButton("Comment jouer");
         btnConfig = createMenuButton("Reglages");
         btnQuit = createMenuButton("Quitter");
 
-        // Ajout des boutons au panneau central
         centerPanel.add(btnNewGame);
         centerPanel.add(Box.createVerticalStrut(10));
         centerPanel.add(btnResume);
@@ -159,13 +161,16 @@ public class MainMenuView extends JPanel {
         
         add(centerPanel);
         
-        tutorialOverlay = new TutorialOverlay();
-        tutorialOverlay.setVisible(false);
-        tutorialOverlay.setOnClose(() -> tutorialOverlay.setVisible(false));
-        add(tutorialOverlay);
+        // setup de l'overlay tutoriel
+        TutorialModel tutorialModel = new TutorialModel();
+        TutorialView tutorialView = new TutorialView(tutorialModel);
+        // init du controller pour getTutorialController utilisé par MainMenuController
+        tutorialController = new TutorialController(tutorialModel, tutorialView);
+        tutorialView.setVisible(false);
+        add(tutorialView);
         
         // dessine par dessus les composants
-        setComponentZOrder(tutorialOverlay, 0);
+        setComponentZOrder(tutorialView, 0);
     }
 
     private void setupLayout() {
@@ -191,7 +196,9 @@ public class MainMenuView extends JPanel {
         centerPanel.setBounds(centerPanelX, 20, centerPanelWidth, height - 40);
         
         // position de l'overlay tuto au centre de la fenetre
-        tutorialOverlay.setBounds(0, 0, width, height);
+        if (tutorialController != null) {
+            tutorialController.getView().setBounds(0, 0, width, height);
+        }
     }
 
     private void addTitle(JPanel parent) {
@@ -251,7 +258,7 @@ public class MainMenuView extends JPanel {
         return btnHowToPlay;
     }
     
-    public TutorialOverlay getTutorialOverlay() {
-        return tutorialOverlay;
+    public TutorialController getTutorialController() {
+        return tutorialController;
     }
 }

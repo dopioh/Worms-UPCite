@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests pour l'enum BlockType
+ * @author Nassim
  */
 public class BlockTypeTest {
 

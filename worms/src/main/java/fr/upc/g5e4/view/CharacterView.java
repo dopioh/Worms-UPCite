@@ -9,12 +9,13 @@ import org.jbox2d.dynamics.Body;
 
 import fr.upc.g5e4.model.CharacterModel;
 import fr.upc.g5e4.model.Weapon;
-//j'ai ajoute l'import de la grenade et du lance-roquettes pour les exeptions de taille
+
 import fr.upc.g5e4.model.weapons.Grenade;
 import fr.upc.g5e4.model.weapons.RocketLauncher;
 
 /**
  * Vue pour l'affichage graphique
+ * @author Nassim & Billy & Ian
  */
 public class CharacterView {
     private int size;

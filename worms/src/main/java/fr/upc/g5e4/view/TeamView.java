@@ -6,6 +6,7 @@ import fr.upc.g5e4.model.CharacterModel;
 
 /**
  * Vue pour l'affichage d'une equipe de worms
+ * @author Nassim
  */
 public class TeamView {
     private Color teamColor;
