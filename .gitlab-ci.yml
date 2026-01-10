@@ -59,9 +59,9 @@ test:
       - JAVA_VERSION: ["23", "24", "25"]
         MAVEN_VERSION: ["3.8", "3.9"]
         ARCH: ["arm64", "amd64"]
-  image:
-    name: maven:${MAVEN_VERSION}-eclipse-temurin-${JAVA_VERSION}
-    platform: linux/${ARCH}
+  image: maven:${MAVEN_VERSION}-eclipse-temurin-${JAVA_VERSION}
+  variables:
+    DOCKER_DEFAULT_PLATFORM: linux/${ARCH}
   before_script:
     - echo "Testing on ${ARCH} architecture"
   script: 
