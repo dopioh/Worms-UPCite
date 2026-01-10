@@ -518,7 +518,8 @@ public class GameLauncher{
                 winningTeam, 
                 winningTeamView, 
                 winnerName,
-                gameManager.getAllTeamStats()
+                gameManager.getAllTeamStats(),
+                gameManager.getListTeamInit()
             );
         });
     }

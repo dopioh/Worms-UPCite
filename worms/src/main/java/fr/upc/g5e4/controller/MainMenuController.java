@@ -1,5 +1,7 @@
 package fr.upc.g5e4.controller;
 
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.io.IOException;
 
 import javax.swing.JOptionPane;
@@ -41,6 +43,13 @@ public class MainMenuController {
         view.getBtnConfig().addActionListener(e -> openConfig());
         view.getBtnQuit().addActionListener(e -> quitGame());
         
+        // Listener pour repositionner les composants lors du redimensionnement
+        view.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                view.repositionComponents();
+            }
+        });
    }
 
     private void startNewGame() throws IOException {

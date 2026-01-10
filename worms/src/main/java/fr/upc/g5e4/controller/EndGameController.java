@@ -4,6 +4,7 @@ import fr.upc.g5e4.GameLauncher;
 import fr.upc.g5e4.model.GameManager;
 import fr.upc.g5e4.model.GameStats;
 import fr.upc.g5e4.model.TeamModel;
+import fr.upc.g5e4.model.TeamInitialisation;
 import fr.upc.g5e4.view.EndGameView;
 import fr.upc.g5e4.view.TeamView;
 
@@ -42,16 +43,18 @@ public class EndGameController {
      * @param winningTeam L'équipe gagnante
      * @param winningTeamView La vue de l'équipe gagnante
      * @param winningTeamName Le nom de l'équipe gagnante
-     * @param allTeamStats Statistiques de toutes les équipes
+     * @param allTeamStats Statistiques de toutes les équipes (clé = teamID)
+     * @param allTeams Liste de toutes les équipes pour récupérer les noms
      */
     public void showEndGameScreen(TeamModel winningTeam, TeamView winningTeamView, 
-                                   String winningTeamName, java.util.Map<String, GameStats> allTeamStats) {
+                                   String winningTeamName, java.util.Map<Integer, GameStats> allTeamStats,
+                                   java.util.List<TeamInitialisation> allTeams) {
         // Capturer l'état actuel du jeu comme image de fond
         BufferedImage backgroundSnapshot = captureGameBackground();
         
         // Créer la vue de fin de partie
         endGameView = new EndGameView(winningTeam, winningTeamView, winningTeamName, 
-                                      allTeamStats, backgroundSnapshot);
+                                      allTeamStats, allTeams, backgroundSnapshot);
         
         // Remplacer le panel actuel par la vue de fin de jeu (via CardLayout)
         SwingUtilities.invokeLater(() -> {

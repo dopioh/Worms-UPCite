@@ -8,8 +8,6 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
 
 import javax.imageio.ImageIO;
@@ -48,13 +46,13 @@ public class MainMenuView extends JPanel {
     private JLabel titleLabel;
     private TutorialController tutorialController;
     private JPanel centerPanel;
+    private JPanel titlePanel;
     private BufferedImage backgroundImage;
 
     public MainMenuView() {
         loadBackgroundImage();
         initComponents();
         setupLayout();
-        setupResizeListener();
     }
     
     @Override
@@ -109,12 +107,40 @@ public class MainMenuView extends JPanel {
         }
     }
     
+    /**
+     * Calcule le facteur de scaling basé sur les dimensions réelles de l'écran
+     */
+    private float calculateScale() {
+        // Dimensions de base (fenêtré)
+        float baseWidth = 1280f;
+        float baseHeight = 720f;
+        
+        // Dimensions actuelles
+        float currentWidth = getWidth();
+        float currentHeight = getHeight();
+        
+        // Calculer le scale basé sur le rapport entre la taille actuelle et la taille de base
+        float scaleX = currentWidth / baseWidth;
+        float scaleY = currentHeight / baseHeight;
+        
+        return Math.min(scaleX, scaleY);
+    }
+    
     public void updateSizes(boolean fullScreen) {
-        // Tailles pour plein écran vs fenêtré
-        int titleWidth = fullScreen ? 450 : 400; // si on agrandi le title il est coupé
-        int buttonWidth = fullScreen ? 380 : 280;
-        int buttonHeight = fullScreen ? 60 : 45;
-        int fontSize = fullScreen ? 24 : 18;
+        // Facteur de scaling dynamique basé sur la taille réelle de l'écran
+        float scale = fullScreen ? calculateScale() : 1.0f;
+        
+        // Tailles de base
+        int baseTitleWidth = 400;
+        int baseButtonWidth = 280;
+        int baseButtonHeight = 45;
+        int baseFontSize = 18;
+        
+        // Application du scaling
+        int titleWidth = (int)(baseTitleWidth * scale);
+        int buttonWidth = (int)(baseButtonWidth * scale);
+        int buttonHeight = (int)(baseButtonHeight * scale);
+        int fontSize = (int)(baseFontSize * scale);
         
         // Mettre à jour le titre
         ImageIcon titleIcon = loadImage("/title.png");
@@ -123,7 +149,8 @@ public class MainMenuView extends JPanel {
                 titleWidth, -1, java.awt.Image.SCALE_SMOOTH);
             titleLabel.setIcon(new ImageIcon(scaledImage));
         } else if (titleLabel != null) {
-            titleLabel.setFont(new Font("Arial", Font.BOLD, fullScreen ? 90 : 70));
+            int titleFontSize = (int)(70 * scale);
+            titleLabel.setFont(new Font("Arial", Font.BOLD, titleFontSize));
         }
         
         // Mettre à jour les boutons
@@ -138,12 +165,17 @@ public class MainMenuView extends JPanel {
         setLayout(null);
         setOpaque(true);
         
-        // panel des boutons du menu
+        // Panel séparé pour le titre
+        titlePanel = new JPanel();
+        titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.Y_AXIS));
+        titlePanel.setOpaque(false);
+        addTitle(titlePanel);
+        add(titlePanel);
+        
+        // Panel au centre avec les boutons
         centerPanel = new JPanel();
         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
         centerPanel.setOpaque(false);
-        
-        addTitle(centerPanel);
 
         btnNewGame = createMenuButton("Nouvelle Partie");
         btnResume = createMenuButton("Poursuivre une partie");
@@ -179,23 +211,28 @@ public class MainMenuView extends JPanel {
         setPreferredSize(new Dimension(1280, 720));
     }
     
-    private void setupResizeListener() {
-        addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentResized(ComponentEvent e) {
-                repositionComponents();
-            }
-        });
-    }
-    
-    private void repositionComponents() {
+    /**
+     * Repositionne les composants en fonction de la taille actuelle de la fenêtre
+     */
+    public void repositionComponents() {
         int width = getWidth();
         int height = getHeight();
-                
-        // le panel au centre
+        
+        // Calculer les positions proportionnellement à la hauteur
+        int titleY = (int)(height * 0.08); // 8% du haut
+        int titleHeight = (int)(height * 0.2); // 20% de la hauteur pour le titre
+        
+        // Positionner le titre en haut avec une largeur flexible
+        int titlePanelWidth = Math.min(width - 40, 800); // Max 800px ou largeur écran - marges
+        int titlePanelX = (width - titlePanelWidth) / 2;
+        titlePanel.setBounds(titlePanelX, titleY, titlePanelWidth, titleHeight);
+        
+        // Positionner le panel des boutons en dessous du titre avec un espace proportionnel
         int centerPanelWidth = 400;
         int centerPanelX = (width - centerPanelWidth) / 2;
-        centerPanel.setBounds(centerPanelX, 20, centerPanelWidth, height - 40);
+        int centerPanelY = titleY + titleHeight + (int)(height * 0.03); // 3% d'espace après le titre
+        int centerPanelHeight = height - centerPanelY - (int)(height * 0.05); // 5% de marge en bas
+        centerPanel.setBounds(centerPanelX, centerPanelY, centerPanelWidth, centerPanelHeight);
         
         // position de l'overlay tuto au centre de la fenetre
         if (tutorialController != null) {

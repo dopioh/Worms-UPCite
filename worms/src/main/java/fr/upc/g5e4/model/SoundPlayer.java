@@ -26,6 +26,14 @@ public final class SoundPlayer {
     public static void initialize() {
         if (initialized) return;
         
+        // detecter si on est en mode test et muter automatiquement
+        if (isRunningTests()) {
+            muted = true;
+            initialized = true;
+            System.out.println("[SFX] Mode test détecté - sons désactivés");
+            return;
+        }
+        
         try {
             // Initialiser le système audio en arrère-plan
             new Thread(() -> {
@@ -41,6 +49,20 @@ public final class SoundPlayer {
         } catch (Exception e) {
             System.err.println("[SFX] Erreur lancement thread: " + e.getMessage());
         }
+    }
+    
+    /**
+     * Détecte si le code est exécuté dans un contexte de test
+     */
+    private static boolean isRunningTests() {
+        // regarder la stack trace
+        for (StackTraceElement element : Thread.currentThread().getStackTrace()) {
+            if (element.getClassName().startsWith("org.junit.") || 
+                element.getClassName().startsWith("org.testng.")) {
+                return true;
+            }
+        }
+        return false;
     }
     
     /**

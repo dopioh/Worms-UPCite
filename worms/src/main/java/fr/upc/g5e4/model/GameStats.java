@@ -16,7 +16,7 @@ public class GameStats {
         this.shotsFired = 0;
         this.shotsHit = 0;
         this.kills = 0;
-        this.roundsPlayed = 0;
+        this.roundsPlayed = 1;  // Commence au round 1
         this.startTime = System.currentTimeMillis();
     }
     

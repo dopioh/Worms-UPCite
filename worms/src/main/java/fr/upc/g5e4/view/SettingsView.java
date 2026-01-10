@@ -9,6 +9,8 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.RenderingHints;
 
@@ -74,6 +76,11 @@ public class SettingsView extends JPanel {
     private JLabel mapPreviewLabel;
     private JPanel mapPreviewPanel;
     
+    // Labels pour les options (pour le scaling)
+    private JLabel sizeLabel;
+    private JLabel terrainLabel;
+    private JLabel styleLabel;
+    
     private Image backgroundImage;
     private String currentTab = "Map";
 
@@ -88,27 +95,47 @@ public class SettingsView extends JPanel {
         initComponents();
         setupLayout();
         showPanel("Map");
+    }
+    
+    /**
+     * Vérifie si les dimensions actuelles correspondent au plein écran
+     * @return true si en plein écran
+     */
+    public boolean checkFullScreen() {
+        boolean newFullScreen = getWidth() > 1280;
+        if (newFullScreen != isFullScreen) {
+            isFullScreen = newFullScreen;
+            updateSizes(isFullScreen);
+        }
+        return isFullScreen;
+    }
+    
+    /**
+     * Calcule le facteur de scaling basé sur les dimensions réelles de l'écran
+     */
+    private float calculateScale() {
+        // Dimensions de base (fenêtré)
+        float baseWidth = 1280f;
+        float baseHeight = 720f;
         
-        // Ajouter un listener pour détecter les changements de taille
-        addComponentListener(new java.awt.event.ComponentAdapter() {
-            @Override
-            public void componentResized(java.awt.event.ComponentEvent e) {
-                // Considérer comme plein écran si largeur > 1280
-                boolean newFullScreen = getWidth() > 1280;
-                if (newFullScreen != isFullScreen) {
-                    isFullScreen = newFullScreen;
-                    updateSizes(isFullScreen);
-                }
-            }
-        });
+        // Dimensions actuelles
+        float currentWidth = getWidth();
+        float currentHeight = getHeight();
+        
+        // Calculer le scale basé sur le rapport entre la taille actuelle et la taille de base
+        // Prendre le minimum pour éviter de dépasser les bords
+        float scaleX = currentWidth / baseWidth;
+        float scaleY = currentHeight / baseHeight;
+        
+        return Math.min(scaleX, scaleY);
     }
     
     /**
      * Met à jour les tailles des composants selon le mode plein écran
      */
     public void updateSizes(boolean fullScreen) {
-        // Facteur de scaling
-        float scale = fullScreen ? 1.3f : 1.0f;
+        // Facteur de scaling dynamique basé sur la taille réelle de l'écran
+        float scale = fullScreen ? calculateScale() : 1.0f;
         
         // Tailles de base (mêmes pour tous les boutons)
         int baseWidth = 180;
@@ -162,12 +189,42 @@ public class SettingsView extends JPanel {
             styleComboBox.setFont(styleComboBox.getFont().deriveFont((float)fontSize));
         }
         
+        // Mise à jour des labels des options de la map
+        int labelFontSize = (int)(16 * scale);
+        if (sizeLabel != null) {
+            sizeLabel.setFont(sizeLabel.getFont().deriveFont((float)labelFontSize));
+        }
+        if (terrainLabel != null) {
+            terrainLabel.setFont(terrainLabel.getFont().deriveFont((float)labelFontSize));
+        }
+        if (styleLabel != null) {
+            styleLabel.setFont(styleLabel.getFont().deriveFont((float)labelFontSize));
+        }
+        
         // Mise à jour du panneau de prévisualisation
         if (mapPreviewPanel != null) {
             int previewWidth = (int)(500 * scale);
             int previewHeight = (int)(350 * scale);
             mapPreviewPanel.setPreferredSize(new Dimension(previewWidth, previewHeight));
             updateMapPreview(); // Recharger l'image avec la bonne taille
+        }
+        
+        // Mise à jour des boutons de l'onglet "Autre" avec une largeur plus grande
+        int otherButtonWidth = (int)(280 * scale);
+        if (btnSound != null) {
+            btnSound.setPreferredSize(new Dimension(otherButtonWidth, buttonHeight));
+            btnSound.setMaximumSize(new Dimension(otherButtonWidth, buttonHeight));
+            btnSound.setFont(btnSound.getFont().deriveFont((float)fontSize));
+        }
+        if (btnResetSave != null) {
+            btnResetSave.setPreferredSize(new Dimension(otherButtonWidth, buttonHeight));
+            btnResetSave.setMaximumSize(new Dimension(otherButtonWidth, buttonHeight));
+            btnResetSave.setFont(btnResetSave.getFont().deriveFont((float)fontSize));
+        }
+        if (btnFullscreen != null) {
+            btnFullscreen.setPreferredSize(new Dimension(otherButtonWidth, buttonHeight));
+            btnFullscreen.setMaximumSize(new Dimension(otherButtonWidth, buttonHeight));
+            btnFullscreen.setFont(btnFullscreen.getFont().deriveFont((float)fontSize));
         }
         
         // Forcer le rafraîchissement
@@ -266,8 +323,13 @@ public class SettingsView extends JPanel {
 
     // ========== ONGLET MAP ==========
     private JPanel createMapPanel() {
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 80, 100));
+        // Utiliser GridBagLayout pour un meilleur centrage vertical
+        JPanel panel = new JPanel(new GridBagLayout());
         panel.setOpaque(false);
+        
+        // Panel interne avec FlowLayout pour les éléments
+        JPanel contentPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 80, 30));
+        contentPanel.setOpaque(false);
         
         // Panel gauche pour la prévisualisation de la map
         mapPreviewPanel = new JPanel() {
@@ -319,14 +381,24 @@ public class SettingsView extends JPanel {
         styleComboBox.setMaximumSize(new Dimension(220, 50));
         
         // Ajout des labels et combos avec espacement
-        optionsPanel.add(createOptionGroup("Taille", sizeComboBox));
+        sizeLabel = new JLabel("Taille");
+        optionsPanel.add(createOptionGroup(sizeLabel, sizeComboBox));
         optionsPanel.add(Box.createVerticalStrut(20));
-        optionsPanel.add(createOptionGroup("Terrain", terrainComboBox));
+        terrainLabel = new JLabel("Terrain");
+        optionsPanel.add(createOptionGroup(terrainLabel, terrainComboBox));
         optionsPanel.add(Box.createVerticalStrut(20));
-        optionsPanel.add(createOptionGroup("Style", styleComboBox));
+        styleLabel = new JLabel("Style");
+        optionsPanel.add(createOptionGroup(styleLabel, styleComboBox));
         
-        panel.add(mapPreviewPanel);
-        panel.add(optionsPanel);
+        contentPanel.add(mapPreviewPanel);
+        contentPanel.add(optionsPanel);
+        
+        // Ajouter le contentPanel au centre du panel principal avec GridBagConstraints
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.CENTER;
+        panel.add(contentPanel, gbc);
         
         // Charger l'image initiale
         updateMapPreview();
@@ -337,13 +409,12 @@ public class SettingsView extends JPanel {
     /**
      * Crée un groupe label + combobox pour les options de la map
      */
-    private JPanel createOptionGroup(String labelText, PillComboBox<?> comboBox) {
+    private JPanel createOptionGroup(JLabel label, PillComboBox<?> comboBox) {
         JPanel group = new JPanel();
         group.setOpaque(false);
         group.setLayout(new BoxLayout(group, BoxLayout.Y_AXIS));
         group.setAlignmentX(Component.LEFT_ALIGNMENT);
         
-        JLabel label = new JLabel(labelText);
         label.setForeground(TEXT_COLOR);
         label.setAlignmentX(Component.LEFT_ALIGNMENT);
         try {
@@ -481,6 +552,14 @@ public class SettingsView extends JPanel {
         btnResetSave = (PillButton) createButton("Reset Sauvegarde");
         btnFullscreen = (PillButton) createButton("Fullscreen : OFF");
 
+        // Définir une largeur fixe pour tous les boutons
+        Dimension buttonSize = new Dimension(280, 50);
+        btnSound.setPreferredSize(buttonSize);
+        btnSound.setMaximumSize(buttonSize);
+        btnResetSave.setPreferredSize(buttonSize);
+        btnResetSave.setMaximumSize(buttonSize);
+        btnFullscreen.setPreferredSize(buttonSize);
+        btnFullscreen.setMaximumSize(buttonSize);
 
         btnSound.setAlignmentX(Component.CENTER_ALIGNMENT);
         btnResetSave.setAlignmentX(Component.CENTER_ALIGNMENT);
