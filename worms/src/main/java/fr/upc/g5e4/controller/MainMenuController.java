@@ -5,9 +5,9 @@ import java.io.IOException;
 import javax.swing.JOptionPane;
 
 import fr.upc.g5e4.GameLauncher;
+import fr.upc.g5e4.model.SoundPlayer;
 import fr.upc.g5e4.model.TeamSettingsModel;
 import fr.upc.g5e4.model.io.SaveLoad;
-import fr.upc.g5e4.view.AudioManager;
 import fr.upc.g5e4.view.MainMenuView;
 import fr.upc.g5e4.view.SettingsView;
 import fr.upc.g5e4.view.TeamSettingsView;
@@ -47,7 +47,7 @@ public class MainMenuController {
 
     private void startNewGame() throws IOException {
         // arrête la musique du menu
-        AudioManager.getInstance().stopBackgroundMusic();
+        SoundPlayer.stopBackgroundMusic();
         
         // Utilise le GameLauncher existant pour basculer vers le jeu
         gameLauncher.resetGame();   // pour reset le jeu au cas ou une save serait toujours en memoire
@@ -59,7 +59,7 @@ public class MainMenuController {
      */
     private void resumeGame(){ 
         // arrête la musique du menu
-        AudioManager.getInstance().stopBackgroundMusic();
+        SoundPlayer.stopBackgroundMusic();
         
         try {
             SaveLoad sv = new SaveLoad();
@@ -95,11 +95,11 @@ public class MainMenuController {
 
     private void startMenuMusic() {
         // la musique du menu principal
-        AudioManager.getInstance().playBackgroundMusic("/sfx/menu-music.wav");
+        SoundPlayer.playBackgroundMusic("/sfx/menu-music.wav");
     }
 
     private void quitGame() {
-        AudioManager.getInstance().stopBackgroundMusic();
+        SoundPlayer.stopBackgroundMusic();
         System.exit(0);
     }
 

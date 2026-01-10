@@ -4,7 +4,6 @@ import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
-import fr.upc.g5e4.view.AudioManager;
 
 /**
  * Joue des effets sonores (ici .WAV) depuis les ressources du jeu
@@ -20,6 +19,9 @@ public final class SoundPlayer {
     private static final Map<String, byte[]> audioCache = new HashMap<>();
     private static boolean initialized = false;
     private static float weaponSoundVolume = 0.5f;  // 50% du volume pour les armes psq ça casse les oreilles derien les amis
+    
+    // Clip pour la musique de fond
+    private static Clip backgroundMusicClip = null;
     
     /**
      * Initialise le système audio et pré-charge les sons communs
@@ -77,7 +79,8 @@ public final class SoundPlayer {
      *le son d'une arme avec volume réduit 
      */
     public static void playWeaponSound(String resourcePath) {
-        new Thread(() -> playWeapon(resourcePath)).start();
+        if (muted) return;
+        new Thread(() -> playSync(resourcePath)).start();
     }
     
     /**
@@ -131,14 +134,7 @@ public final class SoundPlayer {
     }
     }
     
-    /**
-     * joue un son d'arme de manière réduit 
-     */
-    private static void playWeapon(String resourcePath) {
-        // met le volume à 50% pour l'arme et le garde
-        AudioManager.getInstance().setVolume(weaponSoundVolume);
-        playSync(resourcePath);
-    }
+
     
     /**
      * son quand un worm meurt
@@ -160,6 +156,13 @@ public final class SoundPlayer {
      */
     public static void setMuted(boolean m) {
         muted = m;
+        
+        // Gérer la musique de fond
+        if (m) {
+            pauseBackgroundMusic();
+        } else {
+            resumeBackgroundMusic();
+        }
     }
 
     /**
@@ -168,5 +171,86 @@ public final class SoundPlayer {
      */
     public static boolean isMuted() {
         return muted;
+    }
+    
+    /**
+     * Jouer une musique de fond en boucle
+     * @param resourcePath chemin vers le fichier audio
+     */
+    public static void playBackgroundMusic(String resourcePath) {
+        try {
+            // arrête la musique actuelle 
+            stopBackgroundMusic();
+            
+            InputStream raw = SoundPlayer.class.getResourceAsStream(resourcePath);
+            if (raw == null) {
+                System.err.println("musique Introuvable: " + resourcePath);
+                return;
+            }
+            
+            BufferedInputStream bis = new BufferedInputStream(raw);
+            AudioInputStream ais = AudioSystem.getAudioInputStream(bis);
+            AudioFormat base = ais.getFormat();
+            
+            // Conversion vers PCM 16-bit
+            AudioFormat decoded = new AudioFormat(
+                    AudioFormat.Encoding.PCM_SIGNED,
+                    base.getSampleRate(),
+                    16,
+                    base.getChannels(),
+                    base.getChannels() * 2,
+                    base.getSampleRate(),
+                    false
+            );
+            
+            AudioInputStream dais = AudioSystem.getAudioInputStream(decoded, ais);
+            
+            backgroundMusicClip = AudioSystem.getClip();
+            backgroundMusicClip.open(dais);
+            
+            // Jouer en boucle infinie
+            backgroundMusicClip.loop(Clip.LOOP_CONTINUOUSLY);
+            
+            if (!muted) {
+                backgroundMusicClip.start();
+            }
+            
+            System.out.println("[MUSIC] Musique lancée: " + resourcePath);
+        } catch (Exception e) {
+            System.err.println("[MUSIC] Erreur lecture: " + resourcePath);
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Stop la musique de fond
+     */
+    public static void stopBackgroundMusic() {
+        if (backgroundMusicClip != null) {
+            if (backgroundMusicClip.isRunning()) {
+                backgroundMusicClip.stop();
+            }
+            backgroundMusicClip.close();
+            backgroundMusicClip = null;
+            System.out.println("Musique arrêtée");
+        }
+    }
+    
+    /**
+     *met en pause la musique de fond
+     */
+    public static void pauseBackgroundMusic() {
+        if (backgroundMusicClip != null && backgroundMusicClip.isRunning()) {
+            backgroundMusicClip.stop();
+        }
+    }
+    
+    /**
+     * reprend la musique de fond
+     */
+    public static void resumeBackgroundMusic() {
+        if (backgroundMusicClip != null && !backgroundMusicClip.isRunning()) {
+            backgroundMusicClip.start();
+        }
     }
 }

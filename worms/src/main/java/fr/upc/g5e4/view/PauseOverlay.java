@@ -1,5 +1,6 @@
 package fr.upc.g5e4.view;
 
+import fr.upc.g5e4.model.SoundPlayer;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -197,6 +198,11 @@ public class PauseOverlay extends JComponent {
             // reset hover/scroll quand on ferme
             hovered = Hover.NONE;
             scrollY = 0;
+            // Reprendre la musique
+            SoundPlayer.resumeBackgroundMusic();
+        } else {
+            // Mettre en pause la musique
+            SoundPlayer.pauseBackgroundMusic();
         }
         repaint();
     }
