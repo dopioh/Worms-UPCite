@@ -261,3 +261,4 @@
 - Ajout de support Java 24 et 25
     - JaCoCo : 0.8.12 → 0.8.13
     - Mockito : 5.14.2 → 5.21.0
+- Ajout de tests multi versions Java et multi architectures dans les pipelines
