@@ -83,7 +83,7 @@
 
     - Systeme de money par tour
 
-    - Tutoriel "Comment Joueur ?" dans le menu principal
+    - Tutoriel "Comment Jouer ?" dans le menu principal
 
 
 - ## [WU Billy](https://moule.informatique.u-paris.fr/wub)
