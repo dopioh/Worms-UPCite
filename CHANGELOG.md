@@ -195,13 +195,15 @@
 - Dégâts de zone 
 - Readme.md expliquant le projet (comment jouer etc)
 - Ajout d'un pointeur graphique (flèche rouge) au-dessus du joueur actif dans la vue GamePanel pour indiquer visuellement le worm en cours de jeu
-- Ajout background avec effet parallax
+- Background avec effet parallax
     - Choix dans paramètre onglet map
 - AUTHORS.md
 - CONTRIBUTING.MD
 - DESIGN.MD
 - Système d'images en cache pour optimiser
 - Animation de marche pour les worms (rotation)
+- **Arbres**
+    - Disparition automatique des décos quand le sol en dessous est détruit
 
 ### Modified
 

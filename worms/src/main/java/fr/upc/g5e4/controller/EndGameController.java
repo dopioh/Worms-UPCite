@@ -16,6 +16,7 @@ import fr.upc.g5e4.view.UI.*;
 
 /**
  * Contrôleur pour gérer l'écran de fin de partie
+ * @author Ian
  */
 public class EndGameController {
     private GameLauncher gameLauncher;
@@ -25,6 +26,45 @@ public class EndGameController {
     public EndGameController(GameLauncher gameLauncher) {
         this.gameLauncher = gameLauncher;
         loadFonts();
+    }
+    
+    /**
+     * Affiche l'écran de fin de partie en cherchant l'équipe gagnante
+     * @param winnerName Le nom de l'équipe gagnante
+     */
+    public void showEndGameScreen(String winnerName) {
+        SwingUtilities.invokeLater(() -> {
+            // Trouver l'équipe gagnante dans la liste des équipes
+            TeamModel winningTeam = null;
+            TeamView winningTeamView = null;
+            
+            GameManager gameManager = gameLauncher.getGameManager();
+            if (gameManager == null) {
+                System.err.println("Erreur: GameManager est null");
+                return;
+            }
+            
+            for (TeamInitialisation teamInit : gameManager.getListTeamInit()) {
+                if (teamInit.getName().equals(winnerName)) {
+                    winningTeam = teamInit.getTeamModel();
+                    winningTeamView = teamInit.getTeamView();
+                    break;
+                }
+            }
+            
+            if (winningTeam == null || winningTeamView == null) {
+                System.err.println("Erreur: Équipe gagnante non trouvée: " + winnerName);
+                return;
+            }
+            
+            showEndGameScreen(
+                winningTeam, 
+                winningTeamView, 
+                winnerName,
+                gameManager.getAllTeamStats(),
+                gameManager.getListTeamInit()
+            );
+        });
     }
     
     private void loadFonts() {

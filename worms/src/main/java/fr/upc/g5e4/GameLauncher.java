@@ -349,7 +349,8 @@ public class GameLauncher{
                 String winner = gameLoop.getWinner();
                 if (winner != null) {
                     ((Timer)e.getSource()).stop();
-                    showEndGameScreen(winner);
+                    EndGameController endGameController = new EndGameController(this);
+                    endGameController.showEndGameScreen(winner);
                 }
             }
         });
@@ -489,39 +490,6 @@ public class GameLauncher{
 
     public GameLoop getGameLoop(){
         return this.gameLoop;
-    }
-    
-    /**
-     * Affiche l'écran de fin de partie avec animation
-     */
-    private void showEndGameScreen(String winnerName) {
-        SwingUtilities.invokeLater(() -> {
-            // Trouver l'équipe gagnante dans la liste des équipes
-            TeamModel winningTeam = null;
-            TeamView winningTeamView = null;
-            
-            for (TeamInitialisation teamInit : gameManager.getListTeamInit()) {
-                if (teamInit.getName().equals(winnerName)) {
-                    winningTeam = teamInit.getTeamModel();
-                    winningTeamView = teamInit.getTeamView();
-                    break;
-                }
-            }
-            
-            if (winningTeam == null || winningTeamView == null) {
-                System.err.println("Erreur: Équipe gagnante non trouvée: " + winnerName);
-                return;
-            }
-            
-            EndGameController endGameController = new EndGameController(this);
-            endGameController.showEndGameScreen(
-                winningTeam, 
-                winningTeamView, 
-                winnerName,
-                gameManager.getAllTeamStats(),
-                gameManager.getListTeamInit()
-            );
-        });
     }
 
     public void resetGame() {
