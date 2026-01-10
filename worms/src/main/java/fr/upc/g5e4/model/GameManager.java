@@ -422,20 +422,7 @@ public class GameManager {
         this.gamePanel.setFocusable(false);  // le panel ne prend pas le focus
         imputController.setFocusable(true);   // l'inputController prend le focus    
 
-        // Timer pour update régulier de la caméra, projectiles et repaint
-        new Timer(16, e -> {
-            cameraController.update();
-            // mettre à jour les projectiles (16ms = 0.016s par frame)
-            itemController.updateProjectiles(0.016f);
-            
-            // recréer le terrain physique si la grille a changé (blocs détruits)
-            if (blockGridModel.isDirty()) {
-                physic.recreateGroundFromBlockGrid(blockGridModel);
-                blockGridModel.clearDirty();
-            }
-            
-            gamePanel.repaint();
-        }).start();
+        // suppression de l'ancien timer useless ici (projectiles, camera et terrain)
 
         //initialiseInventory();
 

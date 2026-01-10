@@ -41,8 +41,8 @@ public class GameLoop{
 
     // on fonctionne avec delta time (temps reel) pour la physique 
     // (independant de la vitesse du processeur)
-    double deltaTime;
-    long lastTime = System.nanoTime();
+    private double deltaTime;
+    private long lastTime = System.nanoTime();
 
     public GameLoop(GameManager gameManager){
         this.gameManager = gameManager;
@@ -81,7 +81,7 @@ public class GameLoop{
                 
                 // met a jour les projectiles
                 if (gameManager.getItemController() != null) {
-                    gameManager.getItemController().updateProjectiles(FIXHZ);
+                    gameManager.getItemController().updateProjectiles((float)deltaTime);
                 }
                 
                 // met a jour la visibilité des décorations (disparaissent si sol détruit)
@@ -194,5 +194,9 @@ public class GameLoop{
     
     public String getWinner() {
         return gameManager.checkGameOver();
+    }
+
+    public double getDeltaTime(){
+        return this.deltaTime;
     }
 }
