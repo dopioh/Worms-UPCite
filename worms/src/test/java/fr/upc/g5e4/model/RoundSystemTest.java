@@ -68,7 +68,7 @@ public class RoundSystemTest {
         String nextName = gameManager.getCurrentTeamName();
         assertNotNull(nextName);
         assertFalse(nextName.isEmpty());
-        assertEquals(initialName, nextName, "Le nom de l'équipe devrait changer après nextRound");
+        assertNotEquals(initialName, nextName, "Le nom de l'équipe devrait changer après nextRound");
     }
 
     @Test

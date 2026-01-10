@@ -100,7 +100,7 @@ public class GameManager {
     private final Random windRng = new Random();
     
     // Statistiques de jeu - support pour un nombre variable d'équipes
-    private Map<String, GameStats> teamStats = new HashMap<>();
+    private Map<Integer, GameStats> teamStats = new HashMap<>();
 
     //private boolean saveDataBool;
     //private SaveData saveData;
@@ -548,17 +548,17 @@ public class GameManager {
         return hudOverlay;
     }
     
-    public Map<String, GameStats> getAllTeamStats() {
+    public Map<Integer, GameStats> getAllTeamStats() {
         return teamStats;
     }
 
-    public GameStats getTeamStats(String teamName) {
-        return teamStats.get(teamName);
+    public GameStats getTeamStats(int teamId) {
+        return teamStats.get(teamId);
     }
 
     public GameStats getCurrentTeamStats() {
-        String currentTeamName = getCurrentTeamName();
-        return teamStats.get(currentTeamName);
+        int currentTeamId = currentTeam.getTeamID();
+        return teamStats.get(currentTeamId);
     }
 
     public int[] getTeamCursor(){
@@ -757,6 +757,12 @@ public class GameManager {
             }
         }
         
+        // incrémenter le compteur de rounds pour l'équipe qui vient de jouer
+        GameStats currentStats = getCurrentTeamStats();
+        if (currentStats != null) {
+            currentStats.incrementRounds();
+        }
+        
         roundNumber++;
         currentTeamIndex = (currentTeamIndex + 1) % listTeamInital.size(); 
         currentTeam = listTeamInital.get(currentTeamIndex).getTeamModel();
@@ -841,6 +847,10 @@ public class GameManager {
             index++;
 
             String name = ctd.getTeamName();
+            //si le nom est default donner un nom unique basé sur l'index
+            if (name.equalsIgnoreCase("Default")) {
+                name = "Team " + (i + 1);
+            }
 
             TeamInitialisation temp = new TeamInitialisation(model, world, name, this.nbrWormsByTeam, startX, skinPath);
     
@@ -848,7 +858,7 @@ public class GameManager {
             listTeamModel.add(temp.getTeamModel());
             
             // Initialiser les statistiques pour cette équipe
-            teamStats.put(name, new GameStats());
+            teamStats.put(temp.getTeamModel().getTeamID(), new GameStats());
         }
     }
 

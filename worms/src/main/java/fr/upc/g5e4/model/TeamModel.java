@@ -109,6 +109,10 @@ public class TeamModel {
         return teamName;
     }
 
+    public int getTeamID(){
+        return teamID;
+    }
+
     public CharacterModel[] getTabWorms() {
         return tabModelWorms;
     }

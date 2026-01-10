@@ -220,6 +220,12 @@
 - Remonte le niveau de l'eau
 - Couleur de l'eau
 - Taille des blocks
+- **Arriere plan de la map**
+    - ajustement pour qu'il a un peu moins de presence pour mettre en valeur plus les worms et terrain que l'arriere plan
+- **Animation**
+    - ajustement de l'animation walk pour rendre un peu moins agressive
+- Création d'équipe avec un nom existant ou nom vide maintenant bloquée
+- Confirmation de création d'équipe avec un popup
 
 ### Fixed
 
@@ -236,7 +242,17 @@
 - Suppression de touche Echap dans main menu
 - Adaptation des Tests pour le nouveau système d'équipe
 - Certaines images chargeaient deux fois dans le cache
-- Changement du systeme de detection des worms sous la map
+- **full screen**
+    - Menu Réglage
+    - Titre main menu
+- Des sons jouée pendant les test
+- **Écran de fin de partie**
+    - Stats par ID d'équipe au lieu du nom
+    - Noms d'équipes par défaut : Team 1, Team 2...
+    - Comptage correct des rounds dans les stats
+    - Kills par rocket launcher maintenant comptabilisés dans stats
+    - Précision limitée à 100% max (un tir = un hit même en zone)
+- Systeme de detection des worms sous la map
 
 ### Configuration
 
