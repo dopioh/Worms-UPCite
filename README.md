@@ -5,7 +5,7 @@ Jeu 2D de type [Worms](https://fr.wikipedia.org/wiki/Worms_(jeu_vidéo)) dévelo
 ## Prérequis
 
 - **Java 23** ou supérieur
-- **Apache Maven** (version récente recommandée)
+- **Apache Maven** 3.9
 
 ## Compilation
 
