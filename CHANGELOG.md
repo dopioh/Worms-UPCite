@@ -35,7 +35,8 @@
     - Gadget (Bumper)
 - Classe inventaire
     - InventoryJson
-    - JDialog pour agir avec les armes et gadget selon les données de InventoryJson 
+    - Interface JDialog 
+    - Un modèle permet agir avec les armes et gadget selon les données de InventoryJson 
 - Classe Donnée Joueur
     - Système de sauvegarde des données (JSON)
 - Classe Camera
@@ -64,6 +65,7 @@
 - Raccourcis
     - `Esc` pour quitter le jeu
     - `I` pour ouvrir l’inventaire
+- Icone de l'inventaire cliquable
 - vue console : on peut désormais lancer le jeu en mode console
 - JaCoCo et de Mockito
 - Mise en place d’un inventaire consultable en jeu
@@ -101,7 +103,9 @@
 - Fonction `loadSprite` avec gestion d'erreurs
 - Affichage du sprite dans la bonne direction
 - SFX bruit de Tir
-- Vent
+- Vent 
+    - Interface
+    - Modèle de vent
 
 ### Modified
 
@@ -111,6 +115,7 @@
     - Séparation du `GameLauncher` et des Overlays
     - Séparation du JFrame
     - Suppression de `Entity.java` obsolète
+- Clic sur le sac n'ouvre plus
 
 ### Fixed
 
