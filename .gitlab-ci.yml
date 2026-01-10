@@ -1,5 +1,3 @@
-image: maven:3.9-eclipse-temurin-23
-
 variables:
   #désactivé temporairement pour un runner secours (mac Ian)
   #MAVEN_OPTS: "-Dhttps.proxyHost=194.254.199.96 -Dhttps.proxyPort=3128"
@@ -26,10 +24,14 @@ stages:
   - deploy
   - release_job
 
-# ETAPE 1 : BUILD
+# ETAPE 1 : BUILD - Teste sur plusieurs versions de Java
 
 build:
   stage: build
+  parallel:
+    matrix:
+      - JAVA_VERSION: ["23", "24", "25"]
+  image: maven:3.9-eclipse-temurin-${JAVA_VERSION}
   script: 
     # force la suppression du proxy au cas où il reste en mémoire
     - unset MAVEN_OPTS || true
@@ -44,10 +46,14 @@ build:
     paths:
       - worms/target
 
-# ETAPE 2 : TEST 
+# ETAPE 2 : TEST - Teste sur plusieurs versions de Java
 
 test:
   stage: test
+  parallel:
+    matrix:
+      - JAVA_VERSION: ["23", "24", "25"]
+  image: maven:3.9-eclipse-temurin-${JAVA_VERSION}
   script: 
     - cd worms
     - mvn $MAVEN_CLI_OPTS test
@@ -55,10 +61,11 @@ test:
   dependencies :
     - build
 
-# ETAPE 3 : DEPLOIEMENT
+# ETAPE 3 : DEPLOIEMENT - Utilise Java 23 pour le déploiement final
 
 deploy:
   stage: deploy
+  image: maven:3.9-eclipse-temurin-23
   script:
     - cd worms
     - mvn $MAVEN_CLI_OPTS clean package
