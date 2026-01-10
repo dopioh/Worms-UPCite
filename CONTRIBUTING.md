@@ -34,7 +34,7 @@ Pour proposer une nouvelle fonctionnalité :
 ### Prérequis
 
 - **Java 23-25** (Java23 conseillé)
-- **Apache Maven 3.9
+- **Apache Maven 3.9**
 - **Git** pour la gestion de version
 
 ### Installation
