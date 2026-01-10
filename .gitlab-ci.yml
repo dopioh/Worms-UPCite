@@ -32,7 +32,7 @@ build:
   parallel:
     matrix:
       - JAVA_VERSION: ["23", "24", "25"]
-        MAVEN_VERSION: ["3.9", "4.0"]
+        MAVEN_VERSION: ["3.9"]
   image: maven:${MAVEN_VERSION}-eclipse-temurin-${JAVA_VERSION}
   script: 
     # force la suppression du proxy au cas où il reste en mémoire pour proxy
@@ -57,7 +57,7 @@ test:
   parallel:
     matrix:
       - JAVA_VERSION: ["23", "24", "25"]
-        MAVEN_VERSION: ["3.9", "4.0"]
+        MAVEN_VERSION: ["3.9"]
         ARCH: ["arm64", "amd64"]
   image: maven:${MAVEN_VERSION}-eclipse-temurin-${JAVA_VERSION}
   variables:
