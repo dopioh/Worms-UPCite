@@ -364,7 +364,7 @@ public class BlockGridModel {
             for (int y = Math.max(0, centerY - radius); y <= Math.min(gridHeight - 1, centerY + radius); y++) {
                 // si le bloc est solide mais pas connecté au sol on supprime
                 if (getBlock(x, y).isSolid() && !isConnectedToGround(x, y)) {
-                    setBlock(x, y, BlockType.AIR);
+                    destroyBlock(x, y);
                     removed++;
                 }
             }

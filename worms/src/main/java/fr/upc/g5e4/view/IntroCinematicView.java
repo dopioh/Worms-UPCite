@@ -5,7 +5,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.InputStream;
-import fr.upc.g5e4.view.LoadingBarPanel;
+//import fr.upc.g5e4.view.LoadingBarPanel;
 
 /**
  * Vue pour la cinématique d'introduction du combat

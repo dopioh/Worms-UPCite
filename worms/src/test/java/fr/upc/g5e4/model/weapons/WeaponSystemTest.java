@@ -1,4 +1,4 @@
-package fr.upc.g5e4.model;
+package fr.upc.g5e4.model.weapons;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

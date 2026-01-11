@@ -23,7 +23,7 @@ import fr.upc.g5e4.util.ImageCache;
 import fr.upc.g5e4.view.UI.*;
 
 import fr.upc.g5e4.model.TutorialModel;
-import fr.upc.g5e4.view.TutorialView;
+//import fr.upc.g5e4.view.TutorialView;
 import fr.upc.g5e4.controller.TutorialController;
 
 

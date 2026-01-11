@@ -1,10 +1,13 @@
-# Projet Worms
+# Wormiliton
+
+Projet Worms | Groupe 5 Équipe 4
+
 
 Jeu 2D de type [Worms](https://fr.wikipedia.org/wiki/Worms_(jeu_vidéo)) développé en Java, où des équipes de vers s'affrontent tour à tour sur un terrain destructible avec un petit arsenal soumis à une physique simple (gravité, collisions, vent)
 
 ## Prérequis
 
-- **Java 23** ou supérieur
+- **Java 23, 24 ou 25**
 - **Apache Maven** 3.9
 
 ## Compilation
@@ -39,8 +42,8 @@ java -jar worms/target/worms-app.jar
 Au lancement, vous arrivez sur le menu principal avec les options suivantes :
 - **Nouvelle Partie** : Démarrer une nouvelle partie
 - **Poursuivre une partie** : Charger une partie sauvegardée
+- **Comment jouer** : Apprendre les bases du jeu
 - **Reglages** : Configurer les paramètres du jeu (map, équipes, etc.)
-- **Tutoriel** : Apprendre les bases du jeu
 - **Quitter** : Fermer le jeu
 
 ### Déroulement d'une partie
@@ -56,7 +59,6 @@ Au lancement, vous arrivez sur le menu principal avec les options suivantes :
 - **Q/D** : Déplacer le ver
 - **Z** : Sauter
 - **Clic gauche** : Tirer/Utiliser l'arme ou gadget
-- **Échap** : Menu pause
 - **Scroll** : Zoomer/Dézoomer la caméra
 
 ### Inventaire
@@ -66,26 +68,26 @@ Pendant la partie, appuyez sur le sac pour ouvrir l'inventaire avec ses trois on
 - Armes
     - Consultez et sélectionnez vos armes disponibles
 
-- Gadgets
+- Gadget
     - Accédez à vos items spéciaux et potions
 
 - Boutique
     - Jouez à des mini-jeux pour gagner de l'argent supplémentaire
+    - Achetez des skins, des armes et des potions
 
 ### Arsenal disponible
 
 **Armes :**
-- **AK-47** : Arme automatique avec cadence de tir rapide
-- **Bazooka** : Lance-roquettes à longue portée avec explosion
-- **Grenade** : Projectile explosif avec rebond
-- **Batte de baseball** : Arme de mêlée pour repousser les ennemis
+- **Batte de baseball**
+- **Grenade**
+- **AK-47**
+- **Bazooka**
 
 **Gadgets :**
-- **Bumper** : Trampoline pour faire rebondir les worms
-- **Potion de vie** : Restaure les points de vie
-- **Potion de vitesse** : Augmente la vitesse de déplacement
-- **Potion de saut** : Améliore la hauteur de saut
-- **Potion de bouclier** : Offre une protection temporaire
+- **Potion Heal** : Restaure 50 HP
+- **Potion Speed** : Augmente la vitesse
+- **Potion Jump** : Améliore la hauteur de saut
+- **Potion Shield** : Ajoute du shield
 
 ### Système de sauvegarde
 
@@ -113,17 +115,8 @@ Le rapport sera disponible dans `target/site/jacoco/index.html`
 
 ## Structure du projet
 
-```
-worms/
-├── src/
-│   ├── main/
-│   │   ├── java/          # Code source
-│   │   └── resources/     # Ressources (sprites, sons, etc.)
-│   └── test/
-│       └── java/          # Tests unitaires
-├── sauvegardes/           # Fichiers de sauvegarde
-└── pom.xml                # Configuration Maven
-```
+![Structure du projet](worms/src/main/resources/Structure.png)
+
 Voir [ARCHITECTURE.md](worms/ARCHITECTURE.md) pour la structure complète
 
 ## Documentation
@@ -131,15 +124,10 @@ Voir [ARCHITECTURE.md](worms/ARCHITECTURE.md) pour la structure complète
 - [DESIGN.md](DESIGN.md) : Décisions de conception
 - [CHANGELOG.md](CHANGELOG.md) : Historique des modifications
 - [CONTRIBUTING.md](CONTRIBUTING.md) : Guide de contribution
-- [AUTHORS.md](AUTHORS.md) : Liste des contributeurs du projet
-
-## Problèmes connus
-
-Si vous rencontrez des problèmes :
-
-1. **Le JAR ne se lance pas** : Vérifiez que vous utilisez Java 23+
-2. **Erreur de compilation Maven** : Assurez-vous d'avoir une connexion internet pour télécharger les dépendances
+- [AUTHORS.md](AUTHORS.md) : Liste des contributeurs et leur principaux contributions
 
 ## Licence
 
 Voir le fichier [LICENSE](LICENSE) pour les détails.
+
+![Ground](worms/src/main/resources/Deco_Ground.png)

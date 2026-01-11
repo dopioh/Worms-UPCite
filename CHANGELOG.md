@@ -213,6 +213,9 @@
 - musiques et images des gadgets
 - **Arbres**
     - Disparition automatique des décos quand le sol en dessous est détruit
+- **Sauvegardes**
+    - Possibilite de supprimer une save
+    - Si il n'y a pas de save enregistrer alors un message s'affiche 
 
 ### Modified
 
@@ -235,6 +238,7 @@
     - ajustement de l'animation walk pour rendre un peu moins agressive
 - Création d'équipe avec un nom existant ou nom vide maintenant bloquée
 - Confirmation de création d'équipe avec un popup
+- Trie des tests en MVC
 
 ### Fixed
 
@@ -264,6 +268,11 @@
     - Kills par rocket launcher maintenant comptabilisés dans stats
     - Précision limitée à 100% max (un tir = un hit même en zone)
 - Systeme de detection des worms sous la map
+- Fix color save qui s'enregistrer mal
+- Fix GameLoop decalage de la Physique et du timer 
+    - fix double timer 
+    - fix toutes les features qui se basaient sur l'ancien GameLoop
+- Fix Worms qui tombaient a droite quand y'en avait trop qui spawn
 
 ### Configuration
 

@@ -1,4 +1,4 @@
-package fr.upc.g5e4.model;
+package fr.upc.g5e4.model.weapons;
 
 import fr.upc.g5e4.controller.ItemController;
 import fr.upc.g5e4.model.CharacterModel;
