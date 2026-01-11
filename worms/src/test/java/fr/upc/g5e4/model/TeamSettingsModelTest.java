@@ -6,6 +6,7 @@ import fr.upc.g5e4.view.TeamSettingsView;
 
 import fr.upc.g5e4.view.UI.*;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,6 +36,11 @@ class TeamSettingsModelTest {
     @Mock private CustomGameManager customTeamManager;
 
     private TeamSettingsModel model;
+
+    @BeforeAll
+    static void setUpHeadless() {
+        System.setProperty("java.awt.headless", "true"); // force le headless pour pas que ca crash avec showDialog()
+    }
 
     @BeforeEach
     void setUp() {

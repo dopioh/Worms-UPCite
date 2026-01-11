@@ -109,7 +109,7 @@ public class TeamSettingsModel {
     }
     
     private void showDialog(String message, int type) {
-        if (!java.awt.GraphicsEnvironment.isHeadless() && view != null) {
+        if (!java.awt.GraphicsEnvironment.isHeadless() && view != null && view.isDisplayable()) {
             javax.swing.JOptionPane.showMessageDialog(view, message, "info", type);
         }
     }
