@@ -1,4 +1,4 @@
-package fr.upc.g5e4;
+package fr.upc.g5e4.integration;
 
 import fr.upc.g5e4.model.io.PlayerData;
 import fr.upc.g5e4.controller.PlayerDataController;
