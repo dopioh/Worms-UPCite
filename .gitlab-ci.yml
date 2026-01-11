@@ -1,32 +1,24 @@
 image: maven:3.9-eclipse-temurin-23
 
 variables:
+  #désactivé temporairement pour un runner secours (mac Ian)
+  MAVEN_OPTS: "-Dhttps.proxyHost=194.254.199.96 -Dhttps.proxyPort=3128"
+  MAVEN_CONFIG: "/root/.m2"
   MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version"
-  # Repo Maven local DANS le projet (pour être caché)
-  MAVEN_REPO_LOCAL: "$CI_PROJECT_DIR/worms/.m2/repository"
-
-cache:
-  key: "maven-cache"
-  paths:
-    - worms/.m2/repository
 
 before_script:
-  - mkdir -p "$CI_PROJECT_DIR/worms/.m2"
-  # Si vous avez BESOIN du proxy sur certains runners (école) :
-  - |
-    cat > "$CI_PROJECT_DIR/worms/.m2/settings.xml" << 'EOF'
-    <settings>
-      <proxies>
-        <proxy>
-          <id>proxy</id>
-          <active>true</active>
-          <protocol>https</protocol>
-          <host>194.254.199.96</host>
-          <port>3128</port>
-        </proxy>
-      </proxies>
-    </settings>
-    EOF
+ - mkdir -p /root/.m2
+ - echo '<settings>
+     <proxies>
+       <proxy>
+         <id>proxy</id>
+         <active>true</active>
+         <protocol>https</protocol>
+         <host>194.254.199.96</host>
+         <port>3128</port>
+       </proxy>
+     </proxies>
+   </settings>' > /root/.m2/settings.xml
 
 stages:
   - build
@@ -34,38 +26,50 @@ stages:
   - deploy
   - release_job
 
+# ETAPE 1 : BUILD
+
 build:
   stage: build
-  script:
+  script: 
+    # force la suppression du proxy au cas où il reste en mémoire
+    - unset MAVEN_OPTS || true
     - cd worms
-    - mvn $MAVEN_CLI_OPTS -s "$CI_PROJECT_DIR/worms/.m2/settings.xml" -Dmaven.repo.local="$MAVEN_REPO_LOCAL" -U clean compile
+    - mvn $MAVEN_CLI_OPTS -U clean compile
+#  cache:
+#    key: "$CI_COMMIT_REF_NAME"
+#    policy: push
   artifacts:
     paths:
       - worms/target
 
+# ETAPE 2 : TEST 
+
 test:
   stage: test
-  script:
+  script: 
     - cd worms
-    - mvn $MAVEN_CLI_OPTS -s "$CI_PROJECT_DIR/worms/.m2/settings.xml" -Dmaven.repo.local="$MAVEN_REPO_LOCAL" test
-  dependencies:
+    - mvn $MAVEN_CLI_OPTS test
+  
+  dependencies :
     - build
+
+# ETAPE 3 : DEPLOIEMENT
 
 deploy:
   stage: deploy
   script:
     - cd worms
-    - mvn $MAVEN_CLI_OPTS -s "$CI_PROJECT_DIR/worms/.m2/settings.xml" -Dmaven.repo.local="$MAVEN_REPO_LOCAL" clean package
+    - mvn $MAVEN_CLI_OPTS clean package
   artifacts:
     paths:
       - worms/target/worms-app.jar
     expire_in: 1 week
   only:
-    - main
-    - dev
-    - deploiement
-    - tags
-    - fixRelease
+   - main 
+   - dev
+   - deploiement
+   - tags
+   - fixRelease
 
 release_job:
   stage: release_job
@@ -74,7 +78,7 @@ release_job:
     - job: deploy
       artifacts: true
   rules:
-    - if: $CI_COMMIT_TAG
+    - if: $CI_COMMIT_TAG 
   script:
     - echo "Création de la release pour le tag $CI_COMMIT_TAG"
   release:
