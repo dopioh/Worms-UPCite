@@ -1,12 +1,19 @@
 package fr.upc.g5e4.model;
 
-import fr.upc.g5e4.controller.*;import fr.upc.g5e4.model.io.CustomTeamData;
+import fr.upc.g5e4.controller.*;
+import fr.upc.g5e4.model.io.CustomTeamData;
 import fr.upc.g5e4.view.*;
 
 import java.util.ArrayList;
 
 /**
  * Classe qui va gerer le controller et la view
+ * 
+ * @see TeamSettingsView partie view
+ * @see PlayerDataController partie controller
+ * @see TeamConfig pour save les donnees pour la prochaine partie
+ * 
+ * @author Mei
  */
 public class TeamSettingsModel {
 
@@ -18,17 +25,28 @@ public class TeamSettingsModel {
     private int nbrWormByTeam;
     private ArrayList<String> customTeamByTeam;
 
-
+    /**
+     * Constructeur par defaut
+     * @param view la vue des settings team 
+     * @param playerDataController le controller qui gere les donnees joueur
+     */
     public TeamSettingsModel(TeamSettingsView view, PlayerDataController playerDataController){
         this.playerDataController = playerDataController;
         this.view = view;
         this.controller = new TeamSettingsController(this, view);
     }
 
+    // getter
     public TeamSettingsController getTeamSettingsController(){
         return this.controller;
     }
 
+    /**
+     * Appeler lorsque le bouton de gauche (zoneChoice) est called
+     * Save les donnees entrees dans TeamConfig
+     * 
+     * @see TeamSettingsModel#transferTeamConfig()
+     */
     public void saveDataNextGame(){
         this.nbrEquipe = view.getNbrEquipe();
         this.nbrWormByTeam = view.getWormByTeam();
@@ -39,16 +57,27 @@ public class TeamSettingsModel {
         System.out.println("Bouton Appuye - Save des data entree pour la prochaine partie");
     }
 
-    public void transferTeamConfig(){
+    /**
+     * Methode interne pour transferer les donnees user dans TeamCongif
+     */
+    private void transferTeamConfig(){
         TeamConfig.NBR_EQUIPE = nbrEquipe;
         TeamConfig.NBR_WORM_EQUIPE = nbrWormByTeam;
         TeamConfig.aCustomForATeam = findClassByName();
     }
 
+    /**
+     * Pour l'update de l'image du worm
+     * 
+     * Ca update toute la vue graphique des TeamSettings en realites
+     */
     public void changePreviewImage(){
         view.update(view.getFullScreen());
     }
 
+    /**
+     * On save dans PlayerData si on creer une nouvelle Custom Team
+     */
     public void saveCustom(){
         String teamName = view.getTeamName();
         

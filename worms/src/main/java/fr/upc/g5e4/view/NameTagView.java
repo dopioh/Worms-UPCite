@@ -4,9 +4,9 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.ImageIcon;
+//import javax.swing.ImageIcon;
 import fr.upc.g5e4.model.CharacterModel;
-import fr.upc.g5e4.model.MapConfig;
+//import fr.upc.g5e4.model.MapConfig;
 import fr.upc.g5e4.util.ImageCache;
 
 /**
@@ -309,15 +309,10 @@ public class NameTagView {
             int textX = x - (textWidth / 2);
             int textY = y - 70;
 
-            if ((MapConfig.getBackgroundStyle() != null) && MapConfig.getBackgroundStyle().equals(MapConfig.BackgroundStyle.NUIT)){
-                g2d.setColor(Color.BLACK);
-            } else {
-                 g2d.setColor(Color.WHITE);
-            }
-
             g2d.setColor(Color.BLACK);
             int outlineThickness = 2; 
     
+            // dessiner le contour des lettres
             for (int i = -outlineThickness; i <= outlineThickness; i++) {
                 for (int j = -outlineThickness; j <= outlineThickness; j++) {
                     if ( i!= 0 || j != 0) { // pour eviter de dessiner au centre
@@ -326,7 +321,6 @@ public class NameTagView {
                 }
             }
 
-            // Texte principal par-dessus
             g2d.setColor(teamColor);
             g2d.drawString(name, textX, textY);
   

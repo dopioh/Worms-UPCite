@@ -1,7 +1,7 @@
 package fr.upc.g5e4.model;
 
 import java.util.ArrayList;
-import java.util.Random;
+//import java.util.Random;
 import java.awt.Color;
 
 import fr.upc.g5e4.model.io.CustomTeamData;
@@ -22,7 +22,6 @@ public class TeamConfig {
 
     // dans l'idee de base le joueur pouvait choisir sa couleur mais j'ai pas le temps 
     // donc ca sera des couleurs fixe pour n equipes
-    // pas besoin de rajouter dans la save 
     public static ArrayList<Color> colorByTeam; 
 
     public static ArrayList<CustomTeamData> defaultCustom(){

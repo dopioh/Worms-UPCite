@@ -77,8 +77,8 @@ public class TeamInitialisation {
         teamView = new TeamView(teamNumber,color, skinPath, facingRight);
         //upSpacing(groundModel); // pour que si il y'a plus de 2 equipes, les worms ne se superposent pas
         SPACING += 3;
-        System.out.println("INT COLOR : " + intColor);
-        System.out.println("COLOR COLOR : " + color.toString());
+        //System.out.println("INT COLOR : " + intColor);
+        //System.out.println("COLOR COLOR : " + color.toString());
     }
 
     /**
@@ -100,8 +100,8 @@ public class TeamInitialisation {
         colorGiving(false);
         teamModel = new TeamModel(groundModel, world, teamName, teamNumber, TeamID, characterData,intColor,inventory,skinPath);
         teamView = new TeamView(teamNumber,color, skinPath, true); // facingRight a changer apres
-        System.out.println("INT COLOR SAVE : " + intColor);
-        System.out.println("COLOR COLOR SAVE : " + color.toString());
+        //System.out.println("INT COLOR SAVE : " + intColor);
+        //System.out.println("COLOR COLOR SAVE : " + color.toString());
         teamModel.setMoney(money);
     }
 
@@ -123,15 +123,15 @@ public class TeamInitialisation {
      * Au bout de 5 couleurs diff, on reprends des couleurs deja attribuees 
      */
     private void colorGiving(boolean augmente){
-        System.out.println("COLORTEAM PDT COLOR GIVING : " + COLORTEAM);
-        System.out.println("COLOR INDI INT PDT COLOR GIVING : " + intColor);
+        //System.out.println("COLORTEAM PDT COLOR GIVING : " + COLORTEAM);
+        //System.out.println("COLOR INDI INT PDT COLOR GIVING : " + intColor);
         if (COLORTEAM >= 6){
             COLORTEAM = 0;
         }
 
         switch (COLORTEAM) {
             case 0:
-                this.color = new Color(255, 115, 126);
+                this.color = new Color(255, 74, 2);
                 break;
             case 1 : 
                 this.color = new Color(146, 130, 255);
@@ -140,7 +140,7 @@ public class TeamInitialisation {
                 this.color = new Color(137, 247, 136);
                 break;
             case 3 : 
-                this.color = new Color(61, 61, 71);
+                this.color = new Color(253, 91, 191);
                 break;
             case 4 : 
                 this.color = new Color(100, 227, 114);

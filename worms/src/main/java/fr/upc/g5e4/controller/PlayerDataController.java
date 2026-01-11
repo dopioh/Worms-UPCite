@@ -12,6 +12,9 @@ import java.io.FileWriter;
 
 /**
  * Contrôleur pour la gestion des données du joueur (Controller)
+ * 
+ * @author Billy (Donnees joueurs SPRINT 1)
+ * @author Mei (Modification pour l'adapate a custom team)
  */
 public class PlayerDataController {
     private final Gson gson;
@@ -106,6 +109,4 @@ public class PlayerDataController {
         return false;
         
     }
-
-
 }

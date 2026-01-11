@@ -8,7 +8,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-import fr.upc.g5e4.model.InventoryModel;
+//import fr.upc.g5e4.model.InventoryModel;
 import fr.upc.g5e4.model.InventoryModel.InventoryJson;
 import fr.upc.g5e4.controller.SwingInputController;
 import fr.upc.g5e4.controller.minigames.*;
@@ -913,7 +913,6 @@ public class InventoryOverlay extends JComponent {
         }
         
         playerDataController.sauvegarderJoueur();
-        //playerDataController.chargerJoueur();
         
         System.out.println("Achat réussi: " + shopItem.name + " pour " + shopItem.price + "$");
         

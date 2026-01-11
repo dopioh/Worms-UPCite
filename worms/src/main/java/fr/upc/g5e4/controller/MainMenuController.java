@@ -10,7 +10,7 @@ import fr.upc.g5e4.GameLauncher;
 import fr.upc.g5e4.model.TeamSettingsModel;
 import fr.upc.g5e4.model.io.SaveLoad;
 import fr.upc.g5e4.view.MainMenuView;
-import fr.upc.g5e4.view.SettingsView;
+//import fr.upc.g5e4.view.SettingsView;
 import fr.upc.g5e4.view.TeamSettingsView;
 
 /**
