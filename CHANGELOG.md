@@ -161,7 +161,7 @@
 - Lag Audio : Système de cache avec pré-chargement des sons en mémoire
 
 
-## [v.0.5 : SPRINT 5](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/5) (unreleased)
+## [v.1.0 : SPRINT 5](https://gitlab.informatique.u-paris.fr/militon/projet-worms/-/milestones/5) (unreleased)
 
 ### Added
 
