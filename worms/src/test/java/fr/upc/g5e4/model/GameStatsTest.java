@@ -19,7 +19,7 @@ public class GameStatsTest {
         assertEquals(0, stats.getShotsFired());
         assertEquals(0, stats.getShotsHit());
         assertEquals(0, stats.getKills());
-        assertEquals(0, stats.getRoundsPlayed());
+        assertEquals(1, stats.getRoundsPlayed());  // Commence au round 1
     }
     
     @Test
@@ -62,7 +62,6 @@ public class GameStatsTest {
     
     @Test
     void testIncrementRounds() {
-        stats.incrementRounds();
         assertEquals(1, stats.getRoundsPlayed());
         
         stats.incrementRounds();
@@ -129,7 +128,7 @@ public class GameStatsTest {
         assertEquals(2, stats.getShotsFired());
         assertEquals(1, stats.getShotsHit());
         assertEquals(1, stats.getKills());
-        assertEquals(1, stats.getRoundsPlayed());
+        assertEquals(2, stats.getRoundsPlayed());
         assertEquals(50, stats.getAccuracy());
     }
 }

@@ -44,6 +44,12 @@ public class GameLoop{
     public void resumeTimer() {
         this.timerPaused = false;
     }
+
+    // on fonctionne avec delta time (temps reel) pour la physique 
+    // (independant de la vitesse du processeur)
+    double deltaTime;
+    long lastTime = System.nanoTime();
+
     public GameLoop(GameManager gameManager){
         this.gameManager = gameManager;
         this.gamePanel = this.gameManager.getGamePanel();
@@ -106,6 +112,11 @@ public class GameLoop{
                     gameManager.getItemController().updateProjectiles(FIXHZ);
                 }
                 
+                // met a jour la visibilité des décorations (disparaissent si sol détruit)
+                if (gameManager.getDecorationManager() != null) {
+                    gameManager.getDecorationManager().updateVisibility();
+                }
+                
                 // met a jour l'animation du vent
                 if (gameManager.getWindOverlay() != null) {
                     gameManager.getWindOverlay().update();
@@ -130,8 +141,12 @@ public class GameLoop{
                         }
                     }
                 }
+
+                long now = System.nanoTime();
+                deltaTime = (now - lastTime) / 1_000_000_000.0; // les 100.. pour convertir nano en secondes
+                lastTime = now;
                 
-                gameManager.getWorld().step(FIXHZ,8,3);
+                gameManager.getWorld().step((float)deltaTime,8,3);
 
                 /* -> Pas une javadoc puisque javadoc peut pas documenter des variables locale 
                  * @see WaterSensorListener.java
@@ -165,7 +180,8 @@ public class GameLoop{
 
                 // décrémente le temps du round, met à jour la vue et change si nécessaire
                 if (!timerPaused) {
-                    roundTimeRemaining--; 
+                    roundTimeRemaining-= deltaTime*60; // pour que ca suive les vrais secondes irl
+                    //System.out.println(roundTimeRemaining); 
                     gameManager.setRoundTimeSave(roundTimeRemaining);
                     if (roundTimeRemaining % 60 == 0) {
                         int secondsLeft = roundTimeRemaining / 60; 
@@ -190,6 +206,7 @@ public class GameLoop{
                 }
                 
                 gamePanel.repaint();
+
             }
         });
     }

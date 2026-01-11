@@ -165,7 +165,7 @@
 
 ### Added
 
-- **Page réglages**
+- **Page reglages**
     - Système d'onglets : Map, Équipes, Autre
     - Support du plein écran avec scaling automatique
     - Bouton retour vers le menu principal
@@ -201,13 +201,15 @@
 - Dégâts de zone 
 - Readme.md expliquant le projet (comment jouer etc)
 - Ajout d'un pointeur graphique (flèche rouge) au-dessus du joueur actif dans la vue GamePanel pour indiquer visuellement le worm en cours de jeu
-- Ajout background avec effet parallax
+- Background avec effet parallax
     - Choix dans paramètre onglet map
 - AUTHORS.md
 - CONTRIBUTING.MD
 - DESIGN.MD
 - Système d'images en cache pour optimiser
 - Animation de marche pour les worms (rotation)
+- **Arbres**
+    - Disparition automatique des décos quand le sol en dessous est détruit
 
 ### Modified
 
@@ -224,6 +226,12 @@
 - Remonte le niveau de l'eau
 - Couleur de l'eau
 - Taille des blocks
+- **Arriere plan de la map**
+    - ajustement pour qu'il a un peu moins de presence pour mettre en valeur plus les worms et terrain que l'arriere plan
+- **Animation**
+    - ajustement de l'animation walk pour rendre un peu moins agressive
+- Création d'équipe avec un nom existant ou nom vide maintenant bloquée
+- Confirmation de création d'équipe avec un popup
 
 ### Fixed
 
@@ -240,7 +248,19 @@
 - Suppression de touche Echap dans main menu
 - Adaptation des Tests pour le nouveau système d'équipe
 - Certaines images chargeaient deux fois dans le cache
-- Changement du systeme de detection des worms sous la map
+- Fix save qui se lance quand y'en a une meme si on appuie sur le bouton "Nouvelle partie"
+- Fix Noms des worms qui s'enregistraient pas correctement dans `CharacterModel`
+- **full screen**
+    - Menu Réglage
+    - Titre main menu
+- Des sons jouée pendant les test
+- **Écran de fin de partie**
+    - Stats par ID d'équipe au lieu du nom
+    - Noms d'équipes par défaut : Team 1, Team 2...
+    - Comptage correct des rounds dans les stats
+    - Kills par rocket launcher maintenant comptabilisés dans stats
+    - Précision limitée à 100% max (un tir = un hit même en zone)
+- Systeme de detection des worms sous la map
 
 ### Configuration
 

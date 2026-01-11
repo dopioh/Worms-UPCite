@@ -1,5 +1,7 @@
 package fr.upc.g5e4.controller;
 
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.io.IOException;
 
 import javax.swing.JOptionPane;
@@ -41,6 +43,13 @@ public class MainMenuController {
         view.getBtnConfig().addActionListener(e -> openConfig());
         view.getBtnQuit().addActionListener(e -> quitGame());
         
+        // Listener pour repositionner les composants lors du redimensionnement
+        view.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                view.repositionComponents();
+            }
+        });
    }
 
     private void startNewGame() throws IOException {
@@ -63,7 +72,11 @@ public class MainMenuController {
 
         try {
             SaveLoad sv = new SaveLoad();
-            this.gameLauncher.startFromGameSave(sv.getSaveData());
+            boolean lancement = this.gameLauncher.startFromGameSave(sv.getSaveData());
+            if (!lancement == true){
+                JOptionPane.showMessageDialog(gameLauncher.getMainFrame(),"Aucune sauvegarde enregistrer, veillez d'abord lancer une game et la sauvegarder !", "AUCUNE SAVE FILE TROUVER",
+            JOptionPane.INFORMATION_MESSAGE); //determine l'icône qui s'affiche à gauche du texte
+            }
         } catch (IOException e) {
             JOptionPane.showMessageDialog(gameLauncher.getMainFrame(), 
             "Impossible de lancer une sauvegarde", 

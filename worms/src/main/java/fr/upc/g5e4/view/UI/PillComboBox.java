@@ -124,7 +124,8 @@ public class PillComboBox<E> extends JComboBox<E> {
                 
                 // Appliquer style personnalisé
                 label.setOpaque(true);
-                label.setFont(googleSansFont);  
+                // Utiliser le font du combobox lui-même pour s'adapter au scaling
+                label.setFont(getFont());  
                 label.setForeground(TEXT_COLOR);
                 label.setBorder(BorderFactory.createEmptyBorder(8, 15, 8, 15));  // Espacement interne
                 

@@ -4,6 +4,7 @@ import fr.upc.g5e4.GameLauncher;
 import fr.upc.g5e4.view.PauseOverlay;
 import fr.upc.g5e4.model.MapConfig;
 import fr.upc.g5e4.model.SoundPlayer;
+import fr.upc.g5e4.model.io.SaveLoad;
 import fr.upc.g5e4.view.SettingsView;
 import fr.upc.g5e4.view.TeamSettingsView;
 
@@ -70,6 +71,14 @@ public class SettingsController {
         // Listener pour le bouton retour
         view.getBtnBack().addActionListener(e -> handleBackButton());
         
+        // Listener pour détecter les changements de taille
+        view.addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentResized(java.awt.event.ComponentEvent e) {
+                view.checkFullScreen();
+            }
+        });
+        
         // Listeners pour les onglets
         view.getBtnMapTab().addActionListener(e -> view.showPanel("Map"));
         view.getBtnTeamsTab().addActionListener(e -> view.showPanel("Equipes"));
@@ -101,6 +110,7 @@ public class SettingsController {
         view.getBtnResetSave().addActionListener(e -> {
             //Fonction a mettre pour la sauvegarde @MEIIII
             System.out.println("Meiu");
+            SaveLoad.suppSaveFile();
         });
 
         view.getBtnFullscreen().addActionListener(e -> {

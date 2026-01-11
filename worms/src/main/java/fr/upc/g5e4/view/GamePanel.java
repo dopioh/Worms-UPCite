@@ -18,6 +18,7 @@ import fr.upc.g5e4.util.ImageCache;
 public class GamePanel extends JPanel {
     private final GroundModel model;  // Gardé pour compatibilité
     private BlockGridModel blockGridModel;  // système de terrain en blocs
+    private DecorationManager decorationManager;  // gestionnaire de décorations
     private final CameraModel camera;
 
     private final TrajectoryView trajectoryView;
@@ -31,6 +32,8 @@ public class GamePanel extends JPanel {
     private BufferedImage backgroundImage; // Image de fond BG
     // Vue pour dessiner les blocs
     private BlockGridView blockGridView;
+    // Vue pour dessiner les décorations
+    private DecorationView decorationView;
 
     //accès direct au GameManager pour le pointeur graphique 
     private final fr.upc.g5e4.model.GameManager gameManager;
@@ -60,6 +63,7 @@ public class GamePanel extends JPanel {
         this.listTeamInitialisation = listTeamInitialisation;
         this.trajectoryView = new TrajectoryView();
         this.blockGridView = new BlockGridView();
+        this.decorationView = new DecorationView();
         this.gameManager = gameManager;
         initializePanel();
     }
@@ -69,6 +73,9 @@ public class GamePanel extends JPanel {
         setLayout(null);
         
         // Charger l'image de fond selon le style configuré
+        if (MapConfig.getBackgroundStyle() == null){
+            MapConfig.setBackgroundStyle(MapConfig.BackgroundStyle.JOUR);
+        }
         String bgPath = MapConfig.getBackgroundStyle().getImagePath();
         backgroundImage = ImageCache.get(bgPath);
         if (backgroundImage == null) {
@@ -127,6 +134,14 @@ public class GamePanel extends JPanel {
      */
     public void setBlockGridModel(BlockGridModel blockGridModel) {
         this.blockGridModel = blockGridModel;
+    }
+    
+    /**
+     * Définit le gestionnaire de décorations pour le rendu
+     * @param decorationManager Le gestionnaire de décorations
+     */
+    public void setDecorationManager(DecorationManager decorationManager) {
+        this.decorationManager = decorationManager;
     }
 
     @Override
@@ -229,6 +244,10 @@ public class GamePanel extends JPanel {
             g2.fill(path);
         }
 
+        // Décorations (derrière les worms)
+        if (decorationManager != null) {
+            decorationView.draw(g2, decorationManager);
+        }
 
         // Équipes de worms
         for (TeamInitialisation t : listTeamInitialisation){
@@ -251,16 +270,19 @@ public class GamePanel extends JPanel {
                     // Flèche rouge, petite, inversée (pointe vers le bas), et plus haut
                     int arrowW = 8;
                     int arrowH = 14;
-                    int yOffset = 60;
+                    int yOffset = 110;
                     int[] xPoints = {x, x - arrowW/2, x + arrowW/2};
                     int[] yPoints = {y - yOffset + arrowH, y - yOffset, y - yOffset};
 
 
                     // Flèche
+
+                    // mettre des couleurs diff
                     g2.setColor(Color.RED);
                     g2.fillPolygon(xPoints, yPoints, 3);
-                    g2.setColor(Color.BLACK);
+                    g2.setColor(new Color(186, 19, 19));
                     g2.drawPolygon(xPoints, yPoints, 3);
+
                 }
             }
         } catch (Exception e) {
