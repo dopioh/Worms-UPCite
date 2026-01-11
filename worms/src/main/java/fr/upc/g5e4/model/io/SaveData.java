@@ -3,6 +3,7 @@ package fr.upc.g5e4.model.io;
 //import fr.upc.g5e4.view.*;
 //import fr.upc.g5e4.controller.*;
 import fr.upc.g5e4.model.*;
+//import fr.upc.g5e4.model.MapConfig.BackgroundStyle;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -44,10 +45,13 @@ public class SaveData {
     
     // Inventaire -> dans TeamInit et TeamModel
 
-    // GameStats : 
-    private Map<String, GameStats> teamStats;
+    // GameStats :
+    private Map<Integer, GameStats> teamStats;
 
-    // AJOUT NOUVEAU TERRAIN
+    // Map Jour ou Nuit
+    private static MapConfig.BackgroundStyle bg;
+
+    // AJOUT NOUVEAU TERRAIN (mettre en dernier dans l'ordre des attributs sinon compliquer a debug sauvegardes.txt)
     private BlockGridModel blockGridModel;
 
     /**
@@ -71,9 +75,15 @@ public class SaveData {
 
         this.teamStats = gameManager.getAllTeamStats();
 
+        bg = MapConfig.getBackgroundStyle();
+        if (bg == null){
+            bg = MapConfig.BackgroundStyle.JOUR;
+        }
+
         this.windData = WindData.WindModelToWindData(gameManager.getWindModel());
 
         this.blockGridModel = gameManager.getBlockGridModel();
+
     }
 
     /**
@@ -118,7 +128,7 @@ public class SaveData {
         return teamCursor;
     }
 
-    public Map<String, GameStats> getAllTeamStats(){
+    public Map<Integer, GameStats> getAllTeamStats(){
         return teamStats;
     }
 
@@ -128,6 +138,10 @@ public class SaveData {
 
     public BlockGridModel getBlockGridModel(){
         return this.blockGridModel;
+    }
+
+    public static MapConfig.BackgroundStyle getBackgroundFROMSAVE(){
+        return bg;
     }
 
 }

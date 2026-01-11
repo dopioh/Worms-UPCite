@@ -5,7 +5,7 @@ import java.io.FileReader;
 
 import com.google.gson.Gson;
 
-import fr.upc.g5e4.model.GameManager;
+//import fr.upc.g5e4.model.GameManager;
 
 //import java.io.File;
 
@@ -34,7 +34,9 @@ public class SaveLoad {
 
             // j'ai pris 10 en valeurs au cas ou mais on aurait tres bien pu mettre = 1
             if(file.length() < 10){
-                new GameManager(); // je mets 2 ici mais ca sera modif quand on aura les custom team
+                System.out.println("[File] file.length() :  " + file.length());
+                //new GameManager(); // je mets 2 ici mais ca sera modif quand on aura les custom team
+                return;
             } else {
                 System.out.println(file.getAbsolutePath());
                 System.out.println(file.getCanonicalPath());
@@ -95,5 +97,29 @@ public class SaveLoad {
             return null;
         }
         
+    }
+
+    public static boolean suppSaveFile(){
+        try {
+            boolean fileFound = false;
+            boolean fileSupp = false;
+            File[] tabFilePossible = new File[]{
+            new File("./sauvegardes/sauvegarde.txt"),
+            new File("./../sauvegardes/sauvegarde.txt"),
+            new File("./../../sauvegardes/sauvegarde.txt"),
+            new File("./../../../sauvegardes/sauvegarde.txt"),
+            new File("./../../../../sauvegardes/sauvegarde.txt")
+            };
+            for (int i  = 0 ; i < tabFilePossible.length ;i++){
+                if ( tabFilePossible[i].exists()){
+                    fileFound = true;
+                    fileSupp = tabFilePossible[i].delete();
+                }
+            }
+            return (fileFound || fileSupp);
+        } catch (Exception e) {
+            // TODO: handle exception
+            return false;
+        }
     }
 }

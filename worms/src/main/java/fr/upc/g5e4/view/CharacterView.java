@@ -2,20 +2,20 @@ package fr.upc.g5e4.view;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import javax.imageio.ImageIO;
 
 import org.jbox2d.common.Vec2;
+import fr.upc.g5e4.util.ImageCache;
 import org.jbox2d.dynamics.Body;
 
 import fr.upc.g5e4.model.CharacterModel;
 import fr.upc.g5e4.model.Weapon;
-//j'ai ajoute l'import de la grenade et du lance-roquettes pour les exeptions de taille
+
 import fr.upc.g5e4.model.weapons.Grenade;
 import fr.upc.g5e4.model.weapons.RocketLauncher;
 
 /**
  * Vue pour l'affichage graphique
+ * @author Nassim & Billy & Ian
  */
 public class CharacterView {
     private int size;
@@ -28,6 +28,9 @@ public class CharacterView {
     private BufferedImage weaponSprite; // sprite de l'arme
     private String currentGadget; // gadget actuellement équipé 
     private BufferedImage gadgetSprite; // sprite du gadget
+    
+    // Animation de marche
+    private double walkTime = 0;
     
     /**
      * Constructeur de la classe PersonnageView avec couleur, taille et sprite par defaut
@@ -67,10 +70,10 @@ public class CharacterView {
      * @param path le chemin du sprite dans resources
      */
     private void loadSprite(String path) {
-        try {
-            spriteImage = ImageIO.read(getClass().getResourceAsStream(path));
+        spriteImage = ImageCache.get(path);
+        if (spriteImage != null) {
             useSprite = true;
-        } catch (IOException | IllegalArgumentException e) {
+        } else {
             System.err.println("Impossible de charger le sprite: " + path);
             System.err.println("(utilisation d'un carré aux couleurs de l'equipe)");
             useSprite = false;
@@ -94,52 +97,53 @@ public class CharacterView {
      * @param model Le model du worm
      */
     private void drawBody(Graphics2D g2d, CharacterModel model) {
-        if (model.isDead()) {
-            return;
-        }
+        if (model.isDead()) return;
         
         Body body = model.getBody();
-        Vec2 m_position = body.getPosition();
+        Vec2 pos = body.getPosition();
+        Vec2 vel = body.getLinearVelocity();
     
-        // Conversion mètres -> pixels
-        int x = (int)(m_position.x * CharacterModel.getPPM());
-        int y = (int)((24 - m_position.y) * CharacterModel.getPPM());  // Conversion et Inversion Y
+        int x = (int)(pos.x * CharacterModel.getPPM());
+        int y = (int)((24 - pos.y) * CharacterModel.getPPM());
     
-        // obtient la couleur de l'effet de statut
+        // Animation walk
+        boolean isWalking = Math.abs(vel.x) > 0.5f && model.isOnGround();
+        if (isWalking) walkTime += 0.22; else walkTime = 0;
+        
+        double yOffset = isWalking ? Math.sin(walkTime) * 1.8 : 0;       //mouvement vertical avec courbe sinus repetant entre -1 et 1
+        double angle = isWalking ? Math.sin(walkTime * 0.5) * 4 : 0;
+    
         Color drawColor = getColorWithStatusEffect(model);
+        Graphics2D g2dCopy = (Graphics2D) g2d.create();
         
         if (useSprite && spriteImage != null) {
             // dessiner le sprite
             int spriteWidth = size+10;
             int spriteHeight = size+10;
             
-            Graphics2D g2dCopy = (Graphics2D) g2d.create();
-            
             //clone le sprite et le colorie après un effet
-            BufferedImage spriteToShow = spriteImage;
+            BufferedImage sprite = spriteImage;
             if (model.getCurrentStatus() != CharacterModel.StatusEffect.NONE) {
-                spriteToShow = colorizeSprite(spriteImage, drawColor);
+                sprite = colorizeSprite(spriteImage, drawColor);
             }
             
-            // si on se deplace vers la gauche on inverse le sprite
-            if (!model.isFacingRight()) {
-                g2dCopy.translate(x, y - spriteHeight/2);   // fix hitbox ici -> il fallait mettre x et pas x + spriteWidth/2
-                g2dCopy.scale(-1, 1);  // inverse horizontalement
-                g2dCopy.drawImage(spriteToShow, -spriteWidth/2, 0, spriteWidth, spriteHeight, null);
-            } else {
-                g2dCopy.drawImage(spriteToShow, x - spriteWidth/2, y - spriteHeight/2, spriteWidth, spriteHeight, null);
-            }
-            
-            g2dCopy.dispose();
-        } else { // sinon on dessine un carré de la couleur avec effet
-            g2d.setColor(drawColor);
-            g2d.fillRect(x - size/2, y - size/2, size, size);
+            g2dCopy.translate(x, y - spriteHeight/2 + yOffset);
+            g2dCopy.rotate(Math.toRadians(model.isFacingRight() ? angle : -angle), 0, spriteHeight/2); //rotation (penche) vers la direction, point de rotation au centre de worm
+            if (!model.isFacingRight()) g2dCopy.scale(-1, 1);
+            g2dCopy.drawImage(sprite, -spriteWidth/2, 0, spriteWidth, spriteHeight, null);
+        } else { // worm en carré
+            g2dCopy.setColor(drawColor);
+            g2dCopy.translate(x, y + yOffset);
+            g2dCopy.rotate(Math.toRadians(angle), 0, 0);
+            g2dCopy.fillRect(-size/2, -size/2, size, size);
         }
         
+        g2dCopy.dispose();
         // on dessine l'arme si le worm en est equipé
-        drawWeapon(g2d, model, x, y);        
+        drawWeapon(g2d, model, x, (int)(y + yOffset));
         // on dessine le gadget si le worm en est equipe
-        drawGadget(g2d, model, x, y);    }
+        drawGadget(g2d, model, x, (int)(y + yOffset));
+    }
     
     /**
      * Dessine le sprite de l'arme équipée sur le worm
@@ -158,7 +162,7 @@ public class CharacterView {
         int weaponHeight = size;
         int weaponX, weaponY = 0;
 
-        // exeption grenade
+        // exeption grenade / rocketlauncher
         if (currentWeapon instanceof Grenade) {
             // reduire taille de la grenade
             weaponWidth = (int)(size * 0.9);
@@ -253,11 +257,9 @@ public class CharacterView {
         String className = weapon.getClass().getSimpleName();
         String spritePath = getWeaponSpritePath(className);
         
-        try {
-            weaponSprite = ImageIO.read(getClass().getResourceAsStream(spritePath));
-        } catch (IOException | IllegalArgumentException e) {
+        weaponSprite = ImageCache.get(spritePath);
+        if (weaponSprite == null) {
             System.err.println("Impossible de charger le sprite d'arme: " + spritePath);
-            weaponSprite = null;
         }
     }
     
@@ -284,11 +286,9 @@ public class CharacterView {
         // on crée le chemin du sprite basé sur le nom du gadget
         String spritePath = getGadgetSpritePath(gadgetName);
         
-        try {
-            gadgetSprite = ImageIO.read(getClass().getResourceAsStream(spritePath));
-        } catch (IOException | IllegalArgumentException e) {
+        gadgetSprite = ImageCache.get(spritePath);
+        if (gadgetSprite == null) {
             System.err.println("Impossible de charger le sprite de gadget: " + spritePath);
-            gadgetSprite = null;
         }
     }
     

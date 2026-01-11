@@ -1,19 +1,20 @@
 package fr.upc.g5e4.model.io;
 
 import fr.upc.g5e4.model.*;
-import fr.upc.g5e4.model.CharacterModel.StatusEffect;
+//import fr.upc.g5e4.model.CharacterModel.StatusEffect;
 
-import java.lang.reflect.Array;
+//import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import org.jbox2d.dynamics.*;
 
 
 /**
- * Recupere les donnees essentiels
- * pour recreer une partie 
- * avec un fichier sauvegarde
- * En utilisant Gson et Json
+ * Classe pour sauvegarder un CharacterModel
+ * En version minimal
+ * Pour la sauvegarde
+ * 
+ * @author Mei
  */
 public class CharacterData {
     private int ID;

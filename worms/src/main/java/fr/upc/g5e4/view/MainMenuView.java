@@ -7,12 +7,10 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.RenderingHints;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
 
-import javax.imageio.ImageIO;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -20,12 +18,20 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import fr.upc.g5e4.view.UI.*;;
+import fr.upc.g5e4.util.ImageCache;
+
+import fr.upc.g5e4.view.UI.*;
+
+import fr.upc.g5e4.model.TutorialModel;
+//import fr.upc.g5e4.view.TutorialView;
+import fr.upc.g5e4.controller.TutorialController;
+
 
 
 /**
  * Vue de l'écran d'accueil du jeu Worms
  * Affiche le menu principal avec les boutons d'action
+ * @author Ian
  */
 public class MainMenuView extends JPanel {
     
@@ -35,18 +41,19 @@ public class MainMenuView extends JPanel {
 
     private JButton btnNewGame;
     private JButton btnResume;
+    private JButton btnHowToPlay;
     private JButton btnConfig;
     private JButton btnQuit;
     private JLabel titleLabel;
-    private ShopView shopView;
+    private TutorialController tutorialController;
     private JPanel centerPanel;
+    private JPanel titlePanel;
     private BufferedImage backgroundImage;
 
     public MainMenuView() {
         loadBackgroundImage();
         initComponents();
         setupLayout();
-        setupResizeListener();
     }
     
     @Override
@@ -89,34 +96,63 @@ public class MainMenuView extends JPanel {
     
     private void loadBackgroundImage() {
         try {
-            java.net.URL url = getClass().getResource("/background.png");
-            if (url != null) {
-                backgroundImage = ImageIO.read(url);
+            backgroundImage = ImageCache.get("/background.png");
+            if (backgroundImage == null) {
+                System.err.println("Impossible de charger le fond du menu principal");
             }
         } catch (Exception e) {
             System.err.println("Erreur lors du chargement de l'image de fond: " + e.getMessage());
         }
     }
     
+    /**
+     * Calcule le facteur de scaling basé sur les dimensions réelles de l'écran
+     */
+    private float calculateScale() {
+        // Dimensions de base (fenêtré)
+        float baseWidth = 1280f;
+        float baseHeight = 720f;
+        
+        // Dimensions actuelles
+        float currentWidth = getWidth();
+        float currentHeight = getHeight();
+        
+        // Calculer le scale basé sur le rapport entre la taille actuelle et la taille de base
+        float scaleX = currentWidth / baseWidth;
+        float scaleY = currentHeight / baseHeight;
+        
+        return Math.min(scaleX, scaleY);
+    }
+    
     public void updateSizes(boolean fullScreen) {
-        // Tailles pour plein écran vs fenêtré
-        int titleWidth = fullScreen ? 450 : 400; // si on agrandi le title il est coupé
-        int buttonWidth = fullScreen ? 380 : 280;
-        int buttonHeight = fullScreen ? 60 : 45;
-        int fontSize = fullScreen ? 24 : 18;
+        // Facteur de scaling dynamique basé sur la taille réelle de l'écran
+        float scale = fullScreen ? calculateScale() : 1.0f;
+        
+        // Tailles de base
+        int baseTitleWidth = 400;
+        int baseButtonWidth = 280;
+        int baseButtonHeight = 45;
+        int baseFontSize = 18;
+        
+        // Application du scaling
+        int titleWidth = (int)(baseTitleWidth * scale);
+        int buttonWidth = (int)(baseButtonWidth * scale);
+        int buttonHeight = (int)(baseButtonHeight * scale);
+        int fontSize = (int)(baseFontSize * scale);
         
         // Mettre à jour le titre
         ImageIcon titleIcon = loadImage("/title.png");
         if (titleIcon != null && titleLabel != null) {
-            java.awt.Image scaledImage = titleIcon.getImage().getScaledInstance(
-                titleWidth, -1, java.awt.Image.SCALE_SMOOTH);
+            Image scaledImage = titleIcon.getImage().getScaledInstance(
+                titleWidth, -1, Image.SCALE_SMOOTH);
             titleLabel.setIcon(new ImageIcon(scaledImage));
         } else if (titleLabel != null) {
-            titleLabel.setFont(new Font("Arial", Font.BOLD, fullScreen ? 90 : 70));
+            int titleFontSize = (int)(70 * scale);
+            titleLabel.setFont(new Font("Arial", Font.BOLD, titleFontSize));
         }
         
         // Mettre à jour les boutons
-        JButton[] buttons = {btnNewGame, btnResume, btnConfig, btnQuit};
+        JButton[] buttons = {btnNewGame, btnResume, btnHowToPlay, btnConfig, btnQuit};
         for (JButton btn : buttons) {
             btn.setFont(new Font("Arial", Font.BOLD, fontSize));
             btn.setMaximumSize(new Dimension(buttonWidth, buttonHeight));
@@ -124,64 +160,82 @@ public class MainMenuView extends JPanel {
     }
 
     private void initComponents() {
-        // Utilise un layout null pour positionnement absolu
         setLayout(null);
         setOpaque(true);
-
-        // Boutique à gauche en position absolue
-        shopView = new ShopView();
-        add(shopView);
         
-        // Panel au centre avec titre et boutons
+        // Panel séparé pour le titre
+        titlePanel = new JPanel();
+        titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.Y_AXIS));
+        titlePanel.setOpaque(false);
+        addTitle(titlePanel);
+        add(titlePanel);
+        
+        // Panel au centre avec les boutons
         centerPanel = new JPanel();
         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
         centerPanel.setOpaque(false);
-        
-        // Titre
-        addTitle(centerPanel);
 
-        // Création des boutons
         btnNewGame = createMenuButton("Nouvelle Partie");
         btnResume = createMenuButton("Poursuivre une partie");
+        btnHowToPlay = createMenuButton("Comment jouer");
         btnConfig = createMenuButton("Reglages");
         btnQuit = createMenuButton("Quitter");
 
-        // Ajout des boutons au panneau central
         centerPanel.add(btnNewGame);
         centerPanel.add(Box.createVerticalStrut(10));
         centerPanel.add(btnResume);
+        centerPanel.add(Box.createVerticalStrut(10));
+        centerPanel.add(btnHowToPlay);
         centerPanel.add(Box.createVerticalStrut(10));
         centerPanel.add(btnConfig);
         centerPanel.add(Box.createVerticalStrut(10));
         centerPanel.add(btnQuit);
         
         add(centerPanel);
+        
+        // setup de l'overlay tutoriel
+        TutorialModel tutorialModel = new TutorialModel();
+        TutorialView tutorialView = new TutorialView(tutorialModel);
+        // init du controller pour getTutorialController utilisé par MainMenuController
+        tutorialController = new TutorialController(tutorialModel, tutorialView);
+        tutorialView.setVisible(false);
+        add(tutorialView);
+        
+        // dessine par dessus les composants
+        setComponentZOrder(tutorialView, 0);
     }
 
     private void setupLayout() {
         setPreferredSize(new Dimension(1280, 720));
     }
     
-    private void setupResizeListener() {
-        addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentResized(ComponentEvent e) {
-                repositionComponents();
-            }
-        });
-    }
-    
-    private void repositionComponents() {
+    /**
+     * Repositionne les composants en fonction de la taille actuelle de la fenêtre
+     */
+    public void repositionComponents() {
         int width = getWidth();
         int height = getHeight();
         
-        // la boutique à gauche
-        shopView.setBounds(20, 100, 350, Math.min(520, height - 200));
+        // Calculer les positions proportionnellement à la hauteur
+        int titleY = (int)(height * 0.08); // 8% du haut
+        int titleHeight = (int)(height * 0.2); // 20% de la hauteur pour le titre
         
-        // le panel au centre
+        // Positionner le titre en haut avec une largeur flexible
+        int titlePanelWidth = Math.min(width - 40, 800); // Max 800px ou largeur écran - marges
+        int titlePanelX = (width - titlePanelWidth) / 2;
+        titlePanel.setBounds(titlePanelX, titleY, titlePanelWidth, titleHeight);
+        
+        // Positionner le panel des boutons en dessous du titre avec un espace proportionnel
         int centerPanelWidth = 400;
         int centerPanelX = (width - centerPanelWidth) / 2;
-        centerPanel.setBounds(centerPanelX, 20, centerPanelWidth, height - 40);
+        int centerPanelY = titleY + titleHeight + (int)(height * 0.03); // 3% d'espace après le titre
+        int centerPanelHeight = height - centerPanelY - (int)(height * 0.05); // 5% de marge en bas
+        centerPanel.setBounds(centerPanelX, centerPanelY, centerPanelWidth, centerPanelHeight);
+        
+        // position de l'overlay tuto au centre de la fenetre
+        if (tutorialController != null) {
+            tutorialController.getView().setBounds(0, 0, width, height);
+        }
     }
 
     private void addTitle(JPanel parent) {
@@ -189,8 +243,8 @@ public class MainMenuView extends JPanel {
         
         if (titleIcon != null) {
             // Redimensionne l'image à 400px de largeur
-            java.awt.Image scaledImage = titleIcon.getImage().getScaledInstance(
-                400, -1, java.awt.Image.SCALE_SMOOTH);
+            Image scaledImage = titleIcon.getImage().getScaledInstance(
+                400, -1, Image.SCALE_SMOOTH);
             titleLabel = new JLabel(new ImageIcon(scaledImage));
             titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
             parent.add(titleLabel);
@@ -216,8 +270,8 @@ public class MainMenuView extends JPanel {
     }
 
     private ImageIcon loadImage(String path) {
-        java.net.URL url = getClass().getResource(path);
-        return (url != null) ? new ImageIcon(url) : null;
+        BufferedImage img = ImageCache.get(path);
+        return (img != null) ? new ImageIcon(img) : null;
     }
 
     // Getters pour les boutons (le controller en aura besoin)
@@ -237,7 +291,11 @@ public class MainMenuView extends JPanel {
         return btnQuit;
     }
     
-    public ShopView getShopView() {
-        return shopView;
+    public JButton getBtnHowToPlay() {
+        return btnHowToPlay;
+    }
+    
+    public TutorialController getTutorialController() {
+        return tutorialController;
     }
 }

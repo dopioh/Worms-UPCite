@@ -9,6 +9,8 @@ import fr.upc.g5e4.view.GamePanel;
  * 
  * @see PhysicsWorld#createGroundFromModel 
  * @see GamePanel#paintComponent
+ * 
+ * @author Mei
  */
 public class GroundModel{
     private int[] groundY;

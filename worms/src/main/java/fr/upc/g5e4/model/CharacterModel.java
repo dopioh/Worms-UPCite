@@ -20,6 +20,7 @@ import java.util.ArrayList;
 /**
  * Modèle du Personnage
  * Initialise ses stats et position
+ * @author Nassim & Billy & Ian & Mei
  */
 public class CharacterModel{
     private static int wormsCounter = 0;
@@ -118,7 +119,7 @@ public class CharacterModel{
         this.model = model;
         this.world = world;
         this.ID = wormsCounter++;
-        this.name = name + "-" + this.ID;
+        this.name = name;
         this.xcord = xcord;
         this.ycord = ycord;
         this.health = health;
@@ -367,6 +368,12 @@ public class CharacterModel{
         persoBody.setLinearVelocity(new Vec2(0, vel.y));
     }
 
+    public void stopVerticalMovement() {
+        Vec2 vel = persoBody.getLinearVelocity();
+        // on garde toute la vélocité verticale (saut et chute)
+        persoBody.setLinearVelocity(new Vec2(vel.x, 0));
+    }
+
     public void setEquippedItem(InventoryJson item){
         this.equippedItem = item;
     }
@@ -463,6 +470,7 @@ public class CharacterModel{
             this.shield = 0;
             if (this.health <= 0) {
                 this.isDead = true;
+                SoundPlayer.playDepopSound();
                 // on détruit le body physique
                 if (this.persoBody != null && this.persoBody.getWorld() != null) {
                     this.world.destroyBody(this.persoBody);

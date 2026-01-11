@@ -5,14 +5,14 @@ Jeu 2D de type [Worms](https://fr.wikipedia.org/wiki/Worms_(jeu_vidéo)) dévelo
 ## Prérequis
 
 - **Java 23** ou supérieur
-- **Apache Maven 3.6+**
+- **Apache Maven** (version récente recommandée)
 
 ## Compilation
 
 Depuis le répertoire racine du projet, naviguez vers le dossier `worms` et compilez avec Maven :
 
 ```bash
-cd worms
+cd wormss
 mvn clean package
 ```
 
@@ -40,7 +40,6 @@ Au lancement, vous arrivez sur le menu principal avec les options suivantes :
 - **Nouvelle Partie** : Démarrer une nouvelle partie
 - **Poursuivre une partie** : Charger une partie sauvegardée
 - **Reglages** : Configurer les paramètres du jeu (map, équipes, etc.)
-- **Boutique** : Acheter des items et des armes
 - **Tutoriel** : Apprendre les bases du jeu
 - **Quitter** : Fermer le jeu
 
@@ -64,14 +63,14 @@ Au lancement, vous arrivez sur le menu principal avec les options suivantes :
 
 Pendant la partie, appuyez sur le sac pour ouvrir l'inventaire avec ses trois onglets :
 
-#### Armes
-- Consultez et sélectionnez vos armes disponibles
+- Armes
+    - Consultez et sélectionnez vos armes disponibles
 
-#### Gadgets
-- Accédez à vos items spéciaux et potions
+- Gadgets
+    - Accédez à vos items spéciaux et potions
 
-#### Boutique
-- Jouez à des mini-jeux pour gagner de l'argent supplémentaire
+- Boutique
+    - Jouez à des mini-jeux pour gagner de l'argent supplémentaire
 
 ### Arsenal disponible
 

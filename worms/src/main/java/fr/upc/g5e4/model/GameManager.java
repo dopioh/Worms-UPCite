@@ -1,4 +1,3 @@
-// File: fr/upc/g5e4/model/GameManager.java
 package fr.upc.g5e4.model;
 
 //import java.awt.Color;
@@ -6,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.HashMap;
 import java.util.Map;
-import javax.swing.Timer;
+//import javax.swing.Timer;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.World;
 
@@ -43,6 +42,7 @@ public class GameManager {
     private final GamePanel gamePanel;
     private GroundModel model;  // Gardé pour compatibilité avec TeamModel
     private BlockGridModel blockGridModel;  // Nouveau système de terrain en blocs
+    private DecorationManager decorationManager;  // Gestion des décorations
     private final PhysicsWorld physic;
     private final World world;
     private final Body water;
@@ -89,12 +89,18 @@ public class GameManager {
     private InventoryOverlay inventoryOverlay;
     private HUDOverlay hudOverlay;
     private fr.upc.g5e4.view.WindOverlay windOverlay;
+    // --- Vent toggle ---
+    private boolean windEnabled = true;
+
+    // Vent "réel" du tour (mémorisé même si windEnabled=false)
+    private WindModel.Dir turnWindDir = WindModel.Dir.E;
+    private float turnWindStrength = 0.5f;
 
     private final WindModel windModel = new WindModel();
     private final Random windRng = new Random();
     
     // Statistiques de jeu - support pour un nombre variable d'équipes
-    private Map<String, GameStats> teamStats = new HashMap<>();
+    private Map<Integer, GameStats> teamStats = new HashMap<>();
 
     //private boolean saveDataBool;
     //private SaveData saveData;
@@ -148,6 +154,10 @@ public class GameManager {
         this.blockGridModel = new BlockGridModel(sizeX, sizeY, waterLevel);
         blockGridModel.generateWithGroundY(groundY);
         
+        // création des décorations sur le terrain
+        this.decorationManager = new DecorationManager(blockGridModel);
+        decorationManager.generateDecorations(6);  // environ 6 décorations aléatoires
+        
         // on garde le GroundModel pour compatibilité avec TeamModel
         this.model = new GroundModel(groundY, sizeX, sizeY, waterLevel);
 
@@ -173,7 +183,7 @@ public class GameManager {
         this.nbrWormsByTeam = TeamConfig.NBR_WORM_EQUIPE;
 
         // Récupérer le skin sélectionné dans les paramètres
-        String selectedSkin = SkinSettings.getCurrentSkin();
+        //String selectedSkin = SkinSettings.getCurrentSkin();
 
         // creation des equipes selon le nombre que on veut
         createTeam(TeamConfig.NBR_EQUIPE, TeamConfig.aCustomForATeam);
@@ -227,6 +237,8 @@ public class GameManager {
         this.gamePanel = new GamePanel(model, camera, cameraController, listTeamInital, this); 
         // Passer le BlockGridModel au GamePanel pour le rendu en blocs
         this.gamePanel.setBlockGridModel(this.blockGridModel);
+        // Passer le DecorationManager au GamePanel pour le rendu des décos
+        this.gamePanel.setDecorationManager(this.decorationManager);
         // Passer l'ItemController au GamePanel pour dessiner les projectiles
         this.gamePanel.setItemController(this.itemController);
         // Ajoute le contrôleur pour capter les touches
@@ -268,6 +280,10 @@ public class GameManager {
 
         int[] groundY = saveData.getGroundModel().getGroundY();
         this.blockGridModel = b;
+        
+        // création des décorations pour les parties chargées
+        this.decorationManager = new DecorationManager(blockGridModel);
+        decorationManager.generateDecorations(6);
 
         this.model = saveData.getGroundModel();
 
@@ -310,6 +326,9 @@ public class GameManager {
 
         // GameStats : 
         this.teamStats = saveData.getAllTeamStats();
+
+        // Background : 
+        MapConfig.setBackgroundStyle(SaveData.getBackgroundFROMSAVE());
         
         // pour le WaterSensorListener
         ArrayList<CharacterModel> allWorms = new ArrayList<>();
@@ -382,6 +401,9 @@ public class GameManager {
         // Passer le BlockGridModel au GamePanel pour le rendu en blocs
         this.gamePanel.setBlockGridModel(this.blockGridModel);
         
+        // Passer le DecorationManager au GamePanel pour le rendu des décos
+        this.gamePanel.setDecorationManager(this.decorationManager);
+        
         // Passer l'ItemController au GamePanel pour dessiner les projectiles
         this.gamePanel.setItemController(this.itemController);
 
@@ -400,20 +422,7 @@ public class GameManager {
         this.gamePanel.setFocusable(false);  // le panel ne prend pas le focus
         imputController.setFocusable(true);   // l'inputController prend le focus    
 
-        // Timer pour update régulier de la caméra, projectiles et repaint
-        new Timer(16, e -> {
-            cameraController.update();
-            // mettre à jour les projectiles (16ms = 0.016s par frame)
-            itemController.updateProjectiles(0.016f);
-            
-            // recréer le terrain physique si la grille a changé (blocs détruits)
-            if (blockGridModel.isDirty()) {
-                physic.recreateGroundFromBlockGrid(blockGridModel);
-                blockGridModel.clearDirty();
-            }
-            
-            gamePanel.repaint();
-        }).start();
+        // suppression de l'ancien timer useless ici (projectiles, camera et terrain)
 
         //initialiseInventory();
 
@@ -428,6 +437,7 @@ public class GameManager {
      * moment
      * Il en manque donc que vous pouvez rjt si besoin
      */
+    
     public World getWorld() {
         return this.world;
     }
@@ -442,6 +452,11 @@ public class GameManager {
     
     public BlockGridModel getBlockGridModel() {
         return this.blockGridModel;
+    }
+    
+    /** @return le gestionnaire de décorations */
+    public DecorationManager getDecorationManager() {
+        return this.decorationManager;
     }
 
     public GamePanel getGamePanel() {
@@ -520,21 +535,61 @@ public class GameManager {
         return hudOverlay;
     }
     
-    public Map<String, GameStats> getAllTeamStats() {
+    public Map<Integer, GameStats> getAllTeamStats() {
         return teamStats;
     }
 
-    public GameStats getTeamStats(String teamName) {
-        return teamStats.get(teamName);
+    public GameStats getTeamStats(int teamId) {
+        return teamStats.get(teamId);
     }
 
     public GameStats getCurrentTeamStats() {
-        String currentTeamName = getCurrentTeamName();
-        return teamStats.get(currentTeamName);
+        int currentTeamId = currentTeam.getTeamID();
+        return teamStats.get(currentTeamId);
     }
 
     public int[] getTeamCursor(){
         return this.teamCursor;
+    }
+
+    /**
+     * @return true si le vent est actif
+     */
+    public boolean isWindEnabled() {
+        return windEnabled;
+    }
+
+    /**
+     * Active ou désactive le vent.
+     * Si désactivé, le vent est forcé à une valeur 0 et ne change plus à chaque tour.
+     *
+     * @param enabled true ou false
+     */
+    public void toggleVent(boolean enabled) {
+        this.windEnabled = enabled;
+
+        if (enabled) {
+            // On restaure exactement le vent du tour courant (pas de nouveau tirage)
+            windModel.setDir(turnWindDir);
+            windModel.setStrength(turnWindStrength, false);
+        } else {
+            // On coupe l'effet du vent sans perdre la valeur du tour
+            windModel.setStrength(0f, false);
+        }
+
+        // Côté vue : cacher/montrer l'overlay
+        if (windOverlay != null) {
+            windOverlay.setVisible(enabled);
+            windOverlay.repaint();
+        }
+    }
+
+    /**
+     * Garde la force actuelle du vent
+     * @return force du vent 
+     */
+    public float getEffectiveWindStrength() {
+        return windEnabled ? windModel.getStrength() : 0f;
     }
 
     /**
@@ -673,8 +728,28 @@ public class GameManager {
     public void setGameLoop(GameLoop loop) {
         this.gameLoop = loop;
     }
+    
+    public GameLoop getGameLoop() {
+        return this.gameLoop;
+    }
 
     public void nextRound() {
+        // add 5$ à l'équipe actuelle si le worm actif est vivant
+        if (activeWormController != null) {
+            CharacterModel activeWorm = activeWormController.getModel();
+            if (activeWorm != null && !activeWorm.isDead()) {
+                TeamModel teamBeforeSwitch = listTeamInital.get(currentTeamIndex).getTeamModel();
+                teamBeforeSwitch.addMoney(5);
+                System.out.println("[MONEY] +5$ pour Team " + (currentTeamIndex + 1) + " (total: " + teamBeforeSwitch.getMoney() + "$)");
+            }
+        }
+        
+        // incrémenter le compteur de rounds pour l'équipe qui vient de jouer
+        GameStats currentStats = getCurrentTeamStats();
+        if (currentStats != null) {
+            currentStats.incrementRounds();
+        }
+        
         roundNumber++;
         currentTeamIndex = (currentTeamIndex + 1) % listTeamInital.size(); 
         currentTeam = listTeamInital.get(currentTeamIndex).getTeamModel();
@@ -696,63 +771,42 @@ public class GameManager {
         //mettre à jour l'inventaire affiché dans l'overlay
         if (inventoryOverlay != null) {
             inventoryOverlay.setInventory(getCurrentTeamInventory());
+            inventoryOverlay.clearEquipped();
+        }
+        
+        if (hudOverlay != null) {
+            hudOverlay.repaint();
+            hudOverlay.triggerTurnFlash();
         }
 
         
-        // --- Vent : change à chaque tour (fixe pendant le tour) ---
+        //Vent qui change à chaque tour 
         WindModel.Dir[] dirs = WindModel.Dir.values();
-        windModel.setDir(dirs[windRng.nextInt(dirs.length)]);
+        turnWindDir = dirs[windRng.nextInt(dirs.length)];
 
-        // force entre 0.15 et 1.0 (évite vent invisible)
-        float strength = 0.15f + windRng.nextFloat() * 0.85f;
-        windModel.setStrength(strength,false);
+        // force entre 0.15 et 1.0 pour éviter le vent nul
+        turnWindStrength = 0.15f + windRng.nextFloat() * 0.85f;
 
-        System.out.println("[VENT] " + windModel.getDir().label + " | force=" + String.format("%.2f", windModel.getStrength()));
-
-    }
-    
-    /**
-     * Change l'arme équipée du worm actif (cycliquement)
-     * AK-47 → Baseball Bat → Grenade → Rocket Launcher → AK-47...
-     */
-    public void switchWeapon() {
-        currentWeaponIndex = (currentWeaponIndex + 1) % 4;  // Boucle entre 0, 1, 2, 3
-        
-        Weapon newWeapon = null;
-        
-        switch(currentWeaponIndex) {
-            case 0:
-                newWeapon = new Ak47();
-                System.out.println("AK-47");
-                break;
-            case 1:
-                newWeapon = new BaseballBat();
-                System.out.println("Baseball Bat");
-                break;
-            case 2:
-                newWeapon = new Grenade();
-                System.out.println("Grenade");
-                break;
-            case 3:
-                newWeapon = new RocketLauncher();
-                System.out.println("Rocket Launcher");
-                break;
-        }
-        
-        if (newWeapon != null && activeWormController != null) {
-            activeWormController.setCurrentWeapon(newWeapon);
-            // mettre à jour la trajectoire avec la nouvelle arme
-            gamePanel.getTrajectoryView().setWeapon(newWeapon);
-            // met à jour l'arme dans la vue
-            updateWeaponInView(activeWormController.getModel(), newWeapon);
+        // Le vent appliquera la valeur calculée "turnwindstrengh" ou 0 
+        if (windEnabled) {
+            windModel.setDir(turnWindDir);
+            windModel.setStrength(turnWindStrength, false);
+        } else {
+            windModel.setStrength(0f, false);
         }
     }
     
     // Initialiser un nombre N d'equipes avec un skin spécifique
     public void createTeam(int number, ArrayList<CustomTeamData> customTeam){
         int mapWidth = model.getWidth();
-        int margin = 100; // Marge pour ne pas spawner au bord
-        int usableWidth = mapWidth - (2 * margin); // Espace utilisable
+        int margin = 50; // Marge pour ne pas spawner au bord
+        int usableWidth; // Espace utilisable
+        if (number > 3 && TeamConfig.NBR_WORM_EQUIPE > 3){
+            usableWidth = mapWidth - (4 * margin);
+            System.out.println("Usable Width : " + usableWidth);
+        } else {
+            usableWidth = mapWidth - (2 * margin);
+        }
 
         int index = 0;
 
@@ -765,8 +819,10 @@ public class GameManager {
                 skinPath = ctd.getSkin().getFilePath();
             } else {
                 ctd = new CustomTeamData();
-                skinPath = "/worm.png";
+                skinPath = "/wormPixel.png";
             }
+
+            ArrayList<String> nameWorms = ctd.getWormsName();
             
 
             this.nbrTeams++;
@@ -786,14 +842,18 @@ public class GameManager {
             index++;
 
             String name = ctd.getTeamName();
+            //si le nom est default donner un nom unique basé sur l'index
+            if (name.equalsIgnoreCase("Default")) {
+                name = "Team " + (i + 1);
+            }
 
-            TeamInitialisation temp = new TeamInitialisation(model, world, name, this.nbrWormsByTeam, startX, skinPath);
+            TeamInitialisation temp = new TeamInitialisation(model, world, name, this.nbrWormsByTeam, startX, skinPath,nameWorms);
     
             listTeamInital.add(temp);
             listTeamModel.add(temp.getTeamModel());
             
             // Initialiser les statistiques pour cette équipe
-            teamStats.put(name, new GameStats());
+            teamStats.put(temp.getTeamModel().getTeamID(), new GameStats());
         }
     }
 

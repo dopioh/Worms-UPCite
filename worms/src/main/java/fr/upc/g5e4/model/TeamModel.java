@@ -3,10 +3,15 @@ package fr.upc.g5e4.model;
 //import java.util.ArrayList;
 
 import org.jbox2d.dynamics.World;
+
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+
 import fr.upc.g5e4.model.InventoryModel.InventoryJson;
 
 import fr.upc.g5e4.model.io.*;
+import fr.upc.g5e4.model.io.CharacterData;
 
 //import java.awt.Color;
 
@@ -31,6 +36,8 @@ public class TeamModel {
 
     private String skinPath;
     
+    private int money;
+    
     /**
      * Constructeur de la classe TeamModel avec initialisation automatique des worms
      * @param groundModel Le modèle du terrain
@@ -43,7 +50,7 @@ public class TeamModel {
      * @param facingRight Direction initiale des worms (true = droite, false = gauche)
      * @param withCollision Active les collisions entre worms (true = avec collisions, false = sans)
      */
-    public TeamModel(GroundModel groundModel, World world, String teamName, double startX, double spacing, int wormNumber, boolean console, boolean facingRight, boolean withCollision,int COLORTEAM,String skinPath) {
+    public TeamModel(GroundModel groundModel, World world, String teamName, double startX, double spacing, int wormNumber, boolean console, boolean facingRight, boolean withCollision,int COLORTEAM,ArrayList<String> nameWorms,String skinPath) {
         if (wormNumber < 1) {
             throw new IllegalArgumentException("Une équipe doit avoir au moins 1 worm");
         }
@@ -52,6 +59,7 @@ public class TeamModel {
         this.number = wormNumber;
         this.tabModelWorms = new CharacterModel[number];
         this.COLORTEAM = COLORTEAM;
+        this.money = 0;
 
         TEAMSNUMBER++;
         this.teamID = TEAMSNUMBER;
@@ -60,9 +68,28 @@ public class TeamModel {
         // Initialisation automatique des worms et position espacée
         for (int i = 0; i < number; i++) {
             double xPosition = startX + (i * spacing);
+            System.out.println("StartX avant condition : " + startX);
+
+            if (xPosition >= groundModel.getWidth()){ // au cas ou xPos est hors map et le worm spawn dans le vide
+                Random rd = new Random();
+                startX -= 20;
+                System.out.println("StartX pendant condition : " + startX);
+                while (xPosition >= groundModel.getWidth()){
+                    int nbrR = rd.nextInt(3, 100);
+                    xPosition -= nbrR;
+                }
+            }
+
             double yPosition = groundModel.getHeight() - 600;
+
+            String wormName;
+            if (nameWorms == null){
+                wormName = "bot";
+            } else {
+                wormName = nameWorms.get(i);
+                System.out.println(wormName);
+            }
             
-            String wormName = "Worm";
             
             tabModelWorms[i] = new CharacterModel(
                 groundModel, 
@@ -78,7 +105,7 @@ public class TeamModel {
                 withCollision
             );
             
-            // Définir la direction initiale
+            // au debut les worms regardent a droite
             tabModelWorms[i].setFacingRight(facingRight);
         }
     }
@@ -93,6 +120,7 @@ public class TeamModel {
         this.COLORTEAM = COLORTEAM;
         this.inventory = inventory;
         this.skinPath = skinPath;
+        this.money = 0;
         
         this.tabModelWorms = new CharacterModel[number];
         for (int i = 0 ; i < tabModelWorms.length ; i++){
@@ -103,6 +131,10 @@ public class TeamModel {
     // Getters et Setters   
     public String getTeamName(){
         return teamName;
+    }
+
+    public int getTeamID(){
+        return teamID;
     }
 
     public CharacterModel[] getTabWorms() {
@@ -151,7 +183,7 @@ public class TeamModel {
 
     // Getter Data
     public TeamData toData(){
-        return new TeamData(teamID, number, tabModelWorms,teamName,COLORTEAM, inventory,skinPath);
+        return new TeamData(teamID, number, tabModelWorms,teamName,COLORTEAM, inventory, money,skinPath);
     }
     
 
@@ -177,5 +209,21 @@ public class TeamModel {
         for (InventoryJson item : inventory) {
             item.resetTurn();
         }
+    }
+
+    public int getMoney() {
+        return money;
+    }
+
+    public void setMoney(int money) {
+        this.money = money;
+    }
+
+    public void addMoney(int amount) {
+        this.money += amount;
+    }
+
+    public void removeMoney(int amount) {
+        this.money -= amount;
     }
 }

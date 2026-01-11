@@ -1,5 +1,7 @@
 package fr.upc.g5e4.controller;
 
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.io.IOException;
 
 import javax.swing.JOptionPane;
@@ -8,7 +10,7 @@ import fr.upc.g5e4.GameLauncher;
 import fr.upc.g5e4.model.TeamSettingsModel;
 import fr.upc.g5e4.model.io.SaveLoad;
 import fr.upc.g5e4.view.MainMenuView;
-import fr.upc.g5e4.view.SettingsView;
+//import fr.upc.g5e4.view.SettingsView;
 import fr.upc.g5e4.view.TeamSettingsView;
 
 /**
@@ -37,18 +39,22 @@ public class MainMenuController {
             }
         });
         view.getBtnResume().addActionListener(e -> resumeGame());
+        view.getBtnHowToPlay().addActionListener(e -> openTutorial());
         view.getBtnConfig().addActionListener(e -> openConfig());
         view.getBtnQuit().addActionListener(e -> quitGame());
         
-        // Bouton d'achat de la boutique
-        view.getShopView().getBuyButton().addActionListener(e -> handlePurchase());
-    }
+        // Listener pour repositionner les composants lors du redimensionnement
+        view.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                view.repositionComponents();
+            }
+        });
+   }
 
     private void startNewGame() throws IOException {
         // Utilise le GameLauncher existant pour basculer vers le jeu
-        if (gameLauncher == null){
-            this.gameLauncher = new GameLauncher();
-        }
+        gameLauncher.resetGame();   // pour reset le jeu au cas ou une save serait toujours en memoire
         gameLauncher.startGame();
     }
 
@@ -66,7 +72,11 @@ public class MainMenuController {
 
         try {
             SaveLoad sv = new SaveLoad();
-            this.gameLauncher.startFromGameSave(sv.getSaveData());
+            boolean lancement = this.gameLauncher.startFromGameSave(sv.getSaveData());
+            if (!lancement == true){
+                JOptionPane.showMessageDialog(gameLauncher.getMainFrame(),"Aucune sauvegarde enregistrer, veillez d'abord lancer une game et la sauvegarder !", "AUCUNE SAVE FILE TROUVER",
+            JOptionPane.INFORMATION_MESSAGE); //determine l'icône qui s'affiche à gauche du texte
+            }
         } catch (IOException e) {
             JOptionPane.showMessageDialog(gameLauncher.getMainFrame(), 
             "Impossible de lancer une sauvegarde", 
@@ -80,6 +90,8 @@ public class MainMenuController {
 
     private void openConfig() {
         TeamSettingsView teamSettingsView = new TeamSettingsView(gameLauncher.getPlayerDataController()); // creer la vue 
+        //System.out.println("OPEN CONFIG CALLED");
+        //this.gameLauncher.getPlayerDataController().chargerJoueur();
 
         // Créer le contrôleur des réglages qui gère les listeners
         SettingsController settingsController = new SettingsController(gameLauncher, teamSettingsView);
@@ -92,16 +104,10 @@ public class MainMenuController {
         gameLauncher.showSettings(settingsController.getView());
     }
 
-    private void handlePurchase() {
-        // TODO: Implémenter la logique
-        // verif si le joueur a assez d'argent
-        // ajouter l'item à l'inventaire
-        
-        JOptionPane.showMessageDialog(gameLauncher.getMainFrame(), 
-            "Achat effectué avec succès !", 
-            "Boutique", 
-            JOptionPane.INFORMATION_MESSAGE);
+    private void openTutorial() {
+        view.getTutorialController().showTutorial();
     }
+
 
     private void quitGame() {
         System.exit(0);

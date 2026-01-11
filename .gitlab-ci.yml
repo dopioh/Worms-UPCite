@@ -31,11 +31,10 @@ stages:
 build:
   stage: build
   script: 
-      # force la suppression du proxy au cas où il reste en mémoire
+    # force la suppression du proxy au cas où il reste en mémoire
     - unset MAVEN_OPTS || true
     - rm -f /root/.m2/settings.xml || true
-
-
+    
     - cd worms
     - mvn $MAVEN_CLI_OPTS -U clean compile
 #  cache:
@@ -65,7 +64,7 @@ deploy:
     - mvn $MAVEN_CLI_OPTS clean package
   artifacts:
     paths:
-      - worms/target/worms-SNAPSHOT-jar-with-dependencies.jar
+      - worms/target/worms-app.jar
     expire_in: 1 week
   only:
    - main 
@@ -91,4 +90,4 @@ release_job:
     assets:
       links:
         - name: 'worms-app.jar'
-          url: '$CI_PROJECT_URL/-/jobs/artifacts/$CI_COMMIT_TAG/raw/worms/target/worms-SNAPSHOT-jar-with-dependencies.jar?job=deploy'
+          url: '$CI_PROJECT_URL/-/jobs/artifacts/$CI_COMMIT_TAG/raw/worms/target/worms-app.jar?job=deploy'

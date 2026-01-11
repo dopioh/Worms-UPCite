@@ -6,6 +6,7 @@ import fr.upc.g5e4.model.CharacterModel;
 import fr.upc.g5e4.model.Item;
 import fr.upc.g5e4.model.Weapon;
 import fr.upc.g5e4.model.Projectile;
+import fr.upc.g5e4.model.SoundPlayer;
 import fr.upc.g5e4.model.BlockGridModel;
 import fr.upc.g5e4.model.PhysicsWorld;
 import fr.upc.g5e4.model.WindModel;
@@ -13,7 +14,6 @@ import fr.upc.g5e4.model.GameManager;
 import fr.upc.g5e4.view.ItemView;
 import java.util.ArrayList;
 import java.util.List;
-import fr.upc.g5e4.model.SoundPlayer;
 
 public class ItemController {
     private final ItemView view;
@@ -284,8 +284,8 @@ public class ItemController {
         
         // Reconstruire la physique si des blocs ont été détruits
         if (modified && physicsWorld != null) {
-            System.out.println("[TERRAIN] Appel de rebuildGroundPhysics...");
-            physicsWorld.rebuildGroundPhysics(blockGridModel);
+            System.out.println("[TERRAIN] Appel de recreateGroundFromBlockGrid...");
+            physicsWorld.recreateGroundFromBlockGrid(blockGridModel);
         } else if (modified && physicsWorld == null) {
             System.out.println("[TERRAIN] ERROR: physicsWorld est NULL !");
         }
@@ -330,9 +330,23 @@ public class ItemController {
                 double damageMultiplier = 1.0 - (distance / blastRadiusInMeters);
                 int actualDamage = Math.max(1, (int) (baseDamage * damageMultiplier));
                 
+                boolean wasAlive = !worm.isDead();
+                
                 // appliquer les dégats
                 worm.dealDamage(actualDamage, shooter);
                 System.out.println("[EXPLOSION] " + worm.getName() + " prend " + actualDamage + " dégâts (distance: " + String.format("%.2f", distance) + "m)");
+                
+                // tracker les stats (seulement si ce n'est pas le tireur)
+                if (gameManager != null && worm != shooter) {
+                    // pas incrémenter shotsHit ici car déjà compté lors de l'impact direct
+                    // compte seulement les dégâts et kills
+                    gameManager.getCurrentTeamStats().addDamage(actualDamage);
+                    
+                    //si le worm est mort suite aux dégâts
+                    if (wasAlive && worm.isDead()) {
+                        gameManager.getCurrentTeamStats().incrementKills();
+                    }
+                }
                 
                 // appliquer un impact de recul
                 if (distance > 0) {

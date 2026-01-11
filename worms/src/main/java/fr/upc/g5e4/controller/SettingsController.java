@@ -1,7 +1,10 @@
 package fr.upc.g5e4.controller;
 
 import fr.upc.g5e4.GameLauncher;
+import fr.upc.g5e4.view.PauseOverlay;
 import fr.upc.g5e4.model.MapConfig;
+import fr.upc.g5e4.model.SoundPlayer;
+import fr.upc.g5e4.model.io.SaveLoad;
 import fr.upc.g5e4.view.SettingsView;
 import fr.upc.g5e4.view.TeamSettingsView;
 
@@ -17,6 +20,11 @@ public class SettingsController {
     public SettingsController(GameLauncher gameLauncher, TeamSettingsView teamSettingsView) {
         this.gameLauncher = gameLauncher;
         this.view = new SettingsView(teamSettingsView);
+
+        //Pour l'onglet Autres
+        view.setSoundButtonState(!SoundPlayer.isMuted());
+        view.setFullscreenButtonState(gameLauncher.isFullScreen());
+
         initializeMapSettings();
         addListeners();
     }
@@ -44,6 +52,14 @@ public class SettingsController {
         };
         view.getTerrainComboBox().setSelectedItem(terrainText);
         
+        // Initialiser le style de fond
+        MapConfig.BackgroundStyle currentStyle = MapConfig.getBackgroundStyle();
+        String styleText = switch (currentStyle) {
+            case JOUR -> "Jour";
+            case NUIT -> "Nuit";
+        };
+        view.getStyleComboBox().setSelectedItem(styleText);
+        
         // Mettre à jour l'aperçu avec les valeurs actuelles
         view.updateMapPreview();
     }
@@ -55,10 +71,22 @@ public class SettingsController {
         // Listener pour le bouton retour
         view.getBtnBack().addActionListener(e -> handleBackButton());
         
+        // Listener pour détecter les changements de taille
+        view.addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentResized(java.awt.event.ComponentEvent e) {
+                view.checkFullScreen();
+            }
+        });
+        
         // Listeners pour les onglets
         view.getBtnMapTab().addActionListener(e -> view.showPanel("Map"));
         view.getBtnTeamsTab().addActionListener(e -> view.showPanel("Equipes"));
-        view.getBtnOtherTab().addActionListener(e -> view.showPanel("Autre"));
+        view.getBtnOtherTab().addActionListener(e -> {
+            view.setSoundButtonState(!SoundPlayer.isMuted());
+            view.setFullscreenButtonState(gameLauncher.isFullScreen());
+            view.showPanel("Autre");
+        });
         
         // Listeners pour les dropdowns de la map
         view.getSizeComboBox().addActionListener(e -> {
@@ -68,6 +96,33 @@ public class SettingsController {
         view.getTerrainComboBox().addActionListener(e -> {
             handleTerrainChange();
             view.updateMapPreview(); // Mettre à jour l'aperçu
+        });
+
+        view.getBtnSound().addActionListener(e -> {
+            boolean newMuted = !SoundPlayer.isMuted();
+            SoundPlayer.setMuted(newMuted);
+            boolean enabled = !newMuted;
+            view.setSoundButtonState(enabled);
+            PauseOverlay po = gameLauncher.getPauseOverlay();
+            if (po != null) po.setSoundOn(enabled);
+        });
+
+        view.getBtnResetSave().addActionListener(e -> {
+            //Fonction a mettre pour la sauvegarde @MEIIII
+            System.out.println("Meiu");
+            SaveLoad.suppSaveFile();
+        });
+
+        view.getBtnFullscreen().addActionListener(e -> {
+            gameLauncher.requestToggleFullScreen();  
+            boolean fs = gameLauncher.isFullScreen();
+            view.setFullscreenButtonState(fs);
+            PauseOverlay po = gameLauncher.getPauseOverlay();
+            if (po != null) po.setFullScreenOn(fs);
+        });
+
+        view.getStyleComboBox().addActionListener(e -> {
+            handleStyleChange();
         });
     }
     
@@ -100,6 +155,20 @@ public class SettingsController {
         };
         MapConfig.setMapType(newType);
         System.out.println("Type de terrain changé: " + newType);
+    }
+    
+    /**
+     * Gère le changement de style de fond
+     */
+    private void handleStyleChange() {
+        String selected = (String) view.getStyleComboBox().getSelectedItem();
+        MapConfig.BackgroundStyle newStyle = switch (selected) {
+            case "Jour" -> MapConfig.BackgroundStyle.JOUR;
+            case "Nuit" -> MapConfig.BackgroundStyle.NUIT;
+            default -> MapConfig.BackgroundStyle.JOUR;
+        };
+        MapConfig.setBackgroundStyle(newStyle);
+        System.out.println("Style de fond changé: " + newStyle);
     }
     
     /**

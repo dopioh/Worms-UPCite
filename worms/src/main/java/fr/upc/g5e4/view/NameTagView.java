@@ -4,9 +4,10 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
-import java.io.IOException;
-import javax.imageio.ImageIO;
+//import javax.swing.ImageIcon;
 import fr.upc.g5e4.model.CharacterModel;
+//import fr.upc.g5e4.model.MapConfig;
+import fr.upc.g5e4.util.ImageCache;
 
 /**
  * Vue pour l'affichage du NameTag
@@ -20,13 +21,16 @@ public class NameTagView {
     private Color shieldBarColor = new Color(0, 195, 243); // Bleu cyan
     
     // Variables pour l'animation (index 0=health, 1=shield)
-    private double[] displayed = {100.0, 50.0};
-    private double[] start = {100.0, 50.0};
-    private double[] target = {100.0, 50.0};
+    private double[] displayed = {100.0, 100.0};
+    private double[] start = {100.0, 100.0};
+    private double[] target = {100.0, 100.0};
     private long[] animStart = {0, 0};
     
     // Liste des items à afficher au-dessus des barres
     private List<ItemIcon> itemIcons;
+
+    // couleur pour chaque equipe
+    private Color teamColor;
     
     /**
      * Classe interne pour représenter un item icon
@@ -76,6 +80,7 @@ public class NameTagView {
     public NameTagView(Color borderColor) {
         this.padding = 5;
         this.visible = true;
+        this.teamColor = borderColor;
         this.itemIcons = new ArrayList<>();
     }
     
@@ -95,12 +100,11 @@ public class NameTagView {
      * @param durationMs La durée en milliseconde
      */
     public void addItemFromResource(String imagePath, String name, long durationMs) {
-        try {
-            BufferedImage image = ImageIO.read(getClass().getResourceAsStream(imagePath));
+        BufferedImage image = ImageCache.get(imagePath);
+        if (image != null) {
             itemIcons.add(new ItemIcon(image, name, durationMs));
-        } catch (IOException | IllegalArgumentException e) {
+        } else {
             System.err.println("Impossible de charger l'image: " + imagePath);
-            e.printStackTrace();
         }
     }
     
@@ -117,7 +121,16 @@ public class NameTagView {
      * @return true si l'item a été retiré, false sinon
      */
     public boolean removeItem(String name) {
-        return itemIcons.removeIf(item -> item.name != null && item.name.equals(name));
+        boolean removed = false;
+        java.util.List<ItemIcon> toRemove = new java.util.ArrayList<>();
+        for (ItemIcon item : itemIcons) {
+            if (item.name != null && item.name.equals(name)) {
+                toRemove.add(item);
+                removed = true;
+            }
+        }
+        itemIcons.removeAll(toRemove);
+        return removed;
     }
     
     /**
@@ -197,8 +210,8 @@ public class NameTagView {
         int centerY = (int)((24 - position.y) * CharacterModel.getPPM());
         
         // Dimensions
-        final int ITEM_SIZE = 18;
-        final int ITEM_SPACING = 3;
+        final int ITEM_SIZE = 25 ;
+        final int ITEM_SPACING = 0;
         final int BAR_WIDTH = 70;
         final int BAR_HEIGHT = 8;
         final int BAR_SPACING = 3;
@@ -216,10 +229,16 @@ public class NameTagView {
         
         int currentY = boxY + padding;
         
-        // 1. Dessiner les items alignés en haut
+        // Dessiner les items alignés en haut
         if (!itemIcons.isEmpty()) {
             // nettoyer les items expirés
-            itemIcons.removeIf(ItemIcon::isExpired);
+            List<ItemIcon> itemsToRemove = new ArrayList<>();
+            for (ItemIcon icon : itemIcons) {
+                if (icon.isExpired()) {
+                    itemsToRemove.add(icon);
+                }
+            }
+            itemIcons.removeAll(itemsToRemove);
             
             int totalItemsWidth = itemIcons.size() * ITEM_SIZE + (itemIcons.size() - 1) * ITEM_SPACING;
             int itemsStartX = centerX - totalItemsWidth / 2;
@@ -237,7 +256,7 @@ public class NameTagView {
                         double seconds = remaining / 1000.0;
                         String timerText = String.format("%.0f", seconds);
                         
-                        //texte du timer
+                        // texte du timer
                         g2d.setColor(Color.WHITE);
                         g2d.setFont(new Font("Arial", Font.BOLD, 8));
                         FontMetrics fm = g2d.getFontMetrics();
@@ -248,9 +267,10 @@ public class NameTagView {
                 }
             }
             currentY += ITEM_SIZE + ITEM_SPACING * 2;
+            
         }
         
-        // 2. Dessiner la barre de shield (bleue)
+        // Dessiner la barre de shield (bleue)
         int barX = centerX - BAR_WIDTH / 2;
         long currentTime = System.currentTimeMillis();
         final long ANIMATION_DURATION = 600;
@@ -264,12 +284,47 @@ public class NameTagView {
         Color healthBorderColor = new Color(42, 129, 67, 220);
         
         drawProgressBar(g2d, barX, currentY, BAR_WIDTH, BAR_HEIGHT, 
-                       displayed[1], 50.0, shieldBarColor, shieldBorderColor);
+                       displayed[1], 100.0, shieldBarColor, shieldBorderColor);
         currentY += BAR_HEIGHT + BAR_SPACING;
         
-        // 3. Dessiner la barre de vie (verte)
+        // Dessiner la barre de vie (verte)
         drawProgressBar(g2d, barX, currentY, BAR_WIDTH, BAR_HEIGHT, 
                        displayed[0], 100.0, healthBarColor, healthBorderColor);
+
+
+        String name = model.getName();
+
+        if (name != null && !name.isEmpty()) {
+            g2d.setFont(new Font("googleSansFont", Font.BOLD, 22));
+    
+            FontMetrics fm = g2d.getFontMetrics(); // on recup les mesures de la font pour calculer son positionnement
+            int textWidth = fm.stringWidth(name);   // recup la largeur du texte
+
+            org.jbox2d.dynamics.Body body = model.getBody();
+            org.jbox2d. common.Vec2 pos = body.getPosition();
+            int x = (int)(pos.x * fr.upc.g5e4.model.CharacterModel. getPPM());
+            int y = (int)((24 - pos.y) * fr.upc.g5e4.model.CharacterModel.getPPM());
+    
+            // on centre le texte par rapport a la position du worm
+            int textX = x - (textWidth / 2);
+            int textY = y - 70;
+
+            g2d.setColor(Color.BLACK);
+            int outlineThickness = 2; 
+    
+            // dessiner le contour des lettres
+            for (int i = -outlineThickness; i <= outlineThickness; i++) {
+                for (int j = -outlineThickness; j <= outlineThickness; j++) {
+                    if ( i!= 0 || j != 0) { // pour eviter de dessiner au centre
+                        g2d.drawString(name, textX + i, textY + j);
+                    }   
+                }
+            }
+
+            g2d.setColor(teamColor);
+            g2d.drawString(name, textX, textY);
+  
+        }
     }
     
     
