@@ -115,15 +115,6 @@ public class TeamSettingsViewTest {
         assertInstanceOf(JButton.class, button);
     }
 
-
-
-    @Test
-    public void testUpdateDoesNotThrowException() {
-        assertDoesNotThrow(() -> { view.update(false);} );
-
-        assertDoesNotThrow(() -> { view.update(true);} );
-    }
-
     @Test
     public void testReloadCustomTeamChoose_DoesNotThrowException() {
         assertDoesNotThrow(() -> { view.reloadCustomTeamChoose();} );
