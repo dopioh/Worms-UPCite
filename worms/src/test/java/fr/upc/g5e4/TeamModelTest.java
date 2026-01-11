@@ -31,7 +31,7 @@ public class TeamModelTest {
     
     @Test
     void testConstructorWithValidWormNumber() {
-        team = new TeamModel(groundModel, world, "Team1", 100, 50, 5,false, true, false,1,"/wormPixel.png");
+        team = new TeamModel(groundModel, world, "Team1", 100, 50, 5,false, true, false,1,null,"/wormPixel.png");
         
         assertNotNull(team);
         assertEquals(5, team.getWormNumberAtStart());
@@ -42,7 +42,7 @@ public class TeamModelTest {
     
     @Test
     void testWormsInitialization() {
-        team = new TeamModel(groundModel, world, "Team1", 100, 50, 3,false, true, false,1,"/wormPixel.png");
+        team = new TeamModel(groundModel, world, "Team1", 100, 50, 3,false, true, false,1,null,"/wormPixel.png");
         
         CharacterModel[] worms = team.getTabWorms();
         
@@ -60,7 +60,7 @@ public class TeamModelTest {
      * Teste getWorm avec des index valides
      */
     void testGetWormWithValidIndex() {
-        team = new TeamModel(groundModel, world, "Team1", 100, 50, 5,false, true, false,1,"/wormPixel.png");
+        team = new TeamModel(groundModel, world, "Team1", 100, 50, 5,false, true, false,1,null,"/wormPixel.png");
         
         CharacterModel worm = team.getWorm(0);
         assertNotNull(worm);
@@ -74,7 +74,7 @@ public class TeamModelTest {
      * Teste getWorm avec des index invalides
      */
     void testGetWormWithInvalidIndex() {
-        team = new TeamModel(groundModel, world, "Team1", 100, 50, 5,false, true, false,1,"/wormPixel.png");
+        team = new TeamModel(groundModel, world, "Team1", 100, 50, 5,false, true, false,1,null,"/wormPixel.png");
         
         assertThrows(IndexOutOfBoundsException.class, () -> {
             team.getWorm(-1);
@@ -91,7 +91,7 @@ public class TeamModelTest {
     
     @Test
     void testRemoveWorm() {
-        team = new TeamModel(groundModel, world, "Team1", 100, 50, 5,false, true, false,1,"/wormPixel.png");
+        team = new TeamModel(groundModel, world, "Team1", 100, 50, 5,false, true, false,1,null,"/wormPixel.png");
         
         assertNotNull(team.getWorm(2));
         team.removeWorm(2);
@@ -100,7 +100,7 @@ public class TeamModelTest {
     
     @Test
     void testRemoveWormWithInvalidIndex() {
-        team = new TeamModel(groundModel, world, "Team1", 100, 50, 5,false, true, false,1,"/wormPixel.png");
+        team = new TeamModel(groundModel, world, "Team1", 100, 50, 5,false, true, false,1,null,"/wormPixel.png");
         
         assertThrows(IndexOutOfBoundsException.class, () -> {
             team.removeWorm(-1);
@@ -116,7 +116,7 @@ public class TeamModelTest {
      * Teste l'ajout d'un worm a une position qui vient de se libérer
      */
     void testAddWorm() {
-        team = new TeamModel(groundModel, world, "Team1", 100, 50, 5,false, true, false,1,"/wormPixel.png");
+        team = new TeamModel(groundModel, world, "Team1", 100, 50, 5,false, true, false,1,null,"/wormPixel.png");
         
         // on libère la place en supprimant le worm à l'index 2
         team.removeWorm(2);
@@ -135,7 +135,7 @@ public class TeamModelTest {
      * Teste l'ajout d'un worm à une position prise par un autre worm
      */
     void testAddWormToUsedSlot() {
-        team = new TeamModel(groundModel, world, "Team1", 100, 50, 5,false, true, false,1,"/wormPixel.png");
+        team = new TeamModel(groundModel, world, "Team1", 100, 50, 5,false, true, false,1,null,"/wormPixel.png");
         
         CharacterModel newWorm = new CharacterModel(groundModel, world, 300, 200,false);
         
@@ -146,7 +146,7 @@ public class TeamModelTest {
     
     @Test
     void testAddWormWithInvalidIndex() {
-        team = new TeamModel(groundModel, world, "Team1", 100, 50, 5,false, true, false,1,"/wormPixel.png");
+        team = new TeamModel(groundModel, world, "Team1", 100, 50, 5,false, true, false,1,null,"/wormPixel.png");
         CharacterModel newWorm = new CharacterModel(groundModel, world, 300, 200,false);
         
         assertThrows(IndexOutOfBoundsException.class, () -> {
@@ -160,7 +160,7 @@ public class TeamModelTest {
     
     @Test
     void testGetAliveWormNumber() {
-        team = new TeamModel(groundModel, world, "Team1", 100, 50, 5,false, true, false,1,"/wormPixel.png");
+        team = new TeamModel(groundModel, world, "Team1", 100, 50, 5,false, true, false,1,null,"/wormPixel.png");
         
         assertEquals(5, team.getAliveWormNumber());
         

@@ -2,7 +2,6 @@ package fr.upc.g5e4.view;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 
 import org.jbox2d.common.Vec2;
 import fr.upc.g5e4.util.ImageCache;

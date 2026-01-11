@@ -35,7 +35,8 @@
     - Gadget (Bumper)
 - Classe inventaire
     - InventoryJson
-    - JDialog pour agir avec les armes et gadget selon les données de InventoryJson 
+    - Interface JDialog 
+    - Un modèle permet agir avec les armes et gadget selon les données de InventoryJson 
 - Classe Donnée Joueur
     - Système de sauvegarde des données (JSON)
 - Classe Camera
@@ -64,6 +65,7 @@
 - Raccourcis
     - `Esc` pour quitter le jeu
     - `I` pour ouvrir l’inventaire
+- Icone de l'inventaire cliquable
 - vue console : on peut désormais lancer le jeu en mode console
 - JaCoCo et de Mockito
 - Mise en place d’un inventaire consultable en jeu
@@ -101,7 +103,9 @@
 - Fonction `loadSprite` avec gestion d'erreurs
 - Affichage du sprite dans la bonne direction
 - SFX bruit de Tir
-- Vent
+- Vent 
+    - Interface
+    - Modèle de vent
 
 ### Modified
 
@@ -111,6 +115,7 @@
     - Séparation du `GameLauncher` et des Overlays
     - Séparation du JFrame
     - Suppression de `Entity.java` obsolète
+- Clic sur le sac n'ouvre plus
 
 ### Fixed
 
@@ -160,10 +165,11 @@
 
 ### Added
 
-- **Page réglages**
+- **Page reglages**
     - Système d'onglets : Map, Équipes, Autre
     - Support du plein écran avec scaling automatique
     - Bouton retour vers le menu principal
+    - Liaison des pages paramètres Menu "Autres" et "PauseOverlay"
 - **Composant PillButton**
     - Bouton arrondi stylisée avec effet hover et plus
 - **Composant PillComboBox**
@@ -195,17 +201,19 @@
 - Dégâts de zone 
 - Readme.md expliquant le projet (comment jouer etc)
 - Ajout d'un pointeur graphique (flèche rouge) au-dessus du joueur actif dans la vue GamePanel pour indiquer visuellement le worm en cours de jeu
-- Ajout background avec effet parallax
+- Background avec effet parallax
     - Choix dans paramètre onglet map
 - AUTHORS.md
 - CONTRIBUTING.MD
 - DESIGN.MD
 - Système d'images en cache pour optimiser
 - Animation de marche pour les worms (rotation)
+- **Arbres**
+    - Disparition automatique des décos quand le sol en dessous est détruit
 
 ### Modified
 
-- Suppression de tous les raccourcis Clavier
+- **Suppression de tous les raccourcis Clavier**
     - Remplacé par des boutons dans paramètres (Fonctionnalités Fly/BluePrint/FullScreen)
     - Remplacé par le scroll souris (Zoom)
 - **Système de plein écran**
@@ -240,6 +248,8 @@
 - Suppression de touche Echap dans main menu
 - Adaptation des Tests pour le nouveau système d'équipe
 - Certaines images chargeaient deux fois dans le cache
+- Fix save qui se lance quand y'en a une meme si on appuie sur le bouton "Nouvelle partie"
+- Fix Noms des worms qui s'enregistraient pas correctement dans `CharacterModel`
 - **full screen**
     - Menu Réglage
     - Titre main menu

@@ -7,10 +7,10 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 
-import javax.imageio.ImageIO;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -31,6 +31,7 @@ import fr.upc.g5e4.controller.TutorialController;
 /**
  * Vue de l'écran d'accueil du jeu Worms
  * Affiche le menu principal avec les boutons d'action
+ * @author Ian
  */
 public class MainMenuView extends JPanel {
     
@@ -95,13 +96,10 @@ public class MainMenuView extends JPanel {
     
     private void loadBackgroundImage() {
         try {
-            java.net.URL url = getClass().getResource("/background.png");
-            if (url != null) {
             backgroundImage = ImageCache.get("/background.png");
             if (backgroundImage == null) {
                 System.err.println("Impossible de charger le fond du menu principal");
             }
-        }
         } catch (Exception e) {
             System.err.println("Erreur lors du chargement de l'image de fond: " + e.getMessage());
         }
@@ -145,8 +143,8 @@ public class MainMenuView extends JPanel {
         // Mettre à jour le titre
         ImageIcon titleIcon = loadImage("/title.png");
         if (titleIcon != null && titleLabel != null) {
-            java.awt.Image scaledImage = titleIcon.getImage().getScaledInstance(
-                titleWidth, -1, java.awt.Image.SCALE_SMOOTH);
+            Image scaledImage = titleIcon.getImage().getScaledInstance(
+                titleWidth, -1, Image.SCALE_SMOOTH);
             titleLabel.setIcon(new ImageIcon(scaledImage));
         } else if (titleLabel != null) {
             int titleFontSize = (int)(70 * scale);
@@ -245,8 +243,8 @@ public class MainMenuView extends JPanel {
         
         if (titleIcon != null) {
             // Redimensionne l'image à 400px de largeur
-            java.awt.Image scaledImage = titleIcon.getImage().getScaledInstance(
-                400, -1, java.awt.Image.SCALE_SMOOTH);
+            Image scaledImage = titleIcon.getImage().getScaledInstance(
+                400, -1, Image.SCALE_SMOOTH);
             titleLabel = new JLabel(new ImageIcon(scaledImage));
             titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
             parent.add(titleLabel);
@@ -272,8 +270,8 @@ public class MainMenuView extends JPanel {
     }
 
     private ImageIcon loadImage(String path) {
-        java.net.URL url = getClass().getResource(path);
-        return (url != null) ? new ImageIcon(url) : null;
+        BufferedImage img = ImageCache.get(path);
+        return (img != null) ? new ImageIcon(img) : null;
     }
 
     // Getters pour les boutons (le controller en aura besoin)

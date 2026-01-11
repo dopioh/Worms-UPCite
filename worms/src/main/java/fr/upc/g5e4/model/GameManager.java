@@ -42,6 +42,7 @@ public class GameManager {
     private final GamePanel gamePanel;
     private GroundModel model;  // Gardé pour compatibilité avec TeamModel
     private BlockGridModel blockGridModel;  // Nouveau système de terrain en blocs
+    private DecorationManager decorationManager;  // Gestion des décorations
     private final PhysicsWorld physic;
     private final World world;
     private final Body water;
@@ -84,11 +85,33 @@ public class GameManager {
     private int roundTimeRemaining = 1800;
     private int roundTimeSave = 1800;
 
+    private boolean inputFrozen = false;
+
+    private boolean teamKillEnabled = false;
+    private boolean blueprintEnabled = false;
+    private boolean flyModeEnabled = false;
+
+
+    /**
+     * Vérifie si les entrées utilisateur sont désactivées
+     * @return true si oui, false sinon
+     */
+    public boolean isInputFrozen() {
+        return inputFrozen;
+    }
+
+    /**
+     * Active ou désactive les entrées utilisateur
+     * @param frozen true pour activer,false sinon
+     */
+    public void setInputFrozen(boolean freeze) {
+        this.inputFrozen = freeze;
+    }
     
     private InventoryOverlay inventoryOverlay;
     private HUDOverlay hudOverlay;
     private fr.upc.g5e4.view.WindOverlay windOverlay;
-    // --- Vent toggle ---
+    //Vent toggle
     private boolean windEnabled = true;
 
     // Vent "réel" du tour (mémorisé même si windEnabled=false)
@@ -152,6 +175,10 @@ public class GameManager {
         // création du BlockGridModel (système de terrain en blocs)
         this.blockGridModel = new BlockGridModel(sizeX, sizeY, waterLevel);
         blockGridModel.generateWithGroundY(groundY);
+        
+        // création des décorations sur le terrain
+        this.decorationManager = new DecorationManager(blockGridModel);
+        decorationManager.generateDecorations(6);  // environ 6 décorations aléatoires
         
         // on garde le GroundModel pour compatibilité avec TeamModel
         this.model = new GroundModel(groundY, sizeX, sizeY, waterLevel);
@@ -232,6 +259,8 @@ public class GameManager {
         this.gamePanel = new GamePanel(model, camera, cameraController, listTeamInital, this); 
         // Passer le BlockGridModel au GamePanel pour le rendu en blocs
         this.gamePanel.setBlockGridModel(this.blockGridModel);
+        // Passer le DecorationManager au GamePanel pour le rendu des décos
+        this.gamePanel.setDecorationManager(this.decorationManager);
         // Passer l'ItemController au GamePanel pour dessiner les projectiles
         this.gamePanel.setItemController(this.itemController);
         // Ajoute le contrôleur pour capter les touches
@@ -273,6 +302,10 @@ public class GameManager {
 
         int[] groundY = saveData.getGroundModel().getGroundY();
         this.blockGridModel = b;
+        
+        // création des décorations pour les parties chargées
+        this.decorationManager = new DecorationManager(blockGridModel);
+        decorationManager.generateDecorations(6);
 
         this.model = saveData.getGroundModel();
 
@@ -390,6 +423,9 @@ public class GameManager {
         // Passer le BlockGridModel au GamePanel pour le rendu en blocs
         this.gamePanel.setBlockGridModel(this.blockGridModel);
         
+        // Passer le DecorationManager au GamePanel pour le rendu des décos
+        this.gamePanel.setDecorationManager(this.decorationManager);
+        
         // Passer l'ItemController au GamePanel pour dessiner les projectiles
         this.gamePanel.setItemController(this.itemController);
 
@@ -451,6 +487,11 @@ public class GameManager {
     
     public BlockGridModel getBlockGridModel() {
         return this.blockGridModel;
+    }
+    
+    /** @return le gestionnaire de décorations */
+    public DecorationManager getDecorationManager() {
+        return this.decorationManager;
     }
 
     public GamePanel getGamePanel() {
@@ -750,6 +791,7 @@ public class GameManager {
         if (currentTeam != null) {
             currentTeam.resetInventoryTurn();
         }
+        freezeInputsForSeconds(3);
         // réinitialise le flag d'utilisation d'arme pour le nouveau tour
         resetWeaponUsedFlag();
         // réinitialise le compteur de gadgets utilisés
@@ -793,8 +835,14 @@ public class GameManager {
     // Initialiser un nombre N d'equipes avec un skin spécifique
     public void createTeam(int number, ArrayList<CustomTeamData> customTeam){
         int mapWidth = model.getWidth();
-        int margin = 100; // Marge pour ne pas spawner au bord
-        int usableWidth = mapWidth - (2 * margin); // Espace utilisable
+        int margin = 50; // Marge pour ne pas spawner au bord
+        int usableWidth; // Espace utilisable
+        if (number > 3 && TeamConfig.NBR_WORM_EQUIPE > 3){
+            usableWidth = mapWidth - (4 * margin);
+            System.out.println("Usable Width : " + usableWidth);
+        } else {
+            usableWidth = mapWidth - (2 * margin);
+        }
 
         int index = 0;
 
@@ -807,8 +855,10 @@ public class GameManager {
                 skinPath = ctd.getSkin().getFilePath();
             } else {
                 ctd = new CustomTeamData();
-                skinPath = "/worm.png";
+                skinPath = "/wormPixel.png";
             }
+
+            ArrayList<String> nameWorms = ctd.getWormsName();
             
 
             this.nbrTeams++;
@@ -833,7 +883,7 @@ public class GameManager {
                 name = "Team " + (i + 1);
             }
 
-            TeamInitialisation temp = new TeamInitialisation(model, world, name, this.nbrWormsByTeam, startX, skinPath);
+            TeamInitialisation temp = new TeamInitialisation(model, world, name, this.nbrWormsByTeam, startX, skinPath,nameWorms);
     
             listTeamInital.add(temp);
             listTeamModel.add(temp.getTeamModel());
@@ -1337,5 +1387,36 @@ public class GameManager {
         return 2 - gadgetsUsedThisTurn;
     }
 
+    //Sert a freeze le jeu pour "seconds" secondes
+    private void freezeInputsForSeconds(int seconds) {
+        setInputFrozen(true);
+        Timer timer = new Timer(seconds * 1000, e -> {setInputFrozen(false); ((Timer) e.getSource()).stop();});
+        timer.setRepeats(false);
+        timer.start();
+    }
+
+    public void setTeamKillEnabled(boolean enabled) {
+        this.teamKillEnabled = enabled;
+    }
+
+    public boolean isTeamKillEnabled() {
+        return teamKillEnabled;
+    }
+
+    public void setBlueprintEnabled(boolean enabled) {
+        this.blueprintEnabled = enabled;
+    }
+
+    public boolean isBlueprintEnabled() {
+        return blueprintEnabled;
+    }
+
+    public void toggleFlyMode() {
+        this.flyModeEnabled = !this.flyModeEnabled;
+    }
+
+    public boolean isFlyModeEnabled() {
+        return flyModeEnabled;
+    }
 }
 
