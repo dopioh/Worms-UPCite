@@ -136,8 +136,8 @@ public class PhysicsWorld {
                 // si le bloc est solide, on crée une fixture
                 if (blockGrid.getBlock(gridX, gridY).isSolid()) {
                     // on calcul les mesures
-                    float xPx = gridX * blockSize;
-                    float yPx = gridY * blockSize;
+                    float xPx = blockGrid.gridToPixelX(gridX);
+                    float yPx = blockGrid.gridToPixelY(gridY);
                     float worldX = xPx / PPM;
                     float worldY = (pixelHeight - yPx) / PPM;
                     float blockSizeMeters = blockSize / PPM;
