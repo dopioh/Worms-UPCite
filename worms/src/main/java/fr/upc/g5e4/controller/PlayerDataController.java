@@ -12,6 +12,9 @@ import java.io.FileWriter;
 
 /**
  * Contrôleur pour la gestion des données du joueur (Controller)
+ * 
+ * @author Billy (Donnees joueurs SPRINT 1)
+ * @author Mei (Modification pour l'adapate a custom team)
  */
 public class PlayerDataController {
     private final Gson gson;
@@ -73,6 +76,7 @@ public class PlayerDataController {
             File file = new File("sauvegardes/player_save.txt");
             FileReader fileReader = new FileReader(file);
             this.playerData = gson.fromJson(fileReader, PlayerData.class);
+            //System.out.println("JOUEUR LOAD");
 
         } catch (Exception e) {
             System.out.println("[LoadPlayer] il y'a eu une erreur imprevu lors de l'appel de la fonction 'chargerJoueur()'..");
@@ -105,6 +109,4 @@ public class PlayerDataController {
         return false;
         
     }
-
-
 }

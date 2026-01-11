@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.HashMap;
 import java.util.Map;
-import javax.swing.Timer;
+//import javax.swing.Timer;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.World;
 
@@ -444,20 +444,7 @@ public class GameManager {
         this.gamePanel.setFocusable(false);  // le panel ne prend pas le focus
         imputController.setFocusable(true);   // l'inputController prend le focus    
 
-        // Timer pour update régulier de la caméra, projectiles et repaint
-        new Timer(16, e -> {
-            cameraController.update();
-            // mettre à jour les projectiles (16ms = 0.016s par frame)
-            itemController.updateProjectiles(0.016f);
-            
-            // recréer le terrain physique si la grille a changé (blocs détruits)
-            if (blockGridModel.isDirty()) {
-                physic.recreateGroundFromBlockGrid(blockGridModel);
-                blockGridModel.clearDirty();
-            }
-            
-            gamePanel.repaint();
-        }).start();
+        // suppression de l'ancien timer useless ici (projectiles, camera et terrain)
 
         //initialiseInventory();
 
@@ -791,7 +778,7 @@ public class GameManager {
         if (currentTeam != null) {
             currentTeam.resetInventoryTurn();
         }
-        freezeInputsForSeconds(3);
+        //freezeInputsForSeconds(3);
         // réinitialise le flag d'utilisation d'arme pour le nouveau tour
         resetWeaponUsedFlag();
         // réinitialise le compteur de gadgets utilisés
@@ -1388,12 +1375,14 @@ public class GameManager {
     }
 
     //Sert a freeze le jeu pour "seconds" secondes
+    /*
     private void freezeInputsForSeconds(int seconds) {
         setInputFrozen(true);
         Timer timer = new Timer(seconds * 1000, e -> {setInputFrozen(false); ((Timer) e.getSource()).stop();});
         timer.setRepeats(false);
         timer.start();
     }
+     */
 
     public void setTeamKillEnabled(boolean enabled) {
         this.teamKillEnabled = enabled;

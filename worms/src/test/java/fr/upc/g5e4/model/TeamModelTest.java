@@ -1,4 +1,4 @@
-package fr.upc.g5e4;
+package fr.upc.g5e4.model;
 
 import static org.junit.jupiter.api.Assertions.*;
 
