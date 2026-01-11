@@ -9,8 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import fr.upc.g5e4.model.InventoryModel.InventoryJson;
-import fr.upc.g5e4.controller.SwingInputController;
-import fr.upc.g5e4.controller.minigames.*;
 import fr.upc.g5e4.model.GameManager;
 import fr.upc.g5e4.controller.PlayerDataController;
 import fr.upc.g5e4.util.ImageCache;
@@ -90,10 +88,6 @@ public class InventoryOverlay extends JComponent {
     private PlayerDataController playerDataController;
     private int selectedShopIndex = -1;
     private final List<Rectangle> buyButtons = new ArrayList<>();
-    private WormRaceController wormRaceController;
-    private WormGuessController wormGuessController;
-    private WormJackController wormJackController;
-    
     // Items de la boutique
     public static class ShopItem {
         public String name;
@@ -185,7 +179,7 @@ public class InventoryOverlay extends JComponent {
         
         shopItems.add(new ShopItem("Worm Nerd Edition", "wormnerd", 20));
         shopItems.add(new ShopItem("Worm Cuisto Edition", "wormcuisto", 20));
-        shopItems.add(new ShopItem("Worm Costard Edition", "wormcostar", 20));
+        shopItems.add(new ShopItem("Worm Costar Edition", "wormcostar", 20));
         shopItems.add(new ShopItem("Worm Noel Edition", "wormnoel", 20));
         shopItems.add(new ShopItem("WORMRACE", "wormrace", 0));
         shopItems.add(new ShopItem("WORMJACK", "wormjack", 0));
