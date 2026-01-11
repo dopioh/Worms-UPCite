@@ -48,7 +48,7 @@ public class InventoryOverlayController implements InventoryOverlay.Listener {
 
     @Override
     public void onCloseInventory() {
-        view.setInventoryVisible(false);
+        if (view != null) view.setInventoryVisible(false);
         if (gameManager != null && gameManager.getGameLoop() != null) {
             gameManager.getGameLoop().resumeTimer();
         }
