@@ -37,7 +37,8 @@ public class TutorialModel {
                 "chaque tour (EX : Bazooka a 2 munitions par equipe mais seulement 1 munition par tour)",
                 "• Tomber dans l'eau trop profondement entraîne la mort immédiate du worm",
                 "• Chaque equipe en vie gagne 5$ à la fin de son tour",
-                "• Tomber dans l'eau trop profondement entraîne la mort immédiate du worm",
+                "• Le vent influence la trajectoire des projectiles (indiqué en bas à droite de l'écran)", 
+                "• Chaque skin acheté dans la boutique est permanent et peut être utilisé à chaque partie",
                 
             },
             {
@@ -46,7 +47,8 @@ public class TutorialModel {
                 "• Grenade : Explose, inflige des dégâts et a une courte portée",
                 "• Ak47 : Fait plusieurs petits tirs rapides",
                 "• Bat de baseball : Arme de mêlée, inflige des dégâts modérés au corps à corps",
-                "",
+                "• Drill : Permet de creuser (clique gauche) et de construire (clique droit) des blocks sur le terrain",
+                "• TP : Permet de se teleporter en cliquant sur un endroit de la map",
                 "",
                 "• Potion PV : Restaure des points de vie sur la durée",
                 "• Potion Bouclier : Réduit les dégâts subis pendant une durée limitée",

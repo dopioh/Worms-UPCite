@@ -1,6 +1,6 @@
 package fr.upc.g5e4.model;
 
-import com.google.gson.*;                 //Gson sert à faire un transfert de données "json to java"
+import com.google.gson.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -11,6 +11,10 @@ import java.util.List;
  * Modèle d'inventaire chargé depuis une ressource JSON du classpath
  *
  * Contient des DTO (Data Transfer Objects) destinés à mapper la structure JSON
+ * La classe possède des variables :
+ *  - maxUsages : le nombre d'utilsations maximum par tour
+ *  - remainingUses : le nombre d'utilisations restantes  
+ *  - useThisTurn : le compteur d'utilisations dans le tour courant
  * 
  * {@link InventoryRoot} représente la racine du JSON
  * {@link InventoryJson} représente un objet d'inventaire (arme/item) et gère ses usages
@@ -70,7 +74,7 @@ public class InventoryModel {
 
         /**
          * Enregistre une utilisation pendant le tour courant.
-         * Incrémente {@link #useThisTurn} et décrémente {@link #remainingUses} si l'objet n'est pas infini.
+         * Incrémente useThisTurn et décrémente remainingUses si l'objet n'est pas infini.
          *
          * @return true si l'utilisation a été enregistrée, false sinon
          */

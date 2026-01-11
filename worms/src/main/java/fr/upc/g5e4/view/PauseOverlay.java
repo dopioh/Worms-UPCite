@@ -7,8 +7,7 @@ import java.awt.event.*;
 
 /**
  * Overlay affichant le menu de pause du jeu (Paramètres, aide, etc.).
- *
- * L'overlay intercepte les clics souris uniquement lorsqu'il est visible via {@link #contains(int, int)}.
+ * L'overlay "écoute" les mouvements et clics de la souris pour gérer les interactions
  *
  * @author Hugo
  * @version 1.0
@@ -25,15 +24,11 @@ public class PauseOverlay extends JComponent {
         void onSaveClicked();
         void onFlyModePressed(); 
         void onToggleBlueprint(boolean enabled);
-
-        /** Toggle fullscreen (branché à GameLauncher.toggleFullScreen()) */
         void onToggleFullScreen(boolean enabled);
-
-        /** Toggle son global (à brancher à SoundPlayer.setMuted(...) ou équivalent) */
         void onToggleSound(boolean enabled);
-
         void onQuitClicked();
         void onCloseClicked();
+        void onToggleTeamKill(boolean enabled);
     }
 
     private Listener listener;
@@ -47,12 +42,13 @@ public class PauseOverlay extends JComponent {
     private Rectangle toggleVentBounds;
     private Rectangle toggleFullScreenBounds;
     private Rectangle toggleSoundBounds;
+    private Rectangle toggleTeamKillBounds;
 
     private Rectangle btnHelpBounds;
     private Rectangle btnSaveBounds;
     private Rectangle btnQuitBounds;
 
-    private enum Hover {NONE,ACTION_FLY, TOGGLE_BLUEPRINT, TOGGLE_VENT, TOGGLE_FULLSCREEN, TOGGLE_SOUND ,HELP, SAVE, QUIT, CLOSE}
+    private enum Hover {NONE,ACTION_FLY, TOGGLE_BLUEPRINT, TOGGLE_VENT, TOGGLE_TEAMKILL, TOGGLE_FULLSCREEN, TOGGLE_SOUND ,HELP, SAVE, QUIT, CLOSE}
 
     private float flyAnim = 0f; 
     private Timer flyAnimTimer;
@@ -63,24 +59,16 @@ public class PauseOverlay extends JComponent {
     private boolean ventOn = true;
     private boolean fullScreenOn = false;
     private boolean soundOn = true;
-
-    private int lastLayoutW = -1;
-    private int lastLayoutH = -1;
+    private boolean teamKillOn = false;
     
-    // ===== SCROLL =====
-    /** Offset vertical du contenu (en pixels) */
     private int scrollY = 0;
-
-    /** Limite maximale de scroll (calculée à chaque paint/layout) */
     private int maxScrollY = 0;
-
-    /** Vitesse de scroll molette */
     private static final int SCROLL_STEP = 24;
 
     public PauseOverlay() {
         setOpaque(false);
 
-        MouseAdapter mouse = new MouseAdapter() {
+        MouseAdapter mouse = new MouseAdapter(){
             @Override
             public void mouseMoved(MouseEvent e) {
                 if (!visible) return;
@@ -102,8 +90,6 @@ public class PauseOverlay extends JComponent {
             @Override
             public void mouseWheelMoved(MouseWheelEvent e) {
                 if (!visible) return;
-
-                // scroll uniquement si on a effectivement du contenu à scroller
                 if (maxScrollY <= 0) return;
 
                 int notches = e.getWheelRotation();
@@ -114,10 +100,11 @@ public class PauseOverlay extends JComponent {
             }
 
             @Override
-            public void mouseClicked(MouseEvent e) {
+            public void mousePressed(MouseEvent e) {
                 if (!visible) return;
 
                 Point p = e.getPoint();
+                requestFocusInWindow();
 
                 if (closeButtonBounds != null && closeButtonBounds.contains(p)) {
                     if (listener != null) listener.onCloseClicked();
@@ -172,6 +159,13 @@ public class PauseOverlay extends JComponent {
                     repaint();
                     return;
                 }
+
+                if (toggleTeamKillBounds != null && toggleTeamKillBounds.contains(p)) {
+                    teamKillOn = !teamKillOn;
+                    if (listener != null) listener.onToggleTeamKill(teamKillOn);
+                    repaint();
+                    return;
+                }
             }
         };
 
@@ -189,13 +183,12 @@ public class PauseOverlay extends JComponent {
     }
 
     /**
-     * Affiche ou masque l'overlay de pause.
+     * Affiche ou masque l'overlay de pause. 
      * @param v true pour afficher la pause, false pour la masquer
      */
     public void setPauseVisible(boolean v) {
         this.visible = v;
         if (!v) {
-            // reset hover/scroll quand on ferme
             hovered = Hover.NONE;
             scrollY = 0;
         }
@@ -210,8 +203,7 @@ public class PauseOverlay extends JComponent {
     }
 
     /**
-     * Permet de synchroniser l'état du toggle fullscreen depuis l'extérieur
-     * (ex: si tu toggles fullscreen par raccourci clavier).
+     * Active le plein écran depuis le contrôleur de fenêtre
      */
     public void setFullScreenOn(boolean fullScreenOn) {
         this.fullScreenOn = fullScreenOn;
@@ -219,7 +211,7 @@ public class PauseOverlay extends JComponent {
     }
 
     /**
-     * Permet de synchroniser l'état du toggle son depuis l'extérieur.
+     * Active le son depuis SoundPlayer
      */
     public void setSoundOn(boolean soundOn) {
         this.soundOn = soundOn;
@@ -234,11 +226,24 @@ public class PauseOverlay extends JComponent {
         repaint();
     }
 
+    /**
+     * Permet de synchroniser l'état du toggle TeamKill depuis l'extérieur.
+     */
+    public void setTeamKillOn(boolean teamKillOn) {
+        this.teamKillOn = teamKillOn;
+        repaint();
+    }
+
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         if (!visible) return;
         if (!(g instanceof Graphics2D g2)) return;
+
+        //Plus beau rendu
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
         int w = getWidth();
         int h = getHeight();
@@ -255,11 +260,11 @@ public class PauseOverlay extends JComponent {
 
         // header/footer 
         int headerH = 70;
-        int footerH = 86; // zone boutons bas
+        int footerH = 86; 
         int contentX = x + 26;
         int contentW = panelW - 52;
 
-        // zone scrollable : entre header et footer
+        // zone scrollable 
         int contentY = y + headerH;
         int contentH = panelH - headerH - footerH;
 
@@ -295,11 +300,11 @@ public class PauseOverlay extends JComponent {
         g2.setColor(new Color(0, 0, 0, 35));
         g2.drawLine(x + 20, y + 58, x + panelW - 20, y + 58);
 
-        //Contenu dans la zone (SCROLL)
+        //Contenu dans la zone de scroll
         int rowH = 60;
         int gapY = 10;
 
-        int totalRows = 5;
+        int totalRows = 6;
         int virtualContentHeight = totalRows * rowH + (totalRows - 1) * gapY;
 
         maxScrollY = Math.max(0, virtualContentHeight - contentH);
@@ -315,18 +320,21 @@ public class PauseOverlay extends JComponent {
         int row3Y = row2Y + rowH + gapY;
         int row4Y = row3Y + rowH + gapY;
         int row5Y = row4Y + rowH + gapY;
+        int row6Y = row5Y + rowH + gapY;
+
 
         drawActionRow(g2,"Fly mode","Active/désactive le vol pour le worm actif",contentX, row1Y, contentW, rowH,hovered == Hover.ACTION_FLY,Hover.ACTION_FLY,flyAnim);
         drawToggleRow(g2, "Blueprint", "Affiche le mode Blueprint",contentX, row2Y, contentW, rowH,blueprintOn, hovered == Hover.TOGGLE_BLUEPRINT,Hover.TOGGLE_BLUEPRINT);
         drawToggleRow(g2, "Vent", "Active/Désactive le vent (reduit les FPS)",contentX, row3Y, contentW, rowH,ventOn, hovered == Hover.TOGGLE_VENT,Hover.TOGGLE_VENT);
         drawToggleRow(g2, "Plein écran", "Mode plein écran",contentX, row4Y, contentW, rowH,fullScreenOn, hovered == Hover.TOGGLE_FULLSCREEN,Hover.TOGGLE_FULLSCREEN);
         drawToggleRow(g2, "Son", "Active/Désactive les SFX",contentX, row5Y, contentW, rowH,soundOn, hovered == Hover.TOGGLE_SOUND,Hover.TOGGLE_SOUND);
+        drawToggleRow(g2, "TeamKill", "Autorise les dégats entre alliés", contentX, row6Y, contentW, rowH, teamKillOn,hovered == Hover.TOGGLE_TEAMKILL, Hover.TOGGLE_TEAMKILL);
 
-        // On annule le translate + on rétablit le clip
+        // reset translate et clip
         g2.translate(0, scrollY);
         g2.setClip(oldClip);
 
-        // ==== FOOTER FIXE (non scrollé) ====
+        // footer 
         int btnY = y + panelH - 70;
         int btnH = 42;
         int gap = 12;
@@ -344,7 +352,7 @@ public class PauseOverlay extends JComponent {
         drawButton(g2, btnSaveBounds, "Save", hovered == Hover.SAVE, new Color(90, 90, 90));
         drawButton(g2, btnQuitBounds, "Quitter", hovered == Hover.QUIT, new Color(200, 70, 70));
 
-        // Indicateur de scroll (petit, à droite)
+        // Indicateur de scroll 
         if (maxScrollY > 0) {
             drawScrollIndicator(g2, x, y, panelW, panelH, contentY, contentH);
         }
@@ -355,6 +363,7 @@ public class PauseOverlay extends JComponent {
      *
      * @param hoverId permet de savoir quel toggle on dessine (pour bounds + hover)
      */
+    @SuppressWarnings("incomplete-switch") // car on ne gère que les cas utile
     private void drawToggleRow(Graphics2D g2, String title, String desc,int x, int y, int w, int h,boolean on, boolean hover,Hover hoverId) {
 
         g2.setColor(hover ? new Color(255, 255, 255) : new Color(250, 250, 250));
@@ -372,7 +381,7 @@ public class PauseOverlay extends JComponent {
         g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 12f));
         g2.drawString(desc, x + 16, y + 44);
 
-        // switch à droite
+        // switch 
         int swW = 76;
         int swH = 30;
         int swX = x + w - swW - 16;
@@ -394,9 +403,6 @@ public class PauseOverlay extends JComponent {
         g2.setColor(new Color(0, 0, 0, 50));
         g2.drawOval(kX, kY, knob, knob);
 
-        // === Bounds EN COORDONNÉES ÉCRAN ===
-        // y est actuellement dans le repère "dessiné" (après translate).
-        // Visuellement à l'écran, c'est (y - scrollY).
         Rectangle screenRect = new Rectangle(x, y - scrollY, w, h);
 
         switch (hoverId) {
@@ -404,17 +410,16 @@ public class PauseOverlay extends JComponent {
             case TOGGLE_VENT -> toggleVentBounds = screenRect;
             case TOGGLE_FULLSCREEN -> toggleFullScreenBounds = screenRect;
             case TOGGLE_SOUND -> toggleSoundBounds = screenRect;
+            case TOGGLE_TEAMKILL -> toggleTeamKillBounds = screenRect;
         }
     }
 
     /**
-     * Dessine un bouton rectangulaire arrondi (footer).
+     * Dessine un bouton rectangulaire arrondi.
      */
     private void drawButton(Graphics2D g2, Rectangle r, String text, boolean hover, Color base) {
         Color fill = hover
-                ? new Color(Math.min(255, base.getRed() + 20),
-                            Math.min(255, base.getGreen() + 20),
-                            Math.min(255, base.getBlue() + 20), 230)
+                ? new Color(Math.min(255, base.getRed() + 20), Math.min(255, base.getGreen() + 20), Math.min(255, base.getBlue() + 20), 230)
                 : new Color(base.getRed(), base.getGreen(), base.getBlue(), 210);
 
         g2.setColor(fill);
@@ -432,11 +437,9 @@ public class PauseOverlay extends JComponent {
     }
 
     /**
-     * Petit indicateur à droite pour montrer qu'on peut scroller.
+     * Petit indicateur à droite pour montrer qu'on peut scroller
      */
-    private void drawScrollIndicator(Graphics2D g2, int panelX, int panelY, int panelW, int panelH,
-                                     int contentY, int contentH) {
-
+    private void drawScrollIndicator(Graphics2D g2, int panelX, int panelY, int panelW, int panelH,int contentY, int contentH){
         int trackW = 6;
         int trackX = panelX + panelW - 12;
         int trackY = contentY;
@@ -468,6 +471,7 @@ public class PauseOverlay extends JComponent {
         if (toggleVentBounds != null && toggleVentBounds.contains(p)) return Hover.TOGGLE_VENT;
         if (toggleFullScreenBounds != null && toggleFullScreenBounds.contains(p)) return Hover.TOGGLE_FULLSCREEN;
         if (toggleSoundBounds != null && toggleSoundBounds.contains(p)) return Hover.TOGGLE_SOUND;
+        if (toggleTeamKillBounds != null && toggleTeamKillBounds.contains(p)) return Hover.TOGGLE_TEAMKILL;
 
         return Hover.NONE;
     }
@@ -480,6 +484,7 @@ public class PauseOverlay extends JComponent {
         return visible && super.contains(x, y);
     }
 
+    /* Assure qu'une action 'v' est bien entre min et max*/
     private static int clamp(int v, int min, int max) {
         if (v < min) return min;
         if (v > max) return max;
@@ -491,7 +496,7 @@ public class PauseOverlay extends JComponent {
         g2.setColor(hover ? new Color(255, 255, 255) : new Color(250, 250, 250));
         g2.fillRoundRect(x, y, w, h, 18, 18);
 
-        // pulse anim (un overlay léger)
+        // pulse 
         if (anim > 0f) {
             int a = (int) (60 * anim); // alpha
             g2.setColor(new Color(80, 170, 110, a));
@@ -510,13 +515,16 @@ public class PauseOverlay extends JComponent {
         g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 12f));
         g2.drawString(desc, x + 16, y + 44);
 
-        // bounds en coords écran (comme ton drawToggleRow)
+        // bounds en coords écran 
         Rectangle screenRect = new Rectangle(x, y - scrollY, w, h);
         if (hoverId == Hover.ACTION_FLY) {
             flyActionBounds = screenRect;
         }
     }
 
+    /**
+     * Démarre l'animation de pulse pour le bouton Fly Mode
+     */
     private void startFlyAnimation() {
         flyAnim = 1f;
 

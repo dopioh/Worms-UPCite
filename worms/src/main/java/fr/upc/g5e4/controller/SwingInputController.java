@@ -10,7 +10,6 @@ import fr.upc.g5e4.model.SoundPlayer;
 import fr.upc.g5e4.model.CharacterModel;
 import fr.upc.g5e4.view.*;
 import fr.upc.g5e4.controller.SwingInputController;
-import fr.upc.g5e4.controller.CharacterController;
 
 import javax.swing.JFrame;
 
@@ -19,7 +18,7 @@ import javax.swing.JFrame;
  * Pour le moment je reprends l'ancien model et elle herite de JPanel
  * Mais le mieux serait de la recréer de 0 et pas qu'elle herite de JPanel 
  * 
- * @author Raphaël pour plus d'info sur son fonctionnement
+ * @author Nassim et Raphaël pour plus d'info sur son fonctionnement
  */
 public class SwingInputController extends JPanel{
     private CharacterController personnageController;
@@ -176,6 +175,10 @@ public class SwingInputController extends JPanel{
                 SoundPlayer.setMuted(!enabled);
             }
 
+            public void onToggleTeamKill(boolean enabled) {
+                System.out.println("Raphaël doit implémenter");
+            }
+
             @Override
             public void onQuitClicked() {
                 if (pauseOverlay != null) pauseOverlay.setPauseVisible(false);
@@ -236,23 +239,12 @@ public class SwingInputController extends JPanel{
                     case KeyEvent.VK_Z:
                         personnageController.activateJump();
                         break;
-
-                    // Caméra déplacements
-                    // case KeyEvent.VK_LEFT:
-                    //     if(cameraController != null) cameraController.activateLeft();
-                    //     break;
-                    // case KeyEvent.VK_RIGHT:
-                    //     if(cameraController != null) cameraController.activateRight();
-                    //     break;
-                    // case KeyEvent.VK_SPACE:
-                    //     if(cameraController != null) cameraController.centerOnCharacter();
-                    //     break;
                 }
             }
             
             @Override
             public void keyReleased(KeyEvent e) {
-                //System.out.println("key released");
+                if (gameManager != null && gameManager.isInputFrozen()) return;
                 switch(e.getKeyCode()) {
                     // Personnage
                     case KeyEvent.VK_Q:
@@ -264,12 +256,6 @@ public class SwingInputController extends JPanel{
                     case KeyEvent.VK_Z:
                         personnageController.deactivateJump();
                         break;
-                    // case KeyEvent.VK_LEFT:
-                    //     if(cameraController != null) cameraController.deactivateLeft();
-                    //     break;
-                    // case KeyEvent.VK_RIGHT:
-                    //     if(cameraController != null) cameraController.deactivateRight();
-                    //     break;
                 }
             }
         });
@@ -294,11 +280,14 @@ public class SwingInputController extends JPanel{
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
+                if (gameManager != null && gameManager.isInputFrozen()) {
+                    disableTrajectory();
+                    return;
+                }
                 requestFocusInWindow();  // Récupérer le focus au clic
-                int button = e.getButton();
                 
                 // clic droit permet de placer un bloc avec la Foreuse
-                if (button == MouseEvent.BUTTON3 || e.isPopupTrigger()) {
+                if (e.getButton() == MouseEvent.BUTTON3 || e.isPopupTrigger()) {
                     handleDrillRightClick(e);
                     e.consume();
                     return;
