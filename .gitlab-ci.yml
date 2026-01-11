@@ -1,26 +1,24 @@
-image: maven:3.9-eclipse-temurin-23
-
 variables:
-  MAVEN_OPTS: "-Dhttps.proxyHost=194.254.199.96 -Dhttps.proxyPort=3128"
+  #désactivé temporairement pour un runner secours (mac Ian)
+  #MAVEN_OPTS: "-Dhttps.proxyHost=194.254.199.96 -Dhttps.proxyPort=3128"
+  
   MAVEN_CONFIG: "/root/.m2"
   MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version"
 
-before_script:
-  - mkdir -p /root/.m2
-  - |
-    cat > /root/.m2/settings.xml << 'EOF'
-    <settings>
-      <proxies>
-        <proxy>
-          <id>proxy</id>
-          <active>true</active>
-          <protocol>http</protocol>
-          <host>194.254.199.96</host>
-          <port>3128</port>
-          <nonProxyHosts>localhost|127.0.0.1</nonProxyHosts>
-        </proxy>
-      </proxies>
-    </settings>
+#before_script:
+#  - mkdir -p /root/.m2
+#  - echo '<settings>
+#      <proxies>
+#        <proxy>
+#          <id>proxy</id>
+#          <active>true</active>
+#          <protocol>https</protocol>
+#          <host>194.254.199.96</host>
+#          <port>3128</port>
+#        </proxy>
+#      </proxies>
+#    </settings>' > /root/.m2/settings.xml
+
 
 stages:
   - build
@@ -28,24 +26,47 @@ stages:
   - deploy
   - release_job
 
-# ETAPE 1 : BUILD
+# ETAPE 1 : BUILD - Teste sur plusieurs versions de Java et maven
+# Pas besoin de tester les architectures ici (Le bytecode Java peut fonctionner sur differents systemes sans etre modifie)
 
 build:
   stage: build
+  parallel:
+    matrix:
+      - JAVA_VERSION: ["23", "24", "25"]
+        MAVEN_VERSION: ["3.9"]
+  image: maven:${MAVEN_VERSION}-eclipse-temurin-${JAVA_VERSION}
   script: 
+
+    # suppression pour eviter que l'ancien configuration de proxy est encore present
+    - unset MAVEN_OPTS || true
+    - rm -f /root/.m2/settings.xml || true
+    
     - cd worms
     - mvn $MAVEN_CLI_OPTS -U clean compile
-#  cache:
-#    key: "$CI_COMMIT_REF_NAME"
-#    policy: push
+    #  cache:
+    #    key: "$CI_COMMIT_REF_NAME"
+    #    policy: push
+
   artifacts:
     paths:
       - worms/target
+    expire_in: 1 week
 
-# ETAPE 2 : TEST 
+# ETAPE 2 : TEST - Teste sur plusieurs versions de Java, maven et architectures
 
 test:
   stage: test
+  parallel:
+    matrix:
+      - JAVA_VERSION: ["23", "24", "25"]
+        MAVEN_VERSION: ["3.9"]
+        ARCH: ["arm64", "amd64"]
+  image: maven:${MAVEN_VERSION}-eclipse-temurin-${JAVA_VERSION}
+  variables:
+    DOCKER_DEFAULT_PLATFORM: linux/${ARCH}
+  before_script:
+    - echo "Testing on ${ARCH} architecture"
   script: 
     - cd worms
     - mvn $MAVEN_CLI_OPTS test
@@ -53,10 +74,11 @@ test:
   dependencies :
     - build
 
-# ETAPE 3 : DEPLOIEMENT
+# ETAPE 3 : DEPLOIEMENT - Utilise Java 23 pour le deploiement
 
 deploy:
   stage: deploy
+  image: maven:3.9-eclipse-temurin-23
   script:
     - cd worms
     - mvn $MAVEN_CLI_OPTS clean package
