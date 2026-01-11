@@ -39,7 +39,7 @@ public class GameLauncher{
 
     private boolean screen;
 
-    // Composants pour la fenêtre unique
+    // Composants pour la fenêtre unique 
     private JFrame mainFrame;
     private CardLayout cardLayout;
     private JPanel cardPanel;
