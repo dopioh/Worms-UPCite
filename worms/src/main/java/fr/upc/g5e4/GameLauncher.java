@@ -6,8 +6,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 
 //import java.util.ArrayList;
-
-//import fr.upc.g5e4.model.InventoryModel.*;
 import fr.upc.g5e4.model.io.SaveData;
 import fr.upc.g5e4.model.io.SaveLoad;
 //import fr.upc.g5e4.model.io.SaveLoad;
@@ -19,6 +17,7 @@ import fr.upc.g5e4.model.*;
 import fr.upc.g5e4.model.minigames.*;
 import fr.upc.g5e4.view.minigames.*;
 import fr.upc.g5e4.util.ImageCache;
+
 
 
 /** Classe qui lance le jeu, elle set la taille de l'ecran (grace a son heritage de JFrame) */
@@ -40,7 +39,7 @@ public class GameLauncher{
 
     private boolean screen;
 
-    // Composants pour la fenêtre unique
+    // Composants pour la fenêtre unique 
     private JFrame mainFrame;
     private CardLayout cardLayout;
     private JPanel cardPanel;
@@ -261,21 +260,18 @@ public class GameLauncher{
         this.wormRaceController = new WormRaceController(wormRaceModel, wormRaceView);
         wormRaceView.setBounds(0, 0, width, height);
         this.wormRaceController.setGameManager(gameManager);
-        this.inventoryOverlay.setWormRaceController(this.wormRaceController);
         // WormGuess MVC
         WormGuessModel wormGuessModel = new WormGuessModel();
         WormGuessView wormGuessView = new WormGuessView(wormGuessModel);
         this.wormGuessController = new WormGuessController(wormGuessModel, wormGuessView);
         wormGuessView.setBounds(0, 0, width, height);
         this.wormGuessController.setGameManager(gameManager);
-        this.inventoryOverlay.setWormGuessController(this.wormGuessController);
         // WormJack MVC
         WormJackModel wormJackModel = new WormJackModel();
         WormJackView wormJackView = new WormJackView(wormJackModel);
         this.wormJackController = new WormJackController(wormJackModel, wormJackView);
         wormJackView.setBounds(0, 0, width, height);
         this.wormJackController.setGameManager(gameManager);
-        this.inventoryOverlay.setWormJackController(this.wormJackController);
         // VENT
         windOverlay = new WindOverlay(gameManager.getWindModel());
         windOverlay.setBounds(0, 0, width, height);
@@ -290,9 +286,18 @@ public class GameLauncher{
         this.pauseOverlay.setSoundOn(!SoundPlayer.isMuted());
         this.pauseOverlay.setFullScreenOn(isFullScreen);
         hudOverlay.setPauseOverlay(pauseOverlay);
+        hudOverlay.setCameraController(gameManager.getCameraController());
         //How to play
         this.helpOverlay = new HelpOverlay();
         this.helpOverlay.setBounds(0, 0, width, height);
+
+        //Mise en place des Controllers
+        InventoryOverlayController inventoryController = new InventoryOverlayController(gameManager,inventoryOverlay,gameManager.getImputController(),this.playerDataController,wormRaceController,wormGuessController,wormJackController);
+        inventoryOverlay.setListener(inventoryController);
+        HUDOverlayController hudController = new HUDOverlayController(gameManager,inventoryOverlay,pauseOverlay,gameManager.getCameraController());
+        hudOverlay.setListener(hudController);
+        PauseOverlayController pauseController = new PauseOverlayController(gameManager,pauseOverlay,helpOverlay,this::toggleFullScreen,this::showMenu);
+        pauseOverlay.setListener(pauseController);
         
         // Placer les composants dans le layered pane
         gamePanel.setBounds(0, 0, width, height);
@@ -322,8 +327,7 @@ public class GameLauncher{
             }
         });
         
-        inventoryOverlay.setGameManager(gameManager);    
-        inventoryOverlay.setFireListener(gameManager.getImputController());
+        inventoryOverlay.setGameManager(gameManager);
         gameManager.setInventoryOverlay(inventoryOverlay);
         gameManager.setHudOverlay(this.hudOverlay);
         input.setGameFrame(mainFrame);
@@ -566,7 +570,7 @@ public class GameLauncher{
         // backgrounds et UI
         ImageCache.preload(
             "/background.png", "/Reglage_BG.png",
-            "/backpack.png", "/parametre.png", "/title.png", "/BG_Jour.png"
+            "/backpack.png", "/parametre.png", "/title.png", "/BG_Jour.png", "/fleche-gauche.png", "/fleche-droite.png", "/centercam.png"
         );
         
         // gambling

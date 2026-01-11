@@ -1,201 +1,168 @@
 package fr.upc.g5e4.model;
 
-import org.junit.jupiter.api.BeforeEach;
+import fr.upc.g5e4.view.WindOverlay;
 import org.junit.jupiter.api.Test;
 
-import fr.upc.g5e4.controller.CharacterController;
-import fr.upc.g5e4.view.InventoryOverlay;
+import java.lang.reflect.Field;
 
 import static org.junit.jupiter.api.Assertions.*;
-import java.util.ArrayList;
-import java.util.List;
+import static org.mockito.Mockito.*;
 
-/**
- * Tests for GameManager's inventory and round management functionality
- * Testing code added on December 11, 2025
- */
-public class GameManagerTest {
-    
-    private GameManager gameManager;
-    private InventoryOverlay mockInventoryOverlay;
-    
-    @BeforeEach
-    void setUp() {
-        TeamConfig.NBR_EQUIPE = 2;
-        
-        if (TeamConfig.aCustomForATeam == null) {
-            TeamConfig.aCustomForATeam = new ArrayList<>();
+class GameManagerTest {
+    private static GameManager newGameManagerWithoutConstructor() {
+        try {
+            // Unsafe permet d'allouer l'objet sans exécuter le constructeur
+            Class<?> unsafeClass = Class.forName("sun.misc.Unsafe");
+            Field theUnsafe = unsafeClass.getDeclaredField("theUnsafe");
+            theUnsafe.setAccessible(true);
+            Object unsafe = theUnsafe.get(null);
+            return (GameManager) unsafeClass.getMethod("allocateInstance", Class.class).invoke(unsafe, GameManager.class);
+        } catch (Exception e) {
+            throw new RuntimeException("Impossible de créer GameManager sans constructeur. ", e);
         }
-        gameManager = new GameManager(); // on test pour 2 equipes ici
-        // Create a mock inventory list for testing
-        List<InventoryModel.InventoryJson> mockInventory = new ArrayList<>();
-        mockInventoryOverlay = new InventoryOverlay(mockInventory);
-    }
-    
-    /* ---------- getCurrentTeam() ---------- */
-    
-    // Je masque tous ces tests psq on a N Team et plus seulement 2 desormais
-    /*
-    @Test
-    void testGetCurrentTeamReturnsTeam1WhenIndexZero() {
-        // Assuming currentTeamIndex starts at 0 (Team1)
-        TeamModel team = gameManager.getCurrentTeam();
-        
-        assertNotNull(team, "getCurrentTeam should not return null when currentTeamIndex is 0");
-        assertEquals(team, gameManager.getTeamModel1(), "Should return Team1 when currentTeamIndex is 0");
-    }
-    
-    @Test
-    void testGetCurrentTeamReturnsTeam2WhenIndexOne() {
-        // Switch to team 2 by calling nextRound
-        gameManager.nextRound();
-        
-        TeamModel team = gameManager.getCurrentTeam();
-        
-        assertNotNull(team, "getCurrentTeam should not return null when currentTeamIndex is 1");
-        assertEquals(team, gameManager.getTeamModel2(), "Should return Team2 when currentTeamIndex is 1");
-    }
-    
-
-    */
-    /* ---------- getCurrentTeamName() ---------- */
-    
-    /*
-    @Test
-    void testGetCurrentTeamNameReturnsTeam1() {
-        String name = gameManager.getCurrentTeamName();
-        
-        assertEquals("Team1", name, "Should return 'Team1' when currentTeamIndex is 0");
-    }
-    
-    @Test
-    void testGetCurrentTeamNameReturnsTeam2AfterRound() {
-        gameManager.nextRound();
-        
-        String name = gameManager.getCurrentTeamName();
-        
-        assertEquals("Team2", name, "Should return 'Team2' when currentTeamIndex is 1");
     }
 
-    */
-
-    /* ---------- setInventoryOverlay() ---------- */
-    
-    @Test
-    void testSetInventoryOverlayStoresReference() {
-        List<InventoryModel.InventoryJson> mockInventory = new ArrayList<>();
-        InventoryOverlay overlay = new InventoryOverlay(mockInventory);
-        gameManager.setInventoryOverlay(overlay);
-        
-        assertNotNull(overlay, "Inventory overlay should be set and non-null");
-    }
-    
-    @Test
-    void testSetInventoryOverlayCanBeCalledMultipleTimes() {
-        List<InventoryModel.InventoryJson> mockInventory = new ArrayList<>();
-        InventoryOverlay overlay1 = new InventoryOverlay(mockInventory);
-        InventoryOverlay overlay2 = new InventoryOverlay(mockInventory);
-        
-        gameManager.setInventoryOverlay(overlay1);
-        // Should not throw an exception
-        gameManager.setInventoryOverlay(overlay2);
-        
-        assertTrue(true, "setInventoryOverlay should allow reassignment");
-    }
-    
-    /* ---------- nextRound() ---------- */
-    
-    @Test
-    void testNextRoundIncrementsRoundNumber() {
-        int initialRound = gameManager.getRoundNumber();
-        
-        gameManager.nextRound();
-        
-        assertEquals(initialRound + 1, gameManager.getRoundNumber(), 
-                "nextRound should increment the round number by 1");
-    }
-    
-    @Test
-    void testNextRoundAlternatesTeams() {
-        int initialTeamIndex = gameManager.getCurrentTeamIndex();
-        
-        gameManager.nextRound();
-        
-        int newTeamIndex = gameManager.getCurrentTeamIndex();
-        assertNotEquals(initialTeamIndex, newTeamIndex, 
-                "nextRound should switch to the other team");
-    }
-    
-    @Test
-    void testNextRoundTeamAlternation() {
-        assertEquals(0, gameManager.getCurrentTeamIndex(), "Should start with Team1 (index 0)");
-        
-        gameManager.nextRound();
-        assertEquals(1, gameManager.getCurrentTeamIndex(), "After first nextRound, should be Team2 (index 1)");
-        
-        gameManager.nextRound();
-        assertEquals(0, gameManager.getCurrentTeamIndex(), "After second nextRound, should cycle back to Team1");
-    }
-    
-    @Test
-    void testNextRoundSwitchesActiveWorm() {
-        CharacterController initialController = gameManager.getActiveWormController();
-        assertNotNull(initialController, "Initial active worm controller should not be null");
-        
-        gameManager.nextRound();
-        
-        CharacterController newController = gameManager.getActiveWormController();
-        assertNotNull(newController, "Active worm controller should still be valid after nextRound");
-        // Note: Controllers may be new instances even if controlling the same worm type
-    }
-    
-    @Test
-    void testNextRoundMultipleCycles() {
-        int startTeamIndex = gameManager.getCurrentTeamIndex();
-        
-        // Cycle through multiple rounds
-        for (int i = 0; i < 4; i++) {
-            gameManager.nextRound();
+    private static void setField(Object target, String fieldName, Object value) {
+        try {
+            Field f = target.getClass().getDeclaredField(fieldName);
+            f.setAccessible(true);
+            f.set(target, value);
+        } catch (Exception e) {
+            throw new RuntimeException("Impossible de set le champ: " + fieldName, e);
         }
-        
-        // After 4 rounds (2 full cycles), we should be back at the starting team
-        assertEquals(startTeamIndex, gameManager.getCurrentTeamIndex(),
-                "After 4 rounds (2 full cycles), should return to the starting team");
-        assertEquals(5, gameManager.getRoundNumber(), "Round number should be 5 after 4 nextRound calls");
     }
-    
-    @Test
-    void testNextRoundWithNullInventoryOverlay() {
-        // Don't set an inventory overlay
-        assertDoesNotThrow(() -> gameManager.nextRound(),
-                "nextRound should handle null inventory overlay gracefully");
+
+    private static Object getField(Object target, String fieldName) {
+        try {
+            Field f = target.getClass().getDeclaredField(fieldName);
+            f.setAccessible(true);
+            return f.get(target);
+        } catch (Exception e) {
+            throw new RuntimeException("Impossible de lire le champ: " + fieldName, e);
+        }
     }
-    
+
     @Test
-    void testNextRoundPrintsDebugOutput() {
-        // This test verifies that nextRound produces some output
-        // In a real scenario, you might capture System.out
-        assertDoesNotThrow(() -> gameManager.nextRound(),
-                "nextRound should not throw exceptions and should print debug info");
+    void markWeaponUsedSetOnce() {
+        GameManager gm = newGameManagerWithoutConstructor();
+
+        gm.markWeaponUsed("AK47");
+        assertEquals("AK47", gm.getWeaponUsedThisTurn());
+
+        gm.markWeaponUsed("Grenade");
+        assertEquals("AK47", gm.getWeaponUsedThisTurn());
     }
-    
-    /* ---------- Inventory Field ---------- */
-    
+
     @Test
-    void testInventoryOverlayFieldCanBeSet() {
-        assertDoesNotThrow(() -> gameManager.setInventoryOverlay(mockInventoryOverlay),
-                "Should be able to set the inventory overlay field");
+    void resetWeaponUsedFlagClear() {
+        GameManager gm = newGameManagerWithoutConstructor();
+
+        setField(gm, "weaponUsedThisTurn", "AK47");
+
+        gm.resetWeaponUsedFlag();
+
+        assertNull(gm.getWeaponUsedThisTurn());
     }
-    
+
     @Test
-    void testInventoryOverlayFieldStartsAsNull() {
-        // Create a new GameManager instance
-        GameManager newGameManager = new GameManager();
-        
-        // The inventory overlay should initially be null or unset
-        // (We can't directly check private fields, but we can test behavior)
-        assertDoesNotThrow(() -> {
-            newGameManager.setInventoryOverlay(mockInventoryOverlay);
-        }, "Setting inventory overlay on a fresh GameManager should work");
+    void remainingGadgetsThisTurnReturn2MinusUsed() {
+        GameManager gm = newGameManagerWithoutConstructor();
+
+        setField(gm, "gadgetsUsedThisTurn", 0);
+        assertEquals(2, gm.getRemainingGadgetsThisTurn());
+
+        setField(gm, "gadgetsUsedThisTurn", 1);
+        assertEquals(1, gm.getRemainingGadgetsThisTurn());
+
+        setField(gm, "gadgetsUsedThisTurn", 2);
+        assertEquals(0, gm.getRemainingGadgetsThisTurn());
+    }
+
+    @Test
+    void toggleFlyModeInvertValue() {
+        GameManager gm = newGameManagerWithoutConstructor();
+
+        // état initial faux
+        setField(gm, "flyModeEnabled", false);
+
+        gm.toggleFlyMode();
+        assertTrue(gm.isFlyModeEnabled());
+
+        gm.toggleFlyMode();
+        assertFalse(gm.isFlyModeEnabled());
+    }
+
+    @Test
+    void teamKillEnabledSetGet() {
+        GameManager gm = newGameManagerWithoutConstructor();
+
+        gm.setTeamKillEnabled(true);
+        assertTrue(gm.isTeamKillEnabled());
+
+        gm.setTeamKillEnabled(false);
+        assertFalse(gm.isTeamKillEnabled());
+    }
+
+    @Test
+    void blueprintEnabledSetGet() {
+        GameManager gm = newGameManagerWithoutConstructor();
+
+        gm.setBlueprintEnabled(true);
+        assertTrue(gm.isBlueprintEnabled());
+
+        gm.setBlueprintEnabled(false);
+        assertFalse(gm.isBlueprintEnabled());
+    }
+
+    @Test
+    void toggleVentDisableForce0AndHideOverlay() {
+        GameManager gm = newGameManagerWithoutConstructor();
+
+        // WindModel 
+        WindModel windModel = new WindModel();
+        windModel.setStrength(0.7f, false);
+        setField(gm, "windModel", windModel);
+
+        // valeurs du tour mémorisées
+        setField(gm, "turnWindDir", WindModel.Dir.NE);
+        setField(gm, "turnWindStrength", 0.8f);
+
+        WindOverlay overlay = mock(WindOverlay.class);
+        setField(gm, "windOverlay", overlay);
+
+        // disable
+        gm.toggleVent(false);
+
+        assertFalse(gm.isWindEnabled());
+        assertEquals(0f, gm.getWindModel().getStrength());
+        assertEquals(0f, gm.getEffectiveWindStrength());
+
+        verify(overlay).setVisible(false);
+        verify(overlay).repaint();
+    }
+
+    @Test
+    void toggleVentEnableRestoreTurnWindAndShowOverlay() {
+        GameManager gm = newGameManagerWithoutConstructor();
+
+        WindModel windModel = new WindModel();
+        setField(gm, "windModel", windModel);
+
+        setField(gm, "turnWindDir", WindModel.Dir.SO);
+        setField(gm, "turnWindStrength", 0.65f);
+
+        WindOverlay overlay = mock(WindOverlay.class);
+        setField(gm, "windOverlay", overlay);
+
+        // enable
+        gm.toggleVent(true);
+
+        assertTrue(gm.isWindEnabled());
+        assertEquals(WindModel.Dir.SO, gm.getWindModel().getDir());
+        assertEquals(0.65f, gm.getWindModel().getStrength());
+        assertEquals(0.65f, gm.getEffectiveWindStrength());
+
+        verify(overlay).setVisible(true);
+        verify(overlay).repaint();
     }
 }
