@@ -3,8 +3,8 @@ package fr.upc.g5e4.model;
  * Représente le vent dans le jeu.
  * Le vent possède une direction cardinale, ainsi qu'une force.
  * 
- * 0 représente un temps calme
- * 1 représente une tempête
+ * 0 représente un le calme
+ * 1 représente un grand vent
  *
  * @author Hugo
  * @version 1.0
@@ -29,7 +29,7 @@ public class WindModel {
         public final String label;
 
         /**
-         * Crée une direction cardinale.
+         * Constructeur de la direction
          *
          * @param dx déplacement horizontal
          * @param dy déplacement vertical
@@ -43,7 +43,7 @@ public class WindModel {
     }
 
     private Dir dir = Dir.E;      // Direction par défaut
-    private float strength = 0.5f; // Valeur entre 0 (calme) et 1 (tempête)
+    private float strength = 0.5f; // Valeur entre 0 (calme) et 1 (grand vent)
 
     /**Direction du vent
      * @return direction

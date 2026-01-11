@@ -5,10 +5,19 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+/**
+ * Overlay d'aide affichant les commandes du jeu.
+ * Doit se situer au premier plan
+ * 
+ * @author Hugo
+ */
 public class HelpOverlay extends JComponent {
-    private Rectangle closeButtonBounds;    // bouton FERMER
+    private Rectangle closeButtonBounds;    
 
-    public HelpOverlay() { // Constructeur
+    /**
+     * Constructeur initialisant l'overlay d'aide en mode invisible.
+     */
+    public HelpOverlay() { 
         setOpaque(false);
         setVisible(false); 
 
@@ -25,15 +34,26 @@ public class HelpOverlay extends JComponent {
         });
     }
 
+    /**
+     * Affiche ou masque l'overlay d'aide.
+     * @param v true pour afficher, false pour masquer
+     */
     public void setHelpVisible(boolean v) {
         setVisible(v);  
         repaint();
     }
 
+    /**
+     * Indique si l'overlay d'aide est visible.
+     * @return true si visible, false sinon
+     */
     public boolean isHelpVisible() {
         return isVisible();
     }
 
+    /**
+     * Dessine un overlay semi-transparent avec les instructions de jeu et un bouton "FERMER"
+     */
     @Override
     protected void paintComponent(Graphics g) {    // Dessin de l'overlay d'aide
         super.paintComponent(g);
@@ -70,12 +90,11 @@ public class HelpOverlay extends JComponent {
         g2.drawString("Caméra :", x + 20, ty); ty += 22;
         g2.drawString("Scroll Haut = zoom +", x + 40, ty); ty += 18;
         g2.drawString("Scroll Bas = zoom -", x + 40, ty); ty += 18;
-        g2.drawString("Espace = centrer caméra", x + 40, ty); ty += 24;
 
         g2.drawString("Combat :", x + 20, ty); ty += 22;
         g2.drawString("Click gauche = tirer", x + 40, ty); ty += 18;
 
-        // ----- Bouton FERMER -----
+        //Dimension du bouton FERMER
         int btnW = 120;
         int btnH = 34;
         int btnX = x + panelW - btnW - 20;
@@ -93,8 +112,13 @@ public class HelpOverlay extends JComponent {
 
     }
 
+    /**
+     * Empêche les clics lorsque l'overlay est masqué
+     * @param x,y coordonnées du clic
+     * @return true si le clic est dans l'overlay visible, false sinon
+     */
     @Override
-    public boolean contains(int x, int y) { // Clics uniquement si l'overlay est visible
+    public boolean contains(int x, int y) { 
         return isHelpVisible() && super.contains(x, y);
     }  
 }
