@@ -27,7 +27,6 @@ public class MainMenuController {
         this.view = view;
         this.gameLauncher = gameLauncher;
         addListeners();
-        startMenuMusic();
     }
 
     //relie les buttons aux actions
@@ -55,9 +54,6 @@ public class MainMenuController {
    }
 
     private void startNewGame() throws IOException {
-        // arrête la musique du menu
-        SoundPlayer.stopBackgroundMusic();
-        
         // Utilise le GameLauncher existant pour basculer vers le jeu
         gameLauncher.resetGame();   // pour reset le jeu au cas ou une save serait toujours en memoire
         gameLauncher.startGame();
@@ -67,9 +63,6 @@ public class MainMenuController {
      * methode pour lancer une sauvegarde
      */
     private void resumeGame(){ 
-        // arrête la musique du menu
-        SoundPlayer.stopBackgroundMusic();
-        
         try {
             SaveLoad sv = new SaveLoad();
             boolean lancement = this.gameLauncher.startFromGameSave(sv.getSaveData());
@@ -104,11 +97,6 @@ public class MainMenuController {
 
     private void openTutorial() {
         view.getTutorialController().showTutorial();
-    }
-
-    private void startMenuMusic() {
-        // la musique du menu principal
-        SoundPlayer.playBackgroundMusic("/sfx/menu-music.wav");
     }
 
     private void quitGame() {

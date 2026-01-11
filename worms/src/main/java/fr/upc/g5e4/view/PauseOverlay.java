@@ -198,11 +198,6 @@ public class PauseOverlay extends JComponent {
             // reset hover/scroll quand on ferme
             hovered = Hover.NONE;
             scrollY = 0;
-            // Reprendre la musique
-            SoundPlayer.resumeBackgroundMusic();
-        } else {
-            // Mettre en pause la musique
-            SoundPlayer.pauseBackgroundMusic();
         }
         repaint();
     }

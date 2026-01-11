@@ -142,6 +142,10 @@ public class GameLauncher{
         if (gameLoop != null) {
             gameLoop.timerStop();
         }
+        
+        // Arrêter la musique du jeu et effacer son chemin
+        SoundPlayer.clearBackgroundMusic();
+        
         cardLayout.show(cardPanel, MENU_CARD);
         mainMenuView.requestFocusInWindow();
     }

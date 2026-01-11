@@ -24,6 +24,7 @@ public final class SoundPlayer {
     // pour la musique de fond
     private static Clip backgroundMusicClip = null;
     private static boolean manuallyPaused = false;  // true si mise en pause par le menu pause
+    private static String currentMusicPath = null;  // chemin de la musique en cours pour la relancer si nécessaire
     
     /**
      * Initialise le système audio et pré-charge les sons communs
@@ -184,11 +185,15 @@ public final class SoundPlayer {
         
         // Gérer la musique de fond
         if (m) {
-            pauseBackgroundMusic();
+            // Quand on mute, arrêter la musique mais ne pas marquer comme pause manuelle
+            if (backgroundMusicClip != null && backgroundMusicClip.isRunning()) {
+                backgroundMusicClip.stop();
+            }
         } else {
-            // reprendre que si pas en pause manuelle
-            if (!manuallyPaused) {
-                resumeBackgroundMusic();
+            // Quand on réactive le son, relancer la musique si elle existe
+            if (currentMusicPath != null) {
+                // Relancer la musique depuis le début
+                playBackgroundMusic(currentMusicPath);
             }
         }
     }
@@ -206,9 +211,30 @@ public final class SoundPlayer {
      * @param resourcePath chemin vers le fichier audio
      */
     public static void playBackgroundMusic(String resourcePath) {
+        // Stocker le chemin pour pouvoir relancer la musique plus tard
+        currentMusicPath = resourcePath;
+        
+        // Ne pas lancer la musique si le son est désactivé, mais garder le chemin
+        if (muted) {
+            System.out.println("Son désactivé - musique non lancée: " + resourcePath);
+            return;
+        }
+        
         try {
+            // Si un clip existe déjà pour le même chemin et qu'il joue, ne rien faire
+            if (backgroundMusicClip != null && backgroundMusicClip.isRunning()) {
+                System.out.println("Musique déjà en cours: " + resourcePath);
+                return;
+            }
+            
             // arrête la musique actuelle 
-            stopBackgroundMusic();
+            if (backgroundMusicClip != null) {
+                if (backgroundMusicClip.isRunning()) {
+                    backgroundMusicClip.stop();
+                }
+                backgroundMusicClip.close();
+                backgroundMusicClip = null;
+            }
             
             InputStream raw = SoundPlayer.class.getResourceAsStream(resourcePath);
             if (raw == null) {
@@ -260,8 +286,25 @@ public final class SoundPlayer {
             }
             backgroundMusicClip.close();
             backgroundMusicClip = null;
+            // Ne pas effacer currentMusicPath ici, pour pouvoir relancer la musique si nécessaire
             System.out.println("Musique arrêtée");
         }
+    }
+    
+    /**
+     * Efface complètement la musique de fond et son chemin
+     * Utilisé quand on change de contexte (jeu -> menu)
+     */
+    public static void clearBackgroundMusic() {
+        if (backgroundMusicClip != null) {
+            if (backgroundMusicClip.isRunning()) {
+                backgroundMusicClip.stop();
+            }
+            backgroundMusicClip.close();
+            backgroundMusicClip = null;
+        }
+        currentMusicPath = null;  // Effacer le chemin pour ne pas le relancer
+        System.out.println("Musique effacée complètement");
     }
     
     /**
