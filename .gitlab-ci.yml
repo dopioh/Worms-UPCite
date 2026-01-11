@@ -6,19 +6,19 @@ variables:
   MAVEN_CONFIG: "/root/.m2"
   MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version"
 
-#before_script:
-#  - mkdir -p /root/.m2
-#  - echo '<settings>
-#      <proxies>
-#        <proxy>
-#          <id>proxy</id>
-#          <active>true</active>
-#          <protocol>https</protocol>
-#          <host>194.254.199.96</host>
-#          <port>3128</port>
-#        </proxy>
-#      </proxies>
-#    </settings>' > /root/.m2/settings.xml
+before_script:
+ - mkdir -p /root/.m2
+ - echo '<settings>
+     <proxies>
+       <proxy>
+         <id>proxy</id>
+         <active>true</active>
+         <protocol>https</protocol>
+         <host>194.254.199.96</host>
+         <port>3128</port>
+       </proxy>
+     </proxies>
+   </settings>' > /root/.m2/settings.xml
 
 stages:
   - build
@@ -33,9 +33,9 @@ build:
   script: 
     - cd worms
     - mvn $MAVEN_CLI_OPTS -U clean compile
-#  cache:
-#    key: "$CI_COMMIT_REF_NAME"
-#    policy: push
+  cache:
+  key: "$CI_COMMIT_REF_NAME"
+  policy: push
   artifacts:
     paths:
       - worms/target
