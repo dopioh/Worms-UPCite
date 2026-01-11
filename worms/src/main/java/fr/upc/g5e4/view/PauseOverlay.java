@@ -99,10 +99,11 @@ public class PauseOverlay extends JComponent {
             }
 
             @Override
-            public void mouseClicked(MouseEvent e) {
+            public void mousePressed(MouseEvent e) {
                 if (!visible) return;
 
                 Point p = e.getPoint();
+                requestFocusInWindow();
 
                 if (closeButtonBounds != null && closeButtonBounds.contains(p)) {
                     if (listener != null) listener.onCloseClicked();
