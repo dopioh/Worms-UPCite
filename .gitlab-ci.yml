@@ -1,24 +1,26 @@
 image: maven:3.9-eclipse-temurin-23
 
 variables:
-  #désactivé temporairement pour un runner secours (mac Ian)
   MAVEN_OPTS: "-Dhttps.proxyHost=194.254.199.96 -Dhttps.proxyPort=3128"
   MAVEN_CONFIG: "/root/.m2"
   MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version"
 
 before_script:
- - mkdir -p /root/.m2
- - echo '<settings>
-     <proxies>
-       <proxy>
-         <id>proxy</id>
-         <active>true</active>
-         <protocol>https</protocol>
-         <host>194.254.199.96</host>
-         <port>3128</port>
-       </proxy>
-     </proxies>
-   </settings>' > /root/.m2/settings.xml
+  - mkdir -p /root/.m2
+  - |
+    cat > /root/.m2/settings.xml << 'EOF'
+    <settings>
+      <proxies>
+        <proxy>
+          <id>proxy</id>
+          <active>true</active>
+          <protocol>http</protocol>
+          <host>194.254.199.96</host>
+          <port>3128</port>
+          <nonProxyHosts>localhost|127.0.0.1</nonProxyHosts>
+        </proxy>
+      </proxies>
+    </settings>
 
 stages:
   - build
@@ -31,8 +33,6 @@ stages:
 build:
   stage: build
   script: 
-    # force la suppression du proxy au cas où il reste en mémoire
-    - unset MAVEN_OPTS || true
     - cd worms
     - mvn $MAVEN_CLI_OPTS -U clean compile
 #  cache:
