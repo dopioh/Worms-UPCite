@@ -157,7 +157,7 @@ public class InventoryOverlay extends JComponent {
         
         shopItems.add(new ShopItem("Worm Nerd Edition", "wormnerd", 20));
         shopItems.add(new ShopItem("Worm Cuisto Edition", "wormcuisto", 20));
-        shopItems.add(new ShopItem("Worm Costard Edition", "wormcostar", 20));
+        shopItems.add(new ShopItem("Worm Costar Edition", "wormcostar", 20));
         shopItems.add(new ShopItem("Worm Noel Edition", "wormnoel", 20));
         shopItems.add(new ShopItem("WORMRACE", "wormrace", 0));
         shopItems.add(new ShopItem("WORMJACK", "wormjack", 0));

@@ -154,9 +154,7 @@ public class GameLoop{
                     roundTimeRemaining-= deltaTime*60; // pour que ca suive les vrais secondes irl
                     //System.out.println(roundTimeRemaining); 
                     gameManager.setRoundTimeSave(roundTimeRemaining);
-                    if (roundTimeRemaining % 60 == 0) {
-                        int secondsLeft = roundTimeRemaining / 60; 
-                    }
+
                     if (roundTimeRemaining <= 0) {
                         gameManager.nextRound();        
                         roundTimeRemaining = 1800;      // reset
