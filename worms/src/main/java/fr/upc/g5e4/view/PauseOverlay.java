@@ -240,6 +240,10 @@ public class PauseOverlay extends JComponent {
         if (!visible) return;
         if (!(g instanceof Graphics2D g2)) return;
 
+        //Plus beau rendu
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+
         int w = getWidth();
         int h = getHeight();
 
