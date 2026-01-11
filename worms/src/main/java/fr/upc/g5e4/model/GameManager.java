@@ -86,6 +86,11 @@ public class GameManager {
 
     private boolean inputFrozen = false;
 
+    private boolean teamKillEnabled = false;
+    private boolean blueprintEnabled = false;
+    private boolean flyModeEnabled = false;
+
+
     /**
      * Vérifie si les entrées utilisateur sont désactivées
      * @return true si oui, false sinon
@@ -1351,6 +1356,30 @@ public class GameManager {
         Timer timer = new Timer(seconds * 1000, e -> {setInputFrozen(false); ((Timer) e.getSource()).stop();});
         timer.setRepeats(false);
         timer.start();
+    }
+
+    public void setTeamKillEnabled(boolean enabled) {
+        this.teamKillEnabled = enabled;
+    }
+
+    public boolean isTeamKillEnabled() {
+        return teamKillEnabled;
+    }
+
+    public void setBlueprintEnabled(boolean enabled) {
+        this.blueprintEnabled = enabled;
+    }
+
+    public boolean isBlueprintEnabled() {
+        return blueprintEnabled;
+    }
+
+    public void toggleFlyMode() {
+        this.flyModeEnabled = !this.flyModeEnabled;
+    }
+
+    public boolean isFlyModeEnabled() {
+        return flyModeEnabled;
     }
 }
 

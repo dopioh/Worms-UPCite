@@ -509,7 +509,7 @@ public class PauseOverlay extends JComponent {
         g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 12f));
         g2.drawString(desc, x + 16, y + 44);
 
-        // bounds en coords écran (comme ton drawToggleRow)
+        // bounds en coords écran 
         Rectangle screenRect = new Rectangle(x, y - scrollY, w, h);
         if (hoverId == Hover.ACTION_FLY) {
             flyActionBounds = screenRect;

@@ -16,17 +16,32 @@ import fr.upc.g5e4.util.ImageCache;
  * Overlay affichant les informations de jeu (HUD)
  * (Timer, PV, Bouclier, Arme équipée, Bouton Fin de tour, Bouton Sac à dos, Bouton Paramètres, Flèches de caméra)
  * 
- * Ce fichier est une **view interactive** qui relaie des actions vers`GameManager`, `PauseOverlay`, `InventoryOverlay` et `CameraController`.
+ * Ce fichier renvoie vers son controller via l'interface Listener
  * @author Hugo
  */
 public class HUDOverlay extends JComponent {
+
+    public interface Listener {
+        void onBagClicked();
+        void onSettingsClicked();
+        void onEndTurnClicked();
+        void onCameraLeftPressed();
+        void onCameraRightPressed();
+        void onCameraCenterPressed();
+        void onCameraReleased(); 
+    }
+
+    private Listener listener;
+    public void setListener(Listener listener) {
+        this.listener = listener;
+    }
 
     private PauseOverlay pauseOverlay;
     private final GameManager gameManager;
     private InventoryOverlay inventoryOverlay;
     private CameraController cameraController;
 
-    // --- Weapon HUD ---
+    // Weapon HUD 
     private final java.util.Map<String, BufferedImage> weaponImages = new java.util.HashMap<>();
 
     private void loadImages() {
@@ -171,10 +186,7 @@ public class HUDOverlay extends JComponent {
 
             @Override
             public void mouseReleased(MouseEvent e) {
-                if (cameraController != null) {
-                    cameraController.deactivateLeft();
-                    cameraController.deactivateRight();
-                }
+                if (listener != null) listener.onCameraReleased();
             }
         };
 
@@ -356,7 +368,7 @@ public class HUDOverlay extends JComponent {
             g2.setFont(g2.getFont().deriveFont(Font.BOLD, 12f));
             g2.drawString(weaponName, weaponBoxX + 60, weaponBoxY + 22);
 
-            // ammo text style "nouveau code"
+            // ammo
             g2.setFont(g2.getFont().deriveFont(Font.BOLD, 13f));
             g2.setColor(new Color(210, 50, 50));
 
@@ -453,44 +465,30 @@ public class HUDOverlay extends JComponent {
     private void handleMousePressed(MouseEvent e) {
         computeLayout();
         if (bagBounds != null && bagBounds.contains(e.getPoint())) {
-            if (inventoryOverlay != null) {
-                inventoryOverlay.setInventoryVisible(!inventoryOverlay.isInventoryVisible());
-                repaint();
-                return;
-            }
+            if (listener != null) listener.onBagClicked();
+            return;
         }
         if (settingsBounds != null && settingsBounds.contains(e.getPoint())) {
-            if (pauseOverlay != null) {
-                pauseOverlay.setPauseVisible(true);
-                if (gameManager != null && gameManager.getGameLoop() != null) {
-                    gameManager.getGameLoop().pauseTimer();
-                }
-                repaint();
-                return;
-            }
+            if (listener != null) listener.onSettingsClicked();
+            return;
         }
         if (endTurnBounds != null && endTurnBounds.contains(e.getPoint())) {
-            if(gameManager != null) gameManager.nextRound();
-            repaint();
+            if (listener != null) listener.onEndTurnClicked();
             return;
         }
-        
+
         if (leftArrowBounds != null && leftArrowBounds.contains(e.getPoint())) {
-            if (cameraController != null) cameraController.activateLeft();
+            if (listener != null) listener.onCameraLeftPressed();
             repaint();
             return;
         }
-
         if (rightArrowBounds != null && rightArrowBounds.contains(e.getPoint())) {
-            if (cameraController != null) cameraController.activateRight();
+            if (listener != null) listener.onCameraRightPressed();
             repaint();
             return;
         }
-
         if (centerCamBounds != null && centerCamBounds.contains(e.getPoint())) {
-            if (cameraController != null) {
-                cameraController.centerOnCharacter();
-            }
+            if (listener != null) listener.onCameraCenterPressed();
             repaint();
             return;
         }

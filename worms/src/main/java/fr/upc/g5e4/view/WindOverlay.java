@@ -49,7 +49,7 @@ public class WindOverlay extends JComponent {
         int w = getWidth();
         int h = getHeight();
 
-        // --- widget position
+        //widget position
         int boxW = 180;
         int boxH = 60;
 
