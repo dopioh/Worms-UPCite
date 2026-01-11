@@ -37,12 +37,13 @@ public class GameLoop{
     
     public void resumeTimer() {
         this.timerPaused = false;
+        this.lastTime = System.nanoTime(); // pour que le step reprenne a partir du moment ou le timer se relance apres avoir fermer les settings
     }
 
     // on fonctionne avec delta time (temps reel) pour la physique 
     // (independant de la vitesse du processeur)
     private double deltaTime;
-    private long lastTime = System.nanoTime();
+    private long lastTime = System.nanoTime(); // le temps en secondes de quand la GameLoop a commencee
 
     public GameLoop(GameManager gameManager){
         this.gameManager = gameManager;
@@ -67,6 +68,7 @@ public class GameLoop{
                             CharacterModel activeWorm = currentTeam.getWorm(activeIndex);
                             if (activeWorm != null && !activeWorm.isDead()) {
                                 activeWorm.stopHorizontalMovement();
+                                //activeWorm.stopVerticalMovement(); -> ne fix pas le bug des settings
                             }
                         }
                     } catch (Exception ignore) {}
@@ -113,12 +115,7 @@ public class GameLoop{
                         }
                     }
                 }
-
-                long now = System.nanoTime();
-                deltaTime = (now - lastTime) / 1_000_000_000.0; // les 100.. pour convertir nano en secondes
-                lastTime = now;
                 
-                gameManager.getWorld().step((float)deltaTime,8,3);
 
                 /* -> Pas une javadoc puisque javadoc peut pas documenter des variables locale 
                  * @see WaterSensorListener.java
@@ -173,6 +170,16 @@ public class GameLoop{
                     System.out.println("Fin de partie! " + winner + " a gagné!");
                     // Le GameLauncher déclenchera l'écran de fin
                 }
+
+                long now = System.nanoTime(); 
+                // calcul le temps entre le debut du gameloop et mtn (aux alentours de 60 fps selon les processeurs)
+                deltaTime = (now - lastTime) / 1_000_000_000.0; // les 100.. pour convertir nano en secondes
+                lastTime = now;
+
+                // la physique se base desormais sur les 60 fps de la machine (donc peut varier selon la puissance de l'ordi)
+                // au lieu de FIXHZ qui est fixe et que la machine ne respecte parfois pas 
+                // donc ca fait un decalage entre la gameloop qui en fait qu'a sa tete et la physique qui elle respecte absolument 60 fps
+                gameManager.getWorld().step((float)deltaTime,8,3);
                 
                 gamePanel.repaint();
 

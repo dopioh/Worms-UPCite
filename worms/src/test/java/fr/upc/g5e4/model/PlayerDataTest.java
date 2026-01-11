@@ -1,6 +1,5 @@
-package fr.upc.g5e4;
+package fr.upc.g5e4.model;
 
-import fr.upc.g5e4.model.*;
 import fr.upc.g5e4.model.io.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

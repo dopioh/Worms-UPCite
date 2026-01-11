@@ -90,6 +90,8 @@ public class MainMenuController {
 
     private void openConfig() {
         TeamSettingsView teamSettingsView = new TeamSettingsView(gameLauncher.getPlayerDataController()); // creer la vue 
+        //System.out.println("OPEN CONFIG CALLED");
+        //this.gameLauncher.getPlayerDataController().chargerJoueur();
 
         // Créer le contrôleur des réglages qui gère les listeners
         SettingsController settingsController = new SettingsController(gameLauncher, teamSettingsView);

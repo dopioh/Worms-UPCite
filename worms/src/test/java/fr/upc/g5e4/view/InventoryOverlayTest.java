@@ -1,4 +1,4 @@
-package fr.upc.g5e4.Inventory;
+package fr.upc.g5e4.view;
 
 import fr.upc.g5e4.view.InventoryOverlay;
 import fr.upc.g5e4.model.InventoryModel.InventoryJson;

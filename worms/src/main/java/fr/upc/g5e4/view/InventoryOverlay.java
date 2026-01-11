@@ -913,6 +913,7 @@ public class InventoryOverlay extends JComponent {
         }
         
         playerDataController.sauvegarderJoueur();
+        //playerDataController.chargerJoueur();
         
         System.out.println("Achat réussi: " + shopItem.name + " pour " + shopItem.price + "$");
         

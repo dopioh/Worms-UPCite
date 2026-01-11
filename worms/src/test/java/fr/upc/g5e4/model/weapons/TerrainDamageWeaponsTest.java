@@ -1,4 +1,4 @@
-package fr.upc.g5e4.weapons;
+package fr.upc.g5e4.model.weapons;
 
 import fr.upc.g5e4.model.weapons.Ak47;
 import fr.upc.g5e4.model.weapons.BaseballBat;

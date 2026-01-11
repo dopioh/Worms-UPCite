@@ -73,6 +73,7 @@ public class PlayerDataController {
             File file = new File("sauvegardes/player_save.txt");
             FileReader fileReader = new FileReader(file);
             this.playerData = gson.fromJson(fileReader, PlayerData.class);
+            //System.out.println("JOUEUR LOAD");
 
         } catch (Exception e) {
             System.out.println("[LoadPlayer] il y'a eu une erreur imprevu lors de l'appel de la fonction 'chargerJoueur()'..");

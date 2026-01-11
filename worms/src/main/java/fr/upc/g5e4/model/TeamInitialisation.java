@@ -31,6 +31,7 @@ public class TeamInitialisation {
     private Color color;
 
     private static int COLORTEAM = 0;
+    private int intColor;
 
     private String name;
 
@@ -70,11 +71,14 @@ public class TeamInitialisation {
         boolean facingRight = (startX < groundModel.getWidth() / 2);
         this.name = teamName;
         this.skinPath = skinPath;
-        colorGiving();
-        teamModel = new TeamModel(groundModel, world, name, startX, SPACING, teamNumber, false, facingRight, false,COLORTEAM, nameWorms,skinPath);
+        this.intColor = COLORTEAM;
+        colorGiving(true);
+        teamModel = new TeamModel(groundModel, world, name, startX, SPACING, teamNumber, false, facingRight, false,intColor, nameWorms,skinPath);
         teamView = new TeamView(teamNumber,color, skinPath, facingRight);
         //upSpacing(groundModel); // pour que si il y'a plus de 2 equipes, les worms ne se superposent pas
         SPACING += 3;
+        System.out.println("INT COLOR : " + intColor);
+        System.out.println("COLOR COLOR : " + color.toString());
     }
 
     /**
@@ -91,10 +95,13 @@ public class TeamInitialisation {
     public TeamInitialisation(GroundModel groundModel,World world,int TeamID ,String teamName, int teamNumber,CharacterData[] characterData, int COLOR, String skinPath,List<InventoryJson> inventory, int money){
         this.name = teamName;
         this.skinPath = skinPath;
-        COLORTEAM = COLOR;
-        colorGiving();
-        teamModel = new TeamModel(groundModel, world, teamName, teamNumber, TeamID, characterData,COLORTEAM,inventory,skinPath);
+        this.intColor = COLOR;
+        COLORTEAM = intColor;
+        colorGiving(false);
+        teamModel = new TeamModel(groundModel, world, teamName, teamNumber, TeamID, characterData,intColor,inventory,skinPath);
         teamView = new TeamView(teamNumber,color, skinPath, true); // facingRight a changer apres
+        System.out.println("INT COLOR SAVE : " + intColor);
+        System.out.println("COLOR COLOR SAVE : " + color.toString());
         teamModel.setMoney(money);
     }
 
@@ -115,8 +122,9 @@ public class TeamInitialisation {
      * Methode interne pour attribuer une couleur a une equipe
      * Au bout de 5 couleurs diff, on reprends des couleurs deja attribuees 
      */
-    private void colorGiving(){
-
+    private void colorGiving(boolean augmente){
+        System.out.println("COLORTEAM PDT COLOR GIVING : " + COLORTEAM);
+        System.out.println("COLOR INDI INT PDT COLOR GIVING : " + intColor);
         if (COLORTEAM >= 6){
             COLORTEAM = 0;
         }
@@ -141,7 +149,9 @@ public class TeamInitialisation {
             this.color =new Color(255, 255, 56);
                 break;
         }
-        COLORTEAM++;
+        if (augmente){
+            COLORTEAM++;
+        }
     }
 
     public void draw(Graphics2D gd){
