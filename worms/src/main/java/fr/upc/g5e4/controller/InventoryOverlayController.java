@@ -245,6 +245,7 @@ public class InventoryOverlayController implements InventoryOverlay.Listener {
 
     @Override
     public void onUseEquippedGadget() {
+        if (view == null) return;
         InventoryJson equippedItem = view.getEquippedGadget();
         if (equippedItem == null) return;
 
