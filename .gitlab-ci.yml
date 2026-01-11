@@ -1,6 +1,7 @@
 variables:
   #désactivé temporairement pour un runner secours (mac Ian)
   #MAVEN_OPTS: "-Dhttps.proxyHost=194.254.199.96 -Dhttps.proxyPort=3128"
+  
   MAVEN_CONFIG: "/root/.m2"
   MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version"
 
@@ -17,6 +18,7 @@ variables:
 #        </proxy>
 #      </proxies>
 #    </settings>' > /root/.m2/settings.xml
+
 
 stages:
   - build
@@ -35,7 +37,8 @@ build:
         MAVEN_VERSION: ["3.9"]
   image: maven:${MAVEN_VERSION}-eclipse-temurin-${JAVA_VERSION}
   script: 
-    # force la suppression du proxy au cas où il reste en mémoire pour proxy
+
+    # suppression pour eviter que l'ancien configuration de proxy est encore present
     - unset MAVEN_OPTS || true
     - rm -f /root/.m2/settings.xml || true
     

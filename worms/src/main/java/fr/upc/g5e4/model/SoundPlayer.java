@@ -15,7 +15,7 @@ import java.util.Map;
  */
 public final class SoundPlayer {
     private SoundPlayer() {}
-    private static volatile boolean muted = false;
+    private static boolean muted = false;
 
     // Cache pour les clips audio pré-chargés
     private static final Map<String, byte[]> audioCache = new HashMap<>();
