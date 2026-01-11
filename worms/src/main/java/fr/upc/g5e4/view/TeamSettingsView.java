@@ -7,10 +7,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import fr.upc.g5e4.view.UI.*;
+import fr.upc.g5e4.controller.MainMenuController;
 import fr.upc.g5e4.controller.PlayerDataController;
 //import fr.upc.g5e4.model.SkinModel;
 import fr.upc.g5e4.model.io.CustomTeamData;
+import fr.upc.g5e4.model.TeamSettingsModel;
 
+/**
+ * Classe pour la partie Equipe (et equipe Custom) des Settings Menu
+ * 
+ * @see TeamSettingsModel pour le model des TeamSettings
+ * @see MainMenuController#openConfig() pour l'initialisation de cette classe
+ * @see SettingsView pour l'inventaire autre que Equipe 
+ * 
+ * @author Mei
+ */
 public class TeamSettingsView extends JPanel{
 
     // Panel 
@@ -249,8 +260,8 @@ public class TeamSettingsView extends JPanel{
     gbc2.gridx = 2;
     gbc2.gridy = 2;
     gbc2.gridwidth = 1;
-    gbc2.weightx = 0.7;  // Plus de poids pour la combobox
-    gbc2.fill = GridBagConstraints.NONE;  // S'étire horizontalement
+    gbc2.weightx = 0.7;
+    gbc2.fill = GridBagConstraints.NONE;
     gbc2.anchor = GridBagConstraints.WEST;
     gbc2.insets = new Insets(10, 0, 10, 25);
     zoneCustom.add(skinChooseUnlocked, gbc2);
@@ -330,7 +341,7 @@ public class TeamSettingsView extends JPanel{
 
             float globalScale = Math.min(scaleW, scaleH);
 
-            Dimension contentSize = new Dimension((int)(2200 * globalScale), (int)(1150 * globalScale));
+            Dimension contentSize = new Dimension((int)(2200 * globalScale), (int)(1150 * globalScale)); // ian a fix le globalScale pour le full screen
             this.contentPanel.setPreferredSize(contentSize);
             this.contentPanel.setMinimumSize(contentSize);
             this.contentPanel.setMaximumSize(contentSize);
@@ -645,6 +656,9 @@ public class TeamSettingsView extends JPanel{
         }
     }
 
+    /**
+     * Pour actualiser la zone Choice apres avoir creer une Custom Team
+     */
     public void reloadCustomTeamChoose(){
         int currentNbEquipes = this.getNbrEquipe();
 

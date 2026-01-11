@@ -1,4 +1,4 @@
-package fr.upc.g5e4.console;
+package fr.upc.g5e4.controller;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;

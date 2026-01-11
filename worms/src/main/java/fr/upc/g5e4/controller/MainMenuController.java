@@ -10,7 +10,7 @@ import fr.upc.g5e4.GameLauncher;
 import fr.upc.g5e4.model.TeamSettingsModel;
 import fr.upc.g5e4.model.io.SaveLoad;
 import fr.upc.g5e4.view.MainMenuView;
-import fr.upc.g5e4.view.SettingsView;
+//import fr.upc.g5e4.view.SettingsView;
 import fr.upc.g5e4.view.TeamSettingsView;
 
 /**
@@ -90,6 +90,8 @@ public class MainMenuController {
 
     private void openConfig() {
         TeamSettingsView teamSettingsView = new TeamSettingsView(gameLauncher.getPlayerDataController()); // creer la vue 
+        //System.out.println("OPEN CONFIG CALLED");
+        //this.gameLauncher.getPlayerDataController().chargerJoueur();
 
         // Créer le contrôleur des réglages qui gère les listeners
         SettingsController settingsController = new SettingsController(gameLauncher, teamSettingsView);

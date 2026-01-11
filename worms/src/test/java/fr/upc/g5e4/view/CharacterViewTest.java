@@ -1,4 +1,4 @@
-package fr.upc.g5e4;
+package fr.upc.g5e4.view;
 
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;

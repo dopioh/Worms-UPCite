@@ -3,7 +3,7 @@ package fr.upc.g5e4.model.io;
 //import fr.upc.g5e4.view.*;
 //import fr.upc.g5e4.controller.*;
 import fr.upc.g5e4.model.*;
-import fr.upc.g5e4.model.MapConfig.BackgroundStyle;
+//import fr.upc.g5e4.model.MapConfig.BackgroundStyle;
 
 import java.util.ArrayList;
 import java.util.Map;
