@@ -15,7 +15,7 @@ Jeu 2D de type [Worms](https://fr.wikipedia.org/wiki/Worms_(jeu_vidéo)) dévelo
 Depuis le répertoire racine du projet, naviguez vers le dossier `worms` et compilez avec Maven :
 
 ```bash
-cd wormss
+cd worms
 mvn clean package
 ```
 
