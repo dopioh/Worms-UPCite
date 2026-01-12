@@ -31,7 +31,7 @@ public class TerrainGenerator {
                 return generateFlat(points, minHeight, maxHeight);
             case STANDARD:
             default:
-                return generateTerrainWithPlatforms(points, minHeight, maxHeight, 280, 15);
+                return generateTerrain(points, minHeight, maxHeight);
         }
     }
     
@@ -182,39 +182,5 @@ public class TerrainGenerator {
         
         return groundY;
     }
-    
-    /**
-     * Génère un tableau de hauteurs de terrain mais les bords sont applatis
-     * (pour éviter que les worms tombent directement dans l'eau)
-     * @param points Nombre de points à générer
-     * @param minHeight Hauteur minimale
-     * @param maxHeight Hauteur maximale
-     * @param platformHeight Hauteur des bases de spawn (doit être > minHeight)
-     * @param platformWidth Largeur des bases en pourcentage (ex: 15 = 15% de chaque côté)
-     * @return Tableau des hauteurs Y avec zones plus plates et surélevées aux bords de la map
-     */
-    public int[] generateTerrainWithPlatforms(int points, int minHeight, int maxHeight, int platformHeight, int platformWidth) {
-        int[] groundY = generateTerrain(points, minHeight, maxHeight);
-        
-        // on calcule le nombre de points pour les zones aplaties
-        int edgePoints = (points * platformWidth) / 100;
-        
-        // on utilise une courbe pour une transition plus naturelle
-        for (int i = 0; i < edgePoints; i++) {
-            // utiliser une courbe quadratique pour un aplatissement plus doux
-            double normalizedPos = (double)i / edgePoints;
-            double factor = normalizedPos * normalizedPos; // courbe quadratique pour transition douce
-            
-            // interpolation entre platformHeight et la hauteur générée
-            int targetHeight = (int)(platformHeight + (groundY[i] - platformHeight) * factor);
-            groundY[i] = targetHeight;
-            
-            // on fait la même chose pour le bord droit
-            int rightIndex = points - 1 - i;
-            targetHeight = (int)(platformHeight + (groundY[rightIndex] - platformHeight) * factor);
-            groundY[rightIndex] = targetHeight;
-        }
-        
-        return groundY;
-    }
+
 }
