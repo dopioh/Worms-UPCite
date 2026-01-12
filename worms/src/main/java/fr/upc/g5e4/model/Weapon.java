@@ -16,7 +16,7 @@ public abstract class Weapon extends Item {
     private int terrainDamage = 0;    // dégâts causés au terrain (en PV de blocs)
     private double terrainBlastRadius = 0.0; // rayon de dégâts au terrain en blocs
     private double shootingAngle = 0;  // angle de tir en degrés (0-360)
-    private TrajectoryInterface trajectoryCalculator;  // calculatrice de trajectoire spécifique à l'arme
+    private TrajectoryModel trajectoryCalculator;  // calculatrice de trajectoire spécifique à l'arme
 
     protected Weapon(String name, int maxUsages, boolean isInfinite,
                      int damage, double blastRadius, double speed, int range, double knockbackMultiplier) {
@@ -59,14 +59,14 @@ public abstract class Weapon extends Item {
     /**
      * définit le calculateur de trajectoire personnalisé pour une arme
      */
-    public void setTrajectoryCalculator(TrajectoryInterface calculator) {
+    public void setTrajectoryCalculator(TrajectoryModel calculator) {
         this.trajectoryCalculator = calculator;
     }
     
     /**
      * obtient le calculateur de trajectoire de cette arme
      */
-    public TrajectoryInterface getTrajectoryCalculator() {
+    public TrajectoryModel getTrajectoryCalculator() {
         return this.trajectoryCalculator;
     }
     
@@ -92,7 +92,7 @@ public abstract class Weapon extends Item {
      * @param allWorms Tableau de tous les worms du jeu
      * @param direction direction du tir (1 pour droite, -1 pour gauche)
      */
-    public Projectile fire(CharacterModel shooter, org.jbox2d.dynamics.World world, 
+    public ProjectileModel fire(CharacterModel shooter, org.jbox2d.dynamics.World world, 
         CharacterModel[] allWorms, int direction) {
         return fire(shooter, world, allWorms, direction, null);
     }
@@ -105,7 +105,7 @@ public abstract class Weapon extends Item {
      * @param direction direction du tir (1 pour droite, -1 pour gauche)
      * @param windModel le modele du vent (peut être null)
      */
-    public Projectile fire(CharacterModel shooter, org.jbox2d.dynamics.World world, 
+    public ProjectileModel fire(CharacterModel shooter, org.jbox2d.dynamics.World world, 
         CharacterModel[] allWorms, int direction, WindModel windModel) {
         Vec2 shooterPos = shooter.getBody().getPosition();
         
@@ -117,7 +117,7 @@ public abstract class Weapon extends Item {
         }
         
         // créer le projectile avec la portée ajustée
-        Projectile projectile = new Projectile(this, shooter, shooterPos, adjustedRange, this.speed, this.shootingAngle);
+        ProjectileModel projectile = new ProjectileModel(this, shooter, shooterPos, adjustedRange, this.speed, this.shootingAngle);
         String windInfo = windModel != null ? String.format(" (vent: %s %.0f%% -> portée ajustée: %.1f)", 
             windModel.getDir().label, windModel.getStrength() * 100, adjustedRange) : "";
         System.out.println("[" + this.getName() + "] Tir à angle " + String.format("%.0f°", shootingAngle) + 
@@ -158,7 +158,7 @@ public abstract class Weapon extends Item {
         double projectileX = Math.cos(Math.toRadians(trajectoryAngle));
         double windX = Math.cos(Math.toRadians(windAngle));
         
-        // calcul du produit scalaire pour déterminer l'alignement
+        // calcul pour déterminer la ligne entre le vent et la trajectoire
         // 1.0 = vent exactement dans la même direction
         // -1.0 = vent exactement contraire
         // 0.0 = vent perpendiculaire

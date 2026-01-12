@@ -4,9 +4,10 @@ import org.jbox2d.common.Vec2;
 
 /**
  * Interface définissant comment un projectile suit sa trajectoire
- * Chaque arme peut avoir sa propre courbe balistique
+ * Chaque arme peut avoir sa propre courbe 
+ * @author Billy
  */
-public interface TrajectoryInterface {
+public interface TrajectoryModel {
     /**
      * Calcule la position du projectile à un temps normalisé
      * @param t Temps entre 0 et 1 (0 = départ, 1 = fin)

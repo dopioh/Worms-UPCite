@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Coordonnés avec l'implémentation réelle de la classe Projectile
  */
 public class ProjectileTest {
-    private Projectile projectile;
+    private ProjectileModel projectile;
     private Weapon weapon;
     private CharacterModel shooter;
     private World world;
@@ -44,7 +44,7 @@ public class ProjectileTest {
         
         // Créer un projectile
         Vec2 position = new Vec2(100, 20);
-        projectile = new Projectile(weapon, shooter, position, 20, 10, 45);
+        projectile = new ProjectileModel(weapon, shooter, position, 20, 10, 45);
     }
 
     // ========== Tests d'initialisation ==========
@@ -118,7 +118,7 @@ public class ProjectileTest {
     void testTrajectoryAngle0Degrees() {
         // Créer un projectile tirant à 0° (horizontalement à droite)
         Vec2 position = new Vec2(0, 10);
-        Projectile projectile0 = new Projectile(weapon, shooter, position, 20, 10, 0);
+        ProjectileModel projectile0 = new ProjectileModel(weapon, shooter, position, 20, 10, 0);
         
         Vec2 pos_0_0 = projectile0.getPositionAtTime(0.0f);
         Vec2 pos_0_5 = projectile0.getPositionAtTime(0.5f);
@@ -151,7 +151,7 @@ public class ProjectileTest {
     void testTrajectoryAngle90Degrees() {
         // Créer un projectile tirant à 90° (verticalement vers le haut)
         Vec2 position = new Vec2(0, 0);
-        Projectile projectile90 = new Projectile(weapon, shooter, position, 20, 10, 90);
+        ProjectileModel projectile90 = new ProjectileModel(weapon, shooter, position, 20, 10, 90);
         
         Vec2 pos_0_0 = projectile90.getPositionAtTime(0.0f);
         Vec2 pos_0_5 = projectile90.getPositionAtTime(0.5f);
@@ -171,7 +171,7 @@ public class ProjectileTest {
     void testTrajectoryAngle180Degrees() {
         // Créer un projectile tirant à 180° (horizontalement à gauche)
         Vec2 position = new Vec2(100, 10);
-        Projectile projectile180 = new Projectile(weapon, shooter, position, 20, 10, 180);
+        ProjectileModel projectile180 = new ProjectileModel(weapon, shooter, position, 20, 10, 180);
         
         Vec2 pos_0_0 = projectile180.getPositionAtTime(0.0f);
         Vec2 pos_0_5 = projectile180.getPositionAtTime(0.5f);
@@ -188,7 +188,7 @@ public class ProjectileTest {
     void testTrajectoryAngle270Degrees() {
         // Créer un projectile tirant à 270° (verticalement vers le bas)
         Vec2 position = new Vec2(0, 20);
-        Projectile projectile270 = new Projectile(weapon, shooter, position, 20, 10, 270);
+        ProjectileModel projectile270 = new ProjectileModel(weapon, shooter, position, 20, 10, 270);
         
         Vec2 pos_0_0 = projectile270.getPositionAtTime(0.0f);
         Vec2 pos_0_5 = projectile270.getPositionAtTime(0.5f);
@@ -209,7 +209,7 @@ public class ProjectileTest {
         
         for (int angle : angles) {
             Vec2 position = new Vec2(0, 0);
-            Projectile projectileAngled = new Projectile(weapon, shooter, position, 20, 10, angle);
+            ProjectileModel projectileAngled = new ProjectileModel(weapon, shooter, position, 20, 10, angle);
             
             // Vérifier que le projectile a l'angle correct
             assertEquals(angle, projectileAngled.getShootingAngle(), 0.01);
@@ -303,5 +303,78 @@ public class ProjectileTest {
         Vec2 posStart2 = projectile.getPositionAtTime(0);
         assertEquals(posStart1.x, posStart2.x, 0.01);
         assertEquals(posStart1.y, posStart2.y, 0.01);
+    }
+
+    //Tests d'intégration
+    @Test
+    void testMultipleProjectilesIntegration() {
+        // Test plusieurs projectiles en simultané
+        ProjectileModel proj1 = new ProjectileModel(weapon, shooter, new Vec2(100, 20), 20, 10, 45);
+        ProjectileModel proj2 = new ProjectileModel(weapon, shooter, new Vec2(150, 25), 15, 8, 30);
+        ProjectileModel proj3 = new ProjectileModel(weapon, shooter, new Vec2(200, 30), 25, 12, 60);
+        
+        // Simuler plusieurs frames
+        for (int i = 0; i < 50; i++) {
+            float deltaTime = 0.1f;
+            boolean a1 = proj1.update(deltaTime);
+            boolean a2 = proj2.update(deltaTime);
+            boolean a3 = proj3.update(deltaTime);
+            
+            // Vérifier les positions
+            assertNotNull(proj1.getCurrentPosition());
+            assertNotNull(proj2.getCurrentPosition());
+            assertNotNull(proj3.getCurrentPosition());
+        }
+    }
+
+    @Test
+    void testProjectileWithPhysicsWorld() {
+        // Test projectile avec monde physique
+        projectile.update(0.5f);
+        Vec2 pos = projectile.getCurrentPosition();
+        
+        // Vérifier que la position est cohérente avec le monde
+        assertNotNull(pos);
+        assertTrue(pos.x >= 0 && pos.x <= 800, "Position X dans les limites du monde");
+        
+        // Simuler plusieurs steps physiques
+        for (int i = 0; i < 60; i++) {
+            world.step(1/60f, 8, 3);
+            projectile.update(1/60f);
+        }
+        
+        Vec2 finalPos = projectile.getCurrentPosition();
+        assertNotNull(finalPos);
+    }
+
+    //Tests de performance 
+    @Test
+    void testProjectileCreationPerformance() {
+        // Test la performance de création de projectiles
+        long startTime = System.nanoTime();
+        
+        for (int i = 0; i < 1000; i++) {
+            Vec2 pos = new Vec2(100 + i % 100, 20 + i % 50);
+            ProjectileModel proj = new ProjectileModel(weapon, shooter, pos, 20, 10, i % 360);
+            assertNotNull(proj);
+        }
+        
+        long duration = System.nanoTime() - startTime;
+        // 1000 créations doivent se faire en moins de 100ms
+        assertTrue(duration < 100_000_000L, "1000 créations devraient prendre moins de 100ms");
+    }
+
+    @Test
+    void testProjectileUpdatePerformance() {
+        // Test la performance des mises à jour
+        long startTime = System.nanoTime();
+        
+        for (int i = 0; i < 10000; i++) {
+            projectile.getPositionAtTime(i / 10000f);
+        }
+        
+        long duration = System.nanoTime() - startTime;
+        // 10000 calculs de position doivent se faire en moins de 50ms
+        assertTrue(duration < 50_000_000L, "10000 calculs de position devraient prendre moins de 50ms");
     }
 }

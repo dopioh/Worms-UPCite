@@ -2,6 +2,7 @@ package fr.upc.g5e4.controller;
 
 import fr.upc.g5e4.model.GameLoop;
 import fr.upc.g5e4.model.GameManager;
+import fr.upc.g5e4.view.HUDOverlay;
 import fr.upc.g5e4.view.InventoryOverlay;
 import fr.upc.g5e4.view.PauseOverlay;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,6 +13,7 @@ import static org.mockito.Mockito.*;
 class HUDOverlayControllerTest {
 
     private GameManager gameManager;
+    private HUDOverlay hudView;
     private InventoryOverlay inventoryOverlay;
     private PauseOverlay pauseOverlay;
     private CameraController cameraController;
@@ -21,11 +23,12 @@ class HUDOverlayControllerTest {
     @BeforeEach
     void setup() {
         gameManager = mock(GameManager.class);
+        hudView = mock(HUDOverlay.class);
         inventoryOverlay = mock(InventoryOverlay.class);
         pauseOverlay = mock(PauseOverlay.class);
         cameraController = mock(CameraController.class);
 
-        controller = new HUDOverlayController(gameManager,inventoryOverlay,pauseOverlay,cameraController);
+        controller = new HUDOverlayController(gameManager, hudView, inventoryOverlay, pauseOverlay, cameraController);
     }
 
     @Test
@@ -86,7 +89,7 @@ class HUDOverlayControllerTest {
 
     @Test
     void nullDependenciesDoNotCrash() {
-        HUDOverlayController c = new HUDOverlayController(null, null, null, null);
+        HUDOverlayController c = new HUDOverlayController(null, null, null, null, null);
 
         c.onBagClicked();
         c.onSettingsClicked();
@@ -95,5 +98,6 @@ class HUDOverlayControllerTest {
         c.onCameraRightPressed();
         c.onCameraCenterPressed();
         c.onCameraReleased();
+        c.updateHUDData();
     }
 }

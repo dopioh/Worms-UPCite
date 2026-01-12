@@ -2,8 +2,9 @@ package fr.upc.g5e4.model;
 
 /**
  * Classe pour un buff temporaire qui affecte les stats du worm (ajouté d'autre si idée vient)
+ * @author Billy
  */
-public class BuffEffect {
+public class BuffModel {
     public enum BuffType {
         SPEED_BOOST("Speed Boost", 1.5),      // 50% de boost de vitesse (1.5x)
         JUMP_BOOST("Jump Boost", 1.5);        // 50% de boost de saut (1.5x)
@@ -34,7 +35,7 @@ public class BuffEffect {
      * @param type Le type de buff
      * @param duration La durée en milliseconde
      */
-    public BuffEffect(BuffType type, long duration) {
+    public BuffModel(BuffType type, long duration) {
         this.type = type;
         this.duration = duration;
         this.startTime = System.currentTimeMillis();

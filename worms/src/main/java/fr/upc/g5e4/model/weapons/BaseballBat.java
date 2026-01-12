@@ -12,18 +12,19 @@ public class BaseballBat extends Weapon {
      * @isExplosive false
      * @damage 30
      * @blastRadius 0
-     * @speed 100
-     * @range 0.5
+     * @speed 10
+     * @range 1.0
      * @knockbackMultiplier 10.0
      */
     public BaseballBat() {
-        super("Baseball Bat", 8, false, 30, 0, 100, 1, 10.0);
+        super("Baseball Bat", 8, false, 30, 0, 20, 1, 10.0);
         // Batte de baseball : pas de chute, trajectoire droite
         this.setTrajectoryCalculator(new NoDropTrajectory());
         
         // Dégâts au terrain : 5 PV par bloc, pas de blast radius
         this.setTerrainDamage(5);
-        this.setTerrainBlastRadius(0.0);}
+        this.setTerrainBlastRadius(0.0);
+    }
 
     @Override
     protected boolean onUse() {

@@ -4,6 +4,7 @@ import fr.upc.g5e4.model.Gadget;
 
 /**
  * Potion de jump : boost le saut de 50% pendant 20 secondes
+ * @author Billy
  */
 public class PotionJump extends Gadget {
 

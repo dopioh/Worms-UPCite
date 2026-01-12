@@ -4,6 +4,7 @@ import fr.upc.g5e4.model.Gadget;
 
 /**
  * Potion de shield : restaure 25 points de shield au worm
+ * @author Billy
  */
 public class PotionShield extends Gadget {
 

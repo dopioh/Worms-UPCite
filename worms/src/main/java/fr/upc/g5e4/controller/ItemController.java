@@ -5,7 +5,7 @@ import org.jbox2d.common.Vec2;
 import fr.upc.g5e4.model.CharacterModel;
 import fr.upc.g5e4.model.Item;
 import fr.upc.g5e4.model.Weapon;
-import fr.upc.g5e4.model.Projectile;
+import fr.upc.g5e4.model.ProjectileModel;
 import fr.upc.g5e4.model.SoundPlayer;
 import fr.upc.g5e4.model.BlockGridModel;
 import fr.upc.g5e4.model.PhysicsWorld;
@@ -22,7 +22,7 @@ public class ItemController {
     private CharacterModel[] allWorms;
     private BlockGridModel blockGridModel;
     private WindModel windModel;
-    private List<Projectile> activeProjectiles;
+    private List<ProjectileModel> activeProjectiles;
     private GameManager gameManager;
 
     public ItemController(ItemView view) {
@@ -39,7 +39,7 @@ public class ItemController {
     }
 
     /**
-     * Définit le monde physique (non utilisé dans le système Graphwar)
+     * Définit le monde physique JBox2D
      * @param world Le monde JBox2D
      */
     public void setWorld(World world) {
@@ -89,7 +89,7 @@ public class ItemController {
     }
 
     /**
-     * Utilise une arme avec projectile pour tirer dans une direction (système Graphwar)
+     * Utilise une arme avec projectile pour tirer dans une direction 
      * @param weapon L'arme à utiliser
      * @param shooter Le worm qui tire
      * @param direction Direction du tir (1 pour droite, -1 pour gauche)
@@ -103,13 +103,13 @@ public class ItemController {
             // on fait jouer le son de l'arme
             String soundPath = getWeaponSoundPath(weapon);
             if (soundPath != null) {
-                SoundPlayer.play(soundPath);
+                SoundPlayer.playWeaponSound(soundPath);
             }
 
-            Projectile projectile = weapon.fire(shooter, world, allWorms, direction, windModel);
+            ProjectileModel projectile = weapon.fire(shooter, world, allWorms, direction, windModel);
             if (projectile != null) {
                 activeProjectiles.add(projectile);
-                System.out.println("Projectile lancé à l'angle: " + String.format("%.0f°", projectile.getShootingAngle()));
+                System.out.println("projectile lancé avec un angle de " + String.format("%.0f°", projectile.getShootingAngle()));
                 
                 // Tracker le tir
                 if (gameManager != null) {
@@ -127,9 +127,9 @@ public class ItemController {
      * @param deltaTime temps écoulé en secondes
      */
     public void updateProjectiles(float deltaTime) {
-        List<Projectile> toRemove = new ArrayList<>();
+        List<ProjectileModel> toRemove = new ArrayList<>();
         // met à jour chaque projectile
-        for (Projectile projectile : activeProjectiles) {
+        for (ProjectileModel projectile : activeProjectiles) {
             if (!projectile.update(deltaTime)) { // retourne faux si le projectile a dépassé sa portée
                 applyTerrainDamage(projectile); 
                 toRemove.add(projectile);
@@ -185,9 +185,7 @@ public class ItemController {
                         // Appliquer l'impact au worm
                         worm.applyImpact(impactDirection, impactForce);
                         
-                        System.out.println("Cible " + worm.getName() + " touchée avec " + 
-                                         damage + " damage (impact: " + 
-                                         String.format("%.2f", impactForce) + ")");
+                        System.out.println(worm.getName() + " touché " + damage + " dégâts infligés : " + String.format("%.2f", impactForce) + ")");
                         applyTerrainDamage(projectile);
                         toRemove.add(projectile);
                         break;
@@ -205,7 +203,7 @@ public class ItemController {
      * @param projectile le projectile
      * @return true si le projectile a touché le sol
      */
-    private boolean hitGround(Projectile projectile) {
+    private boolean hitGround(ProjectileModel projectile) {
         if (blockGridModel == null) {
             return false;
         }
@@ -225,50 +223,42 @@ public class ItemController {
      * applique les degats au terrain quand le projectile touche le sol
      * @param projectile Le projectile qui impacte le terrain
      */
-    private void applyTerrainDamage(Projectile projectile) {
+    private void applyTerrainDamage(ProjectileModel projectile) {
         if (blockGridModel == null) {
             return;
         }
-        
         Weapon weapon = projectile.getSourceWeapon(); // arme qui a tiré le projectile
         if (weapon == null || weapon.getTerrainDamage() == 0) {
             return;
         }
-        
         Vec2 projectilePos = projectile.getCurrentPosition();
-        
         // convertit la position du monde (JBox2D en mètres) en coordonnées de grille
         float PPM = 30f;
-        
         // convertir de metres en pixels
         int pixelX = (int)(projectilePos.x * PPM);
         // Y est inversé entre JBox2D (Y augmente vers le haut) et pixels (Y augmente vers le bas)
         int pixelY = (int)(blockGridModel.getPixelHeight() - projectilePos.y * PPM);
-        
         // convertir de pixels en coordonnées de grille
         int centerGridX = blockGridModel.pixelToGridX(pixelX);
         int centerGridY = blockGridModel.pixelToGridY(pixelY);
-        
         boolean modified = false; // indique si le terrain a été modifié
-        
-        System.out.println("[TERRAIN] Impact à gridX=" + centerGridX + ", gridY=" + centerGridY);
-        System.out.println("[TERRAIN] PhysicsWorld est " + (physicsWorld == null ? "NULL" : "défini"));
+        System.out.println("impact sur le terrain à la position (" + centerGridX + ", " + centerGridY + ")");
         
         // appliquer les degats au terrain
         if (weapon.getTerrainBlastRadius() > 0) {
             // dégats en zone 
             blockGridModel.damageBlocksInRadius(centerGridX, centerGridY, weapon.getTerrainBlastRadius(), weapon.getTerrainDamage());
-            System.out.println("[" + weapon.getName() + "] Dégâts terrain en zone : " + weapon.getTerrainDamage() + " PV, rayon " + weapon.getTerrainBlastRadius());
+            System.out.println(weapon.getName() + " inflige " + weapon.getTerrainDamage() + " dégâts au terrain (rayon de " + weapon.getTerrainBlastRadius() + " blocs)");
             modified = true;
         } else {
             // dégats ponctuels
             if (blockGridModel.damageBlock(centerGridX, centerGridY, weapon.getTerrainDamage())) {
                 modified = true;
             }
-            System.out.println("[" + weapon.getName() + "] Dégâts terrain ponctuels : " + weapon.getTerrainDamage() + " PV");
+            System.out.println(weapon.getName() + " inflige " + weapon.getTerrainDamage() + " dégâts au terrain");
         }
         
-        System.out.println("[TERRAIN] Modified = " + modified);
+        System.out.println("terrain modifié : " + (modified ? "oui" : "non"));
         
         // appliquer les dégats d'explosion 
         applyExplosionDamageToWorms(projectile);
@@ -278,7 +268,7 @@ public class ItemController {
             // int searchRadius = weapon.getTerrainBlastRadius() > 0 ? (int)(weapon.getTerrainBlastRadius() * 4) : 20; // SI ON MANQUE DE RESSOURCES
             int floatingRemoved = blockGridModel.removeFloatingBlocks(centerGridX, centerGridY, 200);
             if (floatingRemoved > 0) {
-                System.out.println("[TERRAIN] " + floatingRemoved + " blocs flottants supprimés (rayon de recherche: 200)");
+                System.out.println("[TERRAIN] " + floatingRemoved + " blocs flottants supprimés (rayon de recherche: 200)"); 
             }
         }
         
@@ -295,7 +285,7 @@ public class ItemController {
      * applique les dégats de zone
      * @param projectile Le projectile qui a explosé
      */
-    private void applyExplosionDamageToWorms(Projectile projectile) {
+    private void applyExplosionDamageToWorms(ProjectileModel projectile) {
         if (allWorms == null) {
             return;
         }
@@ -334,7 +324,7 @@ public class ItemController {
                 
                 // appliquer les dégats
                 worm.dealDamage(actualDamage, shooter);
-                System.out.println("[EXPLOSION] " + worm.getName() + " prend " + actualDamage + " dégâts (distance: " + String.format("%.2f", distance) + "m)");
+                System.out.println(worm.getName() + " subit " + actualDamage + " dégats d'explosion (à " + String.format("%.2f", distance) + "m)");
                 
                 // tracker les stats (seulement si ce n'est pas le tireur)
                 if (gameManager != null && worm != shooter) {
@@ -354,7 +344,7 @@ public class ItemController {
                     Vec2 impactDirection = new Vec2(distanceX / distance, distanceY / distance);
                     float impactForce = (float) (knockbackMultiplier * (1.0 - (distance / blastRadiusInMeters)) * 10.0f);
                     worm.applyImpact(impactDirection, impactForce);
-                    System.out.println("[EXPLOSION] Impact appliqué avec force " + String.format("%.2f", impactForce));
+                    System.out.println("explosion appliquée avec une force de " + String.format("%.2f", impactForce));
                 }
             }
         }
@@ -363,7 +353,7 @@ public class ItemController {
     /**
      * retourne la liste des projectiles actifs
      */
-    public List<Projectile> getActiveProjectiles() {
+    public List<ProjectileModel> getActiveProjectiles() {
         return activeProjectiles;
     }
     
@@ -390,4 +380,164 @@ public class ItemController {
         System.err.println("Aucun fichier son trouvé pour l'arme: " + className);
         return null;
     }
+    
+    /**
+     *utilise la Foreuse pour casser un bloc au clic
+     * @param pixelX position X du clic en pixels
+     * @param pixelY position Y du clic en pixels
+     */
+    /**
+     * vérifie que le clic est à portée du personnage actif
+     * @param pixelX position X du clic en pixels
+     * @param pixelY position Y du clic en pixels
+     * @param activeWorm le worm actif
+     * @param maxRange portée maximale en mètres
+     * @return true si à portée, false sinon
+     */
+    private boolean isDrillRange(int pixelX, int pixelY, CharacterModel activeWorm, float maxRange) {
+        if (activeWorm == null || blockGridModel == null) return true;
+        
+        Vec2 wormPos = activeWorm.getBody().getPosition();
+        float wormX = wormPos.x;
+        float wormY = wormPos.y;
+        
+        // convertir les coordonnées du clic de pixels en mètres avec inversion Y
+        float ppm = CharacterModel.getPPM();
+        float blockGridHeight = blockGridModel.getHeight();
+        float clickX = pixelX / ppm;
+        float clickY = (blockGridHeight - pixelY) / ppm;
+        
+        // calculer la distance entre le worm et le clic
+        float dx = clickX - wormX;
+        float dy = clickY - wormY;
+        float distance = (float) Math.sqrt(dx * dx + dy * dy);
+        
+        if (distance > maxRange) {
+            System.out.println("drill: trop loin du personnage ! (distance: " + String.format("%.1f", distance) + "m, max: " + maxRange + "m)");
+            return false;
+        }
+        
+        return true;
+    }
+    
+    public boolean drillBreakBlocks(int pixelX, int pixelY, CharacterModel activeWorm) {
+        if (blockGridModel == null) return false;
+        
+        // vérifier que le clic est à portée du personnage
+        if (!isDrillRange(pixelX, pixelY, activeWorm, 1.5f)) {
+            return false;
+        }
+        
+        // convertir en coordonnées grille
+        int gridX = blockGridModel.pixelToGridX(pixelX);
+        int gridY = blockGridModel.pixelToGridY(pixelY);
+        
+        boolean anyBlockDestroyed = false;
+        
+        // casser les blocs dans une zone 2x2
+        for (int x = 0; x < 2; x++) {
+            for (int y = 0; y < 2; y++) {
+                int targetX = gridX + x;
+                int targetY = gridY + y;
+                
+                if (blockGridModel.destroyBlock(targetX, targetY)) {
+                    anyBlockDestroyed = true;
+                }
+            }
+        }
+        
+        if (anyBlockDestroyed) {
+            //supprimer les blocs flottants
+            blockGridModel.removeFloatingBlocks(gridX, gridY, 5);
+            
+            //recalculer la physique
+            if (blockGridModel.isDirty()) {
+                physicsWorld.recreateGroundFromBlockGrid(blockGridModel);
+                blockGridModel.clearDirty();
+                SoundPlayer.play("/sfx/drill-break.wav");
+            }
+        }
+        
+        return anyBlockDestroyed;
+    }
+    
+    /**
+     * utilise la Foreuse pour poser un bloc au clic
+     * @param pixelX position X du clic en pixels
+     * @param pixelY position Y du clic en pixels
+     * @param blockType type de bloc à poser
+     * @param activeWorm le worm actif
+     */
+    public boolean drillPlaceBlock(int pixelX, int pixelY, fr.upc.g5e4.model.BlockType blockType, CharacterModel activeWorm) {
+        if (blockGridModel == null) return false;
+        
+        // vérifier que le clic est à portée du personnage
+        if (!isDrillRange(pixelX, pixelY, activeWorm, 1.0f)) {
+            return false;
+        }
+        
+        // convertir en coordonnées grille
+        int gridX = blockGridModel.pixelToGridX(pixelX);
+        int gridY = blockGridModel.pixelToGridY(pixelY);
+        
+        // vérifier que la position est vide (AIR)
+        if (blockGridModel.getBlock(gridX, gridY) == fr.upc.g5e4.model.BlockType.AIR) {
+            blockGridModel.setBlock(gridX, gridY, blockType);
+            
+            // recalculer la physique
+            if (blockGridModel.isDirty()) {
+                physicsWorld.recreateGroundFromBlockGrid(blockGridModel);
+                blockGridModel.clearDirty();
+                SoundPlayer.play("/sfx/drill-place.wav");
+            }
+            return true;
+        }
+        
+        return false;
+    }
+
+    /**
+     * utilise le Teleporter pour se téléporter à une position
+     * @param worldPixelX position X du clic en pixels monde
+     * @param worldPixelY position Y du clic en pixels monde
+     * @param worm le worm à téléporter
+     */
+    public void teleportWorm(int worldPixelX, int worldPixelY, CharacterModel worm) {
+        if (worm == null || blockGridModel == null) return;
+        
+        // vérifier s'il y a un bloc solide à cette position
+        if (blockGridModel.isSolidAt(worldPixelX, worldPixelY)) {
+            return;
+        }
+        
+        // convertir pixels monde en mètres JBox2D avec inversion Y
+        float ppm = CharacterModel.getPPM();
+        float blockGridHeightPixels = blockGridModel.getHeight();
+        
+        float targetWorldX = worldPixelX / ppm;
+        float targetWorldY = (blockGridHeightPixels - worldPixelY) / ppm;
+        
+        // téléporter le worm
+        worm.getBody().setTransform(new org.jbox2d.common.Vec2(targetWorldX, targetWorldY), worm.getBody().getAngle());
+        
+        //permet de faire tomber le worm s'il est en l'air pendant la tp
+        FallIfInTheAir(worm);
+    }
+    
+    /**
+     * vérifie si le worm est en l'air et applique une force vers le bas pour faire tomber
+     * @param worm le worm à vérifier
+     */
+    private void FallIfInTheAir(CharacterModel worm) {
+        if (worm == null) return;
+        
+        // vérifier si le worm est en l'air
+        if (!worm.isOnGround()) {
+            // appliquer une petite impulsion vers le bas pour initier la chute
+            org.jbox2d.common.Vec2 downwardForce = new org.jbox2d.common.Vec2(0, -0.1f);
+            worm.getBody().applyLinearImpulse(downwardForce, worm.getBody().getWorldCenter());
+        }
+    }
 }
+
+

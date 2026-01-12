@@ -20,21 +20,19 @@ public class GameLoop{
     private final GameManager gameManager;
     private final GamePanel gamePanel;
 
-    //Freeze du jeu pour que le tir finisse avant que le joueur puisse agir
-    private int preRoundFreezeFrames = 0;          
-    private boolean hideHudTimer = false;
-    private static final int PRE_ROUND_SECONDS = 3;
-
     // 30s à 60 FPS
     private int roundTimeRemaining;
     private boolean timerPaused = false;
+    
+    //3s de preround
+    private int introFramesRemaining = 0;
+    private static final int INTRO_TOTAL_FRAMES = 180;
 
     /** Toute les update de Timer se font dans le Constructeur de GameLoop, pas besoin de creer de methode ici*/
 
     // Ajout : méthode publique pour reset le timer
     public void resetRoundTimer() {
-        this.roundTimeRemaining = 1800 + (PRE_ROUND_SECONDS * 60);
-        startPreRoundFreeze();
+        this.roundTimeRemaining = 1800;
     }
     
     public void pauseTimer() {
@@ -59,6 +57,9 @@ public class GameLoop{
         // pour pas que 30 passe par dessus le temps sauvegardee dans le cas de resumeGame()
         int initialSeconds = roundTimeRemaining / 60;
 
+        // Lance la musique du jeu
+        SoundPlayer.playBackgroundMusic("/sfx/game-music.wav");
+
         // Initialiser l'affichage du chrono dans la vue -> Ca sert a rien ? 
         //this.gamePanel.setRoundTimer(30);
 
@@ -66,28 +67,6 @@ public class GameLoop{
         this.timer = new Timer((int)(FIXHZ*1000),new ActionListener() {         
             @Override
             public void actionPerformed(ActionEvent e){
-                if (preRoundFreezeFrames > 0) {
-                    preRoundFreezeFrames--;
-
-                    // empêcher le glissement du worm actif pendant ce délai
-                    try {
-                        TeamModel currentTeam = gameManager.getCurrentTeam();
-                        int activeIndex = gameManager.getActiveWormIndex();
-                        if (currentTeam != null && activeIndex >= 0 && activeIndex < currentTeam.getWormNumberAtStart()) {
-                            CharacterModel activeWorm = currentTeam.getWorm(activeIndex);
-                            if (activeWorm != null && !activeWorm.isDead()) {
-                                activeWorm.stopHorizontalMovement();
-                            }
-                        }
-                    } catch (Exception ignore) {}
-
-                    // fin du pré-round -> on rend la main au joueur + on ré-affiche le timer
-                    if (preRoundFreezeFrames == 0) {
-                        hideHudTimer = false;
-                        if (gameManager != null) gameManager.setInputFrozen(false);
-                    }
-                }
-
                 if (timerPaused) {
                     try {       //Empeche le worm de glisser
                         TeamModel currentTeam = gameManager.getCurrentTeam();
@@ -103,6 +82,11 @@ public class GameLoop{
                     gamePanel.repaint();
                     return;
                 }
+
+                long now = System.nanoTime(); 
+                // calcul le temps entre le debut du gameloop et mtn (aux alentours de 60 fps selon les processeurs)
+                deltaTime = (now - lastTime) / 1_000_000_000.0; // les 100.. pour convertir nano en secondes
+                lastTime = now;
             
                 // met a jour la caméra
                 if (gameManager.getCameraController() != null) {
@@ -114,6 +98,9 @@ public class GameLoop{
                     gameManager.getItemController().updateProjectiles((float)deltaTime);
                 }
                 
+                // met a jour le HUD avec les données actuelles
+                gameManager.updateHUD();
+                
                 // met a jour la visibilité des décorations (disparaissent si sol détruit)
                 if (gameManager.getDecorationManager() != null) {
                     gameManager.getDecorationManager().updateVisibility();
@@ -123,12 +110,34 @@ public class GameLoop{
                 if (gameManager.getWindOverlay() != null) {
                     gameManager.getWindOverlay().update();
                 }
+
+                if (introFramesRemaining > 0) {
+                    introFramesRemaining -= (int)(deltaTime * 60);
+
+                    // Pré Round
+                    if (gameManager.getHudOverlay() != null) {
+                        gameManager.getHudOverlay().setPreRoundFrames(introFramesRemaining, INTRO_TOTAL_FRAMES);
+                    }
+
+                    // Round reprend
+                    if (introFramesRemaining <= 0) {
+                        introFramesRemaining = 0;
+                        if (gameManager != null) gameManager.setInputFrozen(false);
+
+                        if (gameManager.getHudOverlay() != null) {
+                            gameManager.getHudOverlay().clearPreRound();
+                        }
+                    }
+                    gameManager.getWorld().step((float)deltaTime, 8, 3);
+                    gamePanel.repaint();
+                    return;
+                }
                 
                 // met a jour le worm actif
                 if (gameManager.getActiveWormController() != null) {
                     gameManager.getActiveWormController().update();
                 }
-                
+
                 // stopper le mouvement horizontal des worms non-actifs pour qu'ils ne glissent pas
                 int activeWormIndex = gameManager.getActiveWormIndex();
                 TeamModel activeTeam = gameManager.getCurrentTeam();
@@ -167,8 +176,7 @@ public class GameLoop{
                         CharacterModel activeWorm = currentTeam.getWorm(activeIndex);
                         if (activeWorm == null || activeWorm.isDead()) {
                             gameManager.nextRound();
-                            roundTimeRemaining = 1800 + (PRE_ROUND_SECONDS * 60); 
-                            startPreRoundFreeze();
+                            roundTimeRemaining = 1800;
                         }
                     }
                 } catch (Exception ex) {
@@ -183,13 +191,11 @@ public class GameLoop{
 
                     if (roundTimeRemaining <= 0) {
                         gameManager.nextRound();
-                        roundTimeRemaining = 1800 + (PRE_ROUND_SECONDS * 60); 
-                        startPreRoundFreeze();
+                        roundTimeRemaining = 1800;
                     }
                 }
                 if (gameManager.getHudOverlay() != null) {
                     int hudFramesRemaining = Math.min(roundTimeRemaining, 1800);
-                    gameManager.getHudOverlay().setTimerHidden(hideHudTimer);
                     gameManager.getHudOverlay().setTimerFrames(hudFramesRemaining, 1800);
                 }
                 // Vérifier si une équipe a gagné
@@ -199,11 +205,6 @@ public class GameLoop{
                     System.out.println("Fin de partie! " + winner + " a gagné!");
                     // Le GameLauncher déclenchera l'écran de fin
                 }
-
-                long now = System.nanoTime(); 
-                // calcul le temps entre le debut du gameloop et mtn (aux alentours de 60 fps selon les processeurs)
-                deltaTime = (now - lastTime) / 1_000_000_000.0; // les 100.. pour convertir nano en secondes
-                lastTime = now;
 
                 // la physique se base desormais sur les 60 fps de la machine (donc peut varier selon la puissance de l'ordi)
                 // au lieu de FIXHZ qui est fixe et que la machine ne respecte parfois pas 
@@ -217,6 +218,8 @@ public class GameLoop{
     }
 
     public void timerStart(){
+        this.lastTime = System.nanoTime(); // reset le lastTime a maintenant pour eviter un gros deltaTime(de l'animation) qui mange 3s sur le timer
+        this.deltaTime = 0;
         this.timer.start();
     }
 
@@ -235,9 +238,13 @@ public class GameLoop{
     public double getDeltaTime(){
         return this.deltaTime;
     }
-    private void startPreRoundFreeze() {
-        preRoundFreezeFrames = PRE_ROUND_SECONDS * 60; 
-        hideHudTimer = true;
+
+    public void startPreRound() {
+        this.introFramesRemaining = INTRO_TOTAL_FRAMES; 
         if (gameManager != null) gameManager.setInputFrozen(true);
+    }
+
+    public boolean isPreRoundActive() {
+        return introFramesRemaining > 0;
     }
 }

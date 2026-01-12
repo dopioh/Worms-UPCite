@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class BlockHealthSystemTest {
 
     private BlockGridModel model;
-    private BlockHealthGrid healthGrid;
+    private BlockHealthGridModel healthGrid;
     private static final int TEST_WIDTH = 1200;
     private static final int TEST_HEIGHT = 720;
     private static final int TEST_WATER_LEVEL = 600;

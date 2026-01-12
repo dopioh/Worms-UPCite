@@ -11,6 +11,7 @@ import fr.upc.g5e4.model.Weapon;
 /**
  * classe pour afficher la trajectoire de tir
  * système de visée 360°
+ * @author Billy
  */
 public class TrajectoryView {
     private CharacterModel shooter;

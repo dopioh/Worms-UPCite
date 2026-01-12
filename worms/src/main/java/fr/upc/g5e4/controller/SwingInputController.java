@@ -18,7 +18,7 @@ import javax.swing.JFrame;
  * Pour le moment je reprends l'ancien model et elle herite de JPanel
  * Mais le mieux serait de la recréer de 0 et pas qu'elle herite de JPanel 
  * 
- * @author Raphaël pour plus d'info sur son fonctionnement
+ * @author Nassim et Raphaël pour plus d'info sur son fonctionnement
  */
 public class SwingInputController extends JPanel{
     private CharacterController personnageController;
@@ -218,10 +218,17 @@ public class SwingInputController extends JPanel{
     public void addControls() {    
         //System.out.println("addControls() called");
         
+        setFocusable(true);
+        requestFocusInWindow();
+        
+        // désactiver le menu contextuel pour permettre au clic droit d'être détecté
+        setComponentPopupMenu(null);
+        
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (gameManager != null && gameManager.isInputFrozen()) return;
+                //System.out.println("key pressed");
                 switch(e.getKeyCode()) {
                     // Personnage
                     case KeyEvent.VK_Q:
@@ -238,17 +245,15 @@ public class SwingInputController extends JPanel{
             
             @Override
             public void keyReleased(KeyEvent e) {
-                if (gameManager != null && gameManager.isInputFrozen()) return;
                 switch(e.getKeyCode()) {
-                    // Personnage
                     case KeyEvent.VK_Q:
-                        personnageController.deactivateLeft();
+                        if (personnageController != null) personnageController.deactivateLeft();
                         break;
                     case KeyEvent.VK_D:
-                        personnageController.deactivateRight();
+                        if (personnageController != null) personnageController.deactivateRight();
                         break;
                     case KeyEvent.VK_Z:
-                        personnageController.deactivateJump();
+                        if (personnageController != null) personnageController.deactivateJump();
                         break;
                 }
             }
@@ -261,10 +266,10 @@ public class SwingInputController extends JPanel{
                 if (inventoryOverlay != null && inventoryOverlay.isInventoryVisible()) return;// Si Iventory n'est pas ouvert
                 if (cameraController == null) return;
 
-                int notches = e.getWheelRotation();  
-                if (notches < 0) {
+                int molette = e.getWheelRotation();  
+                if (molette < 0) {
                     cameraController.zoomIn();
-                } else if (notches > 0) {
+                } else if (molette > 0) {
                     cameraController.zoomOut();
                 }
             }
@@ -279,19 +284,37 @@ public class SwingInputController extends JPanel{
                     return;
                 }
                 requestFocusInWindow();  // Récupérer le focus au clic
+                
+                // clic droit permet de placer un bloc avec la Foreuse
+                if (e.getButton() == MouseEvent.BUTTON3 || e.isPopupTrigger()) {
+                    handleDrillRightClick(e);
+                    e.consume();
+                    return;
+                }
+                
+                // Clic gauche normal
                 if (e.getButton() == MouseEvent.BUTTON1) {
-                    // Vérifier que l'inventaire n'est pas ouvert pour éviter le double tir
-                    if (inventoryOverlay != null && inventoryOverlay.isInventoryVisible()) {
-                        return;  // L'inventaire gère le tir
-                    }
                     mouseButtonPressed = true;
                     updateTrajectoryFromMouse(e.getX(), e.getY());
                 }
             }
-
+            
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (gameManager != null && gameManager.isInputFrozen()) return;
+                if (e.getButton() == MouseEvent.BUTTON3) {
+                    handleDrillRightClick(e);
+                }
+            }
+            
             @Override
             public void mouseReleased(MouseEvent e) {
                 if (gameManager != null && gameManager.isInputFrozen()) return;
+                if (e.getButton() == MouseEvent.BUTTON3) {
+                    handleDrillRightClick(e);
+                    e.consume();
+                    return;
+                }
                 if (e.getButton() == MouseEvent.BUTTON1 && mouseButtonPressed) {
                     mouseButtonPressed = false;
                     fireWeaponAtAngle(e.getX(), e.getY());
@@ -303,10 +326,7 @@ public class SwingInputController extends JPanel{
         addMouseMotionListener(new java.awt.event.MouseMotionListener() {
             @Override
             public void mouseMoved(MouseEvent e) {
-                if (gameManager != null && gameManager.isInputFrozen()) {
-                    disableTrajectory();
-                    return;
-                }
+                if (gameManager != null && gameManager.isInputFrozen()) return;
                 if (mouseButtonPressed) {
                     updateTrajectoryFromMouse(e.getX(), e.getY());
                 }
@@ -314,11 +334,7 @@ public class SwingInputController extends JPanel{
 
             @Override
             public void mouseDragged(MouseEvent e) {
-                if (gameManager != null && gameManager.isInputFrozen()) {
-                    disableTrajectory();
-                    return;
-                }
-
+                if (gameManager != null && gameManager.isInputFrozen()) return;
                 if (mouseButtonPressed) {
                     updateTrajectoryFromMouse(e.getX(), e.getY());
                 }
@@ -434,6 +450,54 @@ public class SwingInputController extends JPanel{
 
         // vérifier si un gadget est équipé au lieu d'une arme
         if (inventoryOverlay != null && inventoryOverlay.getEquippedGadget() != null) {
+            var equipped = inventoryOverlay.getEquippedGadget();
+            
+            // gestion spéciale pour la Foreuse (clic gauche = casser bloc)
+            if ("Drill".equals(equipped.name) && gameManager != null) {
+                // vérifier si ce gadget peut être utilisé ce tour
+                if (!equipped.canUseThisTurn()) {
+                    System.out.println("drill: limite de 10 utilisations par tour atteinte !");
+                    return;
+                }
+                
+                int[] worldCoords = screenToWorldCoordinates(x, y);
+                CharacterController activeWorm = gameManager.getActiveWormController();
+                CharacterModel wormModel = (activeWorm != null) ? activeWorm.getModel() : null;
+                
+                boolean success = gameManager.getItemController().drillBreakBlocks(worldCoords[0], worldCoords[1], wormModel);
+                
+                // enregistrer l'utilisation seulement si l'action a réussi
+                if (success) {
+                    equipped.registerUseThisTurn();
+                    inventoryOverlay.repaint();
+                }
+                return;
+            }
+            
+            // gestion spéciale pour le Teleporter a cause de l'inversion y
+            if ("Teleporter".equals(equipped.name) && gameManager != null) {
+                // vérifier si ce gadget peut être utilisé
+                if (!equipped.canUseThisTurn()) {
+                    System.out.println("[Gadget] Ce gadget ne peut plus être utilisé ce tour !");
+                    return;
+                }
+                
+                // vérifier le total d'utilisations de gadgets 
+                if (!inventoryOverlay.canUseAnotherGadget()) {
+                    System.out.println("[Gadget] Limite atteinte! Vous avez déjà utilisé 2 gadgets ce tour.");
+                    return;
+                }
+                
+                int[] worldCoords = screenToWorldCoordinates(x, y);
+                gameManager.getItemController().teleportWorm(worldCoords[0], worldCoords[1], personnageController.getModel());
+                
+                // enregistrer l'utilisation 
+                equipped.registerUseThisTurn();
+                inventoryOverlay.repaint();
+                return;
+            }
+            
+            // Pour les autres gadgets, utiliser la méthode standard
             inventoryOverlay.useEquippedGadget();
             return;
         }
@@ -506,5 +570,64 @@ public class SwingInputController extends JPanel{
         }
     }
     
-   
+    /**
+     * convertit les coordonnées écran en coordonnées du monde du jeu
+     * prend en compte le zoom et le décalage de la caméra
+     * @param screenX coordonnée X écran
+     * @param screenY coordonnée Y écran
+     * @return tableau [worldX, worldY] en pixels du terrain
+     */
+    private int[] screenToWorldCoordinates(int screenX, int screenY) {
+        // par défaut, on suppose pas de caméra/zoom
+        double zoomFactor = 1.0;
+        double cameraX = 0.0;
+        double cameraY = 0.0;
+        
+        if (cameraController != null) {
+            zoomFactor = cameraController.getCamera().getZoomFactor();
+            cameraX = cameraController.getCamera().getX();
+            cameraY = cameraController.getCamera().getY();
+        }
+        
+        // inverser le zoom d'abord comme partout
+        double xAfterZoom = screenX / zoomFactor;
+        double yAfterZoom = screenY / zoomFactor;
+        
+        // compenser le décalage de la caméra
+        int worldX = (int)(xAfterZoom + cameraX);
+        int worldY = (int)(yAfterZoom + cameraY);
+        
+        return new int[]{worldX, worldY};
+    }
+    
+    /**
+     * gère le clic droit pour placer un bloc avec la Drill 
+     */
+    public void handleDrillRightClick(java.awt.event.MouseEvent e) {
+        if (inventoryOverlay != null) {
+            var equipped = inventoryOverlay.getEquippedGadget();
+            if (equipped != null && gameManager != null) {
+                if ("Drill".equals(equipped.name)) {
+                    // vérifier si ce gadget peut être utilisé ce tour
+                    if (!equipped.canUseThisTurn()) {
+                        System.out.println("drill: limite de 10 utilisations par tour atteinte !");
+                        return;
+                    }
+                    
+                    int[] worldCoords = screenToWorldCoordinates(e.getX(), e.getY());
+                    CharacterController activeWorm = gameManager.getActiveWormController();
+                    CharacterModel wormModel = (activeWorm != null) ? activeWorm.getModel() : null;
+                    
+                    boolean success = gameManager.getItemController().drillPlaceBlock(worldCoords[0], worldCoords[1], 
+                        fr.upc.g5e4.model.BlockType.DIRT, wormModel);
+                    
+                    // enregistrer l'utilisation seulement si l'action a réussi
+                    if (success) {
+                        equipped.registerUseThisTurn();
+                        inventoryOverlay.repaint();
+                    }
+                }
+            }
+        }
+    }
 }
