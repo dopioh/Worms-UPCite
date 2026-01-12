@@ -313,22 +313,15 @@ public class HUDOverlay extends JComponent {
             int textW = fm.stringWidth(warningText);
             g2.drawString(warningText, (w - textW) / 2, hudY - 20);
         }
-
-        //fond HUD 
-        g2.setColor(new Color(255,255,255,235));
+        //Fond HUD
+       g2.setColor(new Color(255,255,255,235));
         g2.fillRoundRect(hudX, hudY, HUD_W, HUD_H, 18, 18);
         g2.setColor(new Color(0,0,0,120));
         g2.drawRoundRect(hudX, hudY, HUD_W, HUD_H, 18, 18); 
-
-        // Fond HUD
         g2.setColor(new Color(0, 0, 0, 70));
         g2.fillRoundRect(hudX + 3, hudY + 4, HUD_W, HUD_H, 18, 18);
-
         g2.setColor(new Color(20, 20, 20, 150));
         g2.fillRoundRect(hudX, hudY, HUD_W, HUD_H, 18, 18);
-
-        g2.setColor(new Color(255, 255, 255, 55));
-        g2.drawRoundRect(hudX, hudY, HUD_W, HUD_H, 18, 18);
 
         //PV et Shield
         double hp = currentHP;
