@@ -307,4 +307,10 @@ public class CharacterController {
             gameManager.markWeaponUsed(currentWeaponInventory.name);
         }
     }
+
+    public void releaseAllInputs() {
+        LeftKeyPressed = false;
+        RightKeyPressed = false;
+        SpaceKeyPressed = false;
+    }
 }

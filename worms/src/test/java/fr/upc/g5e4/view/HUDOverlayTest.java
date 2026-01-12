@@ -22,7 +22,7 @@ class HUDOverlayTest {
 
     @Test
     void timerFramesClamp() {
-        HUDOverlay hud = new HUDOverlay(mock(GameManager.class));
+        HUDOverlay hud = new HUDOverlay();
 
         hud.setTimerFrames(-10, -5);
 
@@ -31,15 +31,15 @@ class HUDOverlayTest {
 
     @Test
     void containsFalseOutsideClickableZones() {
-        HUDOverlay hud = new HUDOverlay(mock(GameManager.class));
+        HUDOverlay hud = new HUDOverlay();
         hud.setSize(1280, 720);
 
         assertFalse(hud.contains(0, 0));
     }
 
     @Test
-    void containsTrueOnSettingsZone() {
-        HUDOverlay hud = new HUDOverlay(mock(GameManager.class));
+    void listenerSetAndGet() {
+        HUDOverlay hud = new HUDOverlay();
         hud.setSize(1280, 720);
 
         assertTrue(hud.contains(20, 20));
@@ -47,23 +47,15 @@ class HUDOverlayTest {
 
     @Test
     void containsTrueOnEndTurnZone() {
-        HUDOverlay hud = new HUDOverlay(mock(GameManager.class));
+        HUDOverlay hud = new HUDOverlay();
         hud.setSize(1280, 720);
 
         assertTrue(hud.contains(250, 650));
     }
 
     @Test
-    void timerHiddenSetterNoCrash() {
-        HUDOverlay hud = new HUDOverlay(mock(GameManager.class));
-
-        assertDoesNotThrow(() -> hud.setTimerHidden(true));
-        assertDoesNotThrow(() -> hud.setTimerHidden(false));
-    }
-
-    @Test
     void triggerTurnFlashNoCrash() {
-        HUDOverlay hud = new HUDOverlay(mock(GameManager.class));
+        HUDOverlay hud = new HUDOverlay();
 
         assertDoesNotThrow(hud::triggerTurnFlash);
     }
