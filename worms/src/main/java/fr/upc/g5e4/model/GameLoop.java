@@ -192,6 +192,8 @@ public class GameLoop{
     }
 
     public void timerStart(){
+        this.lastTime = System.nanoTime(); // reset le lastTime a maintenant pour eviter un gros deltaTime(de l'animation) qui mange 3s sur le timer
+        this.deltaTime = 0;
         this.timer.start();
     }
 

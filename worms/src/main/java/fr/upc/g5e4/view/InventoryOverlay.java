@@ -431,6 +431,13 @@ public class InventoryOverlay extends JComponent {
         if(!visible){
             return;
         }
+
+        // Fond grisé uniquement pour la boutique
+        if (currentCategory == Category.BOUTIQUE) {
+            g2.setColor(new Color(0, 0, 0, 120)); // voile sombre
+            g2.fillRect(0, 0, getWidth(), getHeight());
+        }
+
         computeLayout();
 
 
