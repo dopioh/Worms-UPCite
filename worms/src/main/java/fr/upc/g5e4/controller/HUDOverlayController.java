@@ -59,6 +59,7 @@ public class HUDOverlayController implements HUDOverlay.Listener {
 
     @Override
     public void onBagClicked() {
+        if (gameManager != null && gameManager.isInputFrozen()) return;
         if (inventoryOverlay == null) return;
         
          boolean opening = !inventoryOverlay.isInventoryVisible();

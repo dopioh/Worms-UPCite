@@ -227,6 +227,7 @@ public class SwingInputController extends JPanel{
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
+                if (gameManager != null && gameManager.isInputFrozen()) return;
                 //System.out.println("key pressed");
                 switch(e.getKeyCode()) {
                     // Personnage
@@ -244,17 +245,15 @@ public class SwingInputController extends JPanel{
             
             @Override
             public void keyReleased(KeyEvent e) {
-                if (gameManager != null && gameManager.isInputFrozen()) return;
                 switch(e.getKeyCode()) {
-                    // Personnage
                     case KeyEvent.VK_Q:
-                        personnageController.deactivateLeft();
+                        if (personnageController != null) personnageController.deactivateLeft();
                         break;
                     case KeyEvent.VK_D:
-                        personnageController.deactivateRight();
+                        if (personnageController != null) personnageController.deactivateRight();
                         break;
                     case KeyEvent.VK_Z:
-                        personnageController.deactivateJump();
+                        if (personnageController != null) personnageController.deactivateJump();
                         break;
                 }
             }
@@ -267,10 +266,10 @@ public class SwingInputController extends JPanel{
                 if (inventoryOverlay != null && inventoryOverlay.isInventoryVisible()) return;// Si Iventory n'est pas ouvert
                 if (cameraController == null) return;
 
-                int notches = e.getWheelRotation();  
-                if (notches < 0) {
+                int molette = e.getWheelRotation();  
+                if (molette < 0) {
                     cameraController.zoomIn();
-                } else if (notches > 0) {
+                } else if (molette > 0) {
                     cameraController.zoomOut();
                 }
             }
@@ -302,6 +301,7 @@ public class SwingInputController extends JPanel{
             
             @Override
             public void mouseClicked(MouseEvent e) {
+                if (gameManager != null && gameManager.isInputFrozen()) return;
                 if (e.getButton() == MouseEvent.BUTTON3) {
                     handleDrillRightClick(e);
                 }
@@ -309,6 +309,7 @@ public class SwingInputController extends JPanel{
             
             @Override
             public void mouseReleased(MouseEvent e) {
+                if (gameManager != null && gameManager.isInputFrozen()) return;
                 if (e.getButton() == MouseEvent.BUTTON3) {
                     handleDrillRightClick(e);
                     e.consume();
@@ -325,6 +326,7 @@ public class SwingInputController extends JPanel{
         addMouseMotionListener(new java.awt.event.MouseMotionListener() {
             @Override
             public void mouseMoved(MouseEvent e) {
+                if (gameManager != null && gameManager.isInputFrozen()) return;
                 if (mouseButtonPressed) {
                     updateTrajectoryFromMouse(e.getX(), e.getY());
                 }
@@ -332,6 +334,7 @@ public class SwingInputController extends JPanel{
 
             @Override
             public void mouseDragged(MouseEvent e) {
+                if (gameManager != null && gameManager.isInputFrozen()) return;
                 if (mouseButtonPressed) {
                     updateTrajectoryFromMouse(e.getX(), e.getY());
                 }

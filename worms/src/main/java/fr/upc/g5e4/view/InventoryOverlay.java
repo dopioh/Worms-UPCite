@@ -198,11 +198,13 @@ public class InventoryOverlay extends JComponent {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
+                if (gameManager != null && gameManager.isInputFrozen()) return;
                 handleClick(e.getX(), e.getY());
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
+                if (gameManager != null && gameManager.isInputFrozen()) return;
                 if (ReleaseSecure) {
                     ReleaseSecure = false;
                     return;
@@ -1015,5 +1017,14 @@ public class InventoryOverlay extends JComponent {
         selectedShopIndex = -1;
         hoveredIndex = -1;
         hoveredTab = null;
+    }
+
+    /**
+    * Définit le PlayerDataController partagé avec le contrôleur
+    * Cela permet de synchroniser l'état des skins débloqués
+    * @param controller le PlayerDataController à utiliser
+    */
+    public void setPlayerDataController(PlayerDataController controller) {
+        this.playerDataController = controller;
     }
 }

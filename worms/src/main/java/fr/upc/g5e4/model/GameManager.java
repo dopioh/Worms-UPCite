@@ -100,6 +100,9 @@ public class GameManager {
         return inputFrozen;
     }
 
+    public void setInputFrozen(boolean frozen) {
+        this.inputFrozen = frozen;
+    }
     
     private InventoryOverlay inventoryOverlay;
     private HUDOverlay hudOverlay;
@@ -796,6 +799,11 @@ public class GameManager {
         }
         //switch worm dans cette équipe
         switchToNextWorm(currentTeam);
+        if (gameLoop != null) {
+            gameLoop.startPreRound();
+        } else {
+            setInputFrozen(true); 
+        }
         System.out.println("Round " + roundNumber + " - Equipe active :  Team " + (currentTeamIndex + 1));
         //mettre à jour l'inventaire affiché dans l'overlay
         if (inventoryOverlay != null) {

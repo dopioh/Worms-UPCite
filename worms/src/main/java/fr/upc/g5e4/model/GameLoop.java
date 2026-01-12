@@ -23,6 +23,10 @@ public class GameLoop{
     // 30s à 60 FPS
     private int roundTimeRemaining;
     private boolean timerPaused = false;
+    
+    //3s de preround
+    private int introFramesRemaining = 0;
+    private static final int INTRO_TOTAL_FRAMES = 180;
 
     /** Toute les update de Timer se font dans le Constructeur de GameLoop, pas besoin de creer de methode ici*/
 
@@ -78,6 +82,11 @@ public class GameLoop{
                     gamePanel.repaint();
                     return;
                 }
+
+                long now = System.nanoTime(); 
+                // calcul le temps entre le debut du gameloop et mtn (aux alentours de 60 fps selon les processeurs)
+                deltaTime = (now - lastTime) / 1_000_000_000.0; // les 100.. pour convertir nano en secondes
+                lastTime = now;
             
                 // met a jour la caméra
                 if (gameManager.getCameraController() != null) {
@@ -101,12 +110,34 @@ public class GameLoop{
                 if (gameManager.getWindOverlay() != null) {
                     gameManager.getWindOverlay().update();
                 }
+
+                if (introFramesRemaining > 0) {
+                    introFramesRemaining -= (int)(deltaTime * 60);
+
+                    // Pré Round
+                    if (gameManager.getHudOverlay() != null) {
+                        gameManager.getHudOverlay().setPreRoundFrames(introFramesRemaining, INTRO_TOTAL_FRAMES);
+                    }
+
+                    // Round reprend
+                    if (introFramesRemaining <= 0) {
+                        introFramesRemaining = 0;
+                        if (gameManager != null) gameManager.setInputFrozen(false);
+
+                        if (gameManager.getHudOverlay() != null) {
+                            gameManager.getHudOverlay().clearPreRound();
+                        }
+                    }
+                    gameManager.getWorld().step((float)deltaTime, 8, 3);
+                    gamePanel.repaint();
+                    return;
+                }
                 
                 // met a jour le worm actif
                 if (gameManager.getActiveWormController() != null) {
                     gameManager.getActiveWormController().update();
                 }
-                
+
                 // stopper le mouvement horizontal des worms non-actifs pour qu'ils ne glissent pas
                 int activeWormIndex = gameManager.getActiveWormIndex();
                 TeamModel activeTeam = gameManager.getCurrentTeam();
@@ -175,11 +206,6 @@ public class GameLoop{
                     // Le GameLauncher déclenchera l'écran de fin
                 }
 
-                long now = System.nanoTime(); 
-                // calcul le temps entre le debut du gameloop et mtn (aux alentours de 60 fps selon les processeurs)
-                deltaTime = (now - lastTime) / 1_000_000_000.0; // les 100.. pour convertir nano en secondes
-                lastTime = now;
-
                 // la physique se base desormais sur les 60 fps de la machine (donc peut varier selon la puissance de l'ordi)
                 // au lieu de FIXHZ qui est fixe et que la machine ne respecte parfois pas 
                 // donc ca fait un decalage entre la gameloop qui en fait qu'a sa tete et la physique qui elle respecte absolument 60 fps
@@ -211,5 +237,14 @@ public class GameLoop{
 
     public double getDeltaTime(){
         return this.deltaTime;
+    }
+
+    public void startPreRound() {
+        this.introFramesRemaining = INTRO_TOTAL_FRAMES; 
+        if (gameManager != null) gameManager.setInputFrozen(true);
+    }
+
+    public boolean isPreRoundActive() {
+        return introFramesRemaining > 0;
     }
 }

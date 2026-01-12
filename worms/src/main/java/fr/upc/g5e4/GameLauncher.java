@@ -298,6 +298,7 @@ public class GameLauncher{
         //Mise en place des Controllers
         InventoryOverlayController inventoryController = new InventoryOverlayController(gameManager,inventoryOverlay,gameManager.getImputController(),this.playerDataController,wormRaceController,wormGuessController,wormJackController);
         inventoryOverlay.setListener(inventoryController);
+        inventoryOverlay.setPlayerDataController(this.playerDataController);
         HUDOverlayController hudController = new HUDOverlayController(gameManager, hudOverlay, inventoryOverlay, pauseOverlay, gameManager.getCameraController());
         hudOverlay.setListener(hudController);
         gameManager.setHudController(hudController); 

@@ -245,20 +245,29 @@ public class HUDOverlay extends JComponent {
         int timerX = hudX;
         int timerY = hudY - timerH - 10;
 
-        float t = timerRemainingFrames / (float) timerTotalFrames;
+        boolean showPre = preRoundActive;
+
+        float t;
+        if (showPre) {
+            // barre bleue 
+            t = 1f - (preRoundRemainingFrames / (float) preRoundTotalFrames);
+        } else {
+            // barre orange
+            t = timerRemainingFrames / (float) timerTotalFrames;
+        }
         t = Math.max(0f, Math.min(1f, t));
 
         g2.setColor(new Color(0, 0, 0, 140));
         g2.fillRoundRect(timerX, timerY, timerW, timerH, 12, 12);
 
-        g2.setColor(new Color(255, 120, 140, 220));
+        g2.setColor(showPre ? new Color(120, 170, 255, 220): new Color(255, 120, 140, 220));
         g2.fillRoundRect(timerX, timerY, (int) (timerW * t), timerH, 12, 12);
 
         // label en secondes
         g2.setColor(Color.WHITE);
         g2.setFont(g2.getFont().deriveFont(Font.BOLD, 12f));
-        int secondsLeft = (int) Math.ceil(timerRemainingFrames / 60.0);
-        g2.drawString(secondsLeft + "s", timerX + timerW + 10, timerY + 12);
+        int secondsLeft = showPre? (int) Math.ceil(preRoundRemainingFrames / 60.0): (int) Math.ceil(timerRemainingFrames / 60.0);
+        g2.drawString(showPre?secondsLeft + "":secondsLeft + "s", timerX + timerW + 10, timerY + 12);
 
         // Taille des fleches
         int arrowSize = 34;
@@ -601,5 +610,22 @@ public class HUDOverlay extends JComponent {
         if (rightArrowBounds != null && rightArrowBounds.contains(p)) return Hover.CAM_RIGHT;
         return Hover.NONE;
     }
+
+    private boolean preRoundActive = false;
+    private int preRoundRemainingFrames = 0;
+    private int preRoundTotalFrames = 1;
+
+    public void setPreRoundFrames(int remaining, int total) {
+        this.preRoundActive = true;
+        this.preRoundRemainingFrames = Math.max(0, remaining);
+        this.preRoundTotalFrames = Math.max(1, total);
+        repaint();
+    }
+
+    public void clearPreRound() {
+        this.preRoundActive = false;
+        repaint();
+    }
+
 }   
 
