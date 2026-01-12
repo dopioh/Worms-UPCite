@@ -11,6 +11,7 @@ import java.util.List;
 import fr.upc.g5e4.model.InventoryModel.InventoryJson;
 import fr.upc.g5e4.model.GameManager;
 import fr.upc.g5e4.controller.PlayerDataController;
+import fr.upc.g5e4.controller.SwingInputController;
 import fr.upc.g5e4.util.ImageCache;
 
 /**
@@ -131,7 +132,8 @@ public class InventoryOverlay extends JComponent {
         loadImage("PotionJump", "/gadgets/potion_jump.png");
         loadImage("PotionHeal", "/gadgets/potion_heal.png");
         loadImage("PotionShield", "/gadgets/potion_shield.png");
-        //loadImage("Bumper", "/gadgets/bumper.png");
+        loadImage("Teleporter", "/gadgets/teleporter-sprite.png");
+        loadImage("Drill", "/gadgets/drill-sprite.png");
     }
 
     private void loadImage(String name, String path) {
@@ -157,7 +159,8 @@ public class InventoryOverlay extends JComponent {
         itemDescriptions.put("potionjump", "Augmente le saut +50% pour 20s");
         itemDescriptions.put("potionheal", "Restaure 50 HP");
         itemDescriptions.put("potionshield", "Ajoute 25 de shield");
-        itemDescriptions.put("bumper", "Rebondis");
+        itemDescriptions.put("drill", "casse/pose des blocs avec clic gauche/droit");
+        itemDescriptions.put("teleporter", "teleporte toi ou tu veux dans la map");
     }
 
     /**
@@ -195,16 +198,19 @@ public class InventoryOverlay extends JComponent {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
+                if (gameManager != null && gameManager.isInputFrozen()) return;
                 handleClick(e.getX(), e.getY());
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
+                if (gameManager != null && gameManager.isInputFrozen()) return;
                 if (ReleaseSecure) {
                     ReleaseSecure = false;
                     return;
                 }
                 // Quand inventaire fermé, passer l'événement au controller
+
                 if (!visible && e.getButton() == MouseEvent.BUTTON1) {
                     if (listener != null) listener.onFireReleasedOutside(e.getX(), e.getY());
                 }
@@ -264,6 +270,26 @@ public class InventoryOverlay extends JComponent {
         this.gameManager = gameManager;
     }
 
+    /**
+     * FireListener basé sur le SwingInputController (tir vers la souris)
+     */
+    public void setFireListener(SwingInputController inputController){
+        this.fireListener = new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON1) {
+                    inputController.updateTrajectoryFromMouse(e.getX(), e.getY());
+                }
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON1) {
+                    inputController.fireWeaponAtAngle(e.getX(), e.getY());
+                }
+            }
+        };
+    }
     /**
      * définit un rappel quand un gadget est utilisé
      */
@@ -340,6 +366,24 @@ public class InventoryOverlay extends JComponent {
             if (currentCategory == Category.BOUTIQUE) {
                 for (int i = 0; i < buyButtons.size(); i++) {
                     if (buyButtons.get(i).contains(x, y)) {
+                        ShopItem shopItem = shopItems.get(i);
+
+                        boolean isMinigame = "WORMRACE".equalsIgnoreCase(shopItem.name) || "WORMJACK".equalsIgnoreCase(shopItem.name) || "WORMGUESS".equalsIgnoreCase(shopItem.name);
+
+                        boolean isSkin = shopItem.name.startsWith("Worm") && !isMinigame;
+
+                        boolean isUnlocked = false;
+                        if (isSkin && playerDataController != null && playerDataController.getPlayerData() != null) {
+                            isUnlocked = playerDataController.getPlayerData().isSkinUnlocked(shopItem.name);
+                        }
+
+                        int currentMoney = getTeamMoney();
+                        boolean canAfford = currentMoney >= shopItem.price;
+
+                        if (isUnlocked || !canAfford) {
+                            return;
+                        }
+
                         selectedShopIndex = i;
                         if (listener != null) listener.onBuyShopItem(i);
                         return;
@@ -352,6 +396,18 @@ public class InventoryOverlay extends JComponent {
                 Rectangle r = itemBounds.get(i);
                 if (r.contains(x, y)) {
                     if (currentCategory != Category.BOUTIQUE) {
+                        InventoryJson item = lastFiltered.get(i);
+                        
+                        // ça bloque les clic sur les gadget ou arme utilisé
+                        if ((currentCategory == Category.ARMES && equippedItem != null && 
+                            !"GADGET".equals(equippedItem.objectType) && 
+                            !item.name.equals(equippedItem.name) &&
+                            equippedItem.useThisTurn > 0) ||
+                            (currentCategory == Category.GADGET && countUsedGadgets() >= 2 &&
+                            !item.name.equals(equippedItem != null ? equippedItem.name : null))) {
+                            return; 
+                        }
+                        
                         selectedIndex = i;
                         InventoryJson selected = lastFiltered.get(i);
                         ReleaseSecure = true;
@@ -377,6 +433,13 @@ public class InventoryOverlay extends JComponent {
         if(!visible){
             return;
         }
+
+        // Fond grisé uniquement pour la boutique
+        if (currentCategory == Category.BOUTIQUE) {
+            g2.setColor(new Color(0, 0, 0, 120)); // voile sombre
+            g2.fillRect(0, 0, getWidth(), getHeight());
+        }
+
         computeLayout();
 
 
@@ -413,10 +476,7 @@ public class InventoryOverlay extends JComponent {
 
         // affiche l'argent de l'équipe active dans la boutique
         if (currentCategory == Category.BOUTIQUE) {
-            int money = 0;
-            if (gameManager != null && gameManager.getCurrentTeam() != null) {
-                money = gameManager.getCurrentTeam().getMoney();
-            }
+            int money = getTeamMoney();
             g2.setFont(g2.getFont().deriveFont(Font.BOLD, 14f));
             g2.setColor(new Color(255, 215, 0));
             String moneyText = "Argent: " + money + " $";
@@ -517,13 +577,13 @@ public class InventoryOverlay extends JComponent {
                                  !shopItem.name.equals("WORMRACE") && 
                                  !shopItem.name.equals("WORMJACK") && 
                                  !shopItem.name.equals("WORMGUESS");
-                boolean isUnlocked = isSkin && playerDataController.getPlayerData().isSkinUnlocked(shopItem.name);
-                
-                // check si l'équipe a assez d'argent
-                int currentMoney = 0;
-                if (gameManager != null && gameManager.getCurrentTeam() != null) {
-                    currentMoney = gameManager.getCurrentTeam().getMoney();
+                boolean isUnlocked = false;
+                if (isSkin && playerDataController != null && playerDataController.getPlayerData() != null) {
+                    isUnlocked = playerDataController.getPlayerData().isSkinUnlocked(shopItem.name);
                 }
+
+                // check si l'équipe a assez d'argent
+                int currentMoney = getTeamMoney();
                 boolean canAfford = currentMoney >= shopItem.price;
                 
                 if (isUnlocked) {
@@ -589,6 +649,16 @@ public class InventoryOverlay extends JComponent {
             // fond sélectionné
             if (i == selectedIndex) {
                 g2.setColor(new Color(80, 80, 120));
+            } else if (currentCategory == Category.ARMES && equippedItem != null && 
+                       !"GADGET".equals(equippedItem.objectType) && 
+                       !item.name.equals(equippedItem.name) &&
+                       equippedItem.useThisTurn > 0) {
+                //griser les autres armes si une arme a été utilisé
+                g2.setColor(new Color(40, 40, 40));
+            } else if (currentCategory == Category.GADGET && countUsedGadgets() >= 2 &&
+                       !item.name.equals(equippedItem != null ? equippedItem.name : null)) {
+                // griser les gadgets si au plus 2 gadgets ont déjà été utilisés 
+                g2.setColor(new Color(40, 40, 40));
             } else {
                 g2.setColor(new Color(60, 60, 60));
             }
@@ -605,12 +675,39 @@ public class InventoryOverlay extends JComponent {
 
             BufferedImage img = itemImages.get(item.name.toLowerCase());
             if (img != null) {
-                g2.drawImage(img, imgX, imgY, imgSize, imgSize, null);
+                // vérifier si c'est une arme grisée OU un gadget grisé
+                boolean isGrayedOut = (currentCategory == Category.ARMES && equippedItem != null && 
+                                    !"GADGET".equals(equippedItem.objectType) && 
+                                    !item.name.equals(equippedItem.name) &&
+                                    equippedItem.useThisTurn > 0) ||
+                                    (currentCategory == Category.GADGET && countUsedGadgets() >= 2 &&
+                                    !item.name.equals(equippedItem != null ? equippedItem.name : null));
+                
+                if (isGrayedOut) {
+                    // image avec transparence
+                    g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.4f));
+                    g2.drawImage(img, imgX, imgY, imgSize, imgSize, null);
+                    g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
+                } else {
+                    g2.drawImage(img, imgX, imgY, imgSize, imgSize, null);
+                }
             }
 
             // nom arme
             g2.setFont(g2.getFont().deriveFont(10f));
-            g2.setColor(Color.WHITE);
+            
+            // griser le texte aussi si l'arme a été utilisée ou gadget grisé
+            if ((currentCategory == Category.ARMES && equippedItem != null && 
+                !"GADGET".equals(equippedItem.objectType) && 
+                !item.name.equals(equippedItem.name) &&
+                equippedItem.useThisTurn > 0) ||
+                (currentCategory == Category.GADGET && countUsedGadgets() >= 2 &&
+                !item.name.equals(equippedItem != null ? equippedItem.name : null))) {
+                g2.setColor(new Color(120, 120, 120));
+            } else {
+                g2.setColor(Color.WHITE);
+            }
+            
             FontMetrics fm = g2.getFontMetrics();
             int textW = fm.stringWidth(item.name);
 
@@ -805,6 +902,28 @@ public class InventoryOverlay extends JComponent {
         return equippedItem;
     }
 
+    /**
+     * compte le nombre total d'utilisations de gadgets ce tour 
+     */
+    private int countUsedGadgets() {
+        int count = 0;
+        if (inventory != null) {
+            for (InventoryJson item : inventory) {
+                if (item != null && "GADGET".equalsIgnoreCase(item.objectType)) {
+                    count += item.useThisTurn;  
+                }
+            }
+        }
+        return count;
+    }
+
+    /**
+     * vérifie si on peut encore utiliser un gadget (max 2 par tour)
+     */
+    public boolean canUseAnotherGadget() {
+        return countUsedGadgets() < 2;
+    }
+
     private void resyncEquippedFromInventory() {
         if (equippedItemKey == null || inventory == null) return;
 
@@ -869,6 +988,16 @@ public class InventoryOverlay extends JComponent {
         return inventory;
     }
 
+    /**
+     * recupère l'argent de l'équipe actuelle
+     */
+    int getTeamMoney() {
+        if (gameManager != null && gameManager.getCurrentTeam() != null) {
+            return gameManager.getCurrentTeam().getMoney();
+        }
+        return 0;
+    }
+
     public void setEquippedItem(InventoryJson item) {
         if (item == null || item.name == null) {
             clearEquipped();
@@ -877,5 +1006,25 @@ public class InventoryOverlay extends JComponent {
         this.equippedItemKey = item.name.toLowerCase();
         this.equippedItem = item;
         repaint();
+    }
+
+    /** Garde l'inventaire ouvert sur l'onglet Armes quand il est ouvert
+     * Appelée par le controller
+     */
+    public void openOnArmes() {
+        currentCategory = Category.ARMES;
+        selectedIndex = -1;
+        selectedShopIndex = -1;
+        hoveredIndex = -1;
+        hoveredTab = null;
+    }
+
+    /**
+    * Définit le PlayerDataController partagé avec le contrôleur
+    * Cela permet de synchroniser l'état des skins débloqués
+    * @param controller le PlayerDataController à utiliser
+    */
+    public void setPlayerDataController(PlayerDataController controller) {
+        this.playerDataController = controller;
     }
 }

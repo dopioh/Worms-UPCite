@@ -141,6 +141,10 @@ public class GameLauncher{
         if (gameLoop != null) {
             gameLoop.timerStop();
         }
+        
+        // Arrêter la musique du jeu et effacer son chemin
+        SoundPlayer.clearBackgroundMusic();
+        
         cardLayout.show(cardPanel, MENU_CARD);
         mainMenuView.requestFocusInWindow();
     }
@@ -277,7 +281,7 @@ public class GameLauncher{
         windOverlay.setBounds(0, 0, width, height);
         gameManager.setWindOverlay(windOverlay);
         //HUD
-        this.hudOverlay = new HUDOverlay(gameManager);
+        this.hudOverlay = new HUDOverlay();
         this.hudOverlay.setBounds(0, 0, width, height);
         this.hudOverlay.setInventoryOverlay(inventoryOverlay);
         //Menu parametres 
@@ -294,8 +298,11 @@ public class GameLauncher{
         //Mise en place des Controllers
         InventoryOverlayController inventoryController = new InventoryOverlayController(gameManager,inventoryOverlay,gameManager.getImputController(),this.playerDataController,wormRaceController,wormGuessController,wormJackController);
         inventoryOverlay.setListener(inventoryController);
-        HUDOverlayController hudController = new HUDOverlayController(gameManager,inventoryOverlay,pauseOverlay,gameManager.getCameraController());
+        inventoryOverlay.setPlayerDataController(this.playerDataController);
+        HUDOverlayController hudController = new HUDOverlayController(gameManager, hudOverlay, inventoryOverlay, pauseOverlay, gameManager.getCameraController());
         hudOverlay.setListener(hudController);
+        gameManager.setHudController(hudController); 
+        hudController.updateHUDData(); // initialiser les données du HUD
         PauseOverlayController pauseController = new PauseOverlayController(gameManager,pauseOverlay,helpOverlay,this::toggleFullScreen,this::showMenu);
         pauseOverlay.setListener(pauseController);
         

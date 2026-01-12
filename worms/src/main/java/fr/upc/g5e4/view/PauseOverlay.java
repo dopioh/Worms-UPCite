@@ -1,5 +1,6 @@
 package fr.upc.g5e4.view;
 
+import fr.upc.g5e4.model.SoundPlayer;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -43,6 +44,8 @@ public class PauseOverlay extends JComponent {
     private Rectangle toggleSoundBounds;
     private Rectangle toggleTeamKillBounds;
 
+    private Rectangle scrollAreaBounds;
+
     private Rectangle btnHelpBounds;
     private Rectangle btnSaveBounds;
     private Rectangle btnQuitBounds;
@@ -65,6 +68,8 @@ public class PauseOverlay extends JComponent {
     private static final int SCROLL_STEP = 24;
 
     public PauseOverlay() {
+        setFocusable(false);
+        setRequestFocusEnabled(false);
         setOpaque(false);
 
         MouseAdapter mouse = new MouseAdapter(){
@@ -122,48 +127,52 @@ public class PauseOverlay extends JComponent {
 
                 if (btnQuitBounds != null && btnQuitBounds.contains(p)) {
                     if (listener != null) listener.onQuitClicked();
-                }
-
-                if (flyActionBounds != null && flyActionBounds.contains(p)) {
-                    if (listener != null) listener.onFlyModePressed();
-                    startFlyAnimation();
-                    repaint();
                     return;
                 }
 
-                if (toggleBlueprintBounds != null && toggleBlueprintBounds.contains(p)) {
-                    blueprintOn = !blueprintOn;
-                    if (listener != null) listener.onToggleBlueprint(blueprintOn);
-                    repaint();
-                    return;
-                }
+                boolean inScrollArea = (scrollAreaBounds != null && scrollAreaBounds.contains(p));
+                if (inScrollArea) {
+                    if (flyActionBounds != null && flyActionBounds.contains(p)) {
+                        if (listener != null) listener.onFlyModePressed();
+                        startFlyAnimation();
+                        repaint();
+                        return;
+                    }
 
-                if (toggleVentBounds != null && toggleVentBounds.contains(p)) {
-                    ventOn = !ventOn;
-                    if (listener != null) listener.onToggleVent(ventOn);
-                    repaint();
-                    return;
-                }
+                    if (toggleBlueprintBounds != null && toggleBlueprintBounds.contains(p)) {
+                        blueprintOn = !blueprintOn;
+                        if (listener != null) listener.onToggleBlueprint(blueprintOn);
+                        repaint();
+                        return;
+                    }
 
-                if (toggleFullScreenBounds != null && toggleFullScreenBounds.contains(p)) {
-                    fullScreenOn = !fullScreenOn;
-                    if (listener != null) listener.onToggleFullScreen(fullScreenOn);
-                    repaint();
-                    return;
-                }
+                    if (toggleVentBounds != null && toggleVentBounds.contains(p)) {
+                        ventOn = !ventOn;
+                        if (listener != null) listener.onToggleVent(ventOn);
+                        repaint();
+                        return;
+                    }
 
-                if (toggleSoundBounds != null && toggleSoundBounds.contains(p)) {
-                    soundOn = !soundOn;
-                    if (listener != null) listener.onToggleSound(soundOn);
-                    repaint();
-                    return;
-                }
+                    if (toggleFullScreenBounds != null && toggleFullScreenBounds.contains(p)) {
+                        fullScreenOn = !fullScreenOn;
+                        if (listener != null) listener.onToggleFullScreen(fullScreenOn);
+                        repaint();
+                        return;
+                    }
 
-                if (toggleTeamKillBounds != null && toggleTeamKillBounds.contains(p)) {
-                    teamKillOn = !teamKillOn;
-                    if (listener != null) listener.onToggleTeamKill(teamKillOn);
-                    repaint();
-                    return;
+                    if (toggleSoundBounds != null && toggleSoundBounds.contains(p)) {
+                        soundOn = !soundOn;
+                        if (listener != null) listener.onToggleSound(soundOn);
+                        repaint();
+                        return;
+                    }
+
+                    if (toggleTeamKillBounds != null && toggleTeamKillBounds.contains(p)) {
+                        teamKillOn = !teamKillOn;
+                        if (listener != null) listener.onToggleTeamKill(teamKillOn);
+                        repaint();
+                        return;
+                    }
                 }
             }
         };
@@ -308,6 +317,8 @@ public class PauseOverlay extends JComponent {
 
         maxScrollY = Math.max(0, virtualContentHeight - contentH);
         scrollY = clamp(scrollY, 0, maxScrollY);
+
+        scrollAreaBounds = new Rectangle(contentX, contentY, contentW, contentH);
 
         // Clip + translate uniquement sur la zone scrollable
         Shape oldClip = g2.getClip();

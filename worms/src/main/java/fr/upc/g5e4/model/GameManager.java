@@ -100,16 +100,23 @@ public class GameManager {
         return inputFrozen;
     }
 
-    /**
-     * Active ou désactive les entrées utilisateur
-     * @param frozen true pour activer,false sinon
-     */
-    public void setInputFrozen(boolean freeze) {
-        this.inputFrozen = freeze;
+    public void setInputFrozen(boolean frozen) {
+        this.inputFrozen = frozen;
+        if (frozen) {
+            if (activeWormController != null) {
+                activeWormController.releaseAllInputs();
+                CharacterModel m = activeWormController.getModel();
+                if (m != null && !m.isDead()) {
+                    m.stopHorizontalMovement();
+                }
+            }
+        }
+
     }
     
     private InventoryOverlay inventoryOverlay;
     private HUDOverlay hudOverlay;
+    private fr.upc.g5e4.controller.HUDOverlayController hudController;
     private fr.upc.g5e4.view.WindOverlay windOverlay;
     //Vent toggle
     private boolean windEnabled = true;
@@ -553,6 +560,19 @@ public class GameManager {
         this.hudOverlay = hud;
     }
 
+    public void setHudController(fr.upc.g5e4.controller.HUDOverlayController controller) {
+        this.hudController = controller;
+    }
+
+    /**
+     * met a jour les données affichées dans le HUD
+     */
+    public void updateHUD() {
+        if (hudController != null) {
+            hudController.updateHUDData();
+        }
+    }
+
     public HUDOverlay getHudOverlay() {
         return hudOverlay;
     }
@@ -656,6 +676,13 @@ public class GameManager {
             CharacterModel worm = currentTeamModel.getWorm(teamCursor[currentTeamIndex]);
             
             if (worm != null && !worm.isDead()) {
+                if(activeWormController != null) {
+                    activeWormController.releaseAllInputs();
+                    CharacterModel m = activeWormController.getModel();
+                    if (m != null && !m.isDead()) {
+                        m.stopHorizontalMovement();
+                    }
+                }
                 // si le nouveau worm existe et n'est pas mort alors c'est le nouveau actif
                 // => on attache le worm a la camera et a son controller
                 activeWormController = new CharacterController(worm);
@@ -712,6 +739,14 @@ public class GameManager {
             if (worm != null && !worm.isDead()) {
                 teamCursor[currentTeamIndex] = cursor; //on ecrit dans le tableau que le dernier worm jouee pour cette equipe c'est celui la 
                 this.activeWormIndex = cursor;
+
+                if (activeWormController != null) {
+                    activeWormController.releaseAllInputs();
+                    CharacterModel m = activeWormController.getModel();
+                    if (m != null && !m.isDead()) {
+                        m.stopHorizontalMovement();
+                    }
+                }
             
                 activeWormController = new CharacterController(worm);
                 activeWormController.setGameManager(this);
@@ -778,7 +813,6 @@ public class GameManager {
         if (currentTeam != null) {
             currentTeam.resetInventoryTurn();
         }
-        //freezeInputsForSeconds(3);
         // réinitialise le flag d'utilisation d'arme pour le nouveau tour
         resetWeaponUsedFlag();
         // réinitialise le compteur de gadgets utilisés
@@ -790,6 +824,11 @@ public class GameManager {
         }
         //switch worm dans cette équipe
         switchToNextWorm(currentTeam);
+        if (gameLoop != null) {
+            gameLoop.startPreRound();
+        } else {
+            setInputFrozen(true); 
+        }
         System.out.println("Round " + roundNumber + " - Equipe active :  Team " + (currentTeamIndex + 1));
         //mettre à jour l'inventaire affiché dans l'overlay
         if (inventoryOverlay != null) {
@@ -1003,8 +1042,8 @@ public class GameManager {
             return;
         }
         
-        // vérifier si on peut encore utiliser un gadget ce tour
-        if (gadgetsUsedThisTurn >= 2) {
+        // vérifier si on peut encore utiliser un gadget ce tour (utilise le compteur de l'inventaire)
+        if (inventoryOverlay != null && !inventoryOverlay.canUseAnotherGadget()) {
             System.out.println("[Gadget] Limite atteinte! Vous avez déjà utilisé 2 gadgets ce tour.");
             return;
         }
@@ -1017,126 +1056,30 @@ public class GameManager {
         int teamIndex = getCurrentTeamIndex();
         if (wormIndex >= 0 && teamIndex >= 0 && teamIndex < getListTeamInit().size()) {
             charView = getListTeamInit().get(teamIndex).getTeamView().getCharacterView(wormIndex);
-        }   
-        
-        // afficher le sprite du gadget
-        if (charView != null) {
-            charView.setCurrentGadgetSprite(itemName);
         }
         
         // trouver le gadget dans l'inventaire pour enregistrer son utilisation
         InventoryJson gadgetFromInventory = findGadgetInInventory(itemName);
         
-        switch (itemName) {
-            case "PotionHeal":
-                currentWorm.setHealth(Math.min(100, currentWorm.getHealth() + 50));
-                currentWorm.healEffect();
-                // Pas d'étiquette pour le heal
-                System.out.println("[Gadget] Potion Heal : +50 HP");
-                SoundPlayer.play("/sfx/potionheal-sound.wav");
-                gadgetsUsedThisTurn++;
-                // enregistrer l'utilisation du gadget
-                if (gadgetFromInventory != null && gadgetFromInventory.canUseThisTurn()) {
-                    gadgetFromInventory.registerUseThisTurn();
-                }
-                break;
-            case "PotionShield":
-                currentWorm.setShield(Math.min(100, currentWorm.getShield() + 25));
-                currentWorm.shieldEffect();
-                // Pas d'étiquette pour le shield
-                System.out.println("[Gadget] Potion Shield : +25 Shield");
-                SoundPlayer.play("/sfx/potionshield-sound.wav");
-                gadgetsUsedThisTurn++;
-                // enregistrer l'utilisation du gadget
-                if (gadgetFromInventory != null && gadgetFromInventory.canUseThisTurn()) {
-                    gadgetFromInventory.registerUseThisTurn();
-                }
-                break;
-            case "PotionSpeed":
-                currentWorm.applySpeedBuff(20000);
-                // ajouter l'étiquette via la vue du worm avec timer (20 secondes)
-                if (charView != null) {
-                    charView.getNameTagView().addItemFromResource("/buffs/speed_buff.png", "speed_buff_icon", 20000);
-                }
-                System.out.println("[Gadget] Potion Speed : +50% vitesse");
-                SoundPlayer.play("/sfx/potionspeed-sound.wav");
-                gadgetsUsedThisTurn++;
-                // enregistrer l'utilisation du gadget
-                if (gadgetFromInventory != null && gadgetFromInventory.canUseThisTurn()) {
-                    gadgetFromInventory.registerUseThisTurn();
-                }
-                break;
-            case "PotionJump":
-                currentWorm.applyJumpBuff(20000);
-                // ajouter l'étiquette via la vue du worm avec timer (20 secondes)
-                if (charView != null) {
-                    charView.getNameTagView().addItemFromResource("/buffs/jump_buff.png", "jump_buff_icon", 20000);
-                }
-                System.out.println("[Gadget] Potion Jump : +50% saut");
-                SoundPlayer.play("/sfx/potionjump-sound.wav");
-                gadgetsUsedThisTurn++;
-                // enregistrer l'utilisation du gadget
-                if (gadgetFromInventory != null && gadgetFromInventory.canUseThisTurn()) {
-                    gadgetFromInventory.registerUseThisTurn();
-                }
-                break;
-            case "Bumper":
-                System.out.println("[Gadget] Bumper utilisé");
-                // SoundPlayer.play("/sfx/bumper-sound.wav");
-                gadgetsUsedThisTurn++;
-                // enregistrer l'utilisation du gadget
-                if (gadgetFromInventory != null && gadgetFromInventory.canUseThisTurn()) {
-                    gadgetFromInventory.registerUseThisTurn();
-                }
-                break;
-            default:
-                System.out.println("[Gadget] Gadget inconnu : " + itemName);
-                break;
-        }
+        // utiliser le GadgetManager pour appliquer l'effet du gadget
+        fr.upc.g5e4.controller.GadgetManager.useGadget(itemName, currentWorm, charView, gadgetFromInventory);
     }
 
     /**
      * Methode pour recuperer les buff actif apres le load d'une save
-     * @param itemName
-     * @param tempsRestant
+     * @param buffType Type de buff à appliquer
+     * @param tempsRestant Temps restant du buff
+     * @param CM Le CharacterModel sur lequel appliquer le buff
      */
-    public void useGadgetDuringSave(BuffEffect.BuffType itemName,long tempsRestantL, CharacterModel cm){
-        int tempsRestant = (int) tempsRestantL;
-
-        CharacterModel currentWorm = cm;
-        
-        // récupérer la vue du worm pour ajouter l'étiquette au nametag et afficher le sprite du gadget
-        fr.upc.g5e4.view.CharacterView charView = null;
+    public void useGadgetDuringSave(BuffModel.BuffType buffType, long tempsRestant, CharacterModel CM) {
+        fr.upc.g5e4.view.CharacterView charView = null; // vue du worm actif
         int wormIndex = getActiveWormIndex();
         int teamIndex = getCurrentTeamIndex();
         if (wormIndex >= 0 && teamIndex >= 0 && teamIndex < getListTeamInit().size()) {
             charView = getListTeamInit().get(teamIndex).getTeamView().getCharacterView(wormIndex);
         }   
         
-        // afficher le sprite du gadget
-        //if (charView != null) {
-        //    charView.setCurrentGadgetSprite(itemName);
-        //}
-
-        switch (itemName) {
-            case BuffEffect.BuffType.SPEED_BOOST:
-                currentWorm.applySpeedBuff(tempsRestant);
-                // ajouter l'étiquette via la vue du worm avec timer (20 secondes)
-                if (charView != null) {
-                    charView.getNameTagView().addItemFromResource("/buffs/speed_buff.png", "speed_buff_icon", tempsRestant);
-                }
-                break;
-            case BuffEffect.BuffType.JUMP_BOOST:
-                currentWorm.applyJumpBuff(tempsRestant);
-                // ajouter l'étiquette via la vue du worm avec timer (20 secondes)
-                if (charView != null) {
-                    charView.getNameTagView().addItemFromResource("/buffs/jump_buff.png", "jump_buff_icon", tempsRestant);
-                }
-                break;
-            default:
-                System.out.println("[Gadget] Gadget inconnu : " + itemName);
-                break;
-        }
+        fr.upc.g5e4.controller.GadgetManager.applyBuffFromSave(buffType, tempsRestant, CM, charView);
     }
 
     public java.util.List<InventoryModel.InventoryJson> getCurrentTeamInventory() {
@@ -1373,16 +1316,6 @@ public class GameManager {
     public int getRemainingGadgetsThisTurn() {
         return 2 - gadgetsUsedThisTurn;
     }
-
-    //Sert a freeze le jeu pour "seconds" secondes
-    /*
-    private void freezeInputsForSeconds(int seconds) {
-        setInputFrozen(true);
-        Timer timer = new Timer(seconds * 1000, e -> {setInputFrozen(false); ((Timer) e.getSource()).stop();});
-        timer.setRepeats(false);
-        timer.start();
-    }
-     */
 
     public void setTeamKillEnabled(boolean enabled) {
         this.teamKillEnabled = enabled;

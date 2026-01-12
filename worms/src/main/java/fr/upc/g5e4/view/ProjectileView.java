@@ -1,11 +1,12 @@
 package fr.upc.g5e4.view;
 
 import java.awt.*;
-import fr.upc.g5e4.model.Projectile;
+import fr.upc.g5e4.model.ProjectileModel;
 import org.jbox2d.common.Vec2;
 
 /**
- * Classe pour dessiner les projectiles avec trajectoire mathématique (style Graphwar)
+ * Classe pour dessiner les projectiles avec trajectoire mathématique
+ * @author Billy
  */
 public class ProjectileView {
     private static final float PPM = 30f;
@@ -18,7 +19,7 @@ public class ProjectileView {
      * @param g2 Context graphique
      * @param projectile Le projectile à dessiner
      */
-    public static void drawProjectile(Graphics2D g2, Projectile projectile) {
+    public static void drawProjectile(Graphics2D g2, ProjectileModel projectile) {
         if (g2 == null || projectile == null) {
             return;
         }
@@ -51,12 +52,12 @@ public class ProjectileView {
      * @param g2 Context graphique
      * @param projectiles Liste des projectiles à dessiner
      */
-    public static void drawProjectiles(Graphics2D g2, java.util.List<Projectile> projectiles) {
+    public static void drawProjectiles(Graphics2D g2, java.util.List<ProjectileModel> projectiles) {
         if (g2 == null || projectiles == null) {
             return;
         }
         
-        for (Projectile projectile : projectiles) {
+        for (ProjectileModel projectile : projectiles) {
             drawProjectile(g2, projectile);
         }
     }

@@ -299,6 +299,12 @@ public class CharacterView {
      */
     private String getGadgetSpritePath(String gadgetName) {
         String fileName = gadgetName.toLowerCase();
+        
+        // Gestion spéciale pour le Teleporter
+        if ("teleporter".equals(fileName)) {
+            return "/gadgets/teleporter-sprite.png";
+        }
+        
         return "/gadgets/" + fileName + "-sprite.png";
     }
     

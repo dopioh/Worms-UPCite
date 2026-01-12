@@ -1,5 +1,7 @@
 package fr.upc.g5e4.controller;
 import fr.upc.g5e4.model.GameManager;
+import fr.upc.g5e4.model.CharacterModel;
+import fr.upc.g5e4.model.InventoryModel.InventoryJson;
 import fr.upc.g5e4.view.HUDOverlay;
 import fr.upc.g5e4.view.InventoryOverlay;
 import fr.upc.g5e4.view.PauseOverlay;
@@ -10,21 +12,63 @@ import fr.upc.g5e4.view.PauseOverlay;
 public class HUDOverlayController implements HUDOverlay.Listener {
 
     private final GameManager gameManager;
+    private final HUDOverlay hudView;
     private final InventoryOverlay inventoryOverlay;
     private final PauseOverlay pauseOverlay;
     private final CameraController cameraController;
 
-    public HUDOverlayController(GameManager gameManager,InventoryOverlay inventoryOverlay,PauseOverlay pauseOverlay,CameraController cameraController) {
+    public HUDOverlayController(GameManager gameManager, HUDOverlay hudView, InventoryOverlay inventoryOverlay, PauseOverlay pauseOverlay, CameraController cameraController) {
         this.gameManager = gameManager;
+        this.hudView = hudView;
         this.inventoryOverlay = inventoryOverlay;
         this.pauseOverlay = pauseOverlay;
         this.cameraController = cameraController;
     }
 
+    /**
+     * met a jour les données affichées dans le HUD
+     */
+    public void updateHUDData() {
+        if (hudView == null || gameManager == null) return;
+
+        // recuperer les données du worm actif
+        CharacterController activeWormController = gameManager.getActiveWormController();
+        if (activeWormController != null) {
+            CharacterModel worm = activeWormController.getModel();
+            if (worm != null) {
+                double hp = worm.getHealth();
+                double shield = worm.getShield();
+                hudView.updateWormData(hp, shield);
+            }
+
+            // recuperer l'arme actuelle
+            String weaponName = null;
+            if (activeWormController.getCurrentWeapon() != null) {
+                weaponName = activeWormController.getCurrentWeapon().getName();
+            }
+
+            // recuperer l'item équipé depuis l'inventaire
+            InventoryJson equippedItem = null;
+            if (inventoryOverlay != null) {
+                equippedItem = inventoryOverlay.getEquippedItem();
+            }
+
+            hudView.updateWeaponData(weaponName, equippedItem);
+        }
+    }
+
     @Override
     public void onBagClicked() {
+        if (gameManager != null && gameManager.isInputFrozen()) return;
         if (inventoryOverlay == null) return;
-        inventoryOverlay.setInventoryVisible(!inventoryOverlay.isInventoryVisible());
+        
+         boolean opening = !inventoryOverlay.isInventoryVisible();
+        if (opening) {
+            inventoryOverlay.openOnArmes();
+            inventoryOverlay.setInventoryVisible(true);
+        } else {
+            inventoryOverlay.setInventoryVisible(false);
+        }
     }
 
     @Override

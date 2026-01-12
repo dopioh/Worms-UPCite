@@ -4,6 +4,7 @@ import fr.upc.g5e4.model.Gadget;
 
 /**
  * Potion de speed : boost la vitesse de 50% pendant 20 secondes
+ * @author Billy
  */
 public class PotionSpeed extends Gadget {
 

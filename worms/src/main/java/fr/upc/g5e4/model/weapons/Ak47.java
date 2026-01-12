@@ -32,6 +32,7 @@ public class Ak47 extends Weapon{
         // Dégâts au terrain : 5 PV par bloc, blast radius de 1 bloc
         this.setTerrainDamage(5);
         this.setTerrainBlastRadius(1.0);
+        
     }
 
     @Override

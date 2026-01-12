@@ -208,6 +208,9 @@
 - DESIGN.MD
 - Système d'images en cache pour optimiser
 - Animation de marche pour les worms (rotation)
+- 2 gadgets 
+- Grisé les armes et les gadgets après maxUse
+- musiques et images des gadgets
 - **Arbres**
     - Disparition automatique des décos quand le sol en dessous est détruit
 - **Sauvegardes**
