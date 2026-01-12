@@ -54,14 +54,6 @@ class HUDOverlayTest {
     }
 
     @Test
-    void timerHiddenSetterNoCrash() {
-        HUDOverlay hud = new HUDOverlay();
-
-        assertDoesNotThrow(() -> hud.setTimerHidden(true));
-        assertDoesNotThrow(() -> hud.setTimerHidden(false));
-    }
-
-    @Test
     void triggerTurnFlashNoCrash() {
         HUDOverlay hud = new HUDOverlay();
 

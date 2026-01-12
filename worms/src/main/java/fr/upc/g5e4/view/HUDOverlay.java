@@ -69,8 +69,6 @@ public class HUDOverlay extends JComponent {
         }
     }
     
-    // --- Backpack HUD ---
-
     //Animation de changement de tour 
     private float turnFlashAlpha = 0f;   // 0 et 1 pour la luminosité
     private long turnFlashStart = 0L;
@@ -247,22 +245,20 @@ public class HUDOverlay extends JComponent {
         int timerX = hudX;
         int timerY = hudY - timerH - 10;
 
-        if (!timerHidden) {
-            float t = timerRemainingFrames / (float) timerTotalFrames;
-            t = Math.max(0f, Math.min(1f, t));
+        float t = timerRemainingFrames / (float) timerTotalFrames;
+        t = Math.max(0f, Math.min(1f, t));
 
-            g2.setColor(new Color(0, 0, 0, 140));
-            g2.fillRoundRect(timerX, timerY, timerW, timerH, 12, 12);
+        g2.setColor(new Color(0, 0, 0, 140));
+        g2.fillRoundRect(timerX, timerY, timerW, timerH, 12, 12);
 
-            g2.setColor(new Color(255, 120, 140, 220));
-            g2.fillRoundRect(timerX, timerY, (int) (timerW * t), timerH, 12, 12);
+        g2.setColor(new Color(255, 120, 140, 220));
+        g2.fillRoundRect(timerX, timerY, (int) (timerW * t), timerH, 12, 12);
 
-            // label en secondes
-            g2.setColor(Color.WHITE);
-            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 12f));
-            int secondsLeft = (int) Math.ceil(timerRemainingFrames / 60.0);
-            g2.drawString(secondsLeft + "s", timerX + timerW + 10, timerY + 12);
-        }
+        // label en secondes
+        g2.setColor(Color.WHITE);
+        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 12f));
+        int secondsLeft = (int) Math.ceil(timerRemainingFrames / 60.0);
+        g2.drawString(secondsLeft + "s", timerX + timerW + 10, timerY + 12);
 
         // Taille des fleches
         int arrowSize = 34;
@@ -605,17 +601,5 @@ public class HUDOverlay extends JComponent {
         if (rightArrowBounds != null && rightArrowBounds.contains(p)) return Hover.CAM_RIGHT;
         return Hover.NONE;
     }
-
-    private boolean timerHidden = false;
-
-    /**
-     * Cache ou affiche le timer
-     * @param hidden
-     */
-    public void setTimerHidden(boolean hidden) {
-        this.timerHidden = hidden;
-        repaint();
-    }
-
 }   
 

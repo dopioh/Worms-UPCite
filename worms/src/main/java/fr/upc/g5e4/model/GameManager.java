@@ -100,13 +100,6 @@ public class GameManager {
         return inputFrozen;
     }
 
-    /**
-     * Active ou désactive les entrées utilisateur
-     * @param frozen true pour activer,false sinon
-     */
-    public void setInputFrozen(boolean freeze) {
-        this.inputFrozen = freeze;
-    }
     
     private InventoryOverlay inventoryOverlay;
     private HUDOverlay hudOverlay;
@@ -792,7 +785,6 @@ public class GameManager {
         if (currentTeam != null) {
             currentTeam.resetInventoryTurn();
         }
-        //freezeInputsForSeconds(3);
         // réinitialise le flag d'utilisation d'arme pour le nouveau tour
         resetWeaponUsedFlag();
         // réinitialise le compteur de gadgets utilisés
@@ -1291,16 +1283,6 @@ public class GameManager {
     public int getRemainingGadgetsThisTurn() {
         return 2 - gadgetsUsedThisTurn;
     }
-
-    //Sert a freeze le jeu pour "seconds" secondes
-    /*
-    private void freezeInputsForSeconds(int seconds) {
-        setInputFrozen(true);
-        Timer timer = new Timer(seconds * 1000, e -> {setInputFrozen(false); ((Timer) e.getSource()).stop();});
-        timer.setRepeats(false);
-        timer.start();
-    }
-     */
 
     public void setTeamKillEnabled(boolean enabled) {
         this.teamKillEnabled = enabled;

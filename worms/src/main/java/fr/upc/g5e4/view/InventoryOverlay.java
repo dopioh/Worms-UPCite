@@ -310,13 +310,6 @@ public class InventoryOverlay extends JComponent {
                     x, y, 1, false, MouseEvent.BUTTON1
                 ));
             }
-            if (fireListener != null) {
-                fireListener.mousePressed(new MouseEvent(
-                    this, MouseEvent.MOUSE_PRESSED,
-                    System.currentTimeMillis(), 0,
-                    x, y, 1, false, MouseEvent.BUTTON1
-                ));
-            }
             return;
         }
         
@@ -371,6 +364,24 @@ public class InventoryOverlay extends JComponent {
             if (currentCategory == Category.BOUTIQUE) {
                 for (int i = 0; i < buyButtons.size(); i++) {
                     if (buyButtons.get(i).contains(x, y)) {
+                        ShopItem shopItem = shopItems.get(i);
+
+                        boolean isMinigame = "WORMRACE".equalsIgnoreCase(shopItem.name) || "WORMJACK".equalsIgnoreCase(shopItem.name) || "WORMGUESS".equalsIgnoreCase(shopItem.name);
+
+                        boolean isSkin = shopItem.name.startsWith("Worm") && !isMinigame;
+
+                        boolean isUnlocked = false;
+                        if (isSkin && playerDataController != null && playerDataController.getPlayerData() != null) {
+                            isUnlocked = playerDataController.getPlayerData().isSkinUnlocked(shopItem.name);
+                        }
+
+                        int currentMoney = getTeamMoney();
+                        boolean canAfford = currentMoney >= shopItem.price;
+
+                        if (isUnlocked || !canAfford) {
+                            return;
+                        }
+
                         selectedShopIndex = i;
                         if (listener != null) listener.onBuyShopItem(i);
                         return;
@@ -557,8 +568,11 @@ public class InventoryOverlay extends JComponent {
                                  !shopItem.name.equals("WORMRACE") && 
                                  !shopItem.name.equals("WORMJACK") && 
                                  !shopItem.name.equals("WORMGUESS");
-                boolean isUnlocked = isSkin && playerDataController.getPlayerData().isSkinUnlocked(shopItem.name);
-                
+                boolean isUnlocked = false;
+                if (isSkin && playerDataController != null && playerDataController.getPlayerData() != null) {
+                    isUnlocked = playerDataController.getPlayerData().isSkinUnlocked(shopItem.name);
+                }
+
                 // check si l'équipe a assez d'argent
                 int currentMoney = getTeamMoney();
                 boolean canAfford = currentMoney >= shopItem.price;
@@ -983,5 +997,16 @@ public class InventoryOverlay extends JComponent {
         this.equippedItemKey = item.name.toLowerCase();
         this.equippedItem = item;
         repaint();
+    }
+
+    /** Garde l'inventaire ouvert sur l'onglet Armes quand il est ouvert
+     * Appelée par le controller
+     */
+    public void openOnArmes() {
+        currentCategory = Category.ARMES;
+        selectedIndex = -1;
+        selectedShopIndex = -1;
+        hoveredIndex = -1;
+        hoveredTab = null;
     }
 }
