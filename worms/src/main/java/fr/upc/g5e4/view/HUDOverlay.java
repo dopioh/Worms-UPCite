@@ -6,9 +6,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
-import fr.upc.g5e4.model.GameManager;
 import fr.upc.g5e4.model.InventoryModel.InventoryJson;
-import fr.upc.g5e4.model.CharacterModel;
 import fr.upc.g5e4.controller.CameraController;
 import fr.upc.g5e4.util.ImageCache;
 
@@ -37,9 +35,14 @@ public class HUDOverlay extends JComponent {
     }
 
     private PauseOverlay pauseOverlay;
-    private final GameManager gameManager;
     private InventoryOverlay inventoryOverlay;
     private CameraController cameraController;
+
+    // Données d'affichage 
+    private double currentHP = 0;
+    private double currentShield = 0;
+    private String currentWeaponName = null;
+    private InventoryJson currentEquippedItem = null;
 
     // Weapon HUD 
     private final java.util.Map<String, BufferedImage> weaponImages = new java.util.HashMap<>();
@@ -53,6 +56,8 @@ public class HUDOverlay extends JComponent {
         loadImage("PotionJump", "/gadgets/potion_jump.png");
         loadImage("PotionHeal", "/gadgets/potion_heal.png");
         loadImage("PotionShield", "/gadgets/potion_shield.png");
+        loadImage("teleporter", "/gadgets/teleporter-sprite.png");
+        loadImage("drill", "/gadgets/drill-sprite.png");
     }
 
     private void loadImage(String name, String path) {
@@ -63,7 +68,7 @@ public class HUDOverlay extends JComponent {
             System.err.println("[HUD] image arme introuvable: " + path);
         }
     }
-
+    
     //Animation de changement de tour 
     private float turnFlashAlpha = 0f;   // 0 et 1 pour la luminosité
     private long turnFlashStart = 0L;
@@ -150,9 +155,8 @@ public class HUDOverlay extends JComponent {
     private static final int HUD_W = 520;
     private static final int HUD_H = 95;
 
-    /** Constructeur initialisant l'overlay HUD sur le gameManager gm*/
-    public HUDOverlay(GameManager gm) {
-        this.gameManager = gm;
+    /** Constructeur initialisant l'overlay HUD */
+    public HUDOverlay() {
         setOpaque(false);
 
         loadBackpack();
@@ -241,22 +245,29 @@ public class HUDOverlay extends JComponent {
         int timerX = hudX;
         int timerY = hudY - timerH - 10;
 
-        if (!timerHidden) {
-            float t = timerRemainingFrames / (float) timerTotalFrames;
-            t = Math.max(0f, Math.min(1f, t));
+        boolean showPre = preRoundActive;
 
-            g2.setColor(new Color(0, 0, 0, 140));
-            g2.fillRoundRect(timerX, timerY, timerW, timerH, 12, 12);
-
-            g2.setColor(new Color(255, 120, 140, 220));
-            g2.fillRoundRect(timerX, timerY, (int) (timerW * t), timerH, 12, 12);
-
-            // label en secondes
-            g2.setColor(Color.WHITE);
-            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 12f));
-            int secondsLeft = (int) Math.ceil(timerRemainingFrames / 60.0);
-            g2.drawString(secondsLeft + "s", timerX + timerW + 10, timerY + 12);
+        float t;
+        if (showPre) {
+            // barre bleue 
+            t = 1f - (preRoundRemainingFrames / (float) preRoundTotalFrames);
+        } else {
+            // barre orange
+            t = timerRemainingFrames / (float) timerTotalFrames;
         }
+        t = Math.max(0f, Math.min(1f, t));
+
+        g2.setColor(new Color(0, 0, 0, 140));
+        g2.fillRoundRect(timerX, timerY, timerW, timerH, 12, 12);
+
+        g2.setColor(showPre ? new Color(120, 170, 255, 220): new Color(255, 120, 140, 220));
+        g2.fillRoundRect(timerX, timerY, (int) (timerW * t), timerH, 12, 12);
+
+        // label en secondes
+        g2.setColor(Color.WHITE);
+        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 12f));
+        int secondsLeft = showPre? (int) Math.ceil(preRoundRemainingFrames / 60.0): (int) Math.ceil(timerRemainingFrames / 60.0);
+        g2.drawString(showPre?secondsLeft + "":secondsLeft + "s", timerX + timerW + 10, timerY + 12);
 
         // Taille des fleches
         int arrowSize = 34;
@@ -297,32 +308,31 @@ public class HUDOverlay extends JComponent {
             g2.drawImage(fRightIcon, rightX + 6, arrowY + 6, arrowSize - 12, arrowSize - 12, null);
         }
 
-        // Fond HUD
+        //message arme verrouillée
+        InventoryJson equippedItem = (inventoryOverlay != null) ? inventoryOverlay.getEquippedItem() : null;
+        if (equippedItem != null && equippedItem.useThisTurn > 0 && "ARMES".equalsIgnoreCase(equippedItem.objectType)) {
+            g2.setColor(new Color(255, 50, 50));  // Red warning color
+            g2.setFont(g2.getFont().deriveFont(java.awt.Font.BOLD, 18f));
+            String warningText = "Arme verrouillée!";
+            java.awt.FontMetrics fm = g2.getFontMetrics();
+            int textW = fm.stringWidth(warningText);
+            g2.drawString(warningText, (w - textW) / 2, hudY - 20);
+        }
+        //Fond HUD
+       g2.setColor(new Color(255,255,255,235));
+        g2.fillRoundRect(hudX, hudY, HUD_W, HUD_H, 18, 18);
+        g2.setColor(new Color(0,0,0,120));
+        g2.drawRoundRect(hudX, hudY, HUD_W, HUD_H, 18, 18); 
         g2.setColor(new Color(0, 0, 0, 70));
         g2.fillRoundRect(hudX + 3, hudY + 4, HUD_W, HUD_H, 18, 18);
-
         g2.setColor(new Color(20, 20, 20, 150));
         g2.fillRoundRect(hudX, hudY, HUD_W, HUD_H, 18, 18);
 
-        g2.setColor(new Color(255, 255, 255, 55));
-        g2.drawRoundRect(hudX, hudY, HUD_W, HUD_H, 18, 18);
-
         //PV et Shield
-        double hp = 0;
-        double shield = 0;
+        double hp = currentHP;
+        double shield = currentShield;
         double hpMax = 100;
         double shieldMax = 100;
-
-        CharacterModel worm = null;
-        if (gameManager != null && gameManager.getActiveWormController() != null) {
-            worm = gameManager.getActiveWormController().getModel();
-        }
-        if (worm != null) {
-            try {
-                hp = worm.getHealth();
-                shield = worm.getShield();
-            } catch (Exception ignored) {}
-        }
 
         // Barre de PV et Shield
         int barX = hudX + 25;
@@ -346,14 +356,11 @@ public class HUDOverlay extends JComponent {
         g2.setColor(new Color(0, 0, 0, 90));
         g2.drawRoundRect(weaponBoxX, weaponBoxY, weaponBoxW, weaponBoxH, 14, 14);
 
-        String weaponName = null;
-        InventoryJson eq = (inventoryOverlay != null) ? inventoryOverlay.getEquippedItem() : null;
+        String weaponName = currentWeaponName;
+        InventoryJson eq = currentEquippedItem;
 
         if (eq != null) {
             weaponName = eq.name;
-        } else if (gameManager != null && gameManager.getActiveWormController() != null
-                && gameManager.getActiveWormController().getCurrentWeapon() != null) {
-            weaponName = gameManager.getActiveWormController().getCurrentWeapon().getName();
         }
 
         if (weaponName != null) {
@@ -375,7 +382,10 @@ public class HUDOverlay extends JComponent {
             String ammoText;
             if (eq == null) {
                 ammoText = "--";
-            } else if (eq.isInfinite || eq.remainingUses == null) {
+            } else if (eq.isInfinite) {
+                //On peut utiliser une arme infiniment mais limitité par tour
+                ammoText = eq.getRemainingUseThisTurn() + "/" + eq.maxUsages + " (∞)";
+            } else if (eq.remainingUses == null) {
                 ammoText = "∞";
             } else {
                 ammoText = String.valueOf(eq.getRemainingUseThisTurn() +"/"+ eq.maxUsages+ " Max:"+eq.remainingUses);
@@ -554,6 +564,24 @@ public class HUDOverlay extends JComponent {
     }
 
     /**
+     * met a jour les données d'affichage du worm actif
+     */
+    public void updateWormData(double hp, double shield) {
+        this.currentHP = hp;
+        this.currentShield = shield;
+        repaint();
+    }
+
+    /**
+     * met a jour l'arme actuellement équipée
+     */
+    public void updateWeaponData(String weaponName, InventoryJson equippedItem) {
+        this.currentWeaponName = weaponName;
+        this.currentEquippedItem = equippedItem;
+        repaint();
+    }
+
+    /**
      * Empêche les clics lorsque le bouton n'est pas affiché
      * @param x,y coordonnées du clic
      * @return true si le clic est dans l'overlay visible, false sinon
@@ -583,14 +611,19 @@ public class HUDOverlay extends JComponent {
         return Hover.NONE;
     }
 
-    private boolean timerHidden = false;
+    private boolean preRoundActive = false;
+    private int preRoundRemainingFrames = 0;
+    private int preRoundTotalFrames = 1;
 
-    /**
-     * Cache ou affiche le timer
-     * @param hidden
-     */
-    public void setTimerHidden(boolean hidden) {
-        this.timerHidden = hidden;
+    public void setPreRoundFrames(int remaining, int total) {
+        this.preRoundActive = true;
+        this.preRoundRemainingFrames = Math.max(0, remaining);
+        this.preRoundTotalFrames = Math.max(1, total);
+        repaint();
+    }
+
+    public void clearPreRound() {
+        this.preRoundActive = false;
         repaint();
     }
 

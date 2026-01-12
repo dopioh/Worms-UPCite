@@ -2,8 +2,9 @@ package fr.upc.g5e4.model;
 
 /**
  * permet de gérer les PV de chaque bloc du terrain
+ * @author Billy
  */
-public class BlockHealthGrid {
+public class BlockHealthGridModel {
     private final int[][] health;  // grille de santé parallèle à la grille de blocs
     private final int gridWidth;
     private final int gridHeight;
@@ -13,7 +14,7 @@ public class BlockHealthGrid {
      * @param gridWidth largeur de la grille en nombre de blocs
      * @param gridHeight hauteur de la grille en nombre de blocs
      */
-    public BlockHealthGrid(int gridWidth, int gridHeight) {
+    public BlockHealthGridModel(int gridWidth, int gridHeight) {
         this.gridWidth = gridWidth;
         this.gridHeight = gridHeight;
         this.health = new int[gridWidth][gridHeight];
@@ -27,9 +28,9 @@ public class BlockHealthGrid {
         for (int x = 0; x < gridWidth; x++) {
             for (int y = 0; y < gridHeight; y++) {
                 if (blockGrid[x][y] != null) {
-                    health[x][y] = blockGrid[x][y].getMaxHealth();
+                    health[x][y] = blockGrid[x][y].getMaxHealth(); // PV max du type de bloc
                 } else {
-                    health[x][y] = 0;
+                    health[x][y] = 0; // pas de bloc = 0 PV
                 }
             }
         }
@@ -45,7 +46,7 @@ public class BlockHealthGrid {
         if (gridX < 0 || gridX >= gridWidth || gridY < 0 || gridY >= gridHeight) {
             return 0;
         }
-        return Math.max(0, health[gridX][gridY]);  // Clamp à 0 minimum
+        return Math.max(0, health[gridX][gridY]);  // encadrer à 0 minimum
     }
     
     /**
@@ -56,7 +57,7 @@ public class BlockHealthGrid {
      */
     public void setHealth(int gridX, int gridY, int newHealth) {
         if (gridX >= 0 && gridX < gridWidth && gridY >= 0 && gridY < gridHeight) {
-            health[gridX][gridY] = Math.max(0, newHealth);
+            health[gridX][gridY] = Math.max(0, newHealth); // encadrer à 0 minimum
         }
     }
     
@@ -70,7 +71,7 @@ public class BlockHealthGrid {
     public boolean takeDamage(int gridX, int gridY, int damage) {
         if (gridX >= 0 && gridX < gridWidth && gridY >= 0 && gridY < gridHeight) {
             health[gridX][gridY] -= damage;
-            return health[gridX][gridY] <= 0;
+            return health[gridX][gridY] <= 0; // true si détruit
         }
         return false;
     }
@@ -85,7 +86,7 @@ public class BlockHealthGrid {
     public double getHealthPercent(int gridX, int gridY, int maxHealth) {
         if (maxHealth == 0) return 0.0;
         int currentHealth = getHealth(gridX, gridY);
-        return Math.max(0.0, Math.min(1.0, (double) currentHealth / maxHealth));
+        return Math.max(0.0, Math.min(1.0, (double) currentHealth / maxHealth)); // encadrer entre 0.0 et 1.0
     }
     
     /**

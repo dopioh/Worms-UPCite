@@ -33,7 +33,10 @@ public class InventoryOverlayController implements InventoryOverlay.Listener {
 
     @Override
     public void onFireReleasedOutside(int x, int y) {
-        if (inputController != null) inputController.fireWeaponAtAngle(x, y);
+        if (inputController != null){
+            inputController.updateTrajectoryFromMouse(x, y);
+            inputController.fireWeaponAtAngle(x, y);
+        }
     }
 
     @Override
@@ -89,7 +92,6 @@ public class InventoryOverlayController implements InventoryOverlay.Listener {
 
         InventoryOverlay.ShopItem shopItem = items.get(shopIndex);
         if (gameManager == null || gameManager.getCurrentTeam() == null) {
-            System.err.println("Erreur: pas d'équipe active");
             return;
         }
 
@@ -97,30 +99,11 @@ public class InventoryOverlayController implements InventoryOverlay.Listener {
 
         boolean isSkin = shopItem.name.startsWith("Worm") && !isMinigame;
 
-        if (isSkin) {
-            if (playerDataController == null || playerDataController.getPlayerData() == null) {
-                // V1 n'avait pas ce cas explicite, on ne fait rien de plus.
-            } else {
-                if (playerDataController.getPlayerData().isSkinUnlocked(shopItem.name)) {
-                    System.out.println("Skin déjà débloqué: " + shopItem.name);
-                    return;
-                }
-            }
-        }
-
-        int currentMoney = gameManager.getCurrentTeam().getMoney();
-
-        if (currentMoney < shopItem.price) {
-            System.out.println("Pas assez d'argent pour acheter " + shopItem.name);
-            return;
-        }
-
         gameManager.getCurrentTeam().removeMoney(shopItem.price);
 
         if (isSkin) {
             if (playerDataController != null && playerDataController.getPlayerData() != null) {
                 playerDataController.getPlayerData().unlockSkin(shopItem.name);
-                System.out.println("Skin débloqué: " + shopItem.name);
             }
         } else if (!shopItem.name.startsWith("WORM")) {
             addItemToTeamInventory(shopItem);
@@ -133,29 +116,26 @@ public class InventoryOverlayController implements InventoryOverlay.Listener {
         System.out.println("Achat réussi: " + shopItem.name + " pour " + shopItem.price + "$");
 
         if ("WORMRACE".equalsIgnoreCase(shopItem.name)) {
-            System.out.println("Déclenchement de WORMRACE");
             if (wormRaceController != null) {
                 wormRaceController.showGame();
             } else {
-                System.err.println("ERREUR: wormRaceController est null!");
+                System.err.println("ERREUR: wormRaceController est null");
             }
         }
 
         if ("WORMGUESS".equalsIgnoreCase(shopItem.name)) {
-            System.out.println("Déclenchement de WORMGUESS");
             if (wormGuessController != null) {
                 wormGuessController.showGame();
             } else {
-                System.err.println("ERREUR: wormGuessController est null!");
+                System.err.println("ERREUR: wormGuessController est null");
             }
         }
 
         if ("WORMJACK".equalsIgnoreCase(shopItem.name)) {
-            System.out.println("Déclenchement de WORMJACK");
             if (wormJackController != null) {
                 wormJackController.showGame();
             } else {
-                System.err.println("ERREUR: wormJackController est null!");
+                System.err.println("ERREUR: wormJackController est null");
             }
         }
 

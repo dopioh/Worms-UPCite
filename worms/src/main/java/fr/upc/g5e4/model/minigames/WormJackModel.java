@@ -244,6 +244,7 @@ public class WormJackModel {
     // Termine le tour du wormbot et finit la partie
     public void finishWormbotTurn() {
         gameFinished = true;
+        handleGameEnd();
         if (view != null) {
             view.repaint();
         }

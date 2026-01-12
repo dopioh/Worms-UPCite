@@ -101,10 +101,7 @@ public class SettingsController {
         view.getBtnSound().addActionListener(e -> {
             boolean newMuted = !SoundPlayer.isMuted();
             SoundPlayer.setMuted(newMuted);
-            boolean enabled = !newMuted;
-            view.setSoundButtonState(enabled);
-            PauseOverlay po = gameLauncher.getPauseOverlay();
-            if (po != null) po.setSoundOn(enabled);
+            view.setSoundButtonState(!newMuted);
         });
 
         view.getBtnResetSave().addActionListener(e -> {

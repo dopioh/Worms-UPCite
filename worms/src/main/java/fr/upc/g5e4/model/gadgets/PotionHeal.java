@@ -4,6 +4,7 @@ import fr.upc.g5e4.model.Gadget;
 
 /**
  * Potion de guérison : restaure 50 HP au worm
+ * @author Billy
  */
 public class PotionHeal extends Gadget {
 

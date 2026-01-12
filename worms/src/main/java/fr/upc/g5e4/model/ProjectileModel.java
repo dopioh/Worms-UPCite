@@ -5,8 +5,9 @@ import fr.upc.g5e4.model.trajectories.NoDropTrajectory;
 
 /**
  * Classe représentant un projectile avec une trajectoire courbe mathématique
+ * @author Billy
  */
-public class Projectile {
+public class ProjectileModel {
     private Weapon sourceWeapon;
     private CharacterModel shooter;
     private Vec2 startPosition;
@@ -25,7 +26,7 @@ public class Projectile {
      * @param speed vitesse (utilisée pour calculer la durée du trajet)
      * @param shootingAngle Angle de tir 
      */
-    public Projectile(Weapon weapon, CharacterModel shooter, Vec2 position,
+    public ProjectileModel(Weapon weapon, CharacterModel shooter, Vec2 position,
                              double range, double speed, double shootingAngle) {
         this.sourceWeapon = weapon;
         this.shooter = shooter;
@@ -120,7 +121,7 @@ public class Projectile {
             return true; // Par défaut, arrête à la portée
         }
         
-        TrajectoryInterface trajectory = sourceWeapon.getTrajectoryCalculator();
+        TrajectoryModel trajectory = sourceWeapon.getTrajectoryCalculator();
         if (trajectory == null) {
             return true; // Par défaut, arrête à la portée
         }

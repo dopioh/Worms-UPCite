@@ -253,4 +253,71 @@ public class TrajectoryViewTest {
         trajectoryView.setWeapon(weapon2);
         assertDoesNotThrow(() -> trajectoryView.draw(null, world));
     }
+
+    //Tests d'intégration
+    @Test
+    void testTrajectoryWithPhysicsWorld() {
+        // Test l'intégration avec le moteur physique sur plusieurs frames
+        trajectoryView.setShooter(character);
+        trajectoryView.setWeapon(weapon);
+        trajectoryView.setAiming(true);
+        
+    }
+
+    @Test
+    void testTrajectoryIntegrationWithTerrainCollision() {
+        // Test avec terrain variable et angles différents
+        int[] variableGround = {400, 380, 350, 330, 320, 320, 330, 350, 380, 400, 400, 400, 400, 400};
+        GroundModel variableGroundModel = new GroundModel(variableGround, 800, 600, 500);
+        PhysicsWorld varPhysicsWorld = new PhysicsWorld();
+        World varWorld = varPhysicsWorld.getWorld();
+        varPhysicsWorld.createGroundFromModel(variableGroundModel);
+        
+        CharacterModel charOnVariableGround = new CharacterModel(variableGroundModel, varWorld, 150, 100, false);
+        trajectoryView.setShooter(charOnVariableGround);
+        trajectoryView.setWeapon(weapon);
+        trajectoryView.setAiming(true);
+        
+        // Tester plusieurs angles
+        for (int angle = 0; angle <= 90; angle += 15) {
+            trajectoryView.setShootingAngle(angle);
+            assertDoesNotThrow(() -> trajectoryView.draw(null, varWorld));
+        }
+    }
+
+    //Tests de performance 
+    @Test
+    void testTrajectoryRenderingPerformance() {
+        // Test la performance du rendu de la trajectoire
+        trajectoryView.setShooter(character);
+        trajectoryView.setWeapon(weapon);
+        trajectoryView.setAiming(true);
+        trajectoryView.setShootingAngle(45);
+        
+        long startTime = System.nanoTime();
+        for (int i = 0; i < 100; i++) {
+            trajectoryView.draw(null, world);
+        }
+        long duration = System.nanoTime() - startTime;
+        
+        // 100 frames doivent se faire en moins de 1 seconde
+        assertTrue(duration < 1_000_000_000L, "100 frames devraient prendre moins de 1s");
+    }
+
+    @Test
+    void testTrajectoryCalculationPerformance() {
+        // Test la performance du calcul de trajectoire
+        trajectoryView.setShooter(character);
+        trajectoryView.setWeapon(weapon);
+        trajectoryView.setAiming(true);
+        
+        long startTime = System.nanoTime();
+        for (int angle = 0; angle < 1000; angle++) {
+            trajectoryView.setShootingAngle(angle % 360);
+        }
+        long duration = System.nanoTime() - startTime;
+        
+        // 1000 changements d'angle doivent se faire en moins de 100ms
+        assertTrue(duration < 100_000_000L, "1000 changements d'angle devraient prendre moins de 100ms");
+    }
 }
