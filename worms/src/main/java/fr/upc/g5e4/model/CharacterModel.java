@@ -530,6 +530,7 @@ public class CharacterModel{
         }
 
         Body bWorm = world.createBody(bdWorm);
+        bWorm.setLinearDamping(0.7f);
         bWorm.createFixture(fixtureWorm);
 
         return bWorm;

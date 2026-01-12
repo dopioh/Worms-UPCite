@@ -102,6 +102,16 @@ public class GameManager {
 
     public void setInputFrozen(boolean frozen) {
         this.inputFrozen = frozen;
+        if (frozen) {
+            if (activeWormController != null) {
+                activeWormController.releaseAllInputs();
+                CharacterModel m = activeWormController.getModel();
+                if (m != null && !m.isDead()) {
+                    m.stopHorizontalMovement();
+                }
+            }
+        }
+
     }
     
     private InventoryOverlay inventoryOverlay;
@@ -666,6 +676,13 @@ public class GameManager {
             CharacterModel worm = currentTeamModel.getWorm(teamCursor[currentTeamIndex]);
             
             if (worm != null && !worm.isDead()) {
+                if(activeWormController != null) {
+                    activeWormController.releaseAllInputs();
+                    CharacterModel m = activeWormController.getModel();
+                    if (m != null && !m.isDead()) {
+                        m.stopHorizontalMovement();
+                    }
+                }
                 // si le nouveau worm existe et n'est pas mort alors c'est le nouveau actif
                 // => on attache le worm a la camera et a son controller
                 activeWormController = new CharacterController(worm);
@@ -722,6 +739,14 @@ public class GameManager {
             if (worm != null && !worm.isDead()) {
                 teamCursor[currentTeamIndex] = cursor; //on ecrit dans le tableau que le dernier worm jouee pour cette equipe c'est celui la 
                 this.activeWormIndex = cursor;
+
+                if (activeWormController != null) {
+                    activeWormController.releaseAllInputs();
+                    CharacterModel m = activeWormController.getModel();
+                    if (m != null && !m.isDead()) {
+                        m.stopHorizontalMovement();
+                    }
+                }
             
                 activeWormController = new CharacterController(worm);
                 activeWormController.setGameManager(this);
