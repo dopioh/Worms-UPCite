@@ -120,6 +120,7 @@ Le rapport sera disponible dans `target/site/jacoco/index.html`
 Voir [ARCHITECTURE.md](worms/ARCHITECTURE.md) pour la structure complète
 
 ## Documentation
+Projet universitaire réalisé en L2 Informatique (2025-2026) dans le cadre des modules Programmation Orientée Objet (POO) et Conduite de Projet (CDP) - Université Paris Cité.
 
 - [DESIGN.md](DESIGN.md) : Décisions de conception
 - [CHANGELOG.md](CHANGELOG.md) : Historique des modifications
